@@ -1,6 +1,6 @@
 ---
 layout: home
-title: Home
+title: Portfolio
 landing-title: 'Hi, I am Yubin'
 description: null
 image: null

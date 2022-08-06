@@ -109,7 +109,7 @@
 
 			&:nth-child(6n - 5) {
 				&:before {
-					background-color: _palette(accent1);
+					background-color: _palette(accent2);
 				}
 			}
 
@@ -121,7 +121,7 @@
 
 			&:nth-child(6n - 3) {
 				&:before {
-					background-color: _palette(accent3);
+					background-color: _palette(accent2);
 				}
 			}
 

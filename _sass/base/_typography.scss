@@ -7,6 +7,7 @@
 /* Type */
 
 	body, input, select, textarea {
+		// 전체 텍스트 색깔 결정
 		color: _palette(fg);
 		font-family: _font(family);
 		font-size: 17pt;

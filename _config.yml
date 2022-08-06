@@ -1,15 +1,15 @@
 # site settings
-title: Forty
+title: ybkim95
 subtitle: by HTML5 UP
-email: youremailaddress@gmail.com
+email: ybkim95.ai.@gmail.com
 description: A responsive site template designed by HTML5 Up<br /> and released under the Creative Commons.
 baseurl: "/forty-jekyll-theme" # the subpath of your site, e.g. /blog
-url: # the base hostname & protocol for your site
-author:
-street_address: 1234 Somewhere Road
-city: Nashville
-state: TN
-zip_code: 55555
+url: https://ybkim95.github.io/ # the base hostname & protocol for your site
+author: Yubin Kim
+street_address: 143 Albany St
+city: Cambridge
+state: MA
+zip_code: 02139
 country: United States of America
 phone: (716) 555-5555
 

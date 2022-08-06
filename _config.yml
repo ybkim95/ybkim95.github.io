@@ -3,7 +3,7 @@ title: ybkim95
 subtitle: 
 email: ybkim95.ai.@gmail.com
 description: I am currently a visiting student at Personal Robots Group at MIT Media Lab. My research interests lie in the area of personalized human-robot interaction for elders and children, multi-person dialogue system and reinforcement learning. I love to solve practical problems that happens in our daily lives and develop robots for that purposes.
-baseurl: "/forty-jekyll-theme" # the subpath of your site, e.g. /blog
+baseurl: "" # the subpath of your site, e.g. /blog
 url: https://ybkim95.github.io/ # the base hostname & protocol for your site
 author: Yubin Kim
 street_address: 143 Albany St

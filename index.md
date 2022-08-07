@@ -3,7 +3,7 @@ layout: home
 title: Portfolio
 landing-title: 'Hi, I am Yubin'
 description: null
-image: null
+image: /assets/images/ybk_logo.png
 author: null
 show_tile: false
 ---

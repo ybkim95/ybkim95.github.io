@@ -1,15 +1,3 @@
-<!-- Wrapper -->
-<div id="wrapper">
-
-<!-- Header -->
-<header id="header"{% if page.layout == "landing" %} class="alt style2"{% endif %}{% if page.layout == "home" %} class="alt"{% endif %}>
-	<a href="{{ "" | absolute_url }}/" class="logo"><strong>{{ site.title }}</strong> <span>{{ site.subtitle }}</span></a>
-	<nav>
-		<a href="#menu">Menu</a>
-	</nav>
-</header>
-
-<!-- Menu -->
 <nav id="menu">
 	<ul class="links">
         {% for page in site.pages %}
@@ -28,3 +16,4 @@
 		<li><a href="#" class="button fit">Log In</a></li>
 	</ul>
 </nav>
+

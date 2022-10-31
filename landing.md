@@ -3,86 +3,82 @@ title: Work
 layout: landing
 # description: 'Lorem ipsum dolor sit amet nullam consequa<br />sed veroeros. tempus adipiscing nulla.'
 image: assets/images/jibo-child.png
-nav-menu: true
+# nav-menu: true
 ---
 
 <!-- Main -->
 <div id="main">
-
-<!-- One -->
-<section id="one">
-	<div class="inner">
-		<header class="major">
-			<h2>Sed amet aliquam</h2>
-		</header>
-		<p>Nullam et orci eu lorem consequat tincidunt vivamus et sagittis magna sed nunc rhoncus condimentum sem. In efficitur ligula tate urna. Maecenas massa vel lacinia pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis libero. Nullam et orci eu lorem consequat tincidunt vivamus et sagittis magna sed nunc rhoncus condimentum sem. In efficitur ligula tate urna.</p>
-	</div>
-</section>
-
-<!-- Two -->
-<section id="two" class="spotlights">
-	<section>
-		<a href="generic.html" class="image">
-			<img src="{% link assets/images/pic08.jpg %}" alt="" data-position="center center" />
-		</a>
-		<div class="content">
-			<div class="inner">
-				<header class="major">
-					<h3>Orci maecenas</h3>
-				</header>
-				<p>Nullam et orci eu lorem consequat tincidunt vivamus et sagittis magna sed nunc rhoncus condimentum sem. In efficitur ligula tate urna. Maecenas massa sed magna lacinia magna pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis tempus.</p>
-				<ul class="actions">
-					<li><a href="generic.html" class="button">Learn more</a></li>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/assets/css/gallery.css">
+    <title>Work</title>
+</head>
+<body>
+	<nav>
+		<div class="row">
+			<div class="col-md-9">
+				<ul>
+					<li><a href="../">HOME</a></li>
 				</ul>
 			</div>
 		</div>
-	</section>
-	<section>
-		<a href="generic.html" class="image">
-			<img src="{% link assets/images/pic09.jpg %}" alt="" data-position="top center" />
-		</a>
-		<div class="content">
-			<div class="inner">
-				<header class="major">
-					<h3>Rhoncus magna</h3>
-				</header>
-				<p>Nullam et orci eu lorem consequat tincidunt vivamus et sagittis magna sed nunc rhoncus condimentum sem. In efficitur ligula tate urna. Maecenas massa sed magna lacinia magna pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis tempus.</p>
-				<ul class="actions">
-					<li><a href="generic.html" class="button">Learn more</a></li>
-				</ul>
-			</div>
-		</div>
-	</section>
-	<section>
-		<a href="generic.html" class="image">
-			<img src="{% link assets/images/pic10.jpg %}" alt="" data-position="25% 25%" />
-		</a>
-		<div class="content">
-			<div class="inner">
-				<header class="major">
-					<h3>Sed nunc ligula</h3>
-				</header>
-				<p>Nullam et orci eu lorem consequat tincidunt vivamus et sagittis magna sed nunc rhoncus condimentum sem. In efficitur ligula tate urna. Maecenas massa sed magna lacinia magna pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis tempus.</p>
-				<ul class="actions">
-					<li><a href="generic.html" class="button">Learn more</a></li>
-				</ul>
-			</div>
-		</div>
-	</section>
-</section>
-
-<!-- Three -->
-<section id="three">
-	<div class="inner">
-		<header class="major">
-			<h2>Massa libero</h2>
-		</header>
-		<p>Nullam et orci eu lorem consequat tincidunt vivamus et sagittis libero. Mauris aliquet magna magna sed nunc rhoncus pharetra. Pellentesque condimentum sem. In efficitur ligula tate urna. Maecenas laoreet massa vel lacinia pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis libero. Mauris aliquet magna magna sed nunc rhoncus amet pharetra et feugiat tempus.</p>
-		<ul class="actions">
-			<li><a href="generic.html" class="button next">Get Started</a></li>
-		</ul>
-	</div>
-</section>
-
+	</nav>
+    <section class="portfolio" id="Portfolio">
+        <div class="container">
+            <div class="row">
+                <div class="section-title text-center">
+                    <h1>Work</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="filter-buttons">
+                    <ul id="filter-btns">
+                        <li class="active" data-target="all">ALL</li>
+                        <li data-target="Branding">ROBOTS</li>
+                        <li data-target="Photoshop">RL</li>
+                        <li data-target="Fashion">SOCIAL</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class="portfolio-gallery">
+                    <div class="item" data-id="Branding">
+                        <div class="inner">
+                            <img src="portfolio/1.jpg" alt="portfolio">
+                        </div>
+                    </div>
+                    <div class="item" data-id="Photoshop">
+                        <div class="inner">
+                            <img src="portfolio/2.jpg" alt="portfolio">
+                        </div>
+                    </div>
+                    <div class="item" data-id="Fashion">
+                        <div class="inner">
+                            <img src="portfolio/3.jpg" alt="portfolio">
+                        </div>
+                    </div>
+                    <div class="item" data-id="Fashion">
+                        <div class="inner">
+                            <img src="portfolio/4.jpg" alt="portfolio">
+                        </div>
+                    </div>
+                    <div class="item" data-id="Branding">
+                        <div class="inner">
+                            <img src="portfolio/5.jpg" alt="portfolio">
+                        </div>
+                    </div>
+                    <div class="item" data-id="Photoshop">
+                        <div class="inner">
+                            <img src="portfolio/6.jpg" alt="portfolio">  
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script src="/assets/js/gallery.js"></script>
+	</body>
 </div>
 

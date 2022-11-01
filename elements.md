@@ -32,10 +32,19 @@ image: assets/images/cafe.png
         <link href="/assets/css/main.css" rel="stylesheet">
         <script src="/assets/js/Country.js"></script>
         <script src="/assets/js/CovidCountryData.js"></script>        
+        <link rel="stylesheet" href="/assets/css/gallery.css">
     </head>
-    <body>        
+    <body> 
+        <nav>
+            <div class="row">
+                <div class="col-md-9">
+                    <ul>
+                        <li><a href="../">HOME</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>       
         <canvas id="mainCanvas"></canvas>
-        
         <div class="overlay bottomGUI">
             <div class="country_name"></div>
             <div class="total_confirmed"></div>

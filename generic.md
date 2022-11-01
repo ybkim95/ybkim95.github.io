@@ -25,7 +25,4 @@ image: assets/images/ice_hockey.png
 			</div>
 		</div>
 	</nav>
-
-    
-
 </body>

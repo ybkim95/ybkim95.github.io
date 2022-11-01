@@ -46,32 +46,32 @@ image: assets/images/jibo-child.png
                 <div class="portfolio-gallery">
                     <div class="item" data-id="Branding">
                         <div class="inner">
-                            <img src="portfolio/1.jpg" alt="portfolio">
+                            <img src="/assets/images/jibo-medication.png" alt="medication">
                         </div>
                     </div>
                     <div class="item" data-id="Photoshop">
                         <div class="inner">
-                            <img src="portfolio/2.jpg" alt="portfolio">
+                            <img src="/assets/images/jibo-work2.jpeg" alt="parent-child">
                         </div>
                     </div>
                     <div class="item" data-id="Fashion">
                         <div class="inner">
-                            <img src="portfolio/3.jpg" alt="portfolio">
+                            <img src="/assets/images/dori.png" alt="tdrc">
                         </div>
                     </div>
                     <div class="item" data-id="Fashion">
                         <div class="inner">
-                            <img src="portfolio/4.jpg" alt="portfolio">
+                            <img src="/assets/images/icra.jpeg" alt="icra">
                         </div>
                     </div>
                     <div class="item" data-id="Branding">
                         <div class="inner">
-                            <img src="portfolio/5.jpg" alt="portfolio">
+                            <img src="/assets/images/bear.jpeg" alt="portfolio">
                         </div>
                     </div>
                     <div class="item" data-id="Photoshop">
                         <div class="inner">
-                            <img src="portfolio/6.jpg" alt="portfolio">  
+                            <img src="/assets/images/minerl.jpeg" alt="portfolio">  
                         </div>
                     </div>
                 </div>

@@ -12,246 +12,458 @@ image: assets/images/cafe.png
 <section id="one">
 	<div class="inner">
 		<header class="major">
-			<h1>Journey</h1>
-			<style>
-				nav {
-					height: 10%;
-					line-height: 70px;
-					position: absolute;
-					right: 11%;
-					top: 3%;
-					/* border: 1px  solid green; */
-					}
-				nav ul {
-					list-style: none;
-					width: 100%;
-					/* border: 1px solid red; */
-					text-align: right;
-				}
-				nav ul li {
-					display: inline-block;
-					font-size: 100%;
-					margin-right: 0;
-					margin-top: 0;
-					/* border : 1px solid yellow; */
-				}
-				div.circletag {
-					display: block;
-					width: 10%;
-					height: 10%;
-					background: #E6E7ED;
-					text-align: center;
-					align-content: center;
-					align-items: center;
-					border-radius: 50%;
-					-moz-border-radius: 50%;
-					-webkit-border-radius: 50%;
-				}
-				div.circletag>img {
-					max-height: 100%;
-					max-width: 100%;
-				}  
-			</style>
 		</header>
-		<nav>
-			<div class="row">
-				<div class="col-md-9">
-					<ul>
-						<li><a href="../">HOME</a></li>
-					</ul>
-				</div>
-			</div>
-		</nav>
 <html>
-<head>
-    <title>How To Create a Vertical Timeline Using HTML & CSS</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css">
-    <link rel="stylesheet" href="/assets/css/timeline.css">
-</head>
-<body>  
-
-  <div class="timeline">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-12">
-          <div class="timeline-container">
-            <div class="timeline-end">
-              <p>Now</p>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <title>COVID-19 Timeline</title>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.115.0/build/three.min.js" integrity="sha256-BKLpj/JlS+Fk4HENt+eiU5TifNz5GsSAl3KpXe80Lxc=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js" integrity="sha256-eVNjHw5UeU0jUqPPpZHAkU1z4U+QFBBY488WvueTm88=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/nouislider@14.2.0/distribute/nouislider.min.js" integrity="sha256-mJEhSPx2bNn3ZLSPbXX0xNS6gdmEYIhb7NXK0K5edjk=" crossorigin="anonymous"></script>        
+        <script src="https://cdn.jsdelivr.net/npm/wnumb@1.2.0/wNumb.min.js" integrity="sha256-DkHIFUKQfqQ7jA6GnWR9ZyB4Jb+j+dOuY12vnYq8xjk=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js" integrity="sha256-tHoAPGoNdhIR28YHl9DWLzeRfdwigkH7OCBXMrHXhoM=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.0/anime.min.js" integrity="sha256-hBMojZuWKocCflyaG8T19KBq9OlTlK39CTxb8AUWKhY=" crossorigin="anonymous"></script>        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js" integrity="sha256-8IvN8DiAvwO7J3WLqoRDg2/XfkOxcB0urCTU4x0kBOM=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/proj4@2.6.1/dist/proj4-src.min.js"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/nouislider@14.2.0/distribute/nouislider.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha256-XfzdiC+S1keia+s9l07y7ye5a874sBq67zK4u7LTjvk=" crossorigin="anonymous"></script>
+        <link href="/assets/css/main.css" rel="stylesheet">
+        <script src="/assets/js/Country.js"></script>
+        <script src="/assets/js/CovidCountryData.js"></script>        
+    </head>
+    <body>        
+        <canvas id="mainCanvas"></canvas>
+        
+        <div class="overlay bottomGUI">
+            <div class="country_name"></div>
+            <div class="total_confirmed"></div>
+            <div class="play_controls">
+                <i id="btnPlay" data-feather="play-circle"></i>
+                <i id="btnStop" data-feather="pause-circle" style="display: none;"></i>
             </div>
-            <div class="timeline-continue">
-              <div class="row timeline-right">
-                <div class="col-md-6">
-                  <p class="timeline-date">
-                    01 Jun 2020
-                  </p>
-                </div>
-                <div class="col-md-6">
-                  <div class="timeline-box">
-                    <div class="timeline-icon">
-                      <i class="fa fa-gift"></i>
-                    </div>
-                    <div class="timeline-text">
-                      <h3>Lorem ipsum dolor</h3>
-                      <p>Lorem ipsum dolor sit amet elit ornare velit non</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row timeline-left">
-                <div class="col-md-6 d-md-none d-block">
-                  <p class="timeline-date">
-                    01 Jun 2020
-                  </p>
-                </div>
-                <div class="col-md-6">
-                  <div class="timeline-box">
-                    <div class="timeline-icon d-md-none d-block">
-                      <i class="fa fa-gift"></i>
-                    </div>
-                    <div class="timeline-text">
-                      <h3>Lorem ipsum dolor</h3>
-                      <p>Lorem ipsum dolor sit amet elit ornare velit non</p>
-                    </div>
-                    <div class="timeline-icon d-md-block d-none">
-                      <i class="fa fa-business-time"></i>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-6 d-md-block d-none">
-                  <p class="timeline-date">
-                    01 Jan 2020
-                  </p>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-12">
-                  <div class="timeline-year">
-                    <p>2020</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row timeline-right">
-                <div class="col-md-6">
-                  <p class="timeline-date">
-                    01 Dec 2020
-                  </p>
-                </div>
-                <div class="col-md-6">
-                  <div class="timeline-box">
-                    <div class="timeline-icon">
-                      <i class="fa fa-briefcase"></i>
-                    </div>
-                    <div class="timeline-text">
-                      <h3>Lorem ipsum dolor</h3>
-                      <p>Lorem ipsum dolor sit amet elit ornare velit non</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row timeline-left">
-                <div class="col-md-6 d-md-none d-block">
-                  <p class="timeline-date">
-                    01 Sep 2020
-                  </p>
-                </div>
-                <div class="col-md-6">
-                  <div class="timeline-box">
-                    <div class="timeline-icon d-md-none d-block">
-                      <i class="fa fa-cogs"></i>
-                    </div>
-                    <div class="timeline-text">
-                      <h3>Lorem ipsum dolor</h3>
-                      <p>Lorem ipsum dolor sit amet elit ornare velit non</p>
-                    </div>
-                    <div class="timeline-icon d-md-block d-none">
-                      <i class="fa fa-cogs"></i>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-6 d-md-block d-none">
-                  <p class="timeline-date">
-                    01 Jan 2020
-                  </p>
-                </div>
-              </div>
-
-              <div class="row timeline-right">
-                <div class="col-md-6">
-                  <p class="timeline-date">
-                    01 Jun 2020
-                  </p>
-                </div>
-                <div class="col-md-6">
-                  <div class="timeline-box">
-                    <div class="timeline-icon">
-                      <i class="fa fa-running"></i>
-                    </div>
-                    <div class="timeline-text">
-                      <h3>Lorem ipsum dolor</h3>
-                      <p>Lorem ipsum dolor sit amet elit ornare velit non</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row timeline-left">
-                <div class="col-md-6 d-md-none d-block">
-                  <p class="timeline-date">
-                    01 Mar 2020
-                  </p>
-                </div>
-                <div class="col-md-6">
-                  <div class="timeline-box">
-                    <div class="timeline-icon d-md-none d-block">
-                      <i class="fa fa-home"></i>
-                    </div>
-                    <div class="timeline-text">
-                      <h3>Lorem ipsum dolor</h3>
-                      <p>Lorem ipsum dolor sit amet elit ornare velit non</p>
-                    </div>
-                    <div class="timeline-icon d-md-block d-none">
-                      <i class="fa fa-home"></i>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-6 d-md-block d-none">
-                  <p class="timeline-date">
-                    01 Jan 2020
-                  </p>
-                </div>
-              </div>
-
-              
-
+            <div class="date"></div>        
+            <div id="dateSlider" class="slider"></div>
+        </div>        
+        <div class="overlay mouse_coordinates" style="display: none;"></div>
+        <dialog id="favDialog">
+        <form method="dialog">
+            <div class="dialog_header">
+                <h1>Interactive map/timeline of the COVID-19 virus</h1>            
+                <i id="btnClose" data-feather="x"></i>
             </div>
             
-            <div class="timeline-start">
-              <p>Launch</p>
-            </div>
+            <hr>
+            Data provided by <a href="https://github.com/CSSEGISandData" target="_blank">CSSE at Johns Hopkins University</a>
+            <br />
+            <br />
+            <br />
+            <span class="last_updated">Data Updated: May 1, 2020</span>
+            <br />
+            <br />
+            <br />
+            <a class="github" href="https://github.com/Melonman0/COVID-19-Timeline-Map" target="_blank"><i data-feather="github"></i></a>
+        </form>
+        </dialog>
 
-            <div class="timeline-launch">
-              <div class="timeline-box">
-                <div class="timeline-text">
-                  <h3>Launched our company on 01 Jan 2020</h3>
-                  <p>Lorem ipsum dolor sit amet</p>
-                </div>
-              </div>
-            </div>
+        <script>
+            let slider = document.querySelector("#dateSlider");
+            let canvas = document.querySelector("#mainCanvas");
+            let scene = new THREE.Scene();            
+            let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);             
+            let renderer = new THREE.WebGLRenderer({canvas});  
+            let cameraUpdatePos = new THREE.Vector3(0, 45, 200);
+            let numberformatter = wNumb({ thousand: ',' });
+            let shortDateFormat = { month:"numeric", day:"numeric", year: "2-digit"};
+            
+            //Used with proj4.js to convert longitudes and latitudes to my custom map format
+            let firstProjection = "+proj=merc +a=55 +b=55 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs";
+            let secondProjection = "+proj=longlat +a=55 +b=55 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs";
 
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+            let proj = proj4(firstProjection,secondProjection);
+            
+            let raycastObjs = [];
+            let lineObjs = [];
+            let covidJSON = {};
+            let covidCountryList = [];
+            let SELECTED = null;
+            let isPlaying = false;
+            let clock = new THREE.Clock();
+            let startTime = clock.getElapsedTime();
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
-</body>
+            
+            init();
+            setupEventListeners();
+            createGUI();
+            animate();
+
+
+            function init() {
+                clock.start();
+                feather.replace();
+                scene.background = new THREE.Color(0x000F1A);
+                renderer.setSize(window.innerWidth/1.4, window.innerHeight/1.4);             
+                canvas = renderer.domElement;
+                
+                fetch("/assets/world_map_web_merc.json").then((response) => {
+                    return response.json();
+                }).then((topology) => {
+                    let features = topojson.feature(topology, topology.objects.world_map);
+                    console.log(features);
+                    console.log(topojson.bbox(topology));
+
+                    for (const feature of features.features) {
+                        let country = new Country(feature.geometry, feature.properties);                        
+                        let shape = country.createShape();
+                        let line = country.createLine();
+                        raycastObjs.push(shape);
+                        lineObjs.push(line);
+
+                        // Workaround due to South Africa not having proper hole rendering
+                        if (country.properties.NAME === "Lesotho" || country.properties.NAME === "Baikonur") {
+                            shape.position.z = .1;
+                            line.position.z = .1;
+                        }
+                        
+                        scene.add(shape);
+                        scene.add(line);
+                    }               
+                });
+
+                fetch("/assets/covid_data.json").then((response) => {
+                    return response.json();
+                }).then((json) => {
+                    covidJSON = json;
+
+                    for (const country of covidJSON){                            
+                        let covidData = new CovidCountryData(country);
+                        
+                        covidData.setConfirmed(FIRST_DATA_DATE.toLocaleDateString("en", shortDateFormat));
+
+                        covidCountryList.push(covidData);
+                        raycastObjs.push(covidData.mesh);
+                        scene.add(covidData.mesh);                                            
+                    }
+                    
+                    let totalConfirmed = CovidCountryData.getTotalConfirmedByDate(FIRST_DATA_DATE.toLocaleDateString("en", shortDateFormat), covidCountryList, numberformatter);
+                    <!-- document.querySelector(".total_confirmed").innerText = `Total Confirmed: ${totalConfirmed}`; -->
+                });
+
+                noUiSlider.create(slider, {
+                    animate: false,
+                    range: {
+                        min: FIRST_DATA_DATE.getTime(),
+                        max: LAST_DATA_DATE.getTime()
+                    },
+                    start: FIRST_DATA_DATE.getTime(),
+                    format: {
+                        to: function(value) {
+                            return new Date(value).toLocaleDateString("en", shortDateFormat);
+                        },
+                        from: function(value) {
+                            return parseInt(value);
+                        }
+                    },
+                    pips: {
+                        mode: 'values', 
+                        values: [FIRST_DATA_DATE.getTime(), 
+                            <!-- new Date("2/1/2020").getTime(), -->
+                            <!-- new Date("3/1/2020").getTime(), -->
+                            <!-- new Date("4/1/2020").getTime(), -->
+                            LAST_DATA_DATE.getTime()],
+                        density: 8,
+                        format: {
+                            to: function(value) {
+                                return new Date(value).toLocaleDateString("en", ({ month:"numeric", day:"numeric"}));
+                            }
+                        }
+                    }
+                });
+            }
+
+            
+            function animate() {
+                requestAnimationFrame(animate);
+                let delta = clock.getDelta();
+                startTime += delta;                
+                
+                camera.position.x = cameraUpdatePos.x;                
+                camera.position.y = cameraUpdatePos.y;
+                camera.position.z = cameraUpdatePos.z;
+                
+                for(const data of covidCountryList) {
+                    data.renderUpdate(delta);                                            
+                }
+
+                if(isPlaying) {
+                    if( startTime >= .200 ) {
+                        var value = new Date(slider.noUiSlider.get());
+                        value.setDate(value.getDate() + 1);
+                        slider.noUiSlider.set(value.getTime());
+                        startTime = 0;
+
+                        if(value.getTime() >= LAST_DATA_DATE.getTime()) {
+                            isPlaying = false;
+                            document.querySelector("#btnPlay").style.display = "inline";
+                            document.querySelector("#btnStop").style.display = "none";
+                        }
+                    }
+                }
+                
+                renderer.render(scene, camera);
+            }
+
+
+            function setupEventListeners() {
+                let raycaster = new THREE.Raycaster();
+                let mouse = new THREE.Vector2();
+                let INTERSECTED = null;
+                
+
+                canvas.addEventListener("click", onDocumentClick, false);
+                function onDocumentClick(event) {                                                        
+                    mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+                    mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+                    raycaster.setFromCamera(mouse, camera);
+
+                    let intersects = raycaster.intersectObjects(raycastObjs);
+                    let divName = document.querySelector(".country_name");
+
+                    if (intersects.length > 0) {
+
+                        if (SELECTED) {
+                            SELECTED.material.color.set(SELECTED.userData.shapeColor);
+                        }
+
+                        SELECTED = intersects[0].object;
+                        SELECTED.material.color.set(0x164B91);
+
+                        if(SELECTED.userData.properties) {
+                            divName.innerText = SELECTED.userData.properties.NAME;
+                        } else if(SELECTED.userData.data) {
+                            divName.innerText = SELECTED.userData.getInfoString(slider.noUiSlider.get(), numberformatter);
+                        }
+                        
+                        console.log(SELECTED.userData)
+
+                    } else {
+
+                        if (SELECTED) {
+                            SELECTED.material.color.set(SELECTED.userData.shapeColor);
+                            divName.innerText = "";
+                        }
+
+                        SELECTED = null;
+                    }
+                    
+                }
+
+
+                canvas.addEventListener("wheel", onDocumentMouseWheel, false);
+                function onDocumentMouseWheel(event) {
+                    let direction = Math.sign(event.deltaY);
+                    let moveToZ = camera.position.z + (direction * 40);
+                    moveToZ = THREE.MathUtils.clamp(moveToZ, 30, 200);
+
+                    anime({
+                        targets: cameraUpdatePos,
+                        z: moveToZ,
+                        duration: 500,
+                        easing: "easeOutQuad"
+                    })
+                }
+
+                
+                canvas.addEventListener("mousemove", onMouseMove, false);
+                function onMouseMove(event) {
+                    event.preventDefault();                    
+
+                    mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+                    mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+
+                    let mouseVec = new THREE.Vector3();
+                    mouseVec.set( 
+                            (event.clientX / window.innerWidth/1.4) * 2 - 1, 
+                            -(event.clientY / window.innerHeight/1.4) * 2 + 1, 
+                            0.5 
+                        );
+
+                    mouseVec.unproject( camera );
+                    mouseVec.sub(camera.position).normalize();                        
+                    let distance = - camera.position.z / mouseVec.z;
+                    mouseVec.multiplyScalar( distance );
+
+                    raycaster.setFromCamera(mouse, camera);
+
+                    let divCoords = document.querySelector(".mouse_coordinates");
+                    let projCoords = proj.forward({x:mouseVec.x, y:mouseVec.y});
+                    let testInverse = proj.inverse({x:projCoords.x, y:projCoords.y});
+                    divCoords.innerText = `Client Coords: ${event.clientX}, ${event.clientY}
+                    Clip Space Coords: ${mouse.x}, ${mouse.y}
+                    World Coords : ${mouseVec.x}, ${mouseVec.y}
+                    projCoords: ${projCoords.x}, ${projCoords.y}
+                    testInverse: ${testInverse.x}, ${testInverse.y}
+                    `;
+
+                    let intersects = raycaster.intersectObjects(raycastObjs);
+
+                    if (intersects.length > 0) {
+                        if (INTERSECTED && INTERSECTED != SELECTED) {                            
+                            INTERSECTED.material.color.set(INTERSECTED.userData.shapeColor);
+                        }
+
+                        INTERSECTED = intersects[0].object;
+
+                        if (INTERSECTED != SELECTED) {
+                            INTERSECTED.material.color.setHex(0x666666);
+                        }
+
+                    } else {
+                        if (INTERSECTED && INTERSECTED != SELECTED) {
+                            INTERSECTED.material.color.set(INTERSECTED.userData.shapeColor);
+                        }
+                    } 
+                }
+
+                let hammertime = new Hammer(canvas);
+                let lastScale = 1;
+                let zoomOffset = new THREE.Vector3(0,0,0);
+                hammertime.get('pinch').set({ enable: true });
+                hammertime.on("pinchstart pinchin pinchout pinchend", function(ev) {
+                    console.log(ev.center)
+                    let moveToZ = camera.position.z;
+                    
+                    if (ev.scale < lastScale) {
+                        moveToZ += 1 * (1/ev.scale);
+                    } else if (ev.scale > lastScale) {
+                        moveToZ -= 1 * ev.scale;
+                    }
+                    lastScale = ev.scale;
+
+                    if(ev.type === "pinchend") {                        
+                        lastScale = 1;
+                    }    
+
+                    cameraUpdatePos.z = THREE.MathUtils.clamp(moveToZ, 30, 200);;
+                });
+
+                
+
+                let startPos = new THREE.Vector3();
+                let currentPos = new THREE.Vector3(); 
+                let delta = new THREE.Vector3();
+                hammertime.on("panstart panmove", function(ev) {
+                    if(ev.type === "panstart") {                        
+                        startPos.set( 
+                            (ev.srcEvent.clientX / window.innerWidth/1.4) * 2 - 1, 
+                            -(ev.srcEvent.clientY / window.innerHeight/1.4) * 2 + 1, 
+                            0.5 
+                        );
+
+                        startPos.unproject( camera );
+                        startPos.sub(camera.position).normalize();                        
+                        let distance = - camera.position.z / startPos.z;
+                        startPos.multiplyScalar( distance )
+                        
+                        startPos.x += cameraUpdatePos.x;
+                        startPos.y += cameraUpdatePos.y;
+                    }
+
+                    if (ev.type === "panmove") 
+                    {                    
+                        currentPos.set( 
+                            (ev.srcEvent.clientX / window.innerWidth/1.4) * 2 - 1, 
+                            -(ev.srcEvent.clientY / window.innerHeight/1.4) * 2 + 1, 
+                            0.5 
+                        );         
+                        
+
+                        currentPos.unproject( camera );
+                        currentPos.sub(camera.position).normalize();
+                        let distance = - camera.position.z / currentPos.z;
+                        currentPos.multiplyScalar( distance );
+                        
+                        delta.subVectors(startPos, currentPos);                                                 
+
+                        cameraUpdatePos.x = THREE.MathUtils.clamp(delta.x, -200, 200);
+                        cameraUpdatePos.y = THREE.MathUtils.clamp(delta.y, -50, 140); //Y clamp is strange because Antartica has been removed, but the coordinates stayed the same
+                    }
+                });
+
+                window.addEventListener("resize", onWindowResize, false);
+                function onWindowResize() {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                }
+
+                let divName = document.querySelector(".country_name");
+                slider.noUiSlider.on("update", (value) => {                    
+                    let dateSelected = new Date(value);
+                    let totalConfirmed = CovidCountryData.getTotalConfirmedByDate(value, covidCountryList, numberformatter);
+
+                    document.querySelector(".date").innerText = dateSelected.toLocaleDateString("en", ({ month:"long", day:"numeric", year: "numeric"}));                    
+                    <!-- document.querySelector(".total_confirmed").innerText = `Total Confirmed: ${totalConfirmed}`; -->
+                    if(SELECTED && SELECTED.userData.data) {
+                        divName.innerText = SELECTED.userData.getInfoString(slider.noUiSlider.get(), numberformatter);
+                    }
+
+                    for(const data of covidCountryList) {
+                         data.setConfirmed(value)
+                    }
+                });
+
+                slider.noUiSlider.on("start", (value) => {
+                    isPlaying = false;
+                    document.querySelector("#btnPlay").style.display = "inline";
+                    document.querySelector("#btnStop").style.display = "none";
+                });
+
+                let btnPlay = document.querySelector("#btnPlay");
+                let btnStop = document.querySelector("#btnStop");
+                btnPlay.addEventListener("click", btnPlayClick, false);
+                function btnPlayClick() {
+                    isPlaying = true;
+                    btnPlay.style.display = "none";
+                    btnStop.style.display = "inline";
+                }
+
+                btnStop.addEventListener("click", btnStopClick, false)
+                function btnStopClick() {
+                    isPlaying = false;
+                    btnPlay.style.display = "inline";
+                    btnStop.style.display = "none";
+                }
+
+            }
+
+            function createGUI() {
+                let Config = {                    
+                    ShowAbout: function () {
+                        let favDialog = document.getElementById("favDialog");
+                        let btnClose = document.getElementById("btnClose"); 
+                        favDialog.showModal();                        
+                        
+                        btnClose.addEventListener("click", function close() {
+                            favDialog.close();
+                            btnClose.removeEventListener("click", close);
+                        });
+                    }, 
+                }
+                let gui = new dat.GUI();
+                gui.width = 260;                
+                gui.add(CovidCountryData, "useLinearScale").name("Use Linear Scaling").onChange(() => {
+                    let date = slider.noUiSlider.get();
+                    for(const data of covidCountryList) {
+                         data.setConfirmed(date);
+                    }
+                });
+                gui.add(Config, "ShowAbout").name("About");
+                gui.close();
+            }
+            
+        </script>
+    </body>
 </html>
-

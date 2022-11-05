@@ -1,8 +1,9 @@
 let Country = function(geoCoords, properties, lineColor, shapeColor) {
     this.geoCoords = geoCoords;
     this.properties = properties;      
-    this.lineColor = (!lineColor) ? 0x756985 : lineColor; 
-    this.shapeColor = (!shapeColor) ? 0x2a2a28 : shapeColor;           
+    // 나라 테두리 색깔
+    this.lineColor = (!lineColor) ? 0x000000 : lineColor; 
+    this.shapeColor = (!shapeColor) ? 0xffffff : shapeColor;           
 }
 
 Country.prototype = {

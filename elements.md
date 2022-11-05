@@ -62,7 +62,6 @@ image: assets/images/cafe.png
                 <h1>Interactive map/timeline of the COVID-19 virus</h1>            
                 <i id="btnClose" data-feather="x"></i>
             </div>
-            
             <hr>
             Data provided by <a href="https://github.com/CSSEGISandData" target="_blank">CSSE at Johns Hopkins University</a>
             <br />
@@ -75,7 +74,6 @@ image: assets/images/cafe.png
             <a class="github" href="https://github.com/Melonman0/COVID-19-Timeline-Map" target="_blank"><i data-feather="github"></i></a>
         </form>
         </dialog>
-
         <script>
             let slider = document.querySelector("#dateSlider");
             let canvas = document.querySelector("#mainCanvas");
@@ -85,80 +83,64 @@ image: assets/images/cafe.png
             let cameraUpdatePos = new THREE.Vector3(0, 45, 200);
             let numberformatter = wNumb({ thousand: ',' });
             let shortDateFormat = { month:"numeric", day:"numeric", year: "2-digit"};
-            
             //Used with proj4.js to convert longitudes and latitudes to my custom map format
             let firstProjection = "+proj=merc +a=55 +b=55 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs";
             let secondProjection = "+proj=longlat +a=55 +b=55 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs";
-
             let proj = proj4(firstProjection,secondProjection);
-            
             let raycastObjs = [];
             let lineObjs = [];
             let covidJSON = {};
             let covidCountryList = [];
             let SELECTED = null;
-            let isPlaying = false;
+            let isPlaying = true;
             let clock = new THREE.Clock();
             let startTime = clock.getElapsedTime();
-
-            
             init();
             setupEventListeners();
-            createGUI();
+            // createGUI();
             animate();
-
-
             function init() {
                 clock.start();
                 feather.replace();
-                scene.background = new THREE.Color(0x000F1A);
+                // 지도 배경 색깔 
+                scene.background = new THREE.Color(0x000000);
                 renderer.setSize(window.innerWidth/1.4, window.innerHeight/1.4);             
                 canvas = renderer.domElement;
-                
                 fetch("/assets/world_map_web_merc.json").then((response) => {
                     return response.json();
                 }).then((topology) => {
                     let features = topojson.feature(topology, topology.objects.world_map);
                     console.log(features);
                     console.log(topojson.bbox(topology));
-
                     for (const feature of features.features) {
                         let country = new Country(feature.geometry, feature.properties);                        
                         let shape = country.createShape();
                         let line = country.createLine();
                         raycastObjs.push(shape);
                         lineObjs.push(line);
-
                         // Workaround due to South Africa not having proper hole rendering
                         if (country.properties.NAME === "Lesotho" || country.properties.NAME === "Baikonur") {
                             shape.position.z = .1;
                             line.position.z = .1;
                         }
-                        
                         scene.add(shape);
                         scene.add(line);
                     }               
                 });
-
                 fetch("/assets/covid_data.json").then((response) => {
                     return response.json();
                 }).then((json) => {
                     covidJSON = json;
-
                     for (const country of covidJSON){                            
                         let covidData = new CovidCountryData(country);
-                        
                         covidData.setConfirmed(FIRST_DATA_DATE.toLocaleDateString("en", shortDateFormat));
-
                         covidCountryList.push(covidData);
                         raycastObjs.push(covidData.mesh);
                         scene.add(covidData.mesh);                                            
                     }
-                    
                     let totalConfirmed = CovidCountryData.getTotalConfirmedByDate(FIRST_DATA_DATE.toLocaleDateString("en", shortDateFormat), covidCountryList, numberformatter);
                     <!-- document.querySelector(".total_confirmed").innerText = `Total Confirmed: ${totalConfirmed}`; -->
                 });
-
                 noUiSlider.create(slider, {
                     animate: false,
                     range: {
@@ -190,8 +172,6 @@ image: assets/images/cafe.png
                     }
                 });
             }
-
-            
             function animate() {
                 requestAnimationFrame(animate);
                 let delta = clock.getDelta();
@@ -325,7 +305,8 @@ image: assets/images/cafe.png
                         INTERSECTED = intersects[0].object;
 
                         if (INTERSECTED != SELECTED) {
-                            INTERSECTED.material.color.setHex(0x666666);
+                            <!-- 나라 색깔 -->
+                            INTERSECTED.material.color.setHex(0xffcccc);
                         }
 
                     } else {
@@ -430,8 +411,8 @@ image: assets/images/cafe.png
                     document.querySelector("#btnStop").style.display = "none";
                 });
 
-                let btnPlay = document.querySelector("#btnPlay");
-                let btnStop = document.querySelector("#btnStop");
+                let btnPlay = document.querySelector("#btnStop");
+                let btnStop = document.querySelector("#btnPlay");
                 btnPlay.addEventListener("click", btnPlayClick, false);
                 function btnPlayClick() {
                     isPlaying = true;

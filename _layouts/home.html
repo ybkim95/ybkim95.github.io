@@ -28,6 +28,118 @@
     !function(e,a,t){var n,r,o,i=a.createElement("canvas"),p=i.getContext&&i.getContext("2d");function s(e,t){var a=String.fromCharCode,e=(p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,e),0,0),i.toDataURL());return p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,t),0,0),e===i.toDataURL()}function c(e){var t=a.createElement("script");t.src=e,t.defer=t.type="text/javascript",a.getElementsByTagName("head")[0].appendChild(t)}for(o=Array("flag","emoji"),t.supports={everything:!0,everythingExceptFlag:!0},r=0;r<o.length;r++)t.supports[o[r]]=function(e){if(!p||!p.fillText)return!1;switch(p.textBaseline="top",p.font="600 32px Arial",e){case"flag":return s([127987,65039,8205,9895,65039],[127987,65039,8203,9895,65039])?!1:!s([55356,56826,55356,56819],[55356,56826,8203,55356,56819])&&!s([55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447],[55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447]);case"emoji":return!s([129777,127995,8205,129778,127999],[129777,127995,8203,129778,127999])}return!1}(o[r]),t.supports.everything=t.supports.everything&&t.supports[o[r]],"flag"!==o[r]&&(t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&t.supports[o[r]]);t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&!t.supports.flag,t.DOMReady=!1,t.readyCallback=function(){t.DOMReady=!0},t.supports.everything||(n=function(){t.readyCallback()},a.addEventListener?(a.addEventListener("DOMContentLoaded",n,!1),e.addEventListener("load",n,!1)):(e.attachEvent("onload",n),a.attachEvent("onreadystatechange",function(){"complete"===a.readyState&&t.readyCallback()})),(e=t.source||{}).concatemoji?c(e.concatemoji):e.wpemoji&&e.twemoji&&(c(e.twemoji),c(e.wpemoji)))}(window,document,window._wpemojiSettings);
     </script><script src="https://jibo.com/wp-includes/js/wp-emoji-release.min.js?ver=6.0.1" type="text/javascript" defer=""></script>
     <style type="text/css">
+        /* vertical timeline */
+        @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&display=swap");
+        * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        }
+        html {
+        font-family: "Montserrat";
+        }
+        .container {
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 100px 0;
+        background-color: rgb(0, 0, 0);
+        }
+        .timeline {
+        width: 80%;
+        height: auto;
+        max-width: 800px;
+        margin: 0 auto;
+        position: relative;
+        }
+
+        .timeline ul {
+        list-style: none;
+        }
+        .timeline ul li {
+        padding: 20px;
+        background-color: #1e1f22;
+        color: white;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        }
+        .timeline ul li:last-child {
+        margin-bottom: 0;
+        }
+        .timeline-content h1 {
+        font-weight: 500;
+        font-size: 25px;
+        line-height: 30px;
+        margin-bottom: 10px;
+        }
+        .timeline-content p {
+        font-size: 16px;
+        line-height: 30px;
+        font-weight: 300;
+        }
+        .timeline-content .date {
+        font-size: 12px;
+        font-weight: 300;
+        margin-bottom: 10px;
+        letter-spacing: 2px;
+        }
+        @media only screen and (min-width: 768px) {
+        .timeline:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 51.4%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 100%;
+            background-color: gray;
+        }
+        .timeline ul li {
+            width: 50%;
+            position: relative;
+            margin-bottom: 50px;
+        }
+        .timeline ul li:nth-child(odd) {
+            float: left;
+            clear: right;
+            transform: translateX(-30px);
+            border-radius: 20px 0px 20px 20px;
+        }
+        .timeline ul li:nth-child(even) {
+            float: right;
+            clear: left;
+            transform: translateX(30px);
+            border-radius: 0px 20px 20px 20px;
+        }
+        .timeline ul li::before {
+            content: "";
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background-color: gray;
+            top: 0px;
+        }
+        .timeline ul li:nth-child(odd)::before {
+            transform: translate(50%, -50%);
+            right: -30px;
+        }
+        .timeline ul li:nth-child(even)::before {
+            transform: translate(-50%, -50%);
+            left: -30px;
+        }
+        .timeline-content .date {
+            position: absolute;
+            top: -30px;
+        }
+        .timeline ul li:hover::before {
+            background-color: rgb(255, 255, 255);
+        }
+        }
+
+    /* main */
     img.wp-smiley,
     img.emoji {
     display: inline !important;
@@ -70,108 +182,69 @@
             <div class="page_inner">
                 <div ui_comp="header_menu_mobile" ui_value="home" class="header_menu_outer_mobile" id="BC_1659848917335_4865">
                     <div class="menu-menu_mobile_u-container"><ul id="menu-menu_mobile_u" class="menu"><li id="menu-item-194" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-194"><a href="https://jibo.com/cookie-policy/">Cookie policy</a></li>
-    <li id="menu-item-195" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-privacy-policy menu-item-195"><a href="https://jibo.com/privacy-policy/">Privacy policy</a></li>
-    <li id="menu-item-196" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-196"><a href="https://jibo.com/legal-notice/">Legal notice</a></li>
-    <li id="menu-item-197" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-197"><a href="https://jibo.com/faqs/">Faqs</a></li>
-    </ul></div>					
-    <div class="menu-menu_mobile_d-container">
-        <ul id="menu-menu_mobile_d" class="menu"><li id="menu-item-210" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-210"><a href="https://jibo.com/about/">About</a></li>
-            </ul>
-        </div>				
-    </div>
-                <a href="https://ybkim95.github.io/"><img class="header_logo" src="assets/images/ybk_logo.png"></a>
-                <div ui_comp="header_menu" ui_value="home" class="header_menu_outer" id="BC_1659848917334_9303">
-                    <!-- <span ui_role="header_point" class="header_menu_point" style="left: 69.5%; background-color: rgb(76, 177, 254); opacity: 1;"></span> -->
-                    <div class="menu-menu_header-container">
-                        <ul id="menu-menu_header" class="menu">
-                            <li id="menu-item-67" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-67"><a href="https://ybkim95.github.io/elements.html" submenu="false" style="pointer-events: auto;">ABOUT</a></li>
-                            <li id="mn_5115_1659848917334" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-66"><a href="../landing.html" submenu="true" style="pointer-events: auto;">WORK</a>
-                                <!-- <ul class="sub-menu" parent="mn_5115_1659848917334" visible="false">
-                                    <li id="menu-item-180" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-180"><a href="https://jibo.com/hospitals/" parent_menu_id="mn_5115_1659848917334" style="pointer-events: auto;">Jibo for hospitals</a></li>
-                                    <li id="menu-item-182" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-182"><a href="https://jibo.com/telehealth/" parent_menu_id="mn_5115_1659848917334" style="pointer-events: auto;">Jibo for telehealth</a></li>
-                                    <li id="menu-item-181" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-181"><a href="https://jibo.com/education/" parent_menu_id="mn_5115_1659848917334" style="pointer-events: auto;">Jibo for education</a></li>
-                                </ul> -->
-                            </li>
-                            <li id="menu-item-67" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-67"><a href="https://ybkim95.github.io/generic.html" submenu="false" style="pointer-events: auto;">PLAY</a></li>
-                            <li id="mn_5115_1659848917334" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-66"><a href="https://drive.google.com/file/d/1xFOwsbPo0qOFDUqujEj4Ym82D1azrYLn/view?usp=share_link" submenu="true" style="pointer-events: auto;">CV</a>
-                        <!-- <li id="menu-item-65" class="hide menu-item menu-item-type-post_type menu-item-object-page menu-item-65"><a href="https://jibo.com/press/" submenu="false" style="pointer-events: auto;">Press</a></li> -->
-                        <!-- <li id="menu-item-64" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-64"><a href="https://jibo.com/contact/" submenu="false" style="pointer-events: auto;">Contact</a></li> -->
+                        <li id="menu-item-195" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-privacy-policy menu-item-195"><a href="https://jibo.com/privacy-policy/">Privacy policy</a></li>
+                        <li id="menu-item-196" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-196"><a href="https://jibo.com/legal-notice/">Legal notice</a></li>
+                        <li id="menu-item-197" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-197"><a href="https://jibo.com/faqs/">Faqs</a></li>
+                        </ul>
+                    </div>					
+                <div class="menu-menu_mobile_d-container">
+                    <ul id="menu-menu_mobile_d" class="menu"><li id="menu-item-210" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-210"><a href="https://jibo.com/about/">About</a></li>
+                    </ul>
+                </div>				
+            </div>
+    
+            <a href="https://ybkim95.github.io/"><img class="header_logo" src="assets/images/ybk_logo.png"></a>
+            <div ui_comp="header_menu" ui_value="home" class="header_menu_outer" id="BC_1659848917334_9303">
+                <!-- <span ui_role="header_point" class="header_menu_point" style="left: 69.5%; background-color: rgb(76, 177, 254); opacity: 1;"></span> -->
+                <div class="menu-menu_header-container">
+                    <ul id="menu-menu_header" class="menu">
+                        <li id="menu-item-67" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-67"><a href="https://ybkim95.github.io/elements.html" submenu="false" style="pointer-events: auto;">About</a></li>
+                        <li id="mn_5115_1659848917334" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-66"><a href="../landing.html" submenu="true" style="pointer-events: auto;">Projects</a>
+                            <!-- <ul class="sub-menu" parent="mn_5115_1659848917334" visible="false">
+                                <li id="menu-item-180" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-180"><a href="https://jibo.com/hospitals/" parent_menu_id="mn_5115_1659848917334" style="pointer-events: auto;">Jibo for hospitals</a></li>
+                                <li id="menu-item-182" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-182"><a href="https://jibo.com/telehealth/" parent_menu_id="mn_5115_1659848917334" style="pointer-events: auto;">Jibo for telehealth</a></li>
+                                <li id="menu-item-181" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-181"><a href="https://jibo.com/education/" parent_menu_id="mn_5115_1659848917334" style="pointer-events: auto;">Jibo for education</a></li>
+                            </ul> -->
+                        </li>
+                        <li id="menu-item-67" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-67"><a href="https://ybkim95.github.io/generic.html" submenu="false" style="pointer-events: auto;">Personal</a></li>
+                        <li id="mn_5115_1659848917334" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-66"><a href="https://drive.google.com/file/d/1xFOwsbPo0qOFDUqujEj4Ym82D1azrYLn/view?usp=share_link" submenu="true" style="pointer-events: auto;">CV</a>
+                    <!-- <li id="menu-item-65" class="hide menu-item menu-item-type-post_type menu-item-object-page menu-item-65"><a href="https://jibo.com/press/" submenu="false" style="pointer-events: auto;">Press</a></li> -->
+                    <!-- <li id="menu-item-64" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-64"><a href="https://jibo.com/contact/" submenu="false" style="pointer-events: auto;">Contact</a></li> -->
                         </ul>
                     </div>				
                 </div>
-
             </div>
         </header>
-    
     
     <div class="block" block="home_1">
         <div class="page_inner">
             <h1 class="title font_ProximaNovaSemibold" ui_shown="true">Hello, I'm a/an<br>
                 <span class="title_home" ui_comp="home_anim" ui_value="Engineer,Artist,Designer" id="BC_1659848917255_7240" style="opacity: 1; visibility: visible;">
-                    <!-- <span word="life" w0="68.6484375" style="width: 68.6484px; opacity: 1;">life</span> -->
-                    <!-- <span word="health" w0="142.1328125" style="width: 0px; opacity: 0;">health</span>
-                    <span word="school" w0="149.0078125" style="width: 0px; opacity: 0;">school</span>
-                    <span word="soul" w0="94.4296875" style="width: 94.42px; opacity: 0;">soul</span> -->
                 <span></span>
             </span></h1>
-            <p style="font-size:24px; width:85%">
+            <p style="font-size:24px; width:78%">
                 I'm Yubin, currently a visiting student/researcher at Personal Robots Group, Media Lab. <br>
-                My research interests lie in the area of <b>human-robot interaction for elders and children</b>. <br> 
-                More specifically, I'm interested in studying affect/engagement recognition for child early literacy learning and developing multi-person dialogue system for medication support. 
+                My research objective and interest lies in the area of <b>human-robot interaction</b>. <br> 
+                Specifically, I'm interested in studying affect recognition for child early literacy learning and developing dialogue system for emotional wellness and medication support for older adults. 
             </p>
         </div>
     </div>
-  
-        <footer>
-            <div class="page_inner">
-                <h2 ui_comp="footer_letters" class="footer_title font_ProximaNovaSemibold BSimpleCSSScroller_fade_right" ui_scroll="BSimpleCSSScroller_fade_right" id="BC_1659848917248_3530" ui_shown="false">
-                    <!-- <span ui_comp="footer_point" class="point_green footer_point" id="BC_1659848917248_8107"></span> -->
-                    <p ui_role="letters">
-                </h2>
     
-                <!-- <div class="footer_menu">
-                    <div class="menu-menu_footer-container">
-                        <ul id="menu-menu_footer" class="menu">
-                            <li id="menu-item-186" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home current-menu-item page_item page-item-25 current_page_item menu-item-186">
-                                <a href="https://jibo.com/" aria-current="page">
-                                    Home
-                                </a>
-                            </li>
-                            <li id="menu-item-188" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-188"><a href="https://jibo.com/hospitals/">Hospitals</a></li>
-                            <li id="menu-item-189" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-189"><a href="https://jibo.com/telehealth/">Telehealth</a></li>
-                            <li id="menu-item-187" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-187"><a href="https://jibo.com/education/">Education</a></li>
-                            <li id="menu-item-190" class="hide menu-item menu-item-type-post_type menu-item-object-page menu-item-190"><a href="https://jibo.com/press/">Press</a></li>
-                            <li id="menu-item-191" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-191"><a href="https://jibo.com/faqs/">Faqs</a></li>
-                            <li id="menu-item-192" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-192"><a href="https://jibo.com/contact/">Contact</a></li>
-                            <li id="menu-item-193" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-193"><a href="https://jibo.com/about/">About</a></li>
-                        </ul>
-                    </div>
-                </div> -->
-    
-                <!-- <div class="footer_menu_legal">
-                    <div class="menu-legal_menu-container"><ul id="menu-legal_menu" class="menu"><li id="menu-item-183" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-privacy-policy menu-item-183"><a href="https://jibo.com/privacy-policy/">Privacy policy</a></li>
-    <li id="menu-item-184" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-184"><a href="https://jibo.com/cookie-policy/">Cookie policy</a></li>
-    <li id="menu-item-185" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-185"><a href="https://jibo.com/legal-notice/">Legal notice</a></li>
-    </ul></div>					<span>©2022 NTT Disruption Europe SLU</span>
-                </div> -->
-    
-                <!-- <img class="footer_logo" src="https://jibo.com/wp-content/themes/JIBOTheme/img/logo_jibo_b.svg">
-            </div> -->
-        </footer> 
-    
+    <footer>
+        <div class="page_inner">
+            <h2 ui_comp="footer_letters" class="footer_title font_ProximaNovaSemibold BSimpleCSSScroller_fade_right" ui_scroll="BSimpleCSSScroller_fade_right" id="BC_1659848917248_3530" ui_shown="false">
+                <!-- <span ui_comp="footer_point" class="point_green footer_point" id="BC_1659848917248_8107"></span> -->
+                <p ui_role="letters">
+            </h2>
+    </footer> 
+
     
     </body></html>
 
-
-
 <!-- {% include head.html %} -->
 
-
-
-
-
-
 <body>
+    
 
     <!-- {% include header.html %} -->
 
@@ -210,6 +283,173 @@
         </section> -->
 
     </div>
+
+    <footer>
+        <div class="page_inner">
+            <h2 ui_comp="footer_letters" class="footer_title font_ProximaNovaSemibold BSimpleCSSScroller_fade_right" ui_scroll="BSimpleCSSScroller_fade_right" id="BC_1659848917248_3530" ui_shown="false">
+                <!-- <span ui_comp="footer_point" class="point_green footer_point" id="BC_1659848917248_8107"></span> -->
+                <p ui_role="letters">
+            </h2>
+    </footer> 
+
+    <!-- <div class="block" block="home_6b">
+        <div class="page_inner">
+            <p class="title home_6b_title font_ProximaNovaSemibold">MIT and NAE studies reveal how AI and social elements applied to robotics improve the well-being of elderly people and children</p>
+    
+            <div class="home_6b_blocks">
+                <div class="rounded home_6b_block_3" ui_shown="true">
+                    <h3 class="home_6b_block_number font_ProximaNovaBold">01.</h3>
+                    <p class="text home_6b_block_text">A </p>
+                </div>
+                <div class="rounded home_6b_block_2" ui_shown="true">
+                    <h3 class="home_6b_block_number font_ProximaNovaBold">02.</h3>
+                    <p class="text home_6b_block_text">B</p>
+                </div>
+                <div class="rounded home_6b_block_3" ui_shown="true">
+                    <h3 class="home_6b_block_number font_ProximaNovaBold">03.</h3>
+                    <p class="text home_6b_block_text">C</p>
+                </div>
+                <div class="rounded home_6b_block_3" style="background-image: url(https://jibo.com/wp-content/themes/JIBOTheme/img/home_jibo_mit.svg);" ui_shown="true">
+                    <h3 class="home_6b_block_number font_ProximaNovaBold">03.</h3>
+                    <p class="text home_6b_block_text">Most participants (89%) highly enjoyed jibo’s personality, which helped them feel motivated and supported through exercises, medication, and daily stress.</p>
+                </div>
+            </div>
+        </div>
+    </div> -->
+
+    <div class="block" block="solutions_6">
+        <div class="page_inner">
+            <h3 class="title title_solutions_6 font_ProximaNovaSemibold" ui_shown="true">Projects</h3>
+            
+            <div class="solutions_6_blocks">
+                <div class="rounded solutions_6_left" ui_shown="true">
+                    <p class="text solutions_6_text">
+                        jibo can help children who need extra attention due to learning difficulties or disorders. Children are more eager to emotionally connect and be physically activated by a social robot. For any school subject, including foreign language learning, jibo can be the nexus between students and teachers, supporting the learning process with gamification strategies that keep students motivated. Children can also learn how to program interactions with jibo themselves using the SCRATCH language, thanks to the Be a Maker&nbsp;© application.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="column">
+                  <img src="https://jibo.com/wp-content/themes/JIBOTheme/img/about_thisis_1.png" width="100%">
+                  A
+                  <!-- <h4 class="title_s font_ProximaNovaLight">A uniquely entertaining<br>character</h4> -->
+                  <!-- <p class="text">A wide range of human-like emotions through sophisticated body movements, embodied speech, and animatronics.</p> -->
+                </div>
+                <div class="column">
+                  <img src="https://jibo.com/wp-content/themes/JIBOTheme/img/about_thisis_2.png" width="100%">
+                  B
+                  <!-- <h4 class="title_s font_ProximaNovaLight">Friendly companion</h4> -->
+                    <!-- <p class="text">He can react to physical stimuli and recognize human emotions to spark people’s curiosity, improving their emotional welfare, health, and educational outcomes.</p> -->
+                </div>
+                <div class="column">
+                  <img src="https://jibo.com/wp-content/themes/JIBOTheme/img/about_thisis_3.png" width="100%">
+                  C
+                  <!-- <h4 class="title_s font_ProximaNovaLight">Engagement</h4> -->
+                    <!-- <p class="text">He evokes a strong emotional response. jibo is human enough to be taken seriously and robotic enough to be easily forgiven for making mistakes. He builds strong connections and bonds with people.</p> -->
+                </div>
+            </div>
+
+            <br>
+
+            <div class="row">
+                <div class="column">
+                  <img src="https://jibo.com/wp-content/themes/JIBOTheme/img/about_thisis_1.png" width="100%">
+                  D
+                  <!-- <h4 class="title_s font_ProximaNovaLight">A uniquely entertaining<br>character</h4> -->
+                  <!-- <p class="text">A wide range of human-like emotions through sophisticated body movements, embodied speech, and animatronics.</p> -->
+                </div>
+                <div class="column">
+                  <img src="https://jibo.com/wp-content/themes/JIBOTheme/img/about_thisis_2.png" width="100%">
+                  E
+                  <!-- <h4 class="title_s font_ProximaNovaLight">Friendly companion</h4> -->
+                    <!-- <p class="text">He can react to physical stimuli and recognize human emotions to spark people’s curiosity, improving their emotional welfare, health, and educational outcomes.</p> -->
+                </div>
+                <div class="column">
+                  <img src="https://jibo.com/wp-content/themes/JIBOTheme/img/about_thisis_3.png" width="100%">
+                  F
+                  <!-- <h4 class="title_s font_ProximaNovaLight">Engagement</h4> -->
+                    <!-- <p class="text">He evokes a strong emotional response. jibo is human enough to be taken seriously and robotic enough to be easily forgiven for making mistakes. He builds strong connections and bonds with people.</p> -->
+                </div>
+            </div>
+
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+
+            <h3 class="title title_solutions_6 font_ProximaNovaSemibold" ui_shown="true">Journey</h3>
+            
+            <div class="solutions_6_blocks">
+                <div class="rounded solutions_6_left" ui_shown="true">
+                    <!-- <p class="text solutions_6_text">
+                        jibo can help children who need extra attention due to learning difficulties or disorders. Children are more eager to emotionally connect and be physically activated by a social robot. For any school subject, including foreign language learning, jibo can be the nexus between students and teachers, supporting the learning process with gamification strategies that keep students motivated. Children can also learn how to program interactions with jibo themselves using the SCRATCH language, thanks to the Be a Maker&nbsp;© application.
+                    </p> -->
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="timeline">
+                  <ul>
+                    <li>
+                      <div class="timeline-content">
+                        <h3 class="date">20th may, 2010</h3>
+                        <h1>Heading 1</h1>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur tempora ab laudantium voluptatibus aut eos placeat laborum, quibusdam exercitationem labore.</p>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="timeline-content">
+                        <h3 class="date">20th may, 2010</h3>
+                        <h1>Heading 2</h1>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur tempora ab laudantium voluptatibus aut eos placeat laborum, quibusdam exercitationem labore.</p>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="timeline-content">
+                        <h3 class="date">20th may, 2010</h3>
+                        <h1>Heading 3</h1>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur tempora ab laudantium voluptatibus aut eos placeat laborum, quibusdam exercitationem labore.</p>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="timeline-content">
+                        <h3 class="date">20th may, 2010</h3>
+                        <h1>Heading 4</h1>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur tempora ab laudantium voluptatibus aut eos placeat laborum, quibusdam exercitationem labore.</p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+    
+        </div>
+    </div>
+
+    
+
+   
+
+    <!-- <div class="block" block="solutions_9">
+        <div class="page_inner">
+            <h2 class="title solutions_9_title font_ProximaNovaSemibold">Journey</h2>
+
+            <div class="row">
+                <div class="column">
+                    <img class="rounded" src="https://jibo.com/wp-content/themes/JIBOTheme/img/general_application_hospitals.jpg" width="50%" height="50%">
+                    <h4 class="title_s font_ProximaNovaLight">jibo for Hospitals</h4>
+                </div>
+                <div class="column">
+                    <img class="rounded" src="https://jibo.com/wp-content/themes/JIBOTheme/img/general_application_telehealth.jpg" width="50%" height="50%">
+                    <h4 class="title_s font_ProximaNovaLight">jibo for Telehealth</h4>
+                </div>
+               
+              </div>
+        </div>
+    </div> -->
+
+   
 
     {% include footer.html %}
 

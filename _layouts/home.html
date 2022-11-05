@@ -29,114 +29,153 @@
     </script><script src="https://jibo.com/wp-includes/js/wp-emoji-release.min.js?ver=6.0.1" type="text/javascript" defer=""></script>
     <style type="text/css">
         /* vertical timeline */
-        @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&display=swap");
         * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
         }
-        html {
-        font-family: "Montserrat";
-        }
-        .container {
-        min-height: 100vh;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 100px 0;
-        background-color: rgb(0, 0, 0);
+        body {
+            background-color: #EDF2F7;
+            font-family: 'Noto Sans', sans-serif;
+            font-size: 1em;
+            color: #4A5568;
         }
         .timeline {
-        width: 80%;
-        height: auto;
-        max-width: 800px;
-        margin: 0 auto;
-        position: relative;
-        }
-
-        .timeline ul {
-        list-style: none;
-        }
-        .timeline ul li {
-        padding: 20px;
-        background-color: #1e1f22;
-        color: white;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        }
-        .timeline ul li:last-child {
-        margin-bottom: 0;
-        }
-        .timeline-content h1 {
-        font-weight: 500;
-        font-size: 25px;
-        line-height: 30px;
-        margin-bottom: 10px;
-        }
-        .timeline-content p {
-        font-size: 16px;
-        line-height: 30px;
-        font-weight: 300;
-        }
-        .timeline-content .date {
-        font-size: 12px;
-        font-weight: 300;
-        margin-bottom: 10px;
-        letter-spacing: 2px;
-        }
-        @media only screen and (min-width: 768px) {
-        .timeline:before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 51.4%;
-            transform: translateX(-50%);
-            width: 1px;
-            height: 100%;
-            background-color: gray;
-        }
-        .timeline ul li {
-            width: 50%;
             position: relative;
-            margin-bottom: 50px;
+            max-width: 1200px; /* Restrict the width on large screens */
+            margin: 0 auto; /* Center the content */
+            padding: 30px;
         }
-        .timeline ul li:nth-child(odd) {
-            float: left;
-            clear: right;
-            transform: translateX(-30px);
-            border-radius: 20px 0px 20px 20px;
-        }
-        .timeline ul li:nth-child(even) {
-            float: right;
-            clear: left;
-            transform: translateX(30px);
-            border-radius: 0px 20px 20px 20px;
-        }
-        .timeline ul li::before {
-            content: "";
+        .timeline::after {
+            content: '';
             position: absolute;
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-            background-color: gray;
-            top: 0px;
+            width: 6px;
+            background-color: white;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 1;
         }
-        .timeline ul li:nth-child(odd)::before {
-            transform: translate(50%, -50%);
-            right: -30px;
+        .container {
+            position: relative;
+            width: 50%;
+            min-height: 120px;
         }
-        .timeline ul li:nth-child(even)::before {
-            transform: translate(-50%, -50%);
-            left: -30px;
+        .container-left {
+            left: 0;
+            padding-right: 70px;
+            text-align: right;
         }
-        .timeline-content .date {
+        .container-right {
+            left: 50%;
+            padding-left: 70px;
+            text-align: left;
+        }
+        .content {
+            padding: 30px;
+            background-color: rgb(0, 0, 0);
+            position: relative;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .container .content::before {
+            content: " ";
+            height: 0;
             position: absolute;
-            top: -30px;
+            top: 35px;
+            width: 0;
+            z-index: 1;
+            border: medium solid white;
         }
-        .timeline ul li:hover::before {
-            background-color: rgb(255, 255, 255);
+        .container-left .content::before {
+            right: -10px;
+            border-width: 10px 0 10px 10px;
+            border-color: transparent transparent transparent white;
         }
+        .container-right .content::before {
+            left: -10px;
+            border-width: 10px 10px 10px 0;
+            border-color: transparent white transparent transparent;
+        }
+        .image {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            background-size: cover;
+            background-position: center;
+            border: solid 5px #ffffff;
+            border-radius: 50px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+        .container-left .image {
+            right: 0;
+            margin-right: -45px;
+        }
+        .container-right .image {
+            left: 0;
+            margin-left: -45px;
+        }
+        .content span {
+            color: #2C7A7B;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .content h2 {
+            font-size: 1.8em;
+            padding-top: 5px;
+        }
+        .content p {
+            line-height: 1.6;
+            padding-top: 5px;
+        }
+        @media screen and (max-width: 767px) {
+            .timeline::after {
+                left: 65px;
+            }
+            .container {
+                width: 100%;
+                padding-left: 100px;
+                padding-right: 0px;
+                margin-top: 30px;
+            }
+            .container:first-of-type {
+                margin-top: 0px;
+            }
+            .container-right {
+                left: 0%;
+            }
+            .container-left {
+                text-align: left;
+            }
+            .container .image {
+                left:-10px;
+                top: 0px;
+                margin-left: 0;
+                margin-right: 0;
+            }
+            .container-left .content::before {
+                left: -10px;
+                right: auto;
+                border-width: 10px 10px 10px 0;
+                border-color: transparent white transparent transparent;
+            }
+        }
+        @media screen and (max-width: 480px) {
+            .container {
+                padding-left: 0px;
+                padding-top: 105px;
+                z-index: 3;
+            }
+            .container .content::before {
+                left: 25px;
+                top: -10px;
+                border: medium solid white;
+                border-width: 0 10px 10px 10px;
+                border-color: transparent transparent white transparent;
+            }
         }
 
     /* main */
@@ -389,40 +428,89 @@
                 </div>
             </div>
 
-            <div class="container">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Document</title>
+                <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+                <!-- <link rel="stylesheet" href="style.css"> -->
+            </head>
+            <body>
                 <div class="timeline">
-                  <ul>
-                    <li>
-                      <div class="timeline-content">
-                        <h3 class="date">20th may, 2010</h3>
-                        <h1>Heading 1</h1>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur tempora ab laudantium voluptatibus aut eos placeat laborum, quibusdam exercitationem labore.</p>
-                      </div>
-                    </li>
-                    <li>
-                      <div class="timeline-content">
-                        <h3 class="date">20th may, 2010</h3>
-                        <h1>Heading 2</h1>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur tempora ab laudantium voluptatibus aut eos placeat laborum, quibusdam exercitationem labore.</p>
-                      </div>
-                    </li>
-                    <li>
-                      <div class="timeline-content">
-                        <h3 class="date">20th may, 2010</h3>
-                        <h1>Heading 3</h1>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur tempora ab laudantium voluptatibus aut eos placeat laborum, quibusdam exercitationem labore.</p>
-                      </div>
-                    </li>
-                    <li>
-                      <div class="timeline-content">
-                        <h3 class="date">20th may, 2010</h3>
-                        <h1>Heading 4</h1>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur tempora ab laudantium voluptatibus aut eos placeat laborum, quibusdam exercitationem labore.</p>
-                      </div>
-                    </li>
-                  </ul>
+                    <div class="container container-left">
+                        <div class="image" style="background-image:url('https://images.pexels.com/photos/307008/pexels-photo-307008.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=100')"></div>
+                        <div class="content">
+                            <span>April 19th, 1995</span><br>
+                            <b>Borned in South Korea</b><br>
+
+                                Grew up in a city called Incheon which is located right next to Seoul. 
+
+                        </div>
+                    </div>
+                    <div class="container container-left">
+                        <div class="image" style="background-image:url('/assets/images/crestwood.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=100')"></div>
+                        <div class="content">
+                            <span>Sept, 2007</span><br>
+                            <b>Lived in Toronto, Canada</b><br>
+                                Went to Crestwood elmentary school in Toronto. 
+                        </div>
+                    </div>
+                    <div class="container container-right">
+                        <div class="image" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Seal_of_the_Republic_of_Korea_Marine_Corps.svg/1200px-Seal_of_the_Republic_of_Korea_Marine_Corps.svg.png?auto=compress&cs=tinysrgb&dpr=2&w=100')"></div>
+                        <div class="content">
+                            <span>Mar 2016 - Dec 2017</span><br>
+                            <b>Military Service</b><br>
+                                ROKMC
+                        </div>
+                    </div>
+                    <div class="container container-right">
+                        <div class="image" style="background-image:url('https://upload.wikimedia.org/wikipedia/en/thumb/9/95/YonseiUniversityEmblem.svg/1200px-YonseiUniversityEmblem.svg.png?auto=compress&cs=tinysrgb&dpr=2&w=100')"></div>
+                        <div class="content">
+                            <span>Feb 2022</span><br>
+                            <b>Graduated from Yonsei University</b><br>
+
+                                Bachelor's in Computer Science and Mechanical Engineering.
+
+                        </div>
+                    </div>
+                    <div class="container container-left">
+                        <div class="image" style="background-image:url('https://d1fdloi71mui9q.cloudfront.net/MegmvoXPTTWkiPTJSShn_0HvOErzjeG63MD35?auto=compress&cs=tinysrgb&dpr=2&w=100')"></div>
+                        <div class="content">
+                            <span>Mar 2019</span><br>
+                            <b>Robotics Engineer Intern, Bear Robotics</b><br>
+
+                                Interned at Bear Robotics, Redwood City, CA
+                        </div>
+                    </div>
+                    <div class="container container-left">
+                        <div class="image" style="background-image:url('/assets/images/robomaster.png?auto=compress&cs=tinysrgb&dpr=2&w=100')"></div>
+                        <div class="content">
+                            <span>May 2019</span><br>
+                            <b>ICRA RoboMaster AI Challenge</b><br>
+
+                                Final Competition, Montreal
+                        </div>
+                    </div>
+                    <div class="container container-right">
+                        <div class="image" style="background-image:url('https://dmlab.ai/wp-content/uploads/elementor/thumbs/Group-68-povnvl2y09srb2cyy2uqkfymy3ijet82qt3434j1ts.png?auto=compress&cs=tinysrgb&dpr=2&w=100')"></div>
+                        <div class="content">
+                            <span>July 2020</span><br>
+                            <b>R&D, Deep Machine Lab</b><br>
+
+                                Interned at Deep Machine Lab, Seoul
+                        </div>
+                    </div>
+                    <div class="container container-left">
+                        <div class="image" style="background-image:url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLk3g3g2mxNjpAffFH6w_FP8AcarUVT_eCTR4uZRWFhmUaubkYWes91nDnXoW4g4UT1-Q&usqp=CAU?auto=compress&cs=tinysrgb&dpr=2&w=100')"></div>
+                        <div class="content">
+                            <span>July 2022 - Present</span><br>
+                            <b>Visiting Student, MIT Media Lab</b><br>
+
+                                Visiting student at MIT Media Lab
+                        </div>
+                    </div>
                 </div>
-              </div>
+            </body>
     
         </div>
     </div>

@@ -27,8 +27,104 @@
     /*! This file is auto-generated */
     !function(e,a,t){var n,r,o,i=a.createElement("canvas"),p=i.getContext&&i.getContext("2d");function s(e,t){var a=String.fromCharCode,e=(p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,e),0,0),i.toDataURL());return p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,t),0,0),e===i.toDataURL()}function c(e){var t=a.createElement("script");t.src=e,t.defer=t.type="text/javascript",a.getElementsByTagName("head")[0].appendChild(t)}for(o=Array("flag","emoji"),t.supports={everything:!0,everythingExceptFlag:!0},r=0;r<o.length;r++)t.supports[o[r]]=function(e){if(!p||!p.fillText)return!1;switch(p.textBaseline="top",p.font="600 32px Arial",e){case"flag":return s([127987,65039,8205,9895,65039],[127987,65039,8203,9895,65039])?!1:!s([55356,56826,55356,56819],[55356,56826,8203,55356,56819])&&!s([55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447],[55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447]);case"emoji":return!s([129777,127995,8205,129778,127999],[129777,127995,8203,129778,127999])}return!1}(o[r]),t.supports.everything=t.supports.everything&&t.supports[o[r]],"flag"!==o[r]&&(t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&t.supports[o[r]]);t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&!t.supports.flag,t.DOMReady=!1,t.readyCallback=function(){t.DOMReady=!0},t.supports.everything||(n=function(){t.readyCallback()},a.addEventListener?(a.addEventListener("DOMContentLoaded",n,!1),e.addEventListener("load",n,!1)):(e.attachEvent("onload",n),a.attachEvent("onreadystatechange",function(){"complete"===a.readyState&&t.readyCallback()})),(e=t.source||{}).concatemoji?c(e.concatemoji):e.wpemoji&&e.twemoji&&(c(e.twemoji),c(e.wpemoji)))}(window,document,window._wpemojiSettings);
     </script><script src="https://jibo.com/wp-includes/js/wp-emoji-release.min.js?ver=6.0.1" type="text/javascript" defer=""></script>
+
     <style type="text/css">
-        /* vertical timeline */
+        /* 1. CSS */
+        html {
+        background: #000000;
+        font-family: 'Roboto', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        padding: 20px 0;
+        }
+
+        .band {
+        width: 100%;
+        max-width: 1280px;
+        margin: 0 auto;
+        
+        display: grid;
+        
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        grid-gap: 20px;
+        
+        }
+
+        @media only screen and (min-width: 700px) {
+        .band {
+            grid-template-columns: 1fr 1fr;
+        }  
+        .item-1 {
+            grid-column: 1/ span 2;
+            }
+            .item-1 h1 {
+                font-size: 20px;
+            }
+        }
+
+        @media only screen and (min-width: 950px) {
+        .band {
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
+        }
+
+        /* card */
+        .card {
+        min-height: 100%;
+        background: rgb(34, 32, 32);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: rgb(255, 255, 255);
+        position: relative;
+        top: 0;
+        transition: all .1s ease-in;
+        }
+
+        .card:hover {
+        top: -2px;
+        box-shadow: 0 4px 5px rgba(0, 217, 255, 0.6);
+        }
+
+        .card article {
+        padding: 20px;
+        display: flex;
+        
+        flex: 1;
+        justify-content: space-between;
+        flex-direction: column;
+        
+        }
+        .card .thumb {
+        padding-bottom: 60%;
+        background-size: cover;
+        background-position: center center;
+        }
+
+        .card p { 
+        flex: 1; /* make p grow to fill available space*/
+        line-height: 1.4;
+        }
+
+        /* typography */
+        h1 {
+        font-size: 20px;
+        margin: 0;
+        color: #333;
+        }
+
+        .card span {
+        font-size: 12px;
+        font-weight: bold;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        margin: 2em 0 0 0;
+        }
+      
+
+        /* 2. vertical timeline - Journey*/
         * {
         margin: 0;
         padding: 0;
@@ -131,7 +227,7 @@
             line-height: 1.6;
             padding-top: 5px;
         }
-        @media screen and (max-width: 767px) {
+        @media screen and (max-width: 900px) {
             .timeline::after {
                 left: 65px;
             }
@@ -163,7 +259,7 @@
                 border-color: transparent white transparent transparent;
             }
         }
-        @media screen and (max-width: 480px) {
+        @media screen and (max-width: 1280px) {
             .container {
                 padding-left: 0px;
                 padding-top: 105px;
@@ -355,7 +451,6 @@
             </div>
         </div>
     </div> -->
-
     <div class="block" block="solutions_6">
         <div class="page_inner">
             <h3 class="title title_solutions_6 font_ProximaNovaSemibold" ui_shown="true">Projects</h3>
@@ -368,50 +463,77 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="column">
-                  <img src="https://jibo.com/wp-content/themes/JIBOTheme/img/about_thisis_1.png" width="100%">
-                  A
-                  <!-- <h4 class="title_s font_ProximaNovaLight">A uniquely entertaining<br>character</h4> -->
-                  <!-- <p class="text">A wide range of human-like emotions through sophisticated body movements, embodied speech, and animatronics.</p> -->
+            <!-- 1. Gallery Grid-->
+            <div class="support-grid"></div>
+            <div class="band">
+                <div class="item-1">
+                    <a href="https://design.tutsplus.com/articles/international-artist-feature-malaysia--cms-26852" class="card">
+                        <div class="thumb" style="background-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/flex-1.jpg);"></div>
+                        <article>
+                        International Artist Feature: Malaysia<br>
+                        <span>Mary Winkler</span>
+                        </article>
+                    </a>
                 </div>
-                <div class="column">
-                  <img src="https://jibo.com/wp-content/themes/JIBOTheme/img/about_thisis_2.png" width="100%">
-                  B
-                  <!-- <h4 class="title_s font_ProximaNovaLight">Friendly companion</h4> -->
-                    <!-- <p class="text">He can react to physical stimuli and recognize human emotions to spark people’s curiosity, improving their emotional welfare, health, and educational outcomes.</p> -->
+                <div class="item-2">
+                    <a href="https://webdesign.tutsplus.com/articles/how-to-conduct-remote-usability-testing--cms-27045" class="card">
+                        <div class="thumb" style="background-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/users-2.png);"></div>
+                        <article>
+                        How to Conduct Remote Usability Testing<br>
+                        <span>Harry Brignull</span>
+                        </article>
+                    </a>
                 </div>
-                <div class="column">
-                  <img src="https://jibo.com/wp-content/themes/JIBOTheme/img/about_thisis_3.png" width="100%">
-                  C
-                  <!-- <h4 class="title_s font_ProximaNovaLight">Engagement</h4> -->
-                    <!-- <p class="text">He evokes a strong emotional response. jibo is human enough to be taken seriously and robotic enough to be easily forgiven for making mistakes. He builds strong connections and bonds with people.</p> -->
+                <div class="item-3">
+                <a href="https://design.tutsplus.com/articles/envato-tuts-community-challenge-created-by-you-july-edition--cms-26724" class="card">
+                    <div class="thumb" style="background-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/flex-5.jpg);"></div>
+                    <article>
+                    Created by You, July Edition<br>
+                    <p>Welcome to our monthly feature of fantastic tutorial results created by you, the Envato Tuts+ community! </p>
+                    <span>Melody Nieves</span>
+                    </article>
+                </a>
+                </div>
+                <div class="item-4">
+                    <a href="https://webdesign.tutsplus.com/tutorials/how-to-code-a-scrolling-alien-lander-website--cms-26826" class="card">
+                        <div class="thumb" style="background-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/landing.png);"></div>
+                        <article>
+                        How to Code a Scrolling “Alien Lander” Website<br>
+                        <p>We’ll be putting things together so that as you scroll down from the top of the page you’ll see an “Alien Lander” making its way to touch down.</p>
+                        <span>Kezz Bracey</span>
+                        </article>
+                    </a>
+                </div>
+                <div class="item-5">
+                    <a href="https://design.tutsplus.com/tutorials/stranger-things-inspired-text-effect--cms-27139" class="card">
+                        <div class="thumb" style="background-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/strange.jpg);"></div>
+                        <article>
+                        How to Create a “Stranger Things” Text Effect in Adobe Photoshop<br>
+                        <span>Rose</span>
+                        </article>
+                    </a>
+                </div>
+                <div class="item-6">
+                <a href="https://photography.tutsplus.com/articles/5-inspirational-business-portraits-and-how-to-make-your-own--cms-27338" class="card">
+                    <div class="thumb" style="background-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/flor.jpg);"></div>
+                    <article>
+                    5 Inspirational Business Portraits and How to Make Your Own<br>
+                    
+                    <span>Marie Gardiner</span>
+                    </article>
+                </a>
+                </div>
+                <div class="item-7">
+                <a href="https://webdesign.tutsplus.com/articles/notes-from-behind-the-firewall-the-state-of-web-design-in-china--cms-22281" class="card">
+                    <div class="thumb" style="background-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/210284/china.png);"></div>
+                    <article>
+                    Notes From Behind the Firewall: The State of Web Design in China<br>
+                    <span>Kendra Schaefer</span>
+                    </article>
+                </a>
                 </div>
             </div>
-
-            <br>
-
-            <div class="row">
-                <div class="column">
-                  <img src="https://jibo.com/wp-content/themes/JIBOTheme/img/about_thisis_1.png" width="100%">
-                  D
-                  <!-- <h4 class="title_s font_ProximaNovaLight">A uniquely entertaining<br>character</h4> -->
-                  <!-- <p class="text">A wide range of human-like emotions through sophisticated body movements, embodied speech, and animatronics.</p> -->
-                </div>
-                <div class="column">
-                  <img src="https://jibo.com/wp-content/themes/JIBOTheme/img/about_thisis_2.png" width="100%">
-                  E
-                  <!-- <h4 class="title_s font_ProximaNovaLight">Friendly companion</h4> -->
-                    <!-- <p class="text">He can react to physical stimuli and recognize human emotions to spark people’s curiosity, improving their emotional welfare, health, and educational outcomes.</p> -->
-                </div>
-                <div class="column">
-                  <img src="https://jibo.com/wp-content/themes/JIBOTheme/img/about_thisis_3.png" width="100%">
-                  F
-                  <!-- <h4 class="title_s font_ProximaNovaLight">Engagement</h4> -->
-                    <!-- <p class="text">He evokes a strong emotional response. jibo is human enough to be taken seriously and robotic enough to be easily forgiven for making mistakes. He builds strong connections and bonds with people.</p> -->
-                </div>
-            </div>
-
+        
             <br>
             <br>
             <br>

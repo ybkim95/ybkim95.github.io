@@ -31,7 +31,7 @@
     <style type="text/css">
         /* 1. CSS */
         html {
-        background: #000000;
+        background: #ffffff;
         font-family: 'Roboto', sans-serif;
         -webkit-font-smoothing: antialiased;
         padding: 20px 0;
@@ -131,7 +131,7 @@
         box-sizing: border-box;
         }
         body {
-            background-color: #EDF2F7;
+            background-color: #a0afbd;
             font-family: 'Noto Sans', sans-serif;
             font-size: 1em;
             color: #4A5568;
@@ -146,7 +146,7 @@
             content: '';
             position: absolute;
             width: 6px;
-            background-color: white;
+            background-color: rgb(255, 255, 255);
             top: 0;
             bottom: 0;
             left: 50%;
@@ -171,7 +171,7 @@
         }
         .content {
             padding: 30px;
-            background-color: rgb(0, 0, 0);
+            background-color: rgba(250, 253, 253, 0.623);
             position: relative;
             border-radius: 6px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -287,6 +287,18 @@
     background: none !important;
     padding: 0 !important;
     }
+
+    #container {
+    width: 115%;
+    height: 120%;
+    position: absolute;
+    top: 30%;
+    left: 70%;
+    margin-top: -50px;
+    margin-left: -50px;
+    /* background: orange; */
+    }
+
     </style>
         <link rel="stylesheet" id="wp-block-library-css" href="https://jibo.com/wp-includes/css/dist/block-library/style.min.css?ver=6.0.1" type="text/css" media="all">
         <style id="global-styles-inline-css" type="text/css">
@@ -328,7 +340,7 @@
                 </div>				
             </div>
     
-            <a href="https://ybkim95.github.io/"><img class="header_logo" src="assets/images/ybk_logo.png"></a>
+            <a href="https://ybkim95.github.io/"><img class="header_logo" src="assets/images/ybk_logo_white.png"></a>
             <div ui_comp="header_menu" ui_value="home" class="header_menu_outer" id="BC_1659848917334_9303">
                 <!-- <span ui_role="header_point" class="header_menu_point" style="left: 69.5%; background-color: rgb(76, 177, 254); opacity: 1;"></span> -->
                 <div class="menu-menu_header-container">
@@ -351,6 +363,10 @@
             </div>
         </header>
     
+    <div id="container">
+        <img src="/assets/images/ybk.jpg" width="11%" height="25%" id="hp" />
+    </div>
+    
     <div class="block" block="home_1">
         <div class="page_inner">
             <h1 class="title font_ProximaNovaSemibold" ui_shown="true">Hello, I'm a/an<br>
@@ -362,6 +378,7 @@
                 My research objective and interest lies in the area of <b>human-robot interaction</b>. <br> 
                 Specifically, I'm interested in studying affect recognition for child early literacy learning and developing dialogue system for emotional wellness and medication support for older adults. 
             </p>
+            
         </div>
     </div>
     
@@ -402,7 +419,7 @@
     <div id="main">
 
         <!-- One 여기에 CV로 가는 html이나 링크를 넣자. -->
-        {% include tiles.html %}
+        <!-- {% include tiles.html %} -->
 
         <!-- Two -->
         <!-- <section id="two">

@@ -33,7 +33,8 @@
 			'color #{_duration(transition)} ease-in-out',
 			'border-bottom-color #{_duration(transition)} ease-in-out'
 		));
-		border-bottom: dotted 1px;
+		// 메인 메뉴 아래 dotted된거 on/off
+		// border-bottom: dotted 1px;
 		color: inherit;
 		text-decoration: none;
 

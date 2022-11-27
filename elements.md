@@ -103,7 +103,7 @@ image: assets/images/cafe.png
                 clock.start();
                 feather.replace();
                 // 지도 배경 색깔 
-                scene.background = new THREE.Color(0x000000);
+                scene.background = new THREE.Color(0xffffff);
                 renderer.setSize(window.innerWidth/1.4, window.innerHeight/1.4);             
                 canvas = renderer.domElement;
                 fetch("/assets/world_map_web_merc.json").then((response) => {
@@ -306,7 +306,7 @@ image: assets/images/cafe.png
 
                         if (INTERSECTED != SELECTED) {
                             <!-- 나라 색깔 -->
-                            INTERSECTED.material.color.setHex(0xffcccc);
+                            INTERSECTED.material.color.setHex(0x000000);
                         }
 
                     } else {

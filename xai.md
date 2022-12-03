@@ -237,7 +237,7 @@ organization {
 <section>
   <div class="hero-image">
     <div class="hero-text">
-      <h1 style="font-size:40px; color:white; font-family:Arial;">Multi-Party Human-Robot Conversation Interactions</h1>
+      <h1 style="font-size:40px; color:white; font-family:Arial;">Explainable Human-Robot Interaction Learning with Video Augmentation Techniques</h1>
     </div>
     <nav>
       <input onClick="window.location.href='../'" type="image" src="/assets/images/white_logo.png" style="height:90%" />
@@ -265,7 +265,7 @@ organization {
         <br>
         <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
           <div align="left">
-            With the emergence of social robots in people’s daily lives, their interactions with people need to consider not only engaging with individuals, but also with a group of people (e.g. families or colleagues). However, most human-robot interaction work has focused on interacting with a single user at a time, due to challenges in understanding social cues from multiple people at the same time as well as designing interactions with a group of people. Designing for group interactions is vastly different from designing interaction with individuals. Because in a group interaction users are also interacting with each other and not just with the robot, understanding engagement cues require deeper contextualized interpretation, for example. Not only that, conversing with multiple users at the same time requires both significant advancements in sensor technology and dialogue systems. Conversation is central to interactions including in a museum guide setting that this project is targeting. In this project, we aim to design contextualized and personalized conversation experience between…<br><br>
+            Affect understanding capability is essential for social robots to autonomously interact with a group of users in an intuitive and reciprocal way. In this work, we use a dataset of parent-child dyads reading storybooks together with a social robot at home. We first train RGB frame- and skeleton-based joint engagement recognition models with four video augmentation techniques (<i>General Aug</i>, DeepFake, CutOut, and Mixed) applied datasets to improve joint engagement classification performance. Second, we demonstrate experimental results on the use of trained models in the robot-parent-child interaction context. Third, we introduce a behavior-based metric for evaluating the learned representation of the models to investigate the model interpretability when recognizing joint engagement. This work serves as the first step toward fully unlocking the potential of end-to-end video understanding models pre-trained on large public datasets and augmented with data augmentation and visualization techniques for affect recognition in the multi-person human-robot interaction in the wild.<br><br>
             <h6> Research Topics </h6>
             <rt>
               # robotics # human-computer interaction
@@ -276,13 +276,16 @@ organization {
                 Overview
               </div>
             </div>
-            <img src="/assets/images/aamas_1.png" alt="aamas-1">
+            <img src="/assets/images/aamas_1.png" alt="aamas-1"><br><br>
+            Proposed framework for evaluating the learned representation (Grad-CAM) with modified Optical Flow and skeleton information combined Semantic Segmentation as references. With the fine-tuned models, we generate Grad-CAM for each video clip and evaluate its quality. We calculate the evaluation score based on two sub-scores (semantic-based and motion-based) which are obtained by applying mutual information and cross-entropy.
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Dataset
               </div>
             </div>
+            A social robot was deployed and teleoperated remotely in the homes of 12 families with 3-7-year-old children to engage in a triadic story-reading activity with the parent and child over the course of six 25-minute sessions and 3 to 6 weeks in total. For each triadic session, audiovisual recordings were captured and subsequently used to annotate the quality of parent-child engagement. We chose the Joint Engagement Rating Inventory (JERI) to measure parent-child engagement [1], as it has been utilized and validated in previous parent-child interaction studies [1, 4]. <br>
+            Using the intra-class correlation (ICC) type (3,1) for average fixed raters, the agreement among the three annotators was measured. Given these evaluation criteria, the annotation quality with ICC=0.95 exceeded the threshold for very good quality (0.75 ≤ 𝐼𝐶𝐶 ≤ 1.0). After recordings were independently coded by the annotators, the final score for each recording fragment was determined by averaging the ratings assigned to each scale by the two annotators. We convert the 5-scale into three classification levels (low: 8.49%, medium: 49.68%, and high: 41.83%) for model training and testing. Strictly following the annotation protocol in [4], we annotated 16,606 five-second video clips with 1517.08 ± 309.34 fragments from each family on average.
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
@@ -291,6 +294,20 @@ organization {
             </div>
             <br>
             <img src="/assets/images/aamas-experiment.png" alt="aamas-1">
+            <br><br><br>
+            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+              <div align="left">
+                Methods
+              </div>
+            </div>
+            <img src="/assets/images/xai_methods.png" alt="aamas-1">
+            <br><br><br>
+            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+              <div align="left">
+                Visualization
+              </div>
+            </div>
+            <img src="/assets/images/xai_visualization.png" alt="aamas-1">
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">

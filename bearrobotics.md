@@ -13,7 +13,7 @@ image: assets/images/ice_hockey.png
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
 <style>
   .hero-image {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/assets/images/item-1-hcai.png");
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/assets/images/bear_cover.png");
     height: 60%;
     background-position: center;
     background-repeat: no-repeat;
@@ -237,7 +237,7 @@ organization {
 <section>
   <div class="hero-image">
     <div class="hero-text">
-      <h1 style="font-size:40px; color:white; font-family:Arial;">Multi-Party Human-Robot Conversation Interactions</h1>
+      <h1 style="font-size:40px; color:white; font-family:Arial;">Development of Indoor Serving Robot, <i>Servi</i></h1>
     </div>
     <nav>
       <input onClick="window.location.href='../'" type="image" src="/assets/images/white_logo.png" style="height:90%" />
@@ -259,16 +259,16 @@ organization {
     <center>
         <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
             <div align="left">
-              Multi-Party Human-Robot Conversation Interactions
+              Development of Indoor Serving Robot, <i>Servi</i>
             </div>
         </div>
         <br>
         <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
           <div align="left">
-            With the emergence of social robots in people’s daily lives, their interactions with people need to consider not only engaging with individuals, but also with a group of people (e.g. families or colleagues). However, most human-robot interaction work has focused on interacting with a single user at a time, due to challenges in understanding social cues from multiple people at the same time as well as designing interactions with a group of people. Designing for group interactions is vastly different from designing interaction with individuals. Because in a group interaction users are also interacting with each other and not just with the robot, understanding engagement cues require deeper contextualized interpretation, for example. Not only that, conversing with multiple users at the same time requires both significant advancements in sensor technology and dialogue systems. Conversation is central to interactions including in a museum guide setting that this project is targeting. In this project, we aim to design contextualized and personalized conversation experience between…<br><br>
+            Story<br><br>
             <h6> Research Topics </h6>
             <rt>
-              # robotics # human-computer interaction
+              # robotics # human-robot interaction # SLAM
             </rt>
             <br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
@@ -276,13 +276,8 @@ organization {
                 Overview
               </div>
             </div>
-            <img src="/assets/images/aamas_1.png" alt="aamas-1">
-            <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
-              <div align="left">
-                Dataset
-              </div>
-            </div>
+            <!-- <img src="/assets/images/aamas_1.png" alt="aamas-1"> -->
+            <iframe width="840" height="480" src="https://www.youtube.com/embed/G2bimZ5hBBc?autoplay=1&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
@@ -292,18 +287,6 @@ organization {
             <br>
             <img src="/assets/images/aamas-experiment.png" alt="aamas-1">
             <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
-              <div align="left">
-                Publications
-              </div>
-            </div>
-            <br>
-            <p>
-              <font size="3">
-              <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, S.M.Algohwinem, H.W.Park, "Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation." accepted in Human-Centered AI Workshop at NeurIPS.</a><br><br>
-              <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, H.Chen, S.M.Algohwinem, C.Breazeal, H.W.Park, "Joint Engagement Classification using Video Augmentation Techniques for Multi-person Human-robot Interaction." under review at AAMAS 2023.</a>
-              </font>
-            </p>
           </div>
         </div>
     </center>

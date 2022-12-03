@@ -13,7 +13,7 @@ image: assets/images/ice_hockey.png
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
 <style>
   .hero-image {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/assets/images/item-1-hcai.png");
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/assets/images/icra.png");
     height: 60%;
     background-position: center;
     background-repeat: no-repeat;
@@ -237,7 +237,7 @@ organization {
 <section>
   <div class="hero-image">
     <div class="hero-text">
-      <h1 style="font-size:40px; color:white; font-family:Arial;">Multi-Party Human-Robot Conversation Interactions</h1>
+      <h1 style="font-size:40px; color:white; font-family:Arial;">ICRA RoboMaster AI Challenge</h1>
     </div>
     <nav>
       <input onClick="window.location.href='../'" type="image" src="/assets/images/white_logo.png" style="height:90%" />
@@ -253,22 +253,22 @@ organization {
     <br>
     <projectbutton><a href="../#sec_project">< Projects</a></projectbutton>
     <br>
-    <duration>June 2022 ~ Present</duration>
+    <duration>Dec 2018 ~ May 2019</duration>
     <br>
-    <organization> Personal Robots Group, MIT Media Lab </organization>
+    <organization> Team Roboin, Yonsei University </organization>
     <center>
         <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
             <div align="left">
-              Multi-Party Human-Robot Conversation Interactions
+              ICRA RoboMaster AI Challenge
             </div>
         </div>
         <br>
         <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
           <div align="left">
-            With the emergence of social robots in people’s daily lives, their interactions with people need to consider not only engaging with individuals, but also with a group of people (e.g. families or colleagues). However, most human-robot interaction work has focused on interacting with a single user at a time, due to challenges in understanding social cues from multiple people at the same time as well as designing interactions with a group of people. Designing for group interactions is vastly different from designing interaction with individuals. Because in a group interaction users are also interacting with each other and not just with the robot, understanding engagement cues require deeper contextualized interpretation, for example. Not only that, conversing with multiple users at the same time requires both significant advancements in sensor technology and dialogue systems. Conversation is central to interactions including in a museum guide setting that this project is targeting. In this project, we aim to design contextualized and personalized conversation experience between…<br><br>
+            This competition requires participants to go beyond their textbooks to form robotics teams, develop a diverse fleet of robots, and participate in team battles. Through the intense competition, students gain invaluable industry experience and strategic planning skills. This helps them combine their book smarts with practical skills in the field, enabling the construction of the most advanced and intelligent robots. The RMU has expanded its influence over the years, attracting more than 400 colleges and universities around the world to participate annually and nurturing the engineering talents of over 45,000 young learners. RoboMaster has also continued to develop various training and laboratory co-construction programs with hundreds of colleges and universities.<br><br>
             <h6> Research Topics </h6>
             <rt>
-              # robotics # human-computer interaction
+              # robotics # SLAM # reinforcement learning # computer vision
             </rt>
             <br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
@@ -276,13 +276,16 @@ organization {
                 Overview
               </div>
             </div>
-            <img src="/assets/images/aamas_1.png" alt="aamas-1">
+            <br>
+            <iframe width="840" height="480" src="https://www.youtube.com/embed/oJdBfSafWjM?autoplay=1&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
-                Dataset
+                Scenario Designs
               </div>
             </div>
+            <br>
+            <img src="/assets/images/icra_scenarios.png" alt="aamas-1">
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
@@ -294,7 +297,7 @@ organization {
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
-                Publications
+                References
               </div>
             </div>
             <br>

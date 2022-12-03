@@ -13,7 +13,7 @@ image: assets/images/ice_hockey.png
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
 <style>
   .hero-image {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/assets/images/item-1-hcai.png");
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/assets/images/item-4-minerl.png");
     height: 60%;
     background-position: center;
     background-repeat: no-repeat;
@@ -237,7 +237,7 @@ organization {
 <section>
   <div class="hero-image">
     <div class="hero-text">
-      <h1 style="font-size:40px; color:white; font-family:Arial;">Multi-Party Human-Robot Conversation Interactions</h1>
+      <h1 style="font-size:40px; color:white; font-family:Arial;">MineRL : Training AI agents in Open World Environments</h1>
     </div>
     <nav>
       <input onClick="window.location.href='../'" type="image" src="/assets/images/white_logo.png" style="height:90%" />
@@ -255,17 +255,17 @@ organization {
     <br>
     <duration>June 2022 ~ Present</duration>
     <br>
-    <organization> Personal Robots Group, MIT Media Lab </organization>
+    <organization> Software Capston Project,<br>Yonsei University </organization>
     <center>
         <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
             <div align="left">
-              Multi-Party Human-Robot Conversation Interactions
+              MineRL : Training AI agents in Open World Environments
             </div>
         </div>
         <br>
         <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
           <div align="left">
-            With the emergence of social robots in people’s daily lives, their interactions with people need to consider not only engaging with individuals, but also with a group of people (e.g. families or colleagues). However, most human-robot interaction work has focused on interacting with a single user at a time, due to challenges in understanding social cues from multiple people at the same time as well as designing interactions with a group of people. Designing for group interactions is vastly different from designing interaction with individuals. Because in a group interaction users are also interacting with each other and not just with the robot, understanding engagement cues require deeper contextualized interpretation, for example. Not only that, conversing with multiple users at the same time requires both significant advancements in sensor technology and dialogue systems. Conversation is central to interactions including in a museum guide setting that this project is targeting. In this project, we aim to design contextualized and personalized conversation experience between…<br><br>
+            Though deep reinforcement learning has led to breakthroughs in many difficult domains, these successes have required an ever-increasing number of samples. As state-ofthe-art reinforcement learning (RL) systems require an exponentially increasing number of samples, their development is restricted to a continually shrinking segment of the AI community. Likewise, many of these systemss cannot be applied to real-world problems, where environment samples are expensive. Resolution of these limitations requires new, sample-efficient methods. To facilitate research in this direction, we propose the MineRL Competition on Sample Efficient Reinforcement Learning using Human Priors.<br><br>
             <h6> Research Topics </h6>
             <rt>
               # robotics # human-computer interaction
@@ -276,7 +276,9 @@ organization {
                 Overview
               </div>
             </div>
-            <img src="/assets/images/aamas_1.png" alt="aamas-1">
+            <iframe width="840" height="480" src="https://www.youtube.com/embed/GHo8B4JMC38?autoplay=1&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <br>
+             <img src="/assets/images/minerl_overview.png" alt="aamas-1">
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
@@ -284,17 +286,25 @@ organization {
               </div>
             </div>
             <br><br><br>
+             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+              <div align="left">
+                Model Architecture
+              </div>
+            </div>
+            <br><br><br>
+            <img src="/assets/images/minerl_model.png" alt="aamas-1">
+            <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Experiments
               </div>
             </div>
             <br>
-            <img src="/assets/images/aamas-experiment.png" alt="aamas-1">
+            <!-- <img src="/assets/images/aamas-experiment.png" alt="aamas-1"> -->
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
-                Publications
+                Reference
               </div>
             </div>
             <br>

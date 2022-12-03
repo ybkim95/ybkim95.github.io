@@ -13,7 +13,7 @@ image: assets/images/ice_hockey.png
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
 <style>
   .hero-image {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/assets/images/item-1-hcai.png");
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/assets/images/item-2-elder-care.png");
     height: 60%;
     background-position: center;
     background-repeat: no-repeat;
@@ -237,7 +237,7 @@ organization {
 <section>
   <div class="hero-image">
     <div class="hero-text">
-      <h1 style="font-size:40px; color:white; font-family:Arial;">Multi-Party Human-Robot Conversation Interactions</h1>
+      <h1 style="font-size:40px; color:white; font-family:Arial;">Conversational AI agents for Elder Care</h1>
     </div>
     <nav>
       <input onClick="window.location.href='../'" type="image" src="/assets/images/white_logo.png" style="height:90%" />
@@ -253,22 +253,22 @@ organization {
     <br>
     <projectbutton><a href="../#sec_project">< Projects</a></projectbutton>
     <br>
-    <duration>June 2022 ~ Present</duration>
+    <duration>Nov 2022 ~ Present</duration>
     <br>
     <organization> Personal Robots Group, MIT Media Lab </organization>
     <center>
         <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
             <div align="left">
-              Multi-Party Human-Robot Conversation Interactions
+              Conversational AI Agents for Elder Care
             </div>
         </div>
         <br>
         <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
           <div align="left">
-            With the emergence of social robots in people’s daily lives, their interactions with people need to consider not only engaging with individuals, but also with a group of people (e.g. families or colleagues). However, most human-robot interaction work has focused on interacting with a single user at a time, due to challenges in understanding social cues from multiple people at the same time as well as designing interactions with a group of people. Designing for group interactions is vastly different from designing interaction with individuals. Because in a group interaction users are also interacting with each other and not just with the robot, understanding engagement cues require deeper contextualized interpretation, for example. Not only that, conversing with multiple users at the same time requires both significant advancements in sensor technology and dialogue systems. Conversation is central to interactions including in a museum guide setting that this project is targeting. In this project, we aim to design contextualized and personalized conversation experience between…<br><br>
+            summary<br><br>
             <h6> Research Topics </h6>
             <rt>
-              # robotics # human-computer interaction
+              # elder-care # robotics # human-robot interaction
             </rt>
             <br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
@@ -294,7 +294,7 @@ organization {
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
-                Publications
+                References
               </div>
             </div>
             <br>

@@ -252,10 +252,12 @@ organization {
   </div>
     <br>
     <projectbutton><a href="../#sec_project">< Projects</a></projectbutton>
+    <!-- <br> -->
+    <!-- <duration>Dec 2021 ~ Mar 2022</duration> -->
     <br>
-    <duration>June 2022 ~ Present</duration>
+    <duration>Mar 2019 ~ Aug 2019</duration>
     <br>
-    <organization> Personal Robots Group, MIT Media Lab </organization>
+    <organization> Bear Robotics, Redwood City, CA </organization>
     <center>
         <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
             <div align="left">
@@ -276,16 +278,17 @@ organization {
                 Overview
               </div>
             </div>
+            <br>
             <!-- <img src="/assets/images/aamas_1.png" alt="aamas-1"> -->
             <iframe width="840" height="480" src="https://www.youtube.com/embed/G2bimZ5hBBc?autoplay=1&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
-                Experiments
+                Projects
               </div>
             </div>
             <br>
-            <img src="/assets/images/aamas-experiment.png" alt="aamas-1">
+            <!-- <img src="/assets/images/aamas-experiment.png" alt="aamas-1"> -->
             <br><br><br>
           </div>
         </div>

@@ -310,8 +310,8 @@ organization {
             <br>
             <p>
               <font size="3">
-              <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, S.M.Algohwinem, H.W.Park, "Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation." accepted in Human-Centered AI Workshop at NeurIPS.</a><br><br>
-              <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, H.Chen, S.M.Algohwinem, C.Breazeal, H.W.Park, "Joint Engagement Classification using Video Augmentation Techniques for Multi-person Human-robot Interaction." under review at AAMAS 2023.</a>
+              <a href="/about/about_team.htm">William H. Guss and Codel, Cayden and Hofmann, Katja and Houghton, Brandon and Kuno, Noboru and Milani, Stephanie and Mohanty, Sharada and Liebana, Diego Perez and Salakhutdinov, Ruslan and Topin, Nicholay and others, "The MineRL Competition on Sample Efficient Reinforcement Learning using Human Priors" at NeurIPS Competition Track.</a><br><br>
+              <a href="/about/about_team.htm">Yunzhu Li, Jiaming Song, and Stefano Ermon, "Inferring The Latent Structure of Human Decision-Making from Raw Visual Inputs." at NeurIPS.</a>
               </font>
             </p>
           </div>
@@ -325,5 +325,4 @@ organization {
 
 </section>
 </body>
-
 

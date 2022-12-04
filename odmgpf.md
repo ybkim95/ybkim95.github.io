@@ -237,7 +237,7 @@ organization {
 <section>
   <div class="hero-image">
     <div class="hero-text">
-      <h1 style="font-size:40px; color:white; font-family:Arial;">Obstacle-dependent Multi-Gaussian Potential Field (ODMG-PF)</h1>
+      <h1 style="font-size:40px; color:white; font-family:Arial;">Obstacle-dependent Mixed Gaussian Potential Field (ODMG-PF)</h1>
     </div>
     <nav>
       <input onClick="window.location.href='../'" type="image" src="/assets/images/white_logo.png" style="height:90%" />
@@ -253,22 +253,22 @@ organization {
     <br>
     <projectbutton><a href="../#sec_project">< Projects</a></projectbutton>
     <br>
-    <duration>Aug 2020 ~ Dec 2020</duration>
+    <duration>Jan 2020 ~ July 2020</duration>
     <br>
     <organization> Graduate Thesis, Yonsei University </organization>
     <center>
         <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
             <div align="left">
-              Obstacle-dependent Multi-Gaussian Potential Field (ODMG-PF)
+              A Real-time Dynamic Obstacle Avoidance of Holonomic Mobile Robot using an Obstacle-Driven Mixed Gaussian Potential Field
             </div>
         </div>
         <br>
         <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
           <div align="left">
-            With the emergence of social robots in people’s daily lives, their interactions with people need to consider not only engaging with individuals, but also with a group of people (e.g. families or colleagues). However, most human-robot interaction work has focused on interacting with a single user at a time, due to challenges in understanding social cues from multiple people at the same time as well as designing interactions with a group of people. Designing for group interactions is vastly different from designing interaction with individuals. Because in a group interaction users are also interacting with each other and not just with the robot, understanding engagement cues require deeper contextualized interpretation, for example. Not only that, conversing with multiple users at the same time requires both significant advancements in sensor technology and dialogue systems. Conversation is central to interactions including in a museum guide setting that this project is targeting. In this project, we aim to design contextualized and personalized conversation experience between…<br><br>
+            A new obstacle avoidance method for autonomous vehicles called obstacle-dependent Mixed Gaussian potential feld (ODMG-PF) was designed and implemented. It detects obstacles and calculates the likelihood of collision with them. In this paper, we present a novel attractive feld and repulsive feld calculation method and direction decision approach. Simulations and the experiments were carried out and compare<br><br>
             <h6> Research Topics </h6>
             <rt>
-              # robotics # human-computer interaction
+              # robotics # obstacle avoidance # navigation
             </rt>
             <br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
@@ -276,13 +276,16 @@ organization {
                 Overview
               </div>
             </div>
-            <img src="/assets/images/aamas_1.png" alt="aamas-1">
+            <br>
+            <img src="/assets/images/odmgpf_1.png" alt="aamas-1">
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
-                Dataset
+                Methods
               </div>
             </div>
+            <br>
+            <img src="/assets/images/odmgpf_2.png" alt="aamas-1">
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
@@ -290,18 +293,27 @@ organization {
               </div>
             </div>
             <br>
-            <img src="/assets/images/aamas-experiment.png" alt="aamas-1">
+            <img src="/assets/images/odmgpf_3.png" alt="aamas-1">
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
-                Publications
+                Results
+              </div>
+            </div>
+            <br>
+            <img src="/assets/images/odmgpf_4.png" alt="aamas-1">
+            <br><br><br>
+            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+              <div align="left">
+                References
               </div>
             </div>
             <br>
             <p>
+              <a href="https://ybkim95.notion.site/Real-time-Dynamic-Obstacle-Avoidance-of-Holonomic-Mobile-Robot-using-an-Obstacle-Driven-Mixed-Gaussi-af943fa814194e639ba19cdfabe2cb1b">A Real-time Dynamic Obstacle Avoidance of Holonomic Mobile Robot using an Obstacle-Driven Mixed Gaussian Potential Field (2020)</a>
               <font size="3">
-              <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, S.M.Algohwinem, H.W.Park, "Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation." accepted in Human-Centered AI Workshop at NeurIPS.</a><br><br>
-              <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, H.Chen, S.M.Algohwinem, C.Breazeal, H.W.Park, "Joint Engagement Classification using Video Augmentation Techniques for Multi-person Human-robot Interaction." under review at AAMAS 2023.</a>
+              <!-- <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, S.M.Algohwinem, H.W.Park, "Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation." accepted in Human-Centered AI Workshop at NeurIPS.</a><br><br>
+              <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, H.Chen, S.M.Algohwinem, C.Breazeal, H.W.Park, "Joint Engagement Classification using Video Augmentation Techniques for Multi-person Human-robot Interaction." under review at AAMAS 2023.</a> -->
               </font>
             </p>
           </div>

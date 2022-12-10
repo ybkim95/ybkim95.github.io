@@ -277,7 +277,7 @@ organization {
               </div>
             </div>
             <img src="/assets/images/aamas_1.png" alt="aamas-1"><br><br>
-            Proposed framework for evaluating the learned representation (Grad-CAM) with modified Optical Flow and skeleton information combined Semantic Segmentation as references. With the fine-tuned models, we generate Grad-CAM for each video clip and evaluate its quality. We calculate the evaluation score based on two sub-scores (semantic-based and motion-based) which are obtained by applying mutual information and cross-entropy.
+            We propose a framework for evaluating the learned representation (Grad-CAM) with modified Optical Flow and skeleton information combined Semantic Segmentation as references. With the fine-tuned models (on publicly available dataset such as Kinetics-400), we generate Grad-CAM for each video clip and evaluate its quality. We calculate the evaluation score based on two sub-scores (semantic-based and motion-based) which are obtained by applying mutual information and cross-entropy.
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
@@ -286,6 +286,18 @@ organization {
             </div>
             A social robot was deployed and teleoperated remotely in the homes of 12 families with 3-7-year-old children to engage in a triadic story-reading activity with the parent and child over the course of six 25-minute sessions and 3 to 6 weeks in total. For each triadic session, audiovisual recordings were captured and subsequently used to annotate the quality of parent-child engagement. We chose the Joint Engagement Rating Inventory (JERI) to measure parent-child engagement [1], as it has been utilized and validated in previous parent-child interaction studies [1, 4]. <br>
             Using the intra-class correlation (ICC) type (3,1) for average fixed raters, the agreement among the three annotators was measured. Given these evaluation criteria, the annotation quality with ICC=0.95 exceeded the threshold for very good quality (0.75 ≤ 𝐼𝐶𝐶 ≤ 1.0). After recordings were independently coded by the annotators, the final score for each recording fragment was determined by averaging the ratings assigned to each scale by the two annotators. We convert the 5-scale into three classification levels (low: 8.49%, medium: 49.68%, and high: 41.83%) for model training and testing. Strictly following the annotation protocol in [4], we annotated 16,606 five-second video clips with 1517.08 ± 309.34 fragments from each family on average.
+            <br><br><br>
+            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+              <div align="left">
+                Video Augmentation
+              </div>
+            </div>
+            <br>
+            <b>Baseline </b> To ensure a fair comparison with the proposed video augmentations techniques, we apply oversampling to the original dataset which duplicated 8,143 video clips from low and high joint engagement labeled video clips to make all the labels have the same ratio. <br>
+            <b>General Aug </b> This technique is applied to diversify the background (replace the background with RGB color, random indoor image, and blur the background), encouraging the model’s robust learning by adding noise to the whole frame, randomly rotating an image, applying horizontal flipping, and lastly, giving hints of semantics in the frame by applying semantic segmentations. <br>
+            <b>DeepFake </b> DeepFake was applied for dyads’ faces to overcome the small populations in the original dataset and also for debiasing purposes. We used SimSwap [8] for multi-person face swapping in videos. To feed a diverse set of target face images, we also utilized AI-generated face dataset (https://generated.photos/faces) which supports realistic customizations (e.g., race, gender, age, accessories, and hair type). This generates quite natural video clips according to its target face images. <br>
+            <b>Mixed </b> We also wanted to see if combining the datasets that showed performance improvement individually would make even more performance improvements once combined. To do this, we randomly sampled video clips from both General Aug and DeepFake while keeping the same ratio from each dataset. So in total, we kept 24,749 video clips for Mixed.<br>
+            <b>CutOut </b> CutOut is a well-known but simple regularization technique that randomly masks out square regions of input during training (spatial prior dropout in input space) [ 13 ]. This can be used to improve the robustness and overall performance when conducting classification tasks, and in this work, CutOut is used to validate the model’s representation learning without the core information in the scenes (i.e. face). To apply CutOut, we utilized the face detection module to detect the parent’s and child’s faces and cut out the corresponding regions, which are then replaced by black boxes. In total, we gathered 24,749 video clips by oversampling towards the largest number of labels (Mid, 𝑁 =8,249) in the dataset.
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
@@ -317,8 +329,8 @@ organization {
             <br>
             <p>
               <font size="3">
-              <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, S.M.Algohwinem, H.W.Park, "Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation." accepted in Human-Centered AI Workshop at NeurIPS.</a><br><br>
-              <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, H.Chen, S.M.Algohwinem, C.Breazeal, H.W.Park, "Joint Engagement Classification using Video Augmentation Techniques for Multi-person Human-robot Interaction." under review at AAMAS 2023.</a>
+              <a href="/about/about_team.htm">[1] Y.B.KIM, S.M.Algohwinem, H.W.Park, "Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation." accepted in Human-Centered AI Workshop at NeurIPS.</a><br><br>
+              <a href="/about/about_team.htm">[2] Y.B.KIM, H.Chen, S.M.Algohwinem, C.Breazeal, H.W.Park, "Joint Engagement Classification using Video Augmentation Techniques for Multi-person Human-robot Interaction." under review at AAMAS 2023.</a>
               </font>
             </p>
           </div>

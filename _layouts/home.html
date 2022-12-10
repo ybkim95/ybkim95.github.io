@@ -40,7 +40,6 @@
         -webkit-font-smoothing: antialiased;
         padding: 20px 0;
         }
-
         .band {
         width: 100%;
         max-width: 1280px;
@@ -51,9 +50,7 @@
         grid-template-columns: 1fr;
         grid-template-rows: auto;
         grid-gap: 20px;
-        
         }
-
         @media only screen and (min-width: 700px) {
         .band {
             grid-template-columns: 1fr 1fr;
@@ -89,6 +86,7 @@
         .card:hover {
         top: -2px;
         box-shadow: 0 4px 5px rgba(79, 87, 89, 0.6);
+        /* background-color: #cfcfcf9d; */
         }
 
         .card article {
@@ -105,10 +103,13 @@
         background-size: cover;
         background-position: center center;
         }
-
         .card p { 
         flex: 1; /* make p grow to fill available space*/
         line-height: 1.4;
+        }
+
+        thumb:hover {
+            background-color: #e60000;
         }
 
         /* typography */
@@ -180,12 +181,27 @@
             border-radius: 6px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
+        .image {
+            /* position: relative; */
+            width: 90px;
+            height: 90px;
+            background-size: cover;
+            background-position: center;
+            border: solid 5px #ffffff;
+            border-radius: 50px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 3;
+            transition: all 0.5s ease;
+        }
         .image:hover {
             /* color: transparent; */
             /* position: relative; */
             /* background-position: 0px -796px; */
             /* top:2px; */
-            transform: scale(1.2); 
+            background-image: url("/assets/images/banner.jpg");
+            transform: scale(1.6); 
+            /* background-image: url("/assets/images/banner.jpg"); */
+            /* background-repeat:no-repeat; */
             /* background-image: url('/assets/images/baby.jpg'); */
             /* opacity: 0.0; */
             
@@ -199,6 +215,10 @@
             z-index: 1;
             border: medium solid white;
         }
+        /* .content:hover {
+            color: transparent;
+            background-image: url("/assets/images/aamas_1.png");
+        } */
         .container-left .content::before {
             right: -10px;
             border-width: 10px 0 10px 10px;
@@ -208,17 +228,6 @@
             left: -10px;
             border-width: 10px 10px 10px 0;
             border-color: transparent white transparent transparent;
-        }
-        .image {
-            position: absolute;
-            width: 90px;
-            height: 90px;
-            background-size: cover;
-            background-position: center;
-            border: solid 5px #ffffff;
-            border-radius: 50px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            z-index: 2;
         }
         .container-left .image {
             right: 0;
@@ -472,7 +481,8 @@
     ::placeholder { /* Most modern browsers support this now. */
     color:    #909;
     }
-        
+
+    
 
     </style>
         <link rel="stylesheet" id="wp-block-library-css" href="https://jibo.com/wp-includes/css/dist/block-library/style.min.css?ver=6.0.1" type="text/css" media="all">
@@ -488,7 +498,7 @@
     <script type="text/javascript" src="https://jibo.com/wp-content/themes/JIBOTheme/js/JIBOTheme-main.js?ver=0.1" id="JIBOTheme-main-js"></script>
     <link rel="https://api.w.org/" href="https://jibo.com/wp-json/"><link rel="alternate" type="application/json" href="https://jibo.com/wp-json/wp/v2/pages/25"><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://jibo.com/xmlrpc.php?rsd">
     <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://jibo.com/wp-includes/wlwmanifest.xml"> 
-    
+
     <link rel="canonical" href="https://jibo.com/">
     <link rel="shortlink" href="https://jibo.com/">
     <link rel="alternate" type="application/json+oembed" href="https://jibo.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fjibo.com%2F">
@@ -790,14 +800,14 @@
                 <div class="timeline">
                     <div class="container container-left">
                         <div class="image" style="background-image:url('/assets/images/baby.jpg')"></div>
+                        <!-- <a class="thumb1"><img src="http://www.websitecodetutorials.com/code/images/jamie-small1.jpg" alt=""><span><img src="http://www.websitecodetutorials.com/code/images/jamie-small1big.jpg" alt=""></span></a> -->
                         <div class="content">
                             <span>April 19th, 1995</span><br>
                             <b>Borned in South Korea</b><br>
-
                                 Grew up in a city called Incheon which is located next to Seoul. 
-
                         </div>
                     </div>
+                   
                     <div class="container container-right">
                         <div class="image" style="background-image:url('/assets/images/crestwood.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=100')"></div>
                         <div class="content">

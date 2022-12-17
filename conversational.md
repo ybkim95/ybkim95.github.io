@@ -255,15 +255,15 @@ organization {
     <br>
     <duration>Nov 2022 ~ Present</duration>
     <br>
-    <organization> Personal Robots Group, MIT Media Lab </organization>
+    <organization> Personal Robots Group,<br>MIT Media Lab </organization>
     <center>
         <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
             <div align="left">
-              Conversational AI Agents for Elder Care
+              Conversational AI agents for Emotional Wellness and Medication Adherence
             </div>
         </div>
         <br>
-        <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
+        <!-- <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
           <div align="left">
             summary<br><br>
             <h6> Research Topics </h6>
@@ -276,7 +276,6 @@ organization {
                 Overview
               </div>
             </div>
-            <!-- <img src="/assets/images/aamas_1.png" alt="aamas-1"> -->
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
@@ -290,7 +289,6 @@ organization {
               </div>
             </div>
             <br>
-            <!-- <img src="/assets/images/aamas-experiment.png" alt="aamas-1"> -->
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
@@ -301,11 +299,10 @@ organization {
             <p>
               <font size="3">
               <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, S.M.Algohwinem, H.W.Park, "Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation." accepted in Human-Centered AI Workshop at NeurIPS.</a><br><br>
-              <!-- <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, H.Chen, S.M.Algohwinem, C.Breazeal, H.W.Park, "Joint Engagement Classification using Video Augmentation Techniques for Multi-person Human-robot Interaction." under review at AAMAS 2023.</a> -->
               </font>
             </p>
-          </div>
-        </div>
+          </div> -->
+        <!-- </div> -->
     </center>
     <br>
     <br>

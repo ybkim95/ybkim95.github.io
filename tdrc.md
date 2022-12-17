@@ -255,7 +255,7 @@ organization {
     <br>
     <duration>April 2018 ~ Dec 2018</duration>
     <br>
-    <organization> Technology and Design Research Center, <br>Yonsei University </organization>
+    <organization> Technology and Design<br>Research Center, <br>Yonsei University </organization>
     <center>
         <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
             <div align="left">
@@ -264,11 +264,10 @@ organization {
         </div>
         <br>
         <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
-          <div align="left">
-            Overview<br><br>
+          <div align="left"><br><br>
             <h6> Research Topics </h6>
             <rt>
-              # robotics # human-computer interaction
+              # companion robots # elder care # living-lab experiment
             </rt>
             <br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">

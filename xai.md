@@ -258,7 +258,7 @@ organization {
     <br>
     <duration>June 2022 ~ Present</duration>
     <br>
-    <organization> Personal Robots Group, MIT Media Lab </organization>
+    <organization> Personal Robots Group,<br>MIT Media Lab </organization>
     <center>
         <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
             <div align="left">
@@ -266,61 +266,60 @@ organization {
             </div>
         </div>
         <br>
-        <img src="/assets/images/affect_recognition.png" alt="aamas-1" style="width:40%;"><br><br>
-        <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
+        <img src="/assets/images/xai_jibo.png" alt="aamas-1" style="width:40%;"><br>
+        <div style="max-width:900px; word-wrap:break-word; font-size:18px;">
           <div align="left">
-            Affect understanding capability is essential for social robots to autonomously interact with a group of users in an intuitive and reciprocal way. In this work, we use a dataset of parent-child dyads reading storybooks together with a social robot at home. We first train RGB frame- and skeleton-based joint engagement recognition models with four video augmentation techniques (<i>General Aug</i>, DeepFake, CutOut, and Mixed) applied datasets to improve joint engagement classification performance. Second, we demonstrate experimental results on the use of trained models in the robot-parent-child interaction context. Third, we introduce a behavior-based metric for evaluating the learned representation of the models to investigate the model interpretability when recognizing joint engagement. This work serves as the first step toward fully unlocking the potential of end-to-end video understanding models pre-trained on large public datasets and augmented with data augmentation and visualization techniques for affect recognition in the multi-person human-robot interaction in the wild.<br><br>
+            Affect understanding capability is essential for social robots to autonomously interact with a group of users in an intuitive and reciprocal way.<br>In this work, we use a dataset (namely Triadic) of parent-child dyads reading storybooks together with a social robot at home. <b>First</b>, we train 1) RGB frame- and 2) skeleton- based joint engagement recognition models with four video augmentation techniques (<i>General Aug</i>, <i>DeepFake</i>, <i>CutOut</i>, and <i>Mixed</i>) applied datasets to improve joint engagement classification performance. <b>Second</b>, we demonstrate experimental results on the use of trained models in the robot-parent-child interaction context. <b>Third</b>, we introduce a behavior-based metric for evaluating the learned representation of the models to investigate the model interpretability when recognizing parent-child joint engagement.<br>This work serves as the first step toward fully unlocking the potential of end-to-end video understanding models pre-trained on large public datasets augmented with feature aplified augmentation and visualization techniques for affect recognition in the multi-person human-robot interaction in the wild.<br><br>
             <h6> Research Topics </h6>
             <rt>
-              # robotics # human-computer interaction
+              # affect recognition # human-robot interaction # robot in the wild
             </rt>
             <br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px; font-weight:bold">
               <div align="left">
                 Overview
               </div>
             </div>
             <img src="/assets/images/aamas_1.png" alt="aamas-1"><br>
-            We propose a framework for evaluating the learned representation (Grad-CAM) with modified Optical Flow and skeleton information combined Semantic Segmentation as references. With the fine-tuned models (on publicly available dataset such as Kinetics-400), we generate Grad-CAM for each video clip and evaluate its quality. We calculate the evaluation score based on two sub-scores (semantic-based and motion-based) which are obtained by applying mutual information and cross-entropy.
+            We propose a framework for evaluating the learned representation (<a href="https://arxiv.org/abs/1610.02391?source=post_page---------------------------">Grad-CAM</a>) with modified Optical Flow and skeleton information combined Semantic Segmentation as two references. With the fine-tuned models (on publicly available dataset such as Kinetics-400), we generate Grad-CAM inference for each video clip and evaluate its quality by calculating the score. We calculate the evaluation score based on two sub-scores (1) semantic-based and 2) motion-based) which are obtained by applying mutual information and cross-entropy.
             <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px; font-weight:bold">
               <div align="left">
                 Dataset
               </div>
             </div>
-            A social robot was deployed and teleoperated remotely in the homes of 12 families with 3-7-year-old children to engage in a triadic story-reading activity with the parent and child over the course of six 25-minute sessions and 3 to 6 weeks in total. For each triadic session, audiovisual recordings were captured and subsequently used to annotate the quality of parent-child engagement. We chose the Joint Engagement Rating Inventory (JERI) to measure parent-child engagement [1], as it has been utilized and validated in previous parent-child interaction studies [1, 4]. <br>
-            Using the intra-class correlation (ICC) type (3,1) for average fixed raters, the agreement among the three annotators was measured. Given these evaluation criteria, the annotation quality with ICC=0.95 exceeded the threshold for very good quality (0.75 ≤ 𝐼𝐶𝐶 ≤ 1.0). After recordings were independently coded by the annotators, the final score for each recording fragment was determined by averaging the ratings assigned to each scale by the two annotators. We convert the 5-scale into three classification levels (low: 8.49%, medium: 49.68%, and high: 41.83%) for model training and testing. Strictly following the annotation protocol in [4], we annotated 16,606 five-second video clips with 1517.08 ± 309.34 fragments from each family on average.
+            A social robot was deployed and teleoperated remotely in the homes of 12 families with 3-7-year-old children to engage in a triadic story-reading activity with the parent and child over the course of six 25-minute sessions and 3 to 6 weeks in total. For each triadic session, audiovisual recordings were captured and subsequently used to annotate the quality of parent-child engagement. We chose the <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3445743/">Joint Engagement Rating Inventory (JERI) [1]</a> to measure parent-child engagement, as it has been utilized and validated in <a href="https://ieeexplore.ieee.org/document/9784429">previous parent-child interaction studies [1, 4]</a>. <br>
+            Using the intra-class correlation (ICC) type (3,1) for average fixed raters, the agreement among the three annotators was measured. Given these evaluation criteria, the annotation quality with ICC=0.95 exceeded the threshold for very good quality (0.75 ≤ 𝐼𝐶𝐶 ≤ 1.0). After recordings were independently coded by the annotators, the final score for each recording fragment was determined by averaging the ratings assigned to each scale by the two annotators. We convert the 5-scale into <b>three</b> classification levels (<b>Low</b>: 8.49%, <b>Medium</b>: 49.68%, and <b>High</b>: 41.83%) for model training and testing. Strictly following the annotation protocol in <a href="https://ieeexplore.ieee.org/document/9784429">[4]</a>, we annotated 16,606 five-second video clips with 1517.08 ± 309.34 fragments from each family on average.
             <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px; font-weight:bold">
               <div align="left">
                 Video Augmentation
               </div>
             </div>
             <br>
             <b>General Aug </b> This technique is applied to diversify the background (replace the background with RGB color, random indoor image, and blur the background), encouraging the model’s robust learning by adding noise to the whole frame, randomly rotating an image, applying horizontal flipping, and lastly, giving hints of semantics in the frame by applying semantic segmentations. <br>
-            <b>DeepFake </b> DeepFake was applied for dyads’ faces to overcome the small populations in the original dataset and also for debiasing purposes. We used SimSwap [8] for multi-person face swapping in videos. To feed a diverse set of target face images, we also utilized AI-generated face dataset (https://generated.photos/faces) which supports realistic customizations (e.g., race, gender, age, accessories, and hair type). <br>
+            <b>DeepFake </b> DeepFake was applied for dyads’ faces to overcome the small populations in the original dataset and also for debiasing purposes. We used <a href="https://arxiv.org/abs/2106.06340">SimSwap [8]</a> for multi-person face swapping in videos. To feed a diverse set of target face images, we also utilized AI-generated face dataset (<a href="https://generated.photos/faces"><u>https://generated.photos/faces</u></a>) which supports realistic customizations (e.g., race, gender, age, accessories, and hair type). <br>
             <b>Mixed </b> We also wanted to see if combining the datasets that showed performance improvement individually would make even more performance improvements once combined. To do this, we randomly sampled video clips from both General Aug and DeepFake while keeping the same ratio from each dataset. <br>
-            <b>CutOut </b> CutOut is a well-known but simple regularization technique that randomly masks out square regions of input during training (spatial prior dropout in input space). This can be used to improve the robustness and overall performance when conducting classification tasks, and in this work, CutOut is used to validate the model’s representation learning without the core information in the scenes (i.e. face).
+            <b>CutOut </b> <a href="https://arxiv.org/abs/1708.04552">CutOut</a> is a well-known but simple regularization technique that randomly masks out square regions of input during training (spatial prior dropout in input space). This can be used to improve the robustness and overall performance when conducting classification tasks, and in this work, CutOut is used to validate the model’s representation learning without the core information in the scenes (i.e. face).
             <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px; font-weight:bold">
               <div align="left">
                 Methods
               </div>
             </div>
             <img src="/assets/images/xai_methods.png" alt="aamas-1"><br>
-            <h4>1. RGB frame-based models </h4>
+            <h5>1. RGB frame-based models </h5>
             <b> 1-1) TimeSformer</b> is only built on self-attention over space and time. It adapts the Transformer architecture to video by enabling spatiotemporal feature learning directly from a sequence of frame-level patches.<br>
             <b> 1-2) X3D </b> is a family of efficient video networks that continuously expand a small 2D image classification architecture along multiple network axes (space, time, width, and depth). <br>
             <b> 1-3) I3D </b> is a 2D ConvNet inflation-based model, in which the filters and pooling kernels of deep image classification ConvNets are expanded into 3D. <br>
             <b> 1-4) SlowFast </b> proposes a dual-pathway structure to combine the benefits of a slow pathway for static spatial features and a fast pathway for dynamic motion features <br><br>
-            <h4>2. Skeleton-based models </h4>
+            <h5>2. Skeleton-based models </h5>
             <b> 2-1) CTR-GCN </b> proposes Channel-wise Topology Refinement Graph Convolution Network dynamically learns different topologies and effectively aggregates joint features in different channels. <br>
             <b> 2-2) MS-G3D </b> (multi-Scale aggregation Scheme) disentangles the importance of nodes in different neighborhoods for effective long-range modeling.  <br>
             <b> 2-3) ST-GCN & ST-GCN++ </b> adopts Graph Convolution Neural (GCN) Networks for skeleton processing. <br><br>
-            <h4>3. Image-matching metrics </h4> First, we adopt <b>mutual information</b>, a dimensionless quantity metric that measures the mutual dependence between two variables. The metric is high when the attention map signal is highly concentrated in a few histogram bins, and low when the signal is spread across many bins. Here, we convert the image into a distribution by flattening the image arrays and then compute the bi-dimensional histogram of two image array samples. <br>The second metric is <b>cross-entropy</b>, which comes from the Kullback-Leibler divergence. This is a widely used metric for calculating the difference between two distributions. Here, we first normalize the pixel values in images and then pass this through log-softmax to convert images into distributions. Then we apply cross-entropy. Given that we have all the bounding boxes for each parent’s and child’s face and body, we could separate these values based on their bounding box coordinates.
-
+            <h5>3. Image-matching metrics </h5> First, we adopt <b>mutual information</b>, a dimensionless quantity metric that measures the mutual dependence between two variables. The metric is high when the attention map signal is highly concentrated in a few histogram bins, and low when the signal is spread across many bins. Here, we convert the image into a distribution by flattening the image arrays and then compute the bi-dimensional histogram of two image array samples. <br>The second metric is <b>cross-entropy</b>, which comes from the Kullback-Leibler divergence. This is a widely used metric for calculating the difference between two distributions. Here, we first normalize the pixel values in images and then pass this through log-softmax to convert images into distributions. Then we apply cross-entropy. Given that we have all the bounding boxes for each parent’s and child’s face and body, we could separate these values based on their bounding box coordinates.
             <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px; font-weight:bold">
               <div align="left">
                 Experiments
               </div>
@@ -329,19 +328,37 @@ organization {
             <img src="/assets/images/aamas-experiment.png" alt="aamas-1"><br>
             We conduct experiments to evaluate the effectiveness of the proposed video augmentation techniques; General Aug, DeepFake, Mixed, and CutOut to see their capability to improve joint engagement recognition on state-of-the-art action recognition models. Also, we compare the joint engagement classification performance between RGB frame-based and skeleton-based models to see the effect of different inputs in this task. For the implementation, we utilized MMAction2 and Pyskl, an open-source toolbox for video understanding based on PyTorch and all of the models were trained on 8 NVIDIA 1080Ti GPUs.
             <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px; font-weight:bold">
               <div align="left">
                 Visualization
               </div>
             </div><br>
-            <img src="/assets/images/xai_visualization.png" alt="aamas-1"><br><br>
+            <center>
+              <img src="/assets/images/xai_visualization.png" alt="aamas-1" style="width:70%;"><br><br>
+            </center>
+            <b>Grad-CAM inference video</b><br><br>
             <center>
               <video width="35%" controls="controls"/>
                 <source src="/assets/images/gradcam_demo.mp4" type="video/mp4"> 
               </video>
             </center>
             <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px; font-weight:bold">
+              <div align="left">
+                Conclusion
+              </div>
+            </div>
+            <br>
+            The performance and visualization of the state-of-the-art end-to-end video classification models for recognizing joint engagement demonstrated their potential to recognize complex human-human joint affective states with limited training data. The fine-tuned end-to-end models initially pre-trained for general video understanding (e.g., SlowFast, I3D) performed more effectively on joint engagement recognition than the models trained on human skeleton features (e.g., CTR-GCN, ST-GCN). The video augmentation techniques enhanced the model’s performance even further. The visualization of the learned representations in the end-to-end deep learning models revealed their sensitivity to subtle social cues indicative of parent-child interaction. Altogether, these findings and insights indicate that end-to-end models were able to learn the representation of parent-child joint engagement in an interpretable manner.<br>
+            In the future work, we are interested in providing answers to the following discussion points :<br><br>
+            1. <b>Personalization</b> Our proposed framework can also be expanded to account for individual differences in affect across dyads by adding a deep neural network layer as the final layer trained on individual human groups<br><br>
+            2. <b>Multi-modal representation learning</b> Extend the model learning from a single video-based to multi-modal (e.g., audio, video, text and skeleton) learning and compare the learned representation<br><br>
+            3. <b>Comparison of Video Augmentation techniques</b> Apply various type (temporal, spatial, etc) of video augmentation techniques and evaluate, compare the results to demonstrate its effectiveness
+
+
+ 
+            <br><br><br>
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px; font-weight:bold">
               <div align="left">
                 Publications
               </div>
@@ -360,9 +377,5 @@ organization {
     <br>
     <br>
     <br>
-    
-
 </section>
 </body>
-
-

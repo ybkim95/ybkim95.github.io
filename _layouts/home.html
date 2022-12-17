@@ -164,6 +164,9 @@
             width: 50%;
             min-height: 120px;
         }
+        /* .container:hover {
+            background-color: rgb(255, 0, 0);
+        } */
         .container-left {
             left: 0;
             padding-right: 70px;
@@ -190,20 +193,12 @@
             border: solid 5px #ffffff;
             border-radius: 50px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            z-index: 3;
+            z-index: 99;
+            display: inline-block;
             transition: all 0.5s ease;
         }
         .image:hover {
-            /* color: transparent; */
-            /* position: relative; */
-            /* background-position: 0px -796px; */
-            /* top:2px; */
-            background-image: url("/assets/images/banner.jpg");
             transform: scale(1.6); 
-            /* background-image: url("/assets/images/banner.jpg"); */
-            /* background-repeat:no-repeat; */
-            /* background-image: url('/assets/images/baby.jpg'); */
-            /* opacity: 0.0; */
             
         }
         .container .content::before {
@@ -660,7 +655,7 @@
             <div class="solutions_6_blocks">
                 <div class="rounded solutions_6_left" ui_shown="true">
                     <p class="text solutions_6_text">
-                        My experience has been focused on developing sociable robots that can perceive and understand social and <b>affective</b> exchanges in human interactions in an intuitive and reciprocal manner. Specifically, I am interested in developing sociable robots that can <b>personalize</b> their interactions with humans in the wild for an extended period of time. 
+                        My experience has been focused on developing social agents that can perceive and understand social and <b>affective</b> exchanges in human interactions in an intuitive and reciprocal manner. Specifically, I am interested in developing social agents that can <b>personalize</b> their interactions with humans in the wild for an extended period of time. 
                     </p>
                 </div>
             </div>
@@ -800,12 +795,13 @@
                 <div class="timeline">
                     <div class="container container-left">
                         <div class="image" style="background-image:url('/assets/images/baby.jpg')"></div>
-                        <!-- <a class="thumb1"><img src="http://www.websitecodetutorials.com/code/images/jamie-small1.jpg" alt=""><span><img src="http://www.websitecodetutorials.com/code/images/jamie-small1big.jpg" alt=""></span></a> -->
-                        <div class="content">
-                            <span>April 19th, 1995</span><br>
-                            <b>Borned in South Korea</b><br>
-                                Grew up in a city called Incheon which is located next to Seoul. 
-                        </div>
+                        <a href="">
+                            <div class="content">
+                                <span>April 19th, 1995</span><br>
+                                <b>Borned in South Korea</b><br>
+                                    Grew up in a city called Incheon which is located next to Seoul. 
+                            </div>
+                        </a>
                     </div>
                    
                     <div class="container container-right">
@@ -897,38 +893,32 @@
                 <h3 id="sec_contact" class="title title_solutions_6 font_ProximaNovaSemibold" ui_shown="true">Contact</h3>
 
                 If you have any question or would like to know about more details about my work, please feel free to contact me!
-
                 <div class="contact_container">  
-                    <form id="contact" action="" method="post">
+                    <!-- <form id="contact" action="contact.php" method="GET">
                       <h3>Contact Form</h3>
-                      <!-- <h4>Contact us for custom quote</h4> -->
-                      <!-- <fieldset> -->
                       Your name <input placeholder="Your name" type="text" tabindex="1" required autofocus>
-                      <!-- </fieldset> -->
-                      <!-- <fieldset> -->
-                      Your Email Address
-                        <input placeholder="Your Email Address" type="email" tabindex="2" required>
-                      <!-- </fieldset> -->
-                      <!-- <fieldset>
-                        <input placeholder="Your Phone Number (optional)" type="tel" tabindex="3" required>
-                      </fieldset>
-                      <fieldset>
-                        <input placeholder="Your Web Site (optional)" type="url" tabindex="4" required>
-                      </fieldset> -->
-                      <!-- <fieldset> -->
+                      Your Email Address <input placeholder="Your Email Address" type="email" tabindex="2" required>
                       Message
-                        <textarea placeholder="Type your message here...." tabindex="5" required></textarea>
-                      <!-- </fieldset> -->
-                      <!-- <fieldset> -->
+                        <textarea placeholder="Type your message here...." tabindex="3" required></textarea>
                         <button name="submit" type="submit" id="contact-submit" data-submit="...Sending">Send</button>
-                      <!-- </fieldset> -->
-                      <!-- <p class="copyright">Designed by <a href="https://colorlib.com" target="_blank" title="Colorlib">Colorlib</a></p> -->
+                    </form> -->
+                    <form id="contact" action="https://getform.io/f/1569b998-160a-45dd-a9e1-a2babfbdecb5" method="POST">
+                        Your Name:
+                        <input type="text" size="19" name="Contact-Name"><br>
+                        Email:<br>
+                        <input type="email" name="Contact-Email"><br>
+                        Message:<br> 
+                        <textarea name="Contact-Message" rows="5″ cols="20″>
+                        </textarea><br>
+                        <button type="submit" value="Submit">Send</button>
                     </form>
-                  </div>
+                </div>
             </body>
     
         </div>
     </div>
+
+    
 
     
 

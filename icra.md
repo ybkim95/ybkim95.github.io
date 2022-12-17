@@ -263,7 +263,7 @@ organization {
             </div>
         </div>
         <br>
-        <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
+        <div style="max-width:900px; word-wrap:break-word; font-size:18px;">
           <div align="left">
             This competition requires participants to go beyond their textbooks to form robotics teams, develop a diverse fleet of robots, and participate in team battles. Through the intense competition, students gain invaluable industry experience and strategic planning skills. This helps them combine their book smarts with practical skills in the field, enabling the construction of the most advanced and intelligent robots. The RMU has expanded its influence over the years, attracting more than 400 colleges and universities around the world to participate annually and nurturing the engineering talents of over 45,000 young learners. RoboMaster has also continued to develop various training and laboratory co-construction programs with hundreds of colleges and universities.<br><br>
             <h6> Research Topics </h6>
@@ -289,18 +289,21 @@ organization {
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
-                Experiments
+                Team Roboin, Yonsei University
               </div>
-            </div>
-            <br>
+            </div><br>
+            <center>
+            <img src="/assets/images/icra_robomaster.jpg" alt="icra-1" style="width: 65%">
+            </center>
+            <!-- <br> -->
             <!-- <img src="/assets/images/aamas-experiment.png" alt="aamas-1"> -->
-            <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+            <!-- <br><br><br> -->
+            <!-- <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 References
               </div>
-            </div>
-            <br>
+            </div> -->
+            <!-- <br> -->
             <!-- <p>
               <font size="3">
               <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, S.M.Algohwinem, H.W.Park, "Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation." accepted in Human-Centered AI Workshop at NeurIPS.</a><br><br>

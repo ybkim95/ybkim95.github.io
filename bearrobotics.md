@@ -265,6 +265,7 @@ organization {
             </div>
         </div>
         <br>
+        <img src="/assets/images/penny_task.png" alt="tdrc-1" style="width:30%;"><br>
         <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
           <div align="left">
             Story<br><br>

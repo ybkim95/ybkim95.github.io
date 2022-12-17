@@ -83,7 +83,27 @@
         transition: all .1s ease-in;
         }
 
+        .card_black {
+        min-height: 100%;
+        background: rgb(56, 55, 55);
+        box-shadow: 0 5px 5px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: rgb(255, 255, 255);
+        position: relative;
+        top: 0;
+        transition: all .1s ease-in;
+        }
+
+
         .card:hover {
+        top: -2px;
+        box-shadow: 0 4px 5px rgba(79, 87, 89, 0.6);
+        /* background-color: #cfcfcf9d; */
+        }
+
+        .card_black:hover {
         top: -2px;
         box-shadow: 0 4px 5px rgba(79, 87, 89, 0.6);
         /* background-color: #cfcfcf9d; */
@@ -92,18 +112,34 @@
         .card article {
         padding: 20px;
         display: flex;
-        
         flex: 1;
         justify-content: space-between;
         flex-direction: column;
-        
         }
+        .card_black article {
+        padding: 20px;
+        display: flex;
+        flex: 1;
+        justify-content: space-between;
+        flex-direction: column;
+        }
+
         .card .thumb {
         padding-bottom: 60%;
         background-size: cover;
         background-position: center center;
         }
+        .card_black .thumb {
+        padding-bottom: 60%;
+        background-size: cover;
+        background-position: center center;
+        }
+
         .card p { 
+        flex: 1; /* make p grow to fill available space*/
+        line-height: 1.4;
+        }
+        .card_black p { 
         flex: 1; /* make p grow to fill available space*/
         line-height: 1.4;
         }
@@ -127,6 +163,17 @@
         letter-spacing: .05em;
         margin: 2em 0 0 0;
         }
+
+        .card_black span {
+        font-size: 12px;
+        font-weight: bold;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        margin: 2em 0 0 0;
+        }
+
+
       
 
         /* 2. vertical timeline - Journey*/
@@ -198,7 +245,7 @@
             transition: all 0.5s ease;
         }
         .image:hover {
-            transform: scale(1.6); 
+            transform: scale(1.5); 
             
         }
         .container .content::before {
@@ -673,7 +720,7 @@
                     </a>
                 </div>
                 <div class="item-2">
-                    <a href="/conversational.html" class="card">
+                    <a href="/conversational.html" class="card_black">
                         <div class="thumb" style="background-image: url(/assets/images/item-2-elder-care.png);"></div>
                         <article>
                         Conversational AI Agents for Elder Care<br>
@@ -700,7 +747,7 @@
                     </a>
                 </div>
                 <div class="item-11">
-                    <a href="/dyadic_app.html" class="card">
+                    <a href="/dyadic_app.html" class="card_black">
                         <div class="thumb" style="background-image: url(/assets/images/dyadic.png);"></div>
                         <article>
                         Development of Auto Dyadic App<br>
@@ -729,7 +776,7 @@
                     </a>
                 </div>
                 <div class="item-6">
-                    <a href="/odmgpf.html" class="card">
+                    <a href="/odmgpf.html" class="card_black">
                         <div class="thumb" style="background-image: url(/assets/images/item-5-odmgpf.png);"></div>
                         <article>
                         ODMG-PF<br>

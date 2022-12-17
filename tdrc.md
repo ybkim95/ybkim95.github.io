@@ -263,8 +263,11 @@ organization {
             </div>
         </div>
         <br>
-        <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
-          <div align="left"><br><br>
+        <img src="/assets/images/aging_population_in_korea.png" alt="tdrc-1" style="width:35%;"><br>
+        <rt>Image Source: Aging of South Korea in 2020 (<a href="https://link.springer.com/article/10.1007/s40980-020-00061-8">Kee Whan Kim et al</a>)</rt><br>
+        <div style="max-width:900px; word-wrap:break-word; font-size:18px;">
+          <div align="left"><br>
+          In 2017, South Korea had ofcially become an aged society, with more than 14 percent of its citizens 65 years old or older. It took only 17 years after South Korea became an aging society in 2000, while Japan took 24  years for the same transition (Chosun 2017).<br><br><br> 
             <h6> Research Topics </h6>
             <rt>
               # companion robots # elder care # living-lab experiment
@@ -279,23 +282,17 @@ organization {
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
-                Dataset
-              </div>
-            </div>
-            <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
-              <div align="left">
                 Experiments
               </div>
             </div>
             <br>
             <img src="/assets/images/dori_experiment.png" alt="aamas-1">
             <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+            <!-- <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Reference
               </div>
-            </div>
+            </div> -->
             <br>
             <p>
               <font size="3">

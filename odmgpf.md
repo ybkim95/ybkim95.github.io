@@ -263,7 +263,7 @@ organization {
             </div>
         </div>
         <br>
-        <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
+        <div style="max-width:900px; word-wrap:break-word; font-size:18px;">
           <div align="left">
             A new obstacle avoidance method for autonomous vehicles called obstacle-dependent Mixed Gaussian potential feld (ODMG-PF) was designed and implemented. It detects obstacles and calculates the likelihood of collision with them. In this paper, we present a novel attractive feld and repulsive feld calculation method and direction decision approach. Simulations and the experiments were carried out and compare<br><br>
             <h6> Research Topics </h6>

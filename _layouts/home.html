@@ -29,11 +29,71 @@
             /*! This file is auto-generated */
             !function(e,a,t){var n,r,o,i=a.createElement("canvas"),p=i.getContext&&i.getContext("2d");function s(e,t){var a=String.fromCharCode,e=(p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,e),0,0),i.toDataURL());return p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,t),0,0),e===i.toDataURL()}function c(e){var t=a.createElement("script");t.src=e,t.defer=t.type="text/javascript",a.getElementsByTagName("head")[0].appendChild(t)}for(o=Array("flag","emoji"),t.supports={everything:!0,everythingExceptFlag:!0},r=0;r<o.length;r++)t.supports[o[r]]=function(e){if(!p||!p.fillText)return!1;switch(p.textBaseline="top",p.font="600 32px Arial",e){case"flag":return s([127987,65039,8205,9895,65039],[127987,65039,8203,9895,65039])?!1:!s([55356,56826,55356,56819],[55356,56826,8203,55356,56819])&&!s([55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447],[55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447]);case"emoji":return!s([129777,127995,8205,129778,127999],[129777,127995,8203,129778,127999])}return!1}(o[r]),t.supports.everything=t.supports.everything&&t.supports[o[r]],"flag"!==o[r]&&(t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&t.supports[o[r]]);t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&!t.supports.flag,t.DOMReady=!1,t.readyCallback=function(){t.DOMReady=!0},t.supports.everything||(n=function(){t.readyCallback()},a.addEventListener?(a.addEventListener("DOMContentLoaded",n,!1),e.addEventListener("load",n,!1)):(e.attachEvent("onload",n),a.attachEvent("onreadystatechange",function(){"complete"===a.readyState&&t.readyCallback()})),(e=t.source||{}).concatemoji?c(e.concatemoji):e.wpemoji&&e.twemoji&&(c(e.twemoji),c(e.wpemoji)))}(window,document,window._wpemojiSettings);
         </script>
+
+        <script type="text/javascript">
+            var TxtType = function(el, toRotate, period) {
+            this.toRotate = toRotate;
+            this.el = el;
+            this.loopNum = 0;
+            this.period = parseInt(period, 10) || 2000;
+            this.txt = '';
+            this.tick();
+            this.isDeleting = false;
+        };
+
+        TxtType.prototype.tick = function() {
+            var i = this.loopNum % this.toRotate.length;
+            var fullTxt = this.toRotate[i];
+
+            if (this.isDeleting) {
+            this.txt = fullTxt.substring(0, this.txt.length - 1);
+            } else {
+            this.txt = fullTxt.substring(0, this.txt.length + 1);
+            }
+
+            this.el.innerHTML = '<span class="wrap">'+this.txt+'</span>';
+
+            var that = this;
+            var delta = 200 - Math.random() * 100;
+
+            if (this.isDeleting) { delta /= 2; }
+
+            if (!this.isDeleting && this.txt === fullTxt) {
+            delta = this.period;
+            this.isDeleting = true;
+            } else if (this.isDeleting && this.txt === '') {
+            this.isDeleting = false;
+            this.loopNum++;
+            delta = 500;
+            }
+
+            setTimeout(function() {
+            that.tick();
+            }, delta);
+        };
+
+        window.onload = function() {
+            var elements = document.getElementsByClassName('typewrite');
+            for (var i=0; i<elements.length; i++) {
+                var toRotate = elements[i].getAttribute('data-type');
+                var period = elements[i].getAttribute('data-period');
+                if (toRotate) {
+                new TxtType(elements[i], JSON.parse(toRotate), period);
+                }
+            }
+            // INJECT CSS
+            var css = document.createElement("style");
+            css.type = "text/css";
+            css.innerHTML = ".typewrite > .wrap { border-right: 0.08em solid #fff}";
+            document.body.appendChild(css);
+        };
+        </script>
+        
         
         <script src="https://jibo.com/wp-includes/js/wp-emoji-release.min.js?ver=6.0.1" type="text/javascript" defer=""></script>
 
     <style type="text/css">
-        /* 1. CSS */
+        /* CSS */
         html {
         background: #ffffff;
         font-family: 'Roboto', sans-serif;
@@ -69,6 +129,16 @@
         }
         }
 
+        /* jibo down */
+        .page_inner {
+            padding-left: 1.5%;
+        }
+
+        .profile {
+            top: 10%;
+            margin-right: auto;
+        }
+
         /* card */
         .card {
         min-height: 100%;
@@ -95,7 +165,6 @@
         top: 0;
         transition: all .1s ease-in;
         }
-
 
         .card:hover {
         top: -2px;
@@ -173,10 +242,7 @@
         margin: 2em 0 0 0;
         }
 
-
-      
-
-        /* 2. vertical timeline - Journey*/
+        /* Vertical timeline - Journey */
         * {
         margin: 0;
         padding: 0;
@@ -211,9 +277,6 @@
             width: 50%;
             min-height: 120px;
         }
-        /* .container:hover {
-            background-color: rgb(255, 0, 0);
-        } */
         .container-left {
             left: 0;
             padding-right: 70px;
@@ -257,10 +320,6 @@
             z-index: 1;
             border: medium solid white;
         }
-        /* .content:hover {
-            color: transparent;
-            background-image: url("/assets/images/aamas_1.png");
-        } */
         .container-left .content::before {
             right: -10px;
             border-width: 10px 0 10px 10px;
@@ -340,6 +399,32 @@
             }
         }
 
+        /* nav menu bar */
+        nav {
+            display: flex;
+            justify-content:space-between; 
+            align-items: center;
+            padding: 14px 16px;
+            float: right;
+            font-size: 25px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none; 
+        }
+
+        nav li {
+            padding-left: 1rem; 
+            padding-right: 2.0rem; 
+            padding-top: 1.6rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #000000
+        }
+
     /* main */
     img.wp-smiley,
     img.emoji {
@@ -393,7 +478,7 @@
     font-size: 12px;
     line-height: 50px;
     color: #777;
-    background: #000000;
+    background: #ffffff;
     }
 
     .contact_container {
@@ -553,57 +638,41 @@
     
     <body class="home page-template page-template-home page-template-home-php page page-id-25">
         <header class="noSelect">
-            <div class="page_inner">
-                <div ui_comp="header_menu_mobile" ui_value="home" class="header_menu_outer_mobile" id="BC_1659848917335_4865">
-                    <div class="menu-menu_mobile_u-container"><ul id="menu-menu_mobile_u" class="menu"><li id="menu-item-194" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-194"><a href="https://jibo.com/cookie-policy/">Cookie policy</a></li>
-                        <li id="menu-item-195" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-privacy-policy menu-item-195"><a href="https://jibo.com/privacy-policy/">Privacy policy</a></li>
-                        <li id="menu-item-196" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-196"><a href="https://jibo.com/legal-notice/">Legal notice</a></li>
-                        <li id="menu-item-197" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-197"><a href="https://jibo.com/faqs/">Faqs</a></li>
-                        </ul>
-                    </div>					
-                <div class="menu-menu_mobile_d-container">
-                    <ul id="menu-menu_mobile_d" class="menu"><li id="menu-item-210" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-210"><a href="https://jibo.com/about/">About</a></li>
-                    </ul>
-                </div>				
-            </div>
-    
-            <a href="https://ybkim95.github.io/"><img class="header_logo" src="assets/images/ybk_logo_white.png"></a>
-            <div ui_comp="header_menu" ui_value="home" class="header_menu_outer" id="BC_1659848917334_9303">
-                <!-- <span ui_role="header_point" class="header_menu_point" style="left: 69.5%; background-color: rgb(76, 177, 254); opacity: 1;"></span> -->
-                <div class="menu-menu_header-container">
-                    <ul id="menu-menu_header" class="menu">
-                        <li id="menu-item-67" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-67"><a href="https://ybkim95.github.io/elements.html" submenu="false" style="pointer-events: auto;">About</a></li>
-                        <li id="mn_5115_1659848917334" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-66"><a href="#sec_project" submenu="true" style="pointer-events: auto;">Projects</a>
-                            <!-- <ul class="sub-menu" parent="mn_5115_1659848917334" visible="false">
-                                <li id="menu-item-180" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-180"><a href="https://jibo.com/hospitals/" parent_menu_id="mn_5115_1659848917334" style="pointer-events: auto;">Jibo for hospitals</a></li>
-                                <li id="menu-item-182" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-182"><a href="https://jibo.com/telehealth/" parent_menu_id="mn_5115_1659848917334" style="pointer-events: auto;">Jibo for telehealth</a></li>
-                                <li id="menu-item-181" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-181"><a href="https://jibo.com/education/" parent_menu_id="mn_5115_1659848917334" style="pointer-events: auto;">Jibo for education</a></li>
-                            </ul> -->
-                        </li>
-                        <li id="mn_5115_1659848917334" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-66"><a href="https://drive.google.com/file/d/1k8Uvot5z_s0RQ9IvczDpg3uQKDX33Hqs/view?usp=sharing" submenu="true" style="pointer-events: auto;">CV</a>
-                            <li id="menu-item-67" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-67"><a href="#sec_contact" submenu="false" style="pointer-events: auto;">Contact</a></li>
-                    <!-- <li id="menu-item-65" class="hide menu-item menu-item-type-post_type menu-item-object-page menu-item-65"><a href="https://jibo.com/press/" submenu="false" style="pointer-events: auto;">Press</a></li> -->
-                    <!-- <li id="menu-item-64" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-64"><a href="https://jibo.com/contact/" submenu="false" style="pointer-events: auto;">Contact</a></li> -->
-                        </ul>
-                    </div>				
-                </div>
-            </div>
+            <a href="https://ybkim95.github.io/"><img src="assets/images/ybk_logo_white.png" style="width:5.5%;"></a>
+            <nav>
+                <ul>
+                  <li><a href="https://ybkim95.github.io/elements.html">About</a></li>
+                  <li><a href="#sec_project">Projects</a></li>
+                  <li><a href="https://drive.google.com/file/d/1k8Uvot5z_s0RQ9IvczDpg3uQKDX33Hqs/view?usp=sharing">CV</a></li>
+                  <li><a href="#sec_contact">Contact</a></li>
+                </ul>
+              </nav>
         </header>
     
-    <div id="container">
-        <img src="/assets/images/round_ybk.jpg" />
+    <br>
+    <br>
+    <div class="profile">
+        <img src="/assets/images/round_ybk.jpg" style="float: right; margin: 5% 10% 15px 15px; width: 17%" />
     </div>
     
+    <br>
+    <br>
     <div class="block" block="home_1">
         <div class="page_inner">
-            <h1 class="title font_ProximaNovaSemibold" ui_shown="true">Hello, I'm a/an<br>
+            <!-- <h1 style="font-size:80px">Hello, I'm a/an<br>
                 <span class="title_home" ui_comp="home_anim" ui_value="Roboticist,Artist,Designer" id="BC_1659848917255_7240" style="opacity: 1; visibility: visible;">
-                <span></span>
-            </span></h1>
+                </span>
+            </h1> -->
+            <h1 style="font-size:75px">Hello, I'm a/an<br>
+                <a class="typewrite" data-period="1000" data-type='["Roboticist", "Artist", "Designer" ]'>
+                  <span class="wrap"></span>
+                </a>
+            </h1>
+            <br>
             <p style="font-size:24px; width:78%">
                 I'm Yubin, currently a visiting student/researcher at Personal Robots Group, MIT Media Lab. <br>
                 My research objective and interest lies in the area of <b>human-robot interaction</b>. <br> 
-                Specifically, I'm interested in studying affect recognition for child early literacy learning and developing dialogue system for emotional wellness and medication support for older adults. 
+                Specifically, I'm interested in studying affect recognition for child early literacy learning and developing<br> dialogue system for emotional wellness and medication support for older adults. 
             </p>
             
         </div>
@@ -623,44 +692,8 @@
 <!-- {% include head.html %} -->
 
 <body>
-    
-
-    <!-- {% include header.html %} -->
-
-    <!-- Banner -->
-    <!-- <section id="banner" class="major">
-        <div class="inner">
-            <header class="major">
-                <h1>{{ page.landing-title }}</h1>
-            </header>
-            <div class="content">
-                {{ site.description }}
-                <ul class="actions">
-                    <li><a href="#one" class="button next scrolly">About Me2</a></li>
-                </ul>
-            </div>
-        </div>
-    </section> -->
-
     <!-- Main -->
     <div id="main">
-
-        <!-- One 여기에 CV로 가는 html이나 링크를 넣자. -->
-        <!-- {% include tiles.html %} -->
-
-        <!-- Two -->
-        <!-- <section id="two">
-            <div class="inner">
-                <header class="major">
-                    <h2>Massa libero</h2>
-                </header>
-                <p>{{ content }}</p>
-                <ul class="actions">
-                    <li><a href="landing.html" class="button next">About Me1</a></li>
-                </ul>
-            </div>
-        </section> -->
-
     </div>
 
     <footer>
@@ -671,33 +704,19 @@
             </h2>
     </footer> 
 
-    <!-- <div class="block" block="home_6b">
-        <div class="page_inner">
-            <p class="title home_6b_title font_ProximaNovaSemibold">MIT and NAE studies reveal how AI and social elements applied to robotics improve the well-being of elderly people and children</p>
-    
-            <div class="home_6b_blocks">
-                <div class="rounded home_6b_block_3" ui_shown="true">
-                    <h3 class="home_6b_block_number font_ProximaNovaBold">01.</h3>
-                    <p class="text home_6b_block_text">A </p>
-                </div>
-                <div class="rounded home_6b_block_2" ui_shown="true">
-                    <h3 class="home_6b_block_number font_ProximaNovaBold">02.</h3>
-                    <p class="text home_6b_block_text">B</p>
-                </div>
-                <div class="rounded home_6b_block_3" ui_shown="true">
-                    <h3 class="home_6b_block_number font_ProximaNovaBold">03.</h3>
-                    <p class="text home_6b_block_text">C</p>
-                </div>
-                <div class="rounded home_6b_block_3" style="background-image: url(https://jibo.com/wp-content/themes/JIBOTheme/img/home_jibo_mit.svg);" ui_shown="true">
-                    <h3 class="home_6b_block_number font_ProximaNovaBold">03.</h3>
-                    <p class="text home_6b_block_text">Most participants (89%) highly enjoyed jibo’s personality, which helped them feel motivated and supported through exercises, medication, and daily stress.</p>
-                </div>
-            </div>
-        </div>
-    </div> -->
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
     <div class="block" block="solutions_6">
         <div class="page_inner">
-            <h3 id="sec_project" class="title title_solutions_6 font_ProximaNovaSemibold" ui_shown="true">Projects</h3>
+            <h1 id="sec_project">Projects</h1>
             
             <div class="solutions_6_blocks">
                 <div class="rounded solutions_6_left" ui_shown="true">
@@ -821,7 +840,7 @@
             <br>
             <br>
 
-            <h3 class="title title_solutions_6 font_ProximaNovaSemibold" ui_shown="true">Journey</h3>
+            <h1>Journey</h1>
             
             <div class="solutions_6_blocks">
                 <div class="rounded solutions_6_left" ui_shown="true">
@@ -937,7 +956,7 @@
                 <br>
                 <br>
                 <br>
-                <h3 id="sec_contact" class="title title_solutions_6 font_ProximaNovaSemibold" ui_shown="true">Contact</h3>
+                <h1 id="sec_contact">Contact</h1>
 
                 If you have any question or would like to know about more details about my work, please feel free to contact me!
                 <div class="contact_container">  

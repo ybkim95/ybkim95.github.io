@@ -255,7 +255,7 @@ organization {
     <br>
     <duration>July 2022 ~ Present</duration>
     <br>
-    <organization> Personal Robots Group, MIT Media Lab </organization>
+    <organization> Personal Robots Group,<br>MIT Media Lab </organization>
     <center>
         <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
             <div align="left">
@@ -276,28 +276,13 @@ organization {
                 Overview
               </div>
             </div>
-            <!-- <img src="/assets/images/aamas_1.png" alt="aamas-1"> -->
+            <img src="/assets/images/dyadic_system.png" style="width: 90%">
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
-                Dataset
+                Demo
               </div>
             </div>
-            <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
-              <div align="left">
-                Experiments
-              </div>
-            </div>
-            <br>
-            <!-- <img src="/assets/images/aamas-experiment.png" alt="aamas-1"> -->
-            <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
-              <div align="left">
-                Reference
-              </div>
-            </div>
-            <br>
             <!-- <p>
               <font size="3">
               <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, S.M.Algohwinem, H.W.Park, "Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation." accepted in Human-Centered AI Workshop at NeurIPS.</a><br><br>

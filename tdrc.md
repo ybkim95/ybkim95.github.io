@@ -221,110 +221,162 @@ organization {
     /* overflow: hidden; */
     /* outline: none; */
 }
-$bg: #FEF5DF;
-body {
-  background-color: $bg;
-}
-.container {
-  width: 5%;
-  height: 5%;
 
-  position: absolute;
-  /* top:0; right: 0; left: 0; bottom: 0; */
-  margin: auto;
-  
-  background: url("https://i.pinimg.com/564x/6f/5a/b1/6f5ab1b470beeeeaf285bb451c63ac8f.jpg");
-  background-color: black;
+/* takeaways */
+main {
+  padding: 0 64px 64px;
+}
+
+.card {
+  border-radius: 5px;
+  margin: 0 auto;
+  width: 200px;
+  overflow: hidden;
+  /* background-image: url(https://source.unsplash.com/collection/905011/1000x1000); */
   background-size: cover;
-  cursor: pointer;
-  
-  -webkit-box-shadow: 0 0 5px #000;
-        box-shadow: 0 0 5px #000;
-  }
-.overlay {
+}
+
+.info {
+  position: relative;
+  width: 100%;
+  /* height: 100px; */
+  background-color: #fff;
+  transform: translateY(100%)
+    translateY(-45px)
+    translateZ(0);
+  transition: transform 0.5s ease-out;
+}
+
+.info:before {
+  z-index: -1;
+  display: block;
+  position: absolute;
+  content: ' ';
   width: 100%;
   height: 100%;
-  
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr 2fr 2fr 1fr;
-  
-  background: rgba(77, 77, 77, .9);
-  color: $bg;
-  opacity: 0;
-  transition: all 0.5s;
-  
-  font-family: 'Playfair Display', serif;
+  overflow: hidden;
+  background-color: red;
+  /* background-image: url(https://source.unsplash.com/collection/905011/1000x1000); */
+  /* filter: blur(10px); */
+  background-size: cover;
+  opacity: 0.2;
+  transform: translateY(-100%)
+    translateY(45px)
+    translateZ(0);
+  transition: transform 0.5s ease-out;
 }
-.items {
-  padding-left: 20px;
-  letter-spacing: 3px;
+
+.card:hover .info,
+.card:hover .info:before {
+  transform: translateY(0) translateZ(0);
 }
-.head {
-  font-size: 30px;
-  line-height: 40px;
-  
-  transform: translateY(40px);
-  transition: all 0.7s;
-  hr {
-    display: block;
-    width: 0;
-    
-    border: none;
-    border-bottom: solid 2px $bg;
-    
-    position: absolute;
-    bottom: 0; left:20px;
-    
-    transition: all .5s;
+
+.title {
+  margin: 0;
+  padding: 20px;
+  font-size: 14px;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.description {
+  margin: 0;
+  padding: 0 24px 24px;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* General layout and typography stuff */
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400");
+
+* {
+  box-sizing: border-box;
+  position: relative;
+  transition: all .3s ease
+}
+
+html {
+  font-size: 16px
+}
+
+body {
+  font-family: Open Sans, Verdana, sans-serif;
+  color: rgba(0, 0, 0, .87);
+  font-weight: 400;
+  line-height: 1.45
+}
+
+/* body,
+header {
+  background: #fafafa
+} */
+
+header {
+  padding: 40px;
+  min-height: 200px;
+  text-align: center;
+  color: rgba(0, 0, 0, .87)
+}
+
+header > * {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto
+}
+
+header>:last-child {
+  margin-bottom: 0
+}
+
+h1 {
+  margin-bottom: 0.5em;
+  font-weight: inherit;
+  line-height: 1.2;
+  color: #1c5b72;
+  font-size: 2.618em
+}
+
+@media (min-width:800px) {
+  h1 {
+    font-size: 4.236em;
+    font-weight: 300
   }
 }
-.price {
-  font-size: 22px;
-  line-height: 10px;
-  font-weight: bold;  
-  opacity: 0;
-  transform: translateY(40px);
-  transition: all 0.7s;
-  .old {
-    text-decoration: line-through;
-    color: lighten(rgb(77, 77, 77),40%);
+
+p {
+  margin-bottom: 1.3em;
+  line-height: 1.618
+}
+
+@media (min-width:800px) {
+  p {
+    font-size: 1.3em
   }
 }
-.cart {
-  font-size: 12px;
-  opacity: 0;
-  letter-spacing: 1px;
-  font-family: 'Lato', sans-serif;
-  transform: translateY(40px);
-  transition: all 0.7s;
-  i {
-    font-size: 16px;
-  }
-  span {
-    margin-left: 10px;
-  }
+
+a {
+  color: #e03616;
+  text-decoration: none
 }
-.container:hover .overlay {
-  opacity: 1;
-  & .head {
-    transform: translateY(0px);
-  }
-  
-  & hr {
-    width: 75px;
-    transition-delay: 0.4s;
-  }
-  & .price {
-    transform: translateY(0px);
-    transition-delay: 0.3s;
-    opacity: 1;
-  }
-  & .cart {
-    transform: translateY(0px);
-    transition-delay: 0.6s;
-    opacity: 1;
-  }
+.card-container {
+  /* background-color: #0F6; */
+  width: 100%;
+  height: auto;
+  margin: auto 0;
+  display: flex;
+  justify-content: center;
+}
+
+.card-container ul {
+  float: left;
+  text-align: center;
+  margin: auto 0;
+}
+
+.card-container li {
+  list-style-type: none;
+  padding: .5em .5em .5em .5em;
+  text-align: left;
 }
 
 </style>
@@ -406,23 +458,152 @@ body {
               </div>
             </div>
             <br>
-            <div class="container">
-              <div class="overlay">
-                <div class = "items"></div>
-                <div class = "items head">
-                  <p>Flower Embroidery Hoop Art</p>
-                  <hr>
+            <br>
+            The needs extracted from the caregivers and older adults during the FGI are organized as below:
+            <br><br>
+            <ul class='card-container'>
+              <li>
+                <div class='card'>
+                  <div class='info'>
+                    <h1 class='title'>LOS</h1>
+                    <p class='description'>dasds.</p>
+                  </div>
                 </div>
-                <div class = "items price">
-                  <p class="old">$699</p>
-                  <p class="new">$345</p>
+              </li>
+              <br>
+              <li>
+                <div class='card'>
+                  <div class='info'>
+                    <h1 class='title'>MED</h1>
+                    <p class='description'>dasds.</p>
+                  </div>
                 </div>
-                <div class="items cart">
-                  <i class="fa fa-shopping-cart"></i>
-                  <span>ADD TO CART</span>
-              </div>
-            </div>
-          </div>
+              </li>
+              <br>
+              <li>
+                <div class='card'>
+                  <div class='info'>
+                    <h1 class='title'>CON</h1>
+                    <p class='description'>dasds.</p>
+                  </div>
+                </div>
+              </li>
+              <br>
+              <li>
+                <div class='card'>
+                  <div class='info'>
+                    <h1 class='title'>ENV</h1>
+                    <p class='description'>dasds.</p>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <ul class='card-container'>
+              <li>
+                <div class='card'>
+                  <div class='info'>
+                    <h1 class='title'>PAT</h1>
+                    <p class='description'>dasds.</p>
+                  </div>
+                </div>
+              </li>
+              <br>
+              <li>
+                <div class='card'>
+                  <div class='info'>
+                    <h1 class='title'>HEA</h1>
+                    <p class='description'>dasds.</p>
+                  </div>
+                </div>
+              </li>
+              <br>
+              <li>
+                <div class='card'>
+                  <div class='info'>
+                    <h1 class='title'>EAT</h1>
+                    <p class='description'>dasds.</p>
+                  </div>
+                </div>
+              </li>
+              <br>
+              <li>
+                <div class='card'>
+                  <div class='info'>
+                    <h1 class='title'>WEL</h1>
+                    <p class='description'>dasds.</p>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <ul class='card-container'>
+              <li>
+                <div class='card'>
+                  <div class='info'>
+                    <h1 class='title'>NEW</h1>
+                    <p class='description'>dasds.</p>
+                  </div>
+                </div>
+              </li>
+              <br>
+              <li>
+                <div class='card'>
+                  <div class='info'>
+                    <h1 class='title'>WAK</h1>
+                    <p class='description'>dasds.</p>
+                  </div>
+                </div>
+              </li>
+              <br>
+              <li>
+                <div class='card'>
+                  <div class='info'>
+                    <h1 class='title'>PHO</h1>
+                    <p class='description'>dasds.</p>
+                  </div>
+                </div>
+              </li>
+              <br>
+              <li>
+                <div class='card'>
+                  <div class='info'>
+                    <h1 class='title'>VOC</h1>
+                    <p class='description'>dasds.</p>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <ul class='card-container'>
+              <li>
+                <div class='card'>
+                  <div class='info'>
+                    <h1 class='title'>FRN</h1>
+                    <p class='description'>dasds.</p>
+                  </div>
+                </div>
+              </li>
+              <br>
+              <li>
+                <div class='card'>
+                  <div class='info'>
+                    <h1 class='title'>GAM</h1>
+                    <p class='description'>dasds.</p>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <br>
+            <br>
+            15 Scenarios were designed for older adults interacting with digital companion robots and below are the few examples:
+            <br><br>
+            # 1. Social Connections<br><br>
+            <center>
+              <img src="/assets/images/scenario_dori.png" style="width: 90%">
+            </center>
+            <br><br>
+            # 2. Social Connections<br><br>
+            <center>
+              <img src="/assets/images/scenario_dori1.png" style="width: 90%">
+            </center>
             <!-- <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Reference

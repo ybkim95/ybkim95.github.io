@@ -178,7 +178,6 @@ section{
 .warning {color: orange;}
 .danger {color: red;}
 .default {color: black;} */
-
 projectbutton {
     position:absolute;
     top: 67%;
@@ -194,7 +193,6 @@ projectbutton {
     overflow: hidden;
     outline: none;
 }
-
 duration {
     position:absolute;
     top: 75%;
@@ -209,7 +207,6 @@ duration {
     /* overflow: hidden; */
     /* outline: none; */
 }
-
 organization {
     position:absolute;
     top: 79%;
@@ -224,6 +221,112 @@ organization {
     /* overflow: hidden; */
     /* outline: none; */
 }
+$bg: #FEF5DF;
+body {
+  background-color: $bg;
+}
+.container {
+  width: 5%;
+  height: 5%;
+
+  position: absolute;
+  /* top:0; right: 0; left: 0; bottom: 0; */
+  margin: auto;
+  
+  background: url("https://i.pinimg.com/564x/6f/5a/b1/6f5ab1b470beeeeaf285bb451c63ac8f.jpg");
+  background-color: black;
+  background-size: cover;
+  cursor: pointer;
+  
+  -webkit-box-shadow: 0 0 5px #000;
+        box-shadow: 0 0 5px #000;
+  }
+.overlay {
+  width: 100%;
+  height: 100%;
+  
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 2fr 2fr 1fr;
+  
+  background: rgba(77, 77, 77, .9);
+  color: $bg;
+  opacity: 0;
+  transition: all 0.5s;
+  
+  font-family: 'Playfair Display', serif;
+}
+.items {
+  padding-left: 20px;
+  letter-spacing: 3px;
+}
+.head {
+  font-size: 30px;
+  line-height: 40px;
+  
+  transform: translateY(40px);
+  transition: all 0.7s;
+  hr {
+    display: block;
+    width: 0;
+    
+    border: none;
+    border-bottom: solid 2px $bg;
+    
+    position: absolute;
+    bottom: 0; left:20px;
+    
+    transition: all .5s;
+  }
+}
+.price {
+  font-size: 22px;
+  line-height: 10px;
+  font-weight: bold;  
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.7s;
+  .old {
+    text-decoration: line-through;
+    color: lighten(rgb(77, 77, 77),40%);
+  }
+}
+.cart {
+  font-size: 12px;
+  opacity: 0;
+  letter-spacing: 1px;
+  font-family: 'Lato', sans-serif;
+  transform: translateY(40px);
+  transition: all 0.7s;
+  i {
+    font-size: 16px;
+  }
+  span {
+    margin-left: 10px;
+  }
+}
+.container:hover .overlay {
+  opacity: 1;
+  & .head {
+    transform: translateY(0px);
+  }
+  
+  & hr {
+    width: 75px;
+    transition-delay: 0.4s;
+  }
+  & .price {
+    transform: translateY(0px);
+    transition-delay: 0.3s;
+    opacity: 1;
+  }
+  & .cart {
+    transform: translateY(0px);
+    transition-delay: 0.6s;
+    opacity: 1;
+  }
+}
+
 </style>
 
 <head>
@@ -267,17 +370,20 @@ organization {
         <rt>Image Source: Aging of South Korea in 2020 (<a href="https://link.springer.com/article/10.1007/s40980-020-00061-8">Kee Whan Kim et al</a>)</rt><br>
         <div style="max-width:900px; word-wrap:break-word; font-size:18px;">
           <div align="left"><br>
-          In 2017, South Korea had ofcially become an aged society, with more than 14 percent of its citizens 65 years old or older. It took only 17 years after South Korea became an aging society in 2000, while Japan took 24  years for the same transition (Chosun 2017).<br><br><br> 
+          Social connections in our life help us in improving the quality and well-being of our lives. However, chances of being socially connected decrease in the cases of older adults, making them vulnerable to depression. <br>In 2017, South Korea had ofcially become an aged society, with more than 14 percent of its citizens 65 years old or older. It took only 17 years after South Korea became an aging society in 2000, while Japan took 24  years for the same transition (Chosun 2017). <b>Companion robots</b> can satisfy their needs since they are developed as technological intervention tools by providing service, companionship, and assistance in daily life.<br>
+          In this project, our goal was to first understand the needs of older adults, evaluate the designed concepts, and finally prototype a companion robot.
+          <br><br> 
             <h6> Research Topics </h6>
             <rt>
               # companion robots # elder care # living-lab experiment
             </rt>
-            <br><br>
+            <br><br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Overview
               </div>
             </div>
+            <br>
             <img src="/assets/images/dori_overview.png" alt="aamas-1">
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
@@ -287,7 +393,36 @@ organization {
             </div>
             <br>
             <img src="/assets/images/dori_experiment.png" alt="aamas-1">
-            <br><br><br>
+            <br><br>
+            To investigate older adults’ living accommodations and their life patterns closely, we decided to conduct living-lab experiments with 22 participants between the ages of 70 and 90 for two weeks
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+              <div align="left">
+                Takeaways
+              </div>
+            </div>
+            <br>
+            <div class="container">
+              <div class="overlay">
+                <div class = "items"></div>
+                <div class = "items head">
+                  <p>Flower Embroidery Hoop Art</p>
+                  <hr>
+                </div>
+                <div class = "items price">
+                  <p class="old">$699</p>
+                  <p class="new">$345</p>
+                </div>
+                <div class="items cart">
+                  <i class="fa fa-shopping-cart"></i>
+                  <span>ADD TO CART</span>
+              </div>
+            </div>
+          </div>
             <!-- <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Reference

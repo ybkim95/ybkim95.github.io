@@ -263,33 +263,36 @@ organization {
             </div>
         </div>
         <br>
-        <!-- <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
-          <div align="left">
-            summary<br><br>
+        <img src="/assets/images/fitbit_overview1.png" style="width:35%;"><br>
+        <img src="/assets/images/fitbit_overview2.png" style="width:30%;"><br>
+        <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
+          <div align="left"><br>
+            The emotional wellness of individuals emphasizes the importance of a positive outlook towards life circumstances, the capability to cope with stress and ability to maintain fulfilling relationships with others. However, the digital intervention to improve the emotional wellness of older adults is still an underexplored area [1].<br><br>
+            In this project, we develop a system that integrates Fitbit data with a conversational agent to support elderly's emotional wellness. This framework is to help caregivers of elderly and our aim is to enhance the user experience by providing quantitative emotional wellness-related data (e.g., sleep, mood, stress, etc). Fitbit data could help users better reflect on their current behaviors and the effectiveness of the intervention [2].<br><br><br>
             <h6> Research Topics </h6>
             <rt>
               # elder-care # emotional-wellness # medication adherence
             </rt>
             <br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+            <!-- <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Overview
               </div>
-            </div>
-            <br><br><br>
+            </div> -->
+            <!-- <br><br><br> -->
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Dataset
               </div>
             </div>
             <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+            <!-- <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Experiments
               </div>
-            </div>
-            <br>
-            <br><br><br>
+            </div> -->
+            <!-- <br>
+            <br><br><br> -->
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 References
@@ -298,11 +301,14 @@ organization {
             <br>
             <p>
               <font size="3">
-              <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, S.M.Algohwinem, H.W.Park, "Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation." accepted in Human-Centered AI Workshop at NeurIPS.</a><br><br>
+              <a href="/about/about_team.htm">[1]</a><br>
+              </font>
+              <font size="3">
+              <a href="/about/about_team.htm">[2]</a><br>
               </font>
             </p>
-          </div> -->
-        <!-- </div> -->
+          </div>
+        </div>
     </center>
     <br>
     <br>

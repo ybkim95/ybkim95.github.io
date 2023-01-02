@@ -282,9 +282,28 @@ organization {
             <!-- <br><br><br> -->
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
-                Dataset
+                Fitbit
+              </div>
+            </div><br>
+            <center>
+              <img src="/assets/images/fitbit_charge5.png" style="width:35%;"><br>
+            </center>
+            <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
+              <div align="left"><br>
+              In our study, we use Fitbit Charge5 as an interface to collect user data and use Python implemented Fitbit API to utilize and feed the data into the conversational model (chatbot). From creating Fitbit account to API authorization, please refer to <b><a href="https://towardsdatascience.com/using-the-fitbit-web-api-with-python-f29f119621ea">here</a></b>.<br>
+              Once the set-up process is done, we can now refer to <b><a href="https://python-fitbit.readthedocs.io/en/latest/">here</a></b> to utilize all the sensor data gathered from user activity and below is an example user sleep data printed in the terminal:<br><br>
+              <center>
+                <img src="/assets/images/fitbit_sleep.png" style="width:70%;"><br>
+              </center>
               </div>
             </div>
+            <br><br><br>
+            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+              <div align="left">
+                Conversational model and Dataset
+              </div>
+            </div><br>
+            TBA
             <br><br><br>
             <!-- <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
@@ -301,10 +320,10 @@ organization {
             <br>
             <p>
               <font size="3">
-              <a href="/about/about_team.htm">[1]</a><br>
+              <a href="https://aisel.aisnet.org/cgi/viewcontent.cgi?article=1035&context=bled2018">[1] Warraich, M. U., Rauf, I., & Sell, A. (2018). Co-creation Model to Design Wearables for Emotional Wellness of Elderly. In Bled eConference (p. 6).</a><br>
               </font>
               <font size="3">
-              <a href="/about/about_team.htm">[2]</a><br>
+              <a href="https://github.com/wmerians/FitBit-Data-Collection-and-Visualization-System">[2] https://github.com/wmerians/FitBit-Data-Collection-and-Visualization-System</a><br>
               </font>
             </p>
           </div>

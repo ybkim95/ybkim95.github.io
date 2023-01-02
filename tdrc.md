@@ -459,6 +459,7 @@ a {
             </div>
             <br>
             <br>
+            <b>1. Companion functionalities</b><br><br>
             The needs extracted from the caregivers and older adults during the FGI are organized as below:
             <br><br>
             <ul class='card-container'>
@@ -466,7 +467,7 @@ a {
                 <div class='card'>
                   <div class='info'>
                     <h1 class='title'>LOS</h1>
-                    <p class='description'>dasds.</p>
+                    <p class='description'>Find frequently lost objects for older adults.</p>
                   </div>
                 </div>
               </li>
@@ -475,7 +476,7 @@ a {
                 <div class='card'>
                   <div class='info'>
                     <h1 class='title'>MED</h1>
-                    <p class='description'>dasds.</p>
+                    <p class='description'>Medication support for older adults.</p>
                   </div>
                 </div>
               </li>
@@ -484,7 +485,7 @@ a {
                 <div class='card'>
                   <div class='info'>
                     <h1 class='title'>CON</h1>
-                    <p class='description'>dasds.</p>
+                    <p class='description'>Help making a docter appointment.</p>
                   </div>
                 </div>
               </li>
@@ -493,7 +494,7 @@ a {
                 <div class='card'>
                   <div class='info'>
                     <h1 class='title'>ENV</h1>
-                    <p class='description'>dasds.</p>
+                    <p class='description'>Alarm dangerous things around older adults.</p>
                   </div>
                 </div>
               </li>
@@ -503,7 +504,7 @@ a {
                 <div class='card'>
                   <div class='info'>
                     <h1 class='title'>PAT</h1>
-                    <p class='description'>dasds.</p>
+                    <p class='description'>Analyze life patterns and manage emergency situations.</p>
                   </div>
                 </div>
               </li>
@@ -512,7 +513,7 @@ a {
                 <div class='card'>
                   <div class='info'>
                     <h1 class='title'>HEA</h1>
-                    <p class='description'>dasds.</p>
+                    <p class='description'>Monitoring older adults' health conditions and support telemedicine.</p>
                   </div>
                 </div>
               </li>
@@ -521,7 +522,7 @@ a {
                 <div class='card'>
                   <div class='info'>
                     <h1 class='title'>EAT</h1>
-                    <p class='description'>dasds.</p>
+                    <p class='description'>Talk with older adults while eating and nutrition management.</p>
                   </div>
                 </div>
               </li>
@@ -530,7 +531,7 @@ a {
                 <div class='card'>
                   <div class='info'>
                     <h1 class='title'>WEL</h1>
-                    <p class='description'>dasds.</p>
+                    <p class='description'>Welcome older adults in front of the door.</p>
                   </div>
                 </div>
               </li>
@@ -540,7 +541,7 @@ a {
                 <div class='card'>
                   <div class='info'>
                     <h1 class='title'>NEW</h1>
-                    <p class='description'>dasds.</p>
+                    <p class='description'>Notify new programs and the dates at senior centers.</p>
                   </div>
                 </div>
               </li>
@@ -549,7 +550,7 @@ a {
                 <div class='card'>
                   <div class='info'>
                     <h1 class='title'>WAK</h1>
-                    <p class='description'>dasds.</p>
+                    <p class='description'>Suggest and facilitate older adults' movement and exercise.</p>
                   </div>
                 </div>
               </li>
@@ -558,7 +559,7 @@ a {
                 <div class='card'>
                   <div class='info'>
                     <h1 class='title'>PHO</h1>
-                    <p class='description'>dasds.</p>
+                    <p class='description'>Show older adults' family photos depending on their moods.</p>
                   </div>
                 </div>
               </li>
@@ -567,7 +568,7 @@ a {
                 <div class='card'>
                   <div class='info'>
                     <h1 class='title'>VOC</h1>
-                    <p class='description'>dasds.</p>
+                    <p class='description'>Set companion's voice as their grandchild's.</p>
                   </div>
                 </div>
               </li>
@@ -577,7 +578,7 @@ a {
                 <div class='card'>
                   <div class='info'>
                     <h1 class='title'>FRN</h1>
-                    <p class='description'>dasds.</p>
+                    <p class='description'>Call older adults' friend.</p>
                   </div>
                 </div>
               </li>
@@ -586,13 +587,14 @@ a {
                 <div class='card'>
                   <div class='info'>
                     <h1 class='title'>GAM</h1>
-                    <p class='description'>dasds.</p>
+                    <p class='description'>Game contents for computer-assisted cognitive rehabilitation.</p>
                   </div>
                 </div>
               </li>
             </ul>
             <br>
             <br>
+            <b>2. User scenarios</b><br><br>
             15 Scenarios were designed for older adults interacting with digital companion robots and below are the few examples:
             <br><br>
             # 1. Social Connections<br><br>
@@ -609,7 +611,14 @@ a {
                 Reference
               </div>
             </div> -->
-            <br>
+            <br><br>
+            <b>3. Concept designs</b><br><br><br>
+            <center>
+              <img src="/assets/images/tdrc_concept.png" style="width: 90%"><br><br>
+              <img src="/assets/images/tdrc_concept2.png" style="width: 40%">
+            </center><br>
+            Above figure shows the collected companion robot designs from older adults and the final concept design was selected as (a) animal character type considering the design and robot functionalities.<br><br>
+            With the animal character design, we could avoid uncanny valley effect (from the previous study) and 244 older adults responded that they prefer animal (bear, dog, seal) designs. Many older adults particularly mentioned that the robot design should bring warm (like bear) and familiar (like dog) feelings to the users.
             <p>
               <font size="3">
               <!-- <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, H.Chen, S.M.Algohwinem, C.Breazeal, H.W.Park, "Joint Engagement Classification using Video Augmentation Techniques for Multi-person Human-robot Interaction." under review at AAMAS 2023.</a> -->

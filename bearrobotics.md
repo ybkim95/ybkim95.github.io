@@ -266,9 +266,9 @@ organization {
         </div>
         <br>
         <img src="/assets/images/penny_task.png" alt="tdrc-1" style="width:30%;"><br>
-        <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
+        <div style="max-width:900px; word-wrap:break-word; font-size:18px;">
           <div align="left">
-            Story<br><br>
+            Bear Robotics is elevating dining experiences by automating the hard part. By utilizing AI and autonomous robot technology, Bear Robotics deploys robots to take care of everything from drink serving to food running and table bussing, allowing hosts, servers and wait staff to focus on delivering outstanding service.<br><br>
             <h6> Research Topics </h6>
             <rt>
               # robotics # human-robot interaction # SLAM
@@ -285,12 +285,48 @@ organization {
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
-                Projects
+                Servi
               </div>
             </div>
             <br>
+            <center>
+              <img src="/assets/images/servi_product.png" style="width: 90%"><br>
+              <img src="/assets/images/servi_product2.png" style="width: 100%">
+            </center><br>
+            Here are the several effects that Servi can bring :<br><br>
+            <b> 1. Enhancing service</b><br>
+            - Spending more time creating exceptional experience<br>
+            - Cover more tables and earn more tips<br> 
+            - Eliminate burnout for better service<br>
+            <br>
+            <b> 2. Smarter, Safer, Stronger</b><br>
+            - Self-driving with a variety of service modes<br>
+            - NSF-certified<br> 
+            - Carry capacity up to 66lbs<br>
+            <br>
+            <b> 3. Alleviating headaches</b><br>
+            - Combat javor shortage<br>
+            - Reduce turnover<br> 
+            - Less admin overhead<br>
+            <br>
+            <b> 4. A Top-Rate Time Card</b><br>
+            - Less than $2.75 per hour<br>
+            - 12 hours on on a single charge<br> 
+            - 7 days a week / 365 days a year<br>
+            <br>
             <!-- <img src="/assets/images/aamas-experiment.png" alt="aamas-1"> -->
-            <br><br><br>
+            <br>
+            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+              <div align="left">
+                Projects
+              </div>
+            </div><br>
+            <center>
+              <img src="/assets/images/servi_testing.png" style="width: 70%">
+            </center><br>
+            It is important for mobile robots to navigate safely in indoor space. To do so, Simultaneous Localization and Mapping (SLAM) technology is one of the essential skills that robot must have. There are many challenges on implementing SLAM to mobile robots in the wild and the problems that I wanted to solve were 1) How can robots accurately localize themselves in open space, 2) How can robots trade-off between the accurate mapping and the computational cost in real-time.<br>
+            Along with those questions, I also focused on assuring the robot performance by testing the main sensors (e.g., LiDAR, Camera, etc) in the robot and evaluate the quality of each sensor by conducting unit tests. 
+            <br>
           </div>
         </div>
     </center>

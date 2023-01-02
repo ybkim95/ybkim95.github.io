@@ -292,6 +292,7 @@ organization {
                 Team Roboin, Yonsei University
               </div>
             </div><br>
+            We won <b>3rd Prize</b> in the final competition held in Montreal, Canada.<br><br>
             <center>
             <img src="/assets/images/icra_robomaster.jpg" alt="icra-1" style="width: 65%">
             </center>

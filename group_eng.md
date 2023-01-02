@@ -255,43 +255,43 @@ organization {
     <br>
     <duration>Nov 2022 ~ Present</duration>
     <br>
-    <organization> Personal Robots Group, MIT Media Lab </organization>
+    <organization> Personal Robots Group,<br>MIT Media Lab </organization>
     <center>
         <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
             <div align="left">
-              Group Joint Engagement Prediction
+              MultiPar-T: Multiparty-Transformer for Capturing Contingent Behaviors in Group Conversations
             </div>
         </div>
         <br>
         <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
           <div align="left">
-            summary<br><br>
+            <br>
             <h6> Research Topics </h6>
             <rt>
-              # robotics # human-computer interaction
+              # engagement prediction # cross-party attention
             </rt>
             <br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Overview
               </div>
-            </div>
+            </div><br>
+            Understanding a multiparty setting is more challenging than that of an individual setting due to the fact that (1) the model must first recognize individual behavioral cues, (2) deal with the complexity of capturing these cues from multiple streams of behavioral data from the multiple people, and most importantly (3) recognize the subtle contingent behaviors that take place amongst group members. To tackle this challenge, we propose the Multiparty-Transformer (Multipar-T), a transformer model for group behavior modelling.
             <!-- <img src="/assets/images/aamas_1.png" alt="aamas-1"> -->
             <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+            <!-- <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Dataset
               </div>
             </div>
-            <br><br><br>
-            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+            <br><br><br> -->
+            <!-- <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Experiments
               </div>
-            </div>
-            <br>
+            </div> -->
             <!-- <img src="/assets/images/aamas-experiment.png" alt="aamas-1"> -->
-            <br><br><br>
+            <!-- <br><br><br> -->
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Publications
@@ -300,7 +300,7 @@ organization {
             <br>
             <p>
               <font size="3">
-              <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, S.M.Algohwinem, H.W.Park, "Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation." accepted in Human-Centered AI Workshop at NeurIPS.</a><br><br>
+              <a href="/about/about_team.htm">Dong Won Lee , Yubin Kim , Rosalind Picard , Cynthia Breazeal , Hae Won Park, "MultiPar-T: Multiparty-Transformer for Capturing Contingent Behaviors in Group Conversations." in preparation for IJCAI 2023</a><br><br>
               </font>
             </p>
           </div>

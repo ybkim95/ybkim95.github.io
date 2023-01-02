@@ -277,7 +277,10 @@ organization {
               </div>
             </div>
             <br>
-            <img src="/assets/images/odmgpf_1.png" alt="aamas-1">
+            <center>
+              <img src="/assets/images/odmgpf_1.png" width="80%" alt="aamas-1"><br>
+            </center>
+            Obstacle avoidance is one of the essential technologies in local path planning and one of the critical technologies that guarantees human and vehicle safety. Many kinds of sensors are used to detect obstacles such as sonar, laser range finder, LIDAR, stereo vision, and 3D depth sensor [1]. In this study, we used a laser range finder and introduced a new method to avoid obstacles that we call the Obstacle-Driven Mixed Gaussian Potential Field (ODMG-PF) method.
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
@@ -285,7 +288,8 @@ organization {
               </div>
             </div>
             <br>
-            <img src="/assets/images/odmgpf_2.png" alt="aamas-1">
+            <img src="/assets/images/odmgpf_2.png" alt="aamas-1"><br><br>
+            The main idea behind this method is that, after receiving distance data from the LiDAR sensor, we consider only the objects that are within the threshold range, enlarge the obstacles with regard to the robot’s width, and construct a Gaussian (repulsive) potential field from them. Next, we calculate the mixed gaussian attractive field from the yaw angle information from an inertial measurement unit (IMU). The total field is made of these two fields, and, from it, we choose the angle with the minimum total field value.
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
@@ -293,7 +297,8 @@ organization {
               </div>
             </div>
             <br>
-            <img src="/assets/images/odmgpf_3.png" alt="aamas-1">
+            <img src="/assets/images/odmgpf_3.png" alt="aamas-1"><br><br>
+            The experiment was carried out in simulation (V-REP) environment first and then tested in the real-world environment. In order to communicate with the robot, I used Robot Operating System (ROS) melodic in Ubuntu 18.04 LTS OS. For mobile robot, I customized a turtlebot from Robotiz by replacing the normal wheels to Mecanum-wheels. To obtain the ground truth data as possible, I placed the robot and the obstacles at a fixed initial positions and calculated the change of it's positions by analyzing the videos recorded. 
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
@@ -301,7 +306,8 @@ organization {
               </div>
             </div>
             <br>
-            <img src="/assets/images/odmgpf_4.png" alt="aamas-1">
+            <img src="/assets/images/odmgpf_4.png" width="100%"><br><br>
+            I evaluated the obstacle-avoidance capability with mobile robots and found my algorithm, ODMG-PF, successfully decreased the collision rate by <b>17.2%</b> and <b>14.3%</b> in the simulation and real-world, respectively, compared to the baseline. 
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
@@ -310,7 +316,8 @@ organization {
             </div>
             <br>
             <p>
-              <a href="https://ybkim95.notion.site/Real-time-Dynamic-Obstacle-Avoidance-of-Holonomic-Mobile-Robot-using-an-Obstacle-Driven-Mixed-Gaussi-af943fa814194e639ba19cdfabe2cb1b">A Real-time Dynamic Obstacle Avoidance of Holonomic Mobile Robot using an Obstacle-Driven Mixed Gaussian Potential Field (2020)</a>
+              <!-- <a href="https://ybkim95.notion.site/Real-time-Dynamic-Obstacle-Avoidance-of-Holonomic-Mobile-Robot-using-an-Obstacle-Driven-Mixed-Gaussi-af943fa814194e639ba19cdfabe2cb1b">[2] A Real-time Dynamic Obstacle Avoidance of Holonomic Mobile Robot using an Obstacle-Driven Mixed Gaussian Potential Field (2020)</a> -->
+              <a href="https://www.hindawi.com/journals/jat/2018/5041401/">[1] Cho, J. H., Pae, D. S., Lim, M. T., & Kang, T. K. (2018). A real-time obstacle avoidance method for autonomous vehicles using an obstacle-dependent Gaussian potential field. Journal of Advanced Transportation, 2018.</a>
               <font size="3">
               <!-- <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, S.M.Algohwinem, H.W.Park, "Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation." accepted in Human-Centered AI Workshop at NeurIPS.</a><br><br>
               <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, H.Chen, S.M.Algohwinem, C.Breazeal, H.W.Park, "Joint Engagement Classification using Video Augmentation Techniques for Multi-person Human-robot Interaction." under review at AAMAS 2023.</a> -->

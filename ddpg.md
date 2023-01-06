@@ -253,24 +253,24 @@ organization {
     <br>
     <projectbutton><a href="../#sec_project">< Projects</a></projectbutton>
     <br>
-    <duration>June 2022 ~ Present</duration>
+    <duration>Sep 2018 ~ Dec 2018</duration>
     <br>
     <organization> MLCS Lab, Yonsei University </organization>
     <center>
         <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
             <div align="left">
-              Training Self-Driving Car using DDPG Algorithm
+              Training Self-Driving Car using Deep Deterministic Policy Gradient (DDPG) Algorithm
             </div>
         </div>
         <br>
         <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
           <div align="left">
-            summary<br><br>
+            <br>
             <h6> Research Topics </h6>
             <rt>
-              # robotics # human-computer interaction
+              # deep reinforcement learning # simulation environment
             </rt>
-            <br><br>
+            <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Overview
@@ -279,21 +279,64 @@ organization {
             <br>
             <!-- <img src="/assets/images/aamas_1.png" alt="aamas-1"> -->
             <iframe width="960" height="480" src="https://www.youtube.com/embed/NaZAxuvrqEE?autoplay=1&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <br>
+            <br>
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px;">
+              <div align="left">
+                Deep Reinforcement Learning (DRL) based algorithms have been recently used to solve Markov Decision Processes (MDPs), where the scope of the algorithm is to calculate the optimal policy of an agent to choose actions in an environment with the goal of maximize a reward function, obtaining quite successful results in fields like solving computer games or simple decision-making system [1]. <br>The discrete nature of DQN is not well studied ongoing problem like self-driving, due to the infinite possibles of movement the car in each step. Studying DQN and the obtained results, we will analyze the limitations of this method for this navigation purpose. On the other hand, the <b>DDPG</b> algorithm has a continuous nature that fits better to autonomous driving task.<br>
+                In this work, we implement DDPG algorithm to train an agent in V-REP (nowadays called Coppelia Sim) simulator which involves physics engine and evaluate the performance of trained self-driving car. 
+              </div>
+            </div>
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
-                Experiments
+                Methods
+              </div><br>
+              <center>
+                <img src="/assets/images/ddpg_method.png" style="width: 70%">
+              </center><br>
+            </div>
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px;">
+              <div align="left">
+                To control the simulated vehicle, we used Ackermann Steering and we defined <b>2-dimensional</b> action space where action[0] is the speed and action[1] is the steering angle. For observation space, we defined it on <b>27-dimensional</b> space where 24-dimensions are the LiDAR array and the rest four are relative angle towards the center road line, v_x and v_y. We had many trial and error and defined the <b>reward function</b> as below:<br><br>
+                <center>
+                  <img src="/assets/images/reward_function.png" style="width: 25%">
+                </center><br>
+                (where f(speed_x) is the magnitude of speed in x-direction according to the center road line and f(LiDAR) is sum of lidar rewards on front, side, and back which are defined with the empirical thresholds)<br>
+                To prevent from getting overfitted, we randomly positioned an agent in random positions and random direction angles (In the later work, we also generated random tracks for each iteraction).  
+              </div>
+            </div>
+            <br><br><br>
+            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+              <div align="left">
+                Experiment and Result
               </div>
             </div>
             <br>
             <img src="/assets/images/ddpg_experiment.png" alt="aamas-1">
+            <br>
+            <br>
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px;">
+              <div align="left">
+                In this work, since the simulator involved high-quality physics engine, it took few days to train an agent and due to this reason, we disabled the graphics during the training.<br> 
+                Every episode was terminated whenever the vehicle 1) collides with the environment, 2) go backward direction. For the first 50 episodes, agent showed totally random movements, but after 200 episodes, the agent started to behave well and show reasonable performance. Exploration was also an important factor when training an agent. In DDPG, we utilize Ornstein-Ulenbeck(OU) noise and add this to the output action (I empirically controlled this value within the boundary from -0.3 to 0.3).<br>
+                Future work should involve more realistic environment with multiple agents at a same time.
+              </div>
+            </div>
             <br><br><br>
-            <!-- <p>
+            <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
+              <div align="left">
+                References
+              </div>
+            </div>
+            <br>
+            <p>
               <font size="3">
-              <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, S.M.Algohwinem, H.W.Park, "Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation." accepted in Human-Centered AI Workshop at NeurIPS.</a><br><br>
-              <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, H.Chen, S.M.Algohwinem, C.Breazeal, H.W.Park, "Joint Engagement Classification using Video Augmentation Techniques for Multi-person Human-robot Interaction." under review at AAMAS 2023.</a>
+                <a href="https://link.springer.com/article/10.1007/s11042-021-11437-3">[1] Pérez-Gil, Ó., Barea, R., López-Guillén, E., Bergasa, L. M., Gómez-Huélamo, C., Gutiérrez, R., & Díaz-Díaz, A. (2022). Deep reinforcement learning based control for autonomous vehicles in carla. Multimedia Tools and Applications, 81(3), 3553-3576.</a><br>
+                <a href="https://github.com/Hong123123/DDPG_VREP">[2] https://github.com/Hong123123/DDPG_VREP</a><br>
+                <a href="https://arxiv.org/abs/1509.02971">[3] Lillicrap, T. P., Hunt, J. J., Pritzel, A., Heess, N., Erez, T., Tassa, Y., ... & Wierstra, D. (2015). Continuous control with deep reinforcement learning. arXiv preprint arXiv:1509.02971.</a><br>
               </font>
-            </p> -->
+            </p>
           </div>
         </div>
     </center>

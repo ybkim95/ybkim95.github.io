@@ -268,7 +268,7 @@ organization {
             summary <br><br>
             <h6> Research Topics </h6>
             <rt>
-              # robotics # human-computer interaction
+              # human-agent interaction # computer vision # natural language processing
             </rt>
             <br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
@@ -279,10 +279,24 @@ organization {
             <br>
             <iframe class="elementor-video-iframe" width="840" height="480" allowfullscreen="" title="vimeo Video Player" src="https://player.vimeo.com/video/758922872?color&amp;autopause=0&amp;loop=0&amp;muted=0&amp;title=1&amp;portrait=1&amp;byline=1&amp;h=20e8760133#t="></iframe>
             <!-- <img src="/assets/images/aamas_1.png" alt="aamas-1"> -->
+            <br><br>
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px;">
+              <div align="left">
+                3D AI Avatar is a comprehensive customer service solution that can enhance any corporate brand. DMLab create highly personalized and friendlier customer service than normal chatbots. “Customer experience support that feels like part of your team, without the cost.” With these technology, we can increase customer satisfaction scores, boost conversion rates,and improve response times.
+              </div>
+            </div>
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">
                 Projects
+              </div><br>
+              <center>
+                <img src="/assets/images/emotional_wellness_project.jpeg" style="width: 50%">
+              </center><br>
+            </div>
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px;">
+              <div align="left">
+                Among many projects such as building head-based social robots, developing human and object detection and extra, I would like to highlight a project aimed for building open and closed domain chatbots for emotional wellness. In this project, I utilized Emotional Wellness corpus collected from a psychology consultation at a Korean hospital and trained GPT-based models to build a model that can answer to general emotional wellness related questions.
               </div>
             </div>
             <br>

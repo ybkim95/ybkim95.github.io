@@ -276,7 +276,14 @@ organization {
                 Overview
               </div>
             </div><br>
-            Understanding a multiparty setting is more challenging than that of an individual setting due to the fact that (1) the model must first recognize individual behavioral cues, (2) deal with the complexity of capturing these cues from multiple streams of behavioral data from the multiple people, and most importantly (3) recognize the subtle contingent behaviors that take place amongst group members. To tackle this challenge, we propose the Multiparty-Transformer (Multipar-T), a transformer model for group behavior modelling.
+            <center>
+              <img src="/assets/images/group_eng_pred_overview.png" style="width: 60%">
+            </center><br>
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px;">
+              <div align="left">
+                Understanding a multiparty setting is more challenging than that of an individual setting due to the fact that (1) the model must first recognize individual behavioral cues, (2) deal with the complexity of capturing these cues from multiple streams of behavioral data from the multiple people, and most importantly (3) recognize the subtle contingent behaviors that take place amongst group members. To tackle this challenge, we propose the Multiparty-Transformer (Multipar-T), a transformer model for group behavior modelling.
+              </div>
+            </div>
             <!-- <img src="/assets/images/aamas_1.png" alt="aamas-1"> -->
             <br><br><br>
             <!-- <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
@@ -300,7 +307,7 @@ organization {
             <br>
             <p>
               <font size="3">
-              <a href="/about/about_team.htm">Dong Won Lee , Yubin Kim , Rosalind Picard , Cynthia Breazeal , Hae Won Park, "MultiPar-T: Multiparty-Transformer for Capturing Contingent Behaviors in Group Conversations." in preparation for IJCAI 2023</a><br><br>
+              Dong Won Lee, <b>Yubin Kim</b>, Rosalind Picard, Cynthia Breazeal, Hae Won Park, "MultiPar-T: Multiparty-Transformer for Capturing Contingent Behaviors in Group Conversations." in preparation for IJCAI 2023<br><br>
               </font>
             </p>
           </div>

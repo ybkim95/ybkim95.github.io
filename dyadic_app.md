@@ -265,7 +265,7 @@ organization {
         <br>
         <div style="max-width:900px; word-wrap:break-word; font-size:20px;">
           <div align="left">
-            Summary<br><br>
+            <br>
             <h6> Research Topics </h6>
             <rt>
               # parent-child-robot interaction # app development # unity # ROS
@@ -282,7 +282,8 @@ organization {
               <div align="left">
                 Demo
               </div>
-            </div>
+            </div><br>
+            TBA
             <!-- <p>
               <font size="3">
               <a href="/about/about_team.htm">Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation.<br>Y.B.KIM, S.M.Algohwinem, H.W.Park, "Explainable Representations of Human Interaction: Engagement Recognition model with Video Augmentation." accepted in Human-Centered AI Workshop at NeurIPS.</a><br><br>

@@ -277,7 +277,7 @@ organization {
               </div>
             </div>
             <br>
-            <iframe width="840" height="480" src="https://www.youtube.com/embed/oJdBfSafWjM?autoplay=1&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <iframe width="840" height="480" src="https://www.youtube.com/embed/oJdBfSafWjM?autoplay=1&mute=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             <br><br><br>
             <div style="max-width:900px; word-wrap:break-word; font-size:24px; font-weight:bold">
               <div align="left">

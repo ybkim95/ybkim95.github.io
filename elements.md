@@ -34,7 +34,7 @@ image: assets/images/cafe.png
         <br>
         <br>
         <center>
-            There are many global social problems in the world. Click population info to see the detailed visualization.
+            What global social problems are we facing?.<br><br>Please click below button to see the detailed visualization.
         </center>
         <br>
         <br>

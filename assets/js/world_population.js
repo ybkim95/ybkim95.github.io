@@ -3838,7 +3838,7 @@ menuGroup.x = am4core.percent(95);
 menuGroup.y = am4core.percent(60);
 menuGroup.horizontalCenter = "middle";
 let plainMapSelect = menuGroup.createChild(am4core.TextLink);
-plainMapSelect.margin(-550, 300, 10, 10);
+plainMapSelect.margin(10, 10, 10, 10);
 plainMapSelect.text = "Plain Map";
 plainMapSelect.events.on("hit", function () {
     menuSelections(0);
@@ -3854,7 +3854,7 @@ plainMapSelect.events.on("hit", function () {
 });
 let heatmapSelect = menuGroup.createChild(am4core.TextLink);
 heatmapSelect.margin(10, 10, 10, 10);
-heatmapSelect.text = "Population Info";
+heatmapSelect.text = "Population Map";
 heatmapSelect.events.on("hit", function () {
     if (dataGroups.disabled) {
         // title.text = "Population";
@@ -3863,7 +3863,7 @@ heatmapSelect.events.on("hit", function () {
             property: "fill",
             target: polygonSeries.mapPolygons.template,
             min: am4core.color("#ffffff"),
-            max: am4core.color("#AAAA00")
+            max: am4core.color("#e84646")
         });
         polygonSeries.dataItems.each(function (dataItem) {
             if (dataItem.dataContext)

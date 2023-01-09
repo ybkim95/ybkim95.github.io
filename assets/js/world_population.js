@@ -4440,6 +4440,7 @@ dataGroups.disabled = true;
 // });
 let maButton = dataGroups.createChild(am4core.TextLink);
 maButton.text = "Median Age";
+maButton.fontSize = "14";
 maButton.margin(10, 10, 10, 10);
 maButton.events.on("hit", function () {
     //chart.projection = new am4maps.projections.maButton();
@@ -4487,6 +4488,7 @@ maButton.events.on("hit", function () {
 // });
 let birthRateButton = dataGroups.createChild(am4core.TextLink);
 birthRateButton.text = "Birth Rate";
+birthRateButton.fontSize = "14";
 birthRateButton.margin(10, 10, 10, 10);
 birthRateButton.events.on("hit", function () {
     //clearChoices();
@@ -4517,6 +4519,7 @@ birthRateButton.events.on("hit", function () {
 // });
 let popGrowthButton = dataGroups.createChild(am4core.TextLink);
 popGrowthButton.text = "Population Growth";
+popGrowthButton.fontSize = "14";
 popGrowthButton.margin(10, 10, 10, 10);
 popGrowthButton.events.on("hit", function () {
     //clearChoices();
@@ -4532,6 +4535,7 @@ popGrowthButton.events.on("hit", function () {
 });
 let laborForceButton = dataGroups.createChild(am4core.TextLink);
 laborForceButton.text = "Labor Force";
+laborForceButton.fontSize = "14";
 laborForceButton.margin(10, 10, 10, 10);
 laborForceButton.events.on("hit", function () {
     //clearChoices();

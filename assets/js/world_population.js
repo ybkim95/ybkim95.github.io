@@ -4533,22 +4533,22 @@ popGrowthButton.events.on("hit", function () {
     });
     // polygonSeries.dataFields.value = "population growth";
 });
-let laborForceButton = dataGroups.createChild(am4core.TextLink);
-laborForceButton.text = "Labor Force";
-laborForceButton.fontSize = "14";
-laborForceButton.margin(10, 10, 10, 10);
-laborForceButton.events.on("hit", function () {
-    //clearChoices();
-    // title.text = "Labor Force";
-    tipMode = 0;
-    polygonSeries.mapPolygons.each(function (mapPolygon) {
-        if (mapPolygon.dataItem.dataContext) {
-            mapPolygon.dataItem.setValue("value", mapPolygon.dataItem.dataContext["labor force"]);
-            mapPolygon.defaultState.properties.fill = undefined;
-        }
-    });
-    // polygonSeries.dataFields.value = "labor force";
-});
+// let laborForceButton = dataGroups.createChild(am4core.TextLink);
+// laborForceButton.text = "Labor Force";
+// laborForceButton.fontSize = "14";
+// laborForceButton.margin(10, 10, 10, 10);
+// laborForceButton.events.on("hit", function () {
+//     //clearChoices();
+//     // title.text = "Labor Force";
+//     tipMode = 0;
+//     polygonSeries.mapPolygons.each(function (mapPolygon) {
+//         if (mapPolygon.dataItem.dataContext) {
+//             mapPolygon.dataItem.setValue("value", mapPolygon.dataItem.dataContext["labor force"]);
+//             mapPolygon.defaultState.properties.fill = undefined;
+//         }
+//     });
+//     // polygonSeries.dataFields.value = "labor force";
+// });
 let colorGroup = chart.createChild(am4core.Container);
 colorGroup.isMeasured = false;
 colorGroup.layout = "vertical";

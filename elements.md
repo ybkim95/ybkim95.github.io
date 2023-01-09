@@ -35,7 +35,7 @@ image: assets/images/cafe.png
         <br>
         <center>
             <div style="max-width:900px; word-wrap:break-word; font-size:18px;">
-                What global problems are we facing?.<br>Please click <a href="#" onclick="javascript:menuSelections(1)">Population Map</a> to see the detailed visualization.
+                What global problems are we facing?.<br>Please click <u><a href="#" onclick="javascript:menuSelections(1)">Population Map</a></u> to see the detailed visualization.
             </div>
         </center>
         <br>

@@ -19,7 +19,7 @@ var grid = chart.series.push(new am4maps.GraticuleSeries());
 grid.toBack();
 grid.fitExtent = false;
 var title = chart.chartContainer.createChild(am4core.Label);
-title.text = "Interactive Map";
+// title.text = "Interactive Map";
 title.fontSize = 20;
 title.paddingTop = 30;
 title.align = "center";
@@ -56,7 +56,7 @@ polygonTemplate.adapter.add("tooltipText", function (text, target) {
 var heatLegend = chart.chartContainer.createChild(am4maps.HeatLegend);
 heatLegend.valign = "bottom";
 heatLegend.align = "left";
-heatLegend.width = am4core.percent(50);
+heatLegend.width = am4core.percent(100);
 heatLegend.series = polygonSeries;
 heatLegend.orientation = "horizontal";
 heatLegend.padding(20, 20, 20, 20);
@@ -97,7 +97,7 @@ wrongState.properties.hoverable = true;
 wrongState.properties.clickable = false;
 wrongState.properties.togglable = true;
 polygonSeries.mapPolygons.template.defaultState.properties.hoverable = true;
-polygonSeries.mapPolygons.template.defaultState.properties.clickable = true;
+polygonSeries.mapPolygons.template.defaultState.properties.clickable = false;
 let worldData = [
     {
         id: "AF",
@@ -3733,7 +3733,7 @@ var imageSeriesTemplate = imageSeries.mapImages.template;
 var marker = imageSeriesTemplate.createChild(am4core.Image);
 marker.width = 28;
 marker.height = 28;
-marker.nonScaling = true;
+marker.nonScaling = false;
 marker.tooltipText = "{title}";
 marker.horizontalCenter = "middle";
 marker.verticalCenter = "middle";
@@ -3791,7 +3791,8 @@ function menuSelections(num) {
     geoGroup.disabled = true;
     qDisplay.disabled = true;
     scoreDisplay.disabled = true;
-    switch (num) {
+    
+	switch (num) {
         case 0:
             heatLegend.disabled = true;
             colorGroup.disabled = true;
@@ -3837,7 +3838,7 @@ menuGroup.x = am4core.percent(95);
 menuGroup.y = am4core.percent(60);
 menuGroup.horizontalCenter = "middle";
 let plainMapSelect = menuGroup.createChild(am4core.TextLink);
-plainMapSelect.margin(10, 10, 10, 10);
+plainMapSelect.margin(-550, 300, 10, 10);
 plainMapSelect.text = "Plain Map";
 plainMapSelect.events.on("hit", function () {
     menuSelections(0);
@@ -3847,16 +3848,16 @@ plainMapSelect.events.on("hit", function () {
         min: am4core.color("#43a11f"),
         max: am4core.color("#43a11f")
     });
-    title.text = "Interactive Map";
+    // title.text = "Interactive Map";
     tipMode = 3;
     polygonSeries.invalidateData();
 });
 let heatmapSelect = menuGroup.createChild(am4core.TextLink);
 heatmapSelect.margin(10, 10, 10, 10);
-heatmapSelect.text = "Heat Maps";
+heatmapSelect.text = "Population Info";
 heatmapSelect.events.on("hit", function () {
     if (dataGroups.disabled) {
-        title.text = "Population";
+        // title.text = "Population";
         tipMode = 0;
         polygonSeries.heatRules.push({
             property: "fill",
@@ -3872,18 +3873,18 @@ heatmapSelect.events.on("hit", function () {
     menuSelections(1);
     polygonSeries.invalidateData();
 });
-let settingsSelect = menuGroup.createChild(am4core.TextLink);
-settingsSelect.margin(10, 10, 10, 10);
-settingsSelect.text = "Settings";
-settingsSelect.events.on("hit", function () {
-    menuSelections(2);
-});
-let triviaSelect = menuGroup.createChild(am4core.TextLink);
-triviaSelect.margin(10, 10, 10, 10);
-triviaSelect.text = "Data Quiz";
-triviaSelect.events.on("hit", function () {
-    menuSelections(3);
-});
+// let settingsSelect = menuGroup.createChild(am4core.TextLink);
+// settingsSelect.margin(10, 10, 10, 10);
+// settingsSelect.text = "Settings";
+// settingsSelect.events.on("hit", function () {
+//     menuSelections(2);
+// });
+// let triviaSelect = menuGroup.createChild(am4core.TextLink);
+// triviaSelect.margin(10, 10, 10, 10);
+// triviaSelect.text = "Data Quiz";
+// triviaSelect.events.on("hit", function () {
+//     menuSelections(3);
+// });
 var toggleNA = true;
 var toggleSA = true;
 var toggleEU = true;
@@ -3892,22 +3893,22 @@ var toggleAF = true;
 var toggleME = true;
 var toggleCA = false;
 var toggleOC = false;
-let geographySelect = menuGroup.createChild(am4core.TextLink);
-geographySelect.margin(10, 10, 10, 10);
-geographySelect.text = "Geography Quiz";
-geographySelect.events.on("hit", function () {
-    menuSelections(4);
-    title.text = "";
-    tipMode = 3;
-    toggleRegion(toggleNA, "North America");
-    toggleRegion(toggleSA, "South America");
-    toggleRegion(toggleCA, "Central America & The Caribbean");
-    toggleRegion(toggleEU, "Europe");
-    toggleRegion(toggleAS, "Asia");
-    toggleRegion(toggleME, "Middle East");
-    toggleRegion(toggleOC, "Oceania");
-    toggleRegion(toggleAF, "Africa");
-});
+// let geographySelect = menuGroup.createChild(am4core.TextLink);
+// geographySelect.margin(10, 10, 10, 10);
+// geographySelect.text = "Geography Quiz";
+// geographySelect.events.on("hit", function () {
+//     menuSelections(4);
+//     title.text = "";
+//     tipMode = 3;
+//     toggleRegion(toggleNA, "North America");
+//     toggleRegion(toggleSA, "South America");
+//     toggleRegion(toggleCA, "Central America & The Caribbean");
+//     toggleRegion(toggleEU, "Europe");
+//     toggleRegion(toggleAS, "Asia");
+//     toggleRegion(toggleME, "Middle East");
+//     toggleRegion(toggleOC, "Oceania");
+//     toggleRegion(toggleAF, "Africa");
+// });
 function toggleRegion(bool, region) {
     if (bool) {
         polygonSeries.mapPolygons.each(function (mapPolygon) {
@@ -4079,34 +4080,34 @@ geoStart.events.on("hit", function () {
 });
 geoGroup.disabled = true;
 var totalScore = 0;
-let statSelect = menuGroup.createChild(am4core.TextLink);
-statSelect.margin(10, 10, 10, 10);
-statSelect.text = "Quiz Statistics";
-statSelect.events.on("hit", function () {
-    totalScore = 0;
-    menuSelections(5);
-    title.text = "Statistics";
-    polygonSeries.heatRules.push({
-        property: "fill",
-        target: polygonSeries.mapPolygons.template,
-        min: am4core.color("#e01616"),
-        max: am4core.color("#60e645")
-    });
-    polygonSeries.dataFields.value = "score";
-    tipMode = 1;
-    polygonSeries.invalidateData();
-    polygonSeries.dataItems.each(function (dataItem) {
-        if (dataItem.dataContext &&
-            dataItem.dataContext["score"] != undefined)
-            totalScore += dataItem.dataContext["score"];
-    });
-    totalScore = Math.floor(totalScore * 10) / 10;
-    scoreDisplay.disabled = false;
-    scoreDisplay.text = "Total Score: ";
-    if (totalScore > 0)
-        scoreDisplay.text += "+";
-    scoreDisplay.text += totalScore;
-});
+// let statSelect = menuGroup.createChild(am4core.TextLink);
+// statSelect.margin(10, 10, 10, 10);
+// statSelect.text = "Quiz Statistics";
+// statSelect.events.on("hit", function () {
+//     totalScore = 0;
+//     menuSelections(5);
+//     title.text = "Statistics";
+//     polygonSeries.heatRules.push({
+//         property: "fill",
+//         target: polygonSeries.mapPolygons.template,
+//         min: am4core.color("#e01616"),
+//         max: am4core.color("#60e645")
+//     });
+//     polygonSeries.dataFields.value = "score";
+//     tipMode = 1;
+//     polygonSeries.invalidateData();
+//     polygonSeries.dataItems.each(function (dataItem) {
+//         if (dataItem.dataContext &&
+//             dataItem.dataContext["score"] != undefined)
+//             totalScore += dataItem.dataContext["score"];
+//     });
+//     totalScore = Math.floor(totalScore * 10) / 10;
+//     scoreDisplay.disabled = false;
+//     scoreDisplay.text = "Total Score: ";
+//     if (totalScore > 0)
+//         scoreDisplay.text += "+";
+//     scoreDisplay.text += totalScore;
+// });
 let exitQuiz = chart.createChild(am4core.TextLink);
 exitQuiz.isMeasured = false;
 exitQuiz.layout = "vertical";
@@ -4126,7 +4127,7 @@ exitQuiz.events.on("hit", function () {
         min: am4core.color("#43a11f"),
         max: am4core.color("#43a11f")
     });
-    title.text = "Interactive Map";
+    // title.text = "Interactive Map";
     tipMode = 3;
     polygonSeries.invalidateData();
     exitQuiz.disabled = true;
@@ -4497,30 +4498,30 @@ outlineC.layout = "vertical";
 outlineC.x = am4core.percent(5);
 outlineC.y = am4core.percent(70);
 outlineC.horizontalCenter = "middle";
-var outT = false;
-let outlineButton = outlineC.createChild(am4core.TextLink);
-outlineButton.margin(10, 10, 10, 10);
-outlineButton.text = "Outline toggle";
-outlineButton.events.on("hit", function () {
-    outT = !outT;
-    if (outT) {
-        polygonTemplate.defaultState.properties.stroke = am4core.color("#000000");
-        polygonTemplate.stroke = am4core.color("#000000");
-    }
-    else {
-        polygonTemplate.defaultState.properties.stroke = am4core.color("#ffffff");
-        polygonTemplate.stroke = am4core.color("#ffffff");
-    }
-    polygonSeries.mapPolygons.each(function (mapPolygon) {
-        if (outT) {
-            mapPolygon.stroke = am4core.color("#000000");
-        }
-        else {
-            mapPolygon.stroke = am4core.color("#ffffff");
-        }
-    });
-    //polygonSeries.invalidateData();
-});
+// var outT = false;
+// let outlineButton = outlineC.createChild(am4core.TextLink);
+// outlineButton.margin(10, 10, 10, 10);
+// outlineButton.text = "Outline toggle";
+// outlineButton.events.on("out", function () {
+//     outT = !outT;
+//     if (outT) {
+//         polygonTemplate.defaultState.properties.stroke = am4core.color("#000000");
+//         polygonTemplate.stroke = am4core.color("#000000");
+//     }
+//     else {
+//         polygonTemplate.defaultState.properties.stroke = am4core.color("#ffffff");
+//         polygonTemplate.stroke = am4core.color("#ffffff");
+//     }
+//     polygonSeries.mapPolygons.each(function (mapPolygon) {
+//         if (outT) {
+//             mapPolygon.stroke = am4core.color("#000000");
+//         }
+//         else {
+//             mapPolygon.stroke = am4core.color("#ffffff");
+//         }
+//     });
+//     //polygonSeries.invalidateData();
+// });
 let dataGroups = chart.createChild(am4core.Container);
 dataGroups.isMeasured = false;
 dataGroups.layout = "vertical";
@@ -4665,54 +4666,54 @@ colorGroup.x = am4core.percent(95);
 colorGroup.y = am4core.percent(20);
 colorGroup.horizontalCenter = "middle";
 colorGroup.disabled = true;
-let redHeatButton = colorGroup.createChild(am4core.TextLink);
-redHeatButton.text = "Red";
-redHeatButton.margin(10, 10, 10, 10);
-redHeatButton.events.on("hit", function () {
-    polygonSeries.heatRules.push({
-        property: "fill",
-        target: polygonSeries.mapPolygons.template,
-        min: am4core.color("#ffffff"),
-        max: am4core.color("#e84646")
-    });
-    polygonSeries.invalidateData();
-});
-let blueHeatButton = colorGroup.createChild(am4core.TextLink);
-blueHeatButton.text = "Blue";
-blueHeatButton.margin(10, 10, 10, 10);
-blueHeatButton.events.on("hit", function () {
-    polygonSeries.heatRules.push({
-        property: "fill",
-        target: polygonSeries.mapPolygons.template,
-        min: am4core.color("#ffffff"),
-        max: am4core.color("#3e4af7")
-    });
-    polygonSeries.invalidateData();
-});
-let yellowHeatButton = colorGroup.createChild(am4core.TextLink);
-yellowHeatButton.text = "Yellow";
-yellowHeatButton.margin(10, 10, 10, 10);
-yellowHeatButton.events.on("hit", function () {
-    polygonSeries.heatRules.push({
-        property: "fill",
-        target: polygonSeries.mapPolygons.template,
-        min: am4core.color("#ffffff"),
-        max: am4core.color("#AAAA00")
-    });
-    polygonSeries.invalidateData();
-});
-let greenHeatButton = colorGroup.createChild(am4core.TextLink);
-greenHeatButton.text = "Green";
-greenHeatButton.margin(10, 10, 10, 10);
-greenHeatButton.events.on("hit", function () {
-    polygonSeries.heatRules.push({
-        property: "fill",
-        target: polygonSeries.mapPolygons.template,
-        min: am4core.color("#ffffff"),
-        max: am4core.color("#5ee026")
-    });
-    polygonSeries.invalidateData();
-});
+// let redHeatButton = colorGroup.createChild(am4core.TextLink);
+// redHeatButton.text = "Red";
+// redHeatButton.margin(10, 10, 10, 10);
+// redHeatButton.events.on("hit", function () {
+//     polygonSeries.heatRules.push({
+//         property: "fill",
+//         target: polygonSeries.mapPolygons.template,
+//         min: am4core.color("#ffffff"),
+//         max: am4core.color("#e84646")
+//     });
+//     polygonSeries.invalidateData();
+// });
+// let blueHeatButton = colorGroup.createChild(am4core.TextLink);
+// blueHeatButton.text = "Blue";
+// blueHeatButton.margin(10, 10, 10, 10);
+// blueHeatButton.events.on("hit", function () {
+//     polygonSeries.heatRules.push({
+//         property: "fill",
+//         target: polygonSeries.mapPolygons.template,
+//         min: am4core.color("#ffffff"),
+//         max: am4core.color("#3e4af7")
+//     });
+//     polygonSeries.invalidateData();
+// });
+// let yellowHeatButton = colorGroup.createChild(am4core.TextLink);
+// yellowHeatButton.text = "Yellow";
+// yellowHeatButton.margin(10, 10, 10, 10);
+// yellowHeatButton.events.on("hit", function () {
+//     polygonSeries.heatRules.push({
+//         property: "fill",
+//         target: polygonSeries.mapPolygons.template,
+//         min: am4core.color("#ffffff"),
+//         max: am4core.color("#AAAA00")
+//     });
+//     polygonSeries.invalidateData();
+// });
+// let greenHeatButton = colorGroup.createChild(am4core.TextLink);
+// greenHeatButton.text = "Green";
+// greenHeatButton.margin(10, 10, 10, 10);
+// greenHeatButton.events.on("hit", function () {
+//     polygonSeries.heatRules.push({
+//         property: "fill",
+//         target: polygonSeries.mapPolygons.template,
+//         min: am4core.color("#ffffff"),
+//         max: am4core.color("#5ee026")
+//     });
+//     polygonSeries.invalidateData();
+// });
 var qDisplay = chart.createChild(am4core.Label);
 qDisplay.text = "";
 qDisplay.fontSize = 20;
@@ -4970,20 +4971,20 @@ testButton.events.on("hit", function () {
 let lc2 = chart.createChild(am4core.Container);
 lc2.isMeasured = false;
 lc2.layout = "horizontal";
-lc2.x = am4core.percent(50);
+lc2.x = am4core.percent(10);
 lc2.y = am4core.percent(88);
 lc2.horizontalCenter = "middle";
-let millerButton = lc2.createChild(am4core.TextLink);
-millerButton.margin(10, 10, 10, 10);
-millerButton.text = "Miller";
-millerButton.events.on("hit", function () {
-    chart.projection = millerProj;
-    chart.panBehavior = "move";
-});
-let orthoButton = lc2.createChild(am4core.TextLink);
-orthoButton.margin(10, 10, 10, 10);
-orthoButton.text = "Orthographic";
-orthoButton.events.on("hit", function () {
-    chart.projection = orthoProj;
-    chart.panBehavior = "rotateLongLat";
-});
+// let millerButton = lc2.createChild(am4core.TextLink);
+// millerButton.margin(10, 10, 10, 10);
+// millerButton.text = "Miller";
+// millerButton.events.on("hit", function () {
+//     chart.projection = millerProj;
+//     chart.panBehavior = "move";
+// });
+// let orthoButton = lc2.createChild(am4core.TextLink);
+// orthoButton.margin(10, 10, 10, 10);
+// orthoButton.text = "Orthographic";
+// orthoButton.events.on("hit", function () {
+//     chart.projection = orthoProj;
+//     chart.panBehavior = "rotateLongLat";
+// });

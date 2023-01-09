@@ -20,7 +20,7 @@ grid.toBack();
 grid.fitExtent = false;
 var title = chart.chartContainer.createChild(am4core.Label);
 // title.text = "Interactive Map";
-title.fontsize = 10;
+title.fontsize = 5;
 title.paddingTop = 30;
 title.align = "center";
 title.zIndex = 100;
@@ -35,22 +35,22 @@ polygonSeries.useGeodata = true;
 var tipMode = 3;
 var polygonTemplate = polygonSeries.mapPolygons.template;
 polygonTemplate.setStateOnChildren = true;
-polygonTemplate.adapter.add("tooltipText", function (text, target) {
-    switch (tipMode) {
-        case 0:
-            return "{name}: {value.value.formatNumber('000,000')}";
-        case 1:
-            return "{name}: {value.value.formatNumber('0.0')}";
-        case 2:
-            return "{name}: {value.value.formatNumber('0.0')}%";
-        case 3:
-            return "{name}";
-        case 4:
-            return "{name}: {value.value.formatNumber('0.0')}/1000 population";
-        case 5:
-            return "";
-    }
-});
+// polygonTemplate.adapter.add("tooltipText", function (text, target) {
+//     switch (tipMode) {
+//         case 0:
+//             return "{name}: {value.value.formatNumber('000,000')}";
+//         case 1:
+//             return "{name}: {value.value.formatNumber('0.0')}";
+//         case 2:
+//             return "{name}: {value.value.formatNumber('0.0')}%";
+//         case 3:
+//             return "{name}";
+//         case 4:
+//             return "{name}: {value.value.formatNumber('0.0')}/1000 population";
+//         case 5:
+//             return "";
+//     }
+// });
 //polygonTemplate.togglable = false;
 // add heat legend
 var heatLegend = chart.chartContainer.createChild(am4maps.HeatLegend);
@@ -60,7 +60,7 @@ heatLegend.width = am4core.percent(100);
 heatLegend.series = polygonSeries;
 heatLegend.orientation = "horizontal";
 heatLegend.padding(20, 20, 20, 20);
-heatLegend.valueAxis.renderer.labels.template.fontSize = 10;
+heatLegend.valueAxis.renderer.labels.template.fontSize = 5;
 heatLegend.valueAxis.renderer.minGridDistance = 40;
 polygonSeries.mapPolygons.template.events.on("over", (event) => {
     handleHover(event.target);
@@ -3767,7 +3767,7 @@ polygonTemplate.events.on("hit", function (ev) {
             let modal = chart.openModal("<img src=" +
                 data.flag +
                 ' style="width:128px;height:64px;">' +
-                '<strong><p style="font-size:30px">' +
+                '<strong><p style="font-size:10px">' +
                 data.name +
                 " (" +
                 data.id +
@@ -3837,42 +3837,42 @@ menuGroup.layout = "vertical";
 menuGroup.x = am4core.percent(95);
 menuGroup.y = am4core.percent(60);
 menuGroup.horizontalCenter = "middle";
-let plainMapSelect = menuGroup.createChild(am4core.TextLink);
-plainMapSelect.margin(-50, 10, 10, 10);
-plainMapSelect.text = "Plain Map";
-plainMapSelect.events.on("hit", function () {
-    menuSelections(0);
-    polygonSeries.heatRules.push({
-        property: "fill",
-        target: polygonSeries.mapPolygons.template,
-        min: am4core.color("#43a11f"),
-        max: am4core.color("#43a11f")
-    });
-    // title.text = "Interactive Map";
-    tipMode = 3;
-    polygonSeries.invalidateData();
-});
-let heatmapSelect = menuGroup.createChild(am4core.TextLink);
-heatmapSelect.margin(10, 10, 10, 10);
-heatmapSelect.text = "Population Map";
-heatmapSelect.events.on("hit", function () {
-    if (dataGroups.disabled) {
-        // title.text = "Population";
-        tipMode = 0;
-        polygonSeries.heatRules.push({
-            property: "fill",
-            target: polygonSeries.mapPolygons.template,
-            min: am4core.color("#ffffff"),
-            max: am4core.color("#e84646")
-        });
-        polygonSeries.dataItems.each(function (dataItem) {
-            if (dataItem.dataContext)
-                dataItem.setValue("value", dataItem.dataContext.population);
-        });
-    }
-    menuSelections(1);
-    polygonSeries.invalidateData();
-});
+// let plainMapSelect = menuGroup.createChild(am4core.TextLink);
+// plainMapSelect.margin(-50, 10, 10, 10);
+// plainMapSelect.text = "Plain Map";
+// plainMapSelect.events.on("hit", function () {
+//     menuSelections(0);
+//     polygonSeries.heatRules.push({
+//         property: "fill",
+//         target: polygonSeries.mapPolygons.template,
+//         min: am4core.color("#43a11f"),
+//         max: am4core.color("#43a11f")
+//     });
+//     // title.text = "Interactive Map";
+//     tipMode = 3;
+//     polygonSeries.invalidateData();
+// });
+// let heatmapSelect = menuGroup.createChild(am4core.TextLink);
+// heatmapSelect.margin(10, 10, 10, 10);
+// heatmapSelect.text = "Population Map";
+// heatmapSelect.events.on("hit", function () {
+//     if (dataGroups.disabled) {
+//         // title.text = "Population";
+//         tipMode = 0;
+//         polygonSeries.heatRules.push({
+//             property: "fill",
+//             target: polygonSeries.mapPolygons.template,
+//             min: am4core.color("#ffffff"),
+//             max: am4core.color("#e84646")
+//         });
+//         polygonSeries.dataItems.each(function (dataItem) {
+//             if (dataItem.dataContext)
+//                 dataItem.setValue("value", dataItem.dataContext.population);
+//         });
+//     }
+//     menuSelections(1);
+//     polygonSeries.invalidateData();
+// });
 // let settingsSelect = menuGroup.createChild(am4core.TextLink);
 // settingsSelect.margin(10, 10, 10, 10);
 // settingsSelect.text = "Settings";
@@ -4169,17 +4169,17 @@ tMAButton.events.on("hit", function () {
     else
         tMAButton.text += "Off";
 });
-let tGDPButton = triviaGroup.createChild(am4core.TextLink);
-tGDPButton.margin(10, 10, 10, 10);
-tGDPButton.text = "GDP(PPP): On";
-tGDPButton.events.on("hit", function () {
-    toggleGDP = !toggleGDP;
-    tGDPButton.text = "GDP(PPP): ";
-    if (toggleGDP)
-        tGDPButton.text += "On";
-    else
-        tGDPButton.text += "Off";
-});
+// let tGDPButton = triviaGroup.createChild(am4core.TextLink);
+// tGDPButton.margin(10, 10, 10, 10);
+// tGDPButton.text = "GDP(PPP): On";
+// tGDPButton.events.on("hit", function () {
+//     toggleGDP = !toggleGDP;
+//     tGDPButton.text = "GDP(PPP): ";
+//     if (toggleGDP)
+//         tGDPButton.text += "On";
+//     else
+//         tGDPButton.text += "Off";
+// });
 let tBRButton = triviaGroup.createChild(am4core.TextLink);
 tBRButton.margin(10, 10, 10, 10);
 tBRButton.text = "Birth Rate: On";
@@ -4191,17 +4191,17 @@ tBRButton.events.on("hit", function () {
     else
         tBRButton.text += "Off";
 });
-let tDRButton = triviaGroup.createChild(am4core.TextLink);
-tDRButton.margin(10, 10, 10, 10);
-tDRButton.text = "Death Rate: On";
-tDRButton.events.on("hit", function () {
-    toggleDeathRate = !toggleDeathRate;
-    tDRButton.text = "Death Rate: ";
-    if (toggleDeathRate)
-        tDRButton.text += "On";
-    else
-        tDRButton.text += "Off";
-});
+// let tDRButton = triviaGroup.createChild(am4core.TextLink);
+// tDRButton.margin(10, 10, 10, 10);
+// tDRButton.text = "Death Rate: On";
+// tDRButton.events.on("hit", function () {
+//     toggleDeathRate = !toggleDeathRate;
+//     tDRButton.text = "Death Rate: ";
+//     if (toggleDeathRate)
+//         tDRButton.text += "On";
+//     else
+//         tDRButton.text += "Off";
+// });
 let tPGRButton = triviaGroup.createChild(am4core.TextLink);
 tPGRButton.margin(10, 10, 10, 10);
 tPGRButton.text = "Population Growth Rate On";
@@ -4529,29 +4529,29 @@ dataGroups.x = am4core.percent(5);
 dataGroups.y = am4core.percent(20);
 dataGroups.horizontalCenter = "middle";
 dataGroups.disabled = true;
-let popButton = dataGroups.createChild(am4core.TextLink);
-popButton.margin(10, 10, 10, 10);
-popButton.text = "Population";
-popButton.events.on("hit", function () {
-    //chart.projection = new am4maps.projections.Projection();
-    //clearChoices();
-    // title.text = "Population";
-    tipMode = 0;
-    /*polygonSeries.heatRules.push({
-        property: "fill",
-        target: polygonSeries.mapPolygons.template,
-        min: am4core.color("#ffffff"),
-        max: am4core.color("#AAAA00")
-      });*/
-    polygonSeries.mapPolygons.each(function (mapPolygon) {
-        if (mapPolygon.dataItem.dataContext) {
-            mapPolygon.dataItem.setValue("value", mapPolygon.dataItem.dataContext.population);
-            mapPolygon.defaultState.properties.fill = undefined;
-        }
-    });
-    //polygonSeries.dataFields.value = "population";
-    //polygonSeries.invalidateData();
-});
+// let popButton = dataGroups.createChild(am4core.TextLink);
+// popButton.margin(10, 10, 10, 10);
+// popButton.text = "Population";
+// popButton.events.on("hit", function () {
+//     //chart.projection = new am4maps.projections.Projection();
+//     //clearChoices();
+//     // title.text = "Population";
+//     tipMode = 0;
+//     /*polygonSeries.heatRules.push({
+//         property: "fill",
+//         target: polygonSeries.mapPolygons.template,
+//         min: am4core.color("#ffffff"),
+//         max: am4core.color("#AAAA00")
+//       });*/
+//     polygonSeries.mapPolygons.each(function (mapPolygon) {
+//         if (mapPolygon.dataItem.dataContext) {
+//             mapPolygon.dataItem.setValue("value", mapPolygon.dataItem.dataContext.population);
+//             mapPolygon.defaultState.properties.fill = undefined;
+//         }
+//     });
+//     //polygonSeries.dataFields.value = "population";
+//     //polygonSeries.invalidateData();
+// });
 let maButton = dataGroups.createChild(am4core.TextLink);
 maButton.text = "Median Age";
 maButton.margin(10, 10, 10, 10);
@@ -4576,29 +4576,29 @@ maButton.events.on("hit", function () {
     // polygonSeries.dataFields.value = "median age";
     //polygonSeries.invalidateData();
 });
-let gdpButton = dataGroups.createChild(am4core.TextLink);
-gdpButton.text = "GDP (PPP)";
-gdpButton.margin(10, 10, 10, 10);
-gdpButton.events.on("hit", function () {
-    //chart.projection = new am4maps.projections.gdpButton();
-    //clearChoices();
-    // title.text = "GDP (PPP)";
-    tipMode = 0;
-    /*polygonSeries.heatRules.push({
-        property: "fill",
-        target: polygonSeries.mapPolygons.template,
-        min: am4core.color("#ffffff"),
-        max: am4core.color("#60e645")
-      });*/
-    polygonSeries.mapPolygons.each(function (mapPolygon) {
-        if (mapPolygon.dataItem.dataContext) {
-            mapPolygon.dataItem.setValue("value", mapPolygon.dataItem.dataContext["GDP(PPP)"]);
-            mapPolygon.defaultState.properties.fill = undefined;
-        }
-    });
-    // polygonSeries.dataFields.value = "GDP(PPP)";
-    //polygonSeries.invalidateData();
-});
+// let gdpButton = dataGroups.createChild(am4core.TextLink);
+// gdpButton.text = "GDP (PPP)";
+// gdpButton.margin(10, 10, 10, 10);
+// gdpButton.events.on("hit", function () {
+//     //chart.projection = new am4maps.projections.gdpButton();
+//     //clearChoices();
+//     // title.text = "GDP (PPP)";
+//     tipMode = 0;
+//     /*polygonSeries.heatRules.push({
+//         property: "fill",
+//         target: polygonSeries.mapPolygons.template,
+//         min: am4core.color("#ffffff"),
+//         max: am4core.color("#60e645")
+//       });*/
+//     polygonSeries.mapPolygons.each(function (mapPolygon) {
+//         if (mapPolygon.dataItem.dataContext) {
+//             mapPolygon.dataItem.setValue("value", mapPolygon.dataItem.dataContext["GDP(PPP)"]);
+//             mapPolygon.defaultState.properties.fill = undefined;
+//         }
+//     });
+//     // polygonSeries.dataFields.value = "GDP(PPP)";
+//     //polygonSeries.invalidateData();
+// });
 let birthRateButton = dataGroups.createChild(am4core.TextLink);
 birthRateButton.text = "Birth Rate";
 birthRateButton.margin(10, 10, 10, 10);
@@ -4614,21 +4614,21 @@ birthRateButton.events.on("hit", function () {
     });
     // polygonSeries.dataFields.value = "birth rate";
 });
-let deathRateButton = dataGroups.createChild(am4core.TextLink);
-deathRateButton.text = "Death Rate";
-deathRateButton.margin(10, 10, 10, 10);
-deathRateButton.events.on("hit", function () {
-    //clearChoices();
-    // title.text = "Death Rate";
-    tipMode = 4;
-    polygonSeries.mapPolygons.each(function (mapPolygon) {
-        if (mapPolygon.dataItem.dataContext) {
-            mapPolygon.dataItem.setValue("value", mapPolygon.dataItem.dataContext["death rate"]);
-            mapPolygon.defaultState.properties.fill = undefined;
-        }
-    });
-    // polygonSeries.dataFields.value = "death rate";
-});
+// let deathRateButton = dataGroups.createChild(am4core.TextLink);
+// deathRateButton.text = "Death Rate";
+// deathRateButton.margin(10, 10, 10, 10);
+// deathRateButton.events.on("hit", function () {
+//     //clearChoices();
+//     // title.text = "Death Rate";
+//     tipMode = 4;
+//     polygonSeries.mapPolygons.each(function (mapPolygon) {
+//         if (mapPolygon.dataItem.dataContext) {
+//             mapPolygon.dataItem.setValue("value", mapPolygon.dataItem.dataContext["death rate"]);
+//             mapPolygon.defaultState.properties.fill = undefined;
+//         }
+//     });
+//     // polygonSeries.dataFields.value = "death rate";
+// });
 let popGrowthButton = dataGroups.createChild(am4core.TextLink);
 popGrowthButton.text = "Population Growth";
 popGrowthButton.margin(10, 10, 10, 10);
@@ -4716,7 +4716,7 @@ colorGroup.disabled = true;
 // });
 var qDisplay = chart.createChild(am4core.Label);
 qDisplay.text = "";
-qDisplay.fontsize = 10;
+qDisplay.fontsize = 5;
 qDisplay.align = "center";
 qDisplay.isMeasured = false;
 qDisplay.x = am4core.percent(2);
@@ -4724,7 +4724,7 @@ qDisplay.y = am4core.percent(15);
 qDisplay.disabled = true;
 var scoreDisplay = chart.createChild(am4core.Label);
 scoreDisplay.text = "";
-scoreDisplay.fontsize = 10;
+scoreDisplay.fontsize = 5;
 scoreDisplay.align = "center";
 scoreDisplay.isMeasured = false;
 scoreDisplay.x = am4core.percent(85);

@@ -3718,7 +3718,7 @@ let worldData = [
 ];
 // country data
 polygonSeries.data = JSON.parse(JSON.stringify(worldData));
-polygonSeries.dataFields.value = "population";
+// polygonSeries.dataFields.value = "population";
 polygonSeries.heatRules.push({
     property: "fill",
     target: polygonSeries.mapPolygons.template,
@@ -4535,7 +4535,7 @@ popButton.text = "Population";
 popButton.events.on("hit", function () {
     //chart.projection = new am4maps.projections.Projection();
     //clearChoices();
-    title.text = "Population";
+    // title.text = "Population";
     tipMode = 0;
     /*polygonSeries.heatRules.push({
         property: "fill",
@@ -4558,7 +4558,7 @@ maButton.margin(10, 10, 10, 10);
 maButton.events.on("hit", function () {
     //chart.projection = new am4maps.projections.maButton();
     //clearChoices();
-    title.text = "Median Age";
+    // title.text = "Median Age";
     //polygonTemplate.tooltipText = "{name}: {value.value.formatNumber('0.0')}";
     tipMode = 1;
     /*polygonSeries.heatRules.push({
@@ -4573,7 +4573,7 @@ maButton.events.on("hit", function () {
             mapPolygon.defaultState.properties.fill = undefined;
         }
     });
-    polygonSeries.dataFields.value = "median age";
+    // polygonSeries.dataFields.value = "median age";
     //polygonSeries.invalidateData();
 });
 let gdpButton = dataGroups.createChild(am4core.TextLink);
@@ -4582,7 +4582,7 @@ gdpButton.margin(10, 10, 10, 10);
 gdpButton.events.on("hit", function () {
     //chart.projection = new am4maps.projections.gdpButton();
     //clearChoices();
-    title.text = "GDP (PPP)";
+    // title.text = "GDP (PPP)";
     tipMode = 0;
     /*polygonSeries.heatRules.push({
         property: "fill",
@@ -4596,7 +4596,7 @@ gdpButton.events.on("hit", function () {
             mapPolygon.defaultState.properties.fill = undefined;
         }
     });
-    polygonSeries.dataFields.value = "GDP(PPP)";
+    // polygonSeries.dataFields.value = "GDP(PPP)";
     //polygonSeries.invalidateData();
 });
 let birthRateButton = dataGroups.createChild(am4core.TextLink);
@@ -4604,7 +4604,7 @@ birthRateButton.text = "Birth Rate";
 birthRateButton.margin(10, 10, 10, 10);
 birthRateButton.events.on("hit", function () {
     //clearChoices();
-    title.text = "Birth Rate";
+    // title.text = "Birth Rate";
     tipMode = 4;
     polygonSeries.mapPolygons.each(function (mapPolygon) {
         if (mapPolygon.dataItem.dataContext) {
@@ -4612,14 +4612,14 @@ birthRateButton.events.on("hit", function () {
             mapPolygon.defaultState.properties.fill = undefined;
         }
     });
-    polygonSeries.dataFields.value = "birth rate";
+    // polygonSeries.dataFields.value = "birth rate";
 });
 let deathRateButton = dataGroups.createChild(am4core.TextLink);
 deathRateButton.text = "Death Rate";
 deathRateButton.margin(10, 10, 10, 10);
 deathRateButton.events.on("hit", function () {
     //clearChoices();
-    title.text = "Death Rate";
+    // title.text = "Death Rate";
     tipMode = 4;
     polygonSeries.mapPolygons.each(function (mapPolygon) {
         if (mapPolygon.dataItem.dataContext) {
@@ -4627,14 +4627,14 @@ deathRateButton.events.on("hit", function () {
             mapPolygon.defaultState.properties.fill = undefined;
         }
     });
-    polygonSeries.dataFields.value = "death rate";
+    // polygonSeries.dataFields.value = "death rate";
 });
 let popGrowthButton = dataGroups.createChild(am4core.TextLink);
 popGrowthButton.text = "Population Growth";
 popGrowthButton.margin(10, 10, 10, 10);
 popGrowthButton.events.on("hit", function () {
     //clearChoices();
-    title.text = "Population Growth";
+    // title.text = "Population Growth";
     tipMode = 2;
     polygonSeries.mapPolygons.each(function (mapPolygon) {
         if (mapPolygon.dataItem.dataContext) {
@@ -4642,14 +4642,14 @@ popGrowthButton.events.on("hit", function () {
             mapPolygon.defaultState.properties.fill = undefined;
         }
     });
-    polygonSeries.dataFields.value = "population growth";
+    // polygonSeries.dataFields.value = "population growth";
 });
 let laborForceButton = dataGroups.createChild(am4core.TextLink);
 laborForceButton.text = "Labor Force";
 laborForceButton.margin(10, 10, 10, 10);
 laborForceButton.events.on("hit", function () {
     //clearChoices();
-    title.text = "Labor Force";
+    // title.text = "Labor Force";
     tipMode = 0;
     polygonSeries.mapPolygons.each(function (mapPolygon) {
         if (mapPolygon.dataItem.dataContext) {
@@ -4657,7 +4657,7 @@ laborForceButton.events.on("hit", function () {
             mapPolygon.defaultState.properties.fill = undefined;
         }
     });
-    polygonSeries.dataFields.value = "labor force";
+    // polygonSeries.dataFields.value = "labor force";
 });
 let colorGroup = chart.createChild(am4core.Container);
 colorGroup.isMeasured = false;

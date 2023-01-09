@@ -25,7 +25,7 @@ image: assets/images/cafe.png
                 }
                 #chartdiv {
                     width: 100%;
-                    height: 97vh;
+                    // height: 97vh;
                 }
         </script>
     </head>

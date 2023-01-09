@@ -34,7 +34,9 @@ image: assets/images/cafe.png
         <br>
         <br>
         <center>
-            What global social problems are we facing?.<br><br>Please click below button to see the detailed visualization.
+            <div style="max-width:900px; word-wrap:break-word; font-size:18px;">
+                What global problems are we facing?.<br>Please click <a href="#" onclick="javascript:menuSelections(1)">Population Map</a> to see the detailed visualization.
+            </div>
         </center>
         <br>
         <br>

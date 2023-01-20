@@ -11,7 +11,17 @@ title: Play
 
 <script>
     window.uneeqInteractionsOptions = {
-        personaShareId: "39103402-ee2f-4a5a-bc35-e41be00b2fb6"
+        personaShareId: "39103402-ee2f-4a5a-bc35-e41be00b2fb6",
+        layoutMode: 'fullScreen',
+        showUserInputInterface: true,
+        displayCallToAction: true,
+        renderContent: true,
+        cameraPosition: "CENTER",
+        playWelcome: true,
+        mobileViewWidthBreakpoint: 900,
+        enableMicrophone: true,
     }
 </script>
 <script src="https://hosted.us.uneeq.io/interactions/v1/deploy"></script>
+
+

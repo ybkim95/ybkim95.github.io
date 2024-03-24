@@ -6,12 +6,12 @@ description: I am Yubin. My research interests lie in the area of personalized h
 baseurl: "" # the subpath of your site, e.g. /blog
 url: https://ybkim95.github.io/ # the base hostname & protocol for your site
 author: Yubin Kim
-street_address: 143 Albany St
+street_address: 224 Albany St
 city: Cambridge
 state: MA
 zip_code: 02139
 country: USA
-phone: (617) 251-1764
+phone: (617) 251-6366
 
 # homepage tiles
 tiles-source: pages # accepts "posts" or "pages"

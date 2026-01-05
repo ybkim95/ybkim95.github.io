@@ -89,6 +89,7 @@
             const isDark = body.classList.toggle('dark-theme');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             updateThemeIcon(isDark);
+            updateLogo(isDark);
         }
 
         function updateThemeIcon(isDark) {
@@ -100,12 +101,20 @@
             }
         }
 
+        function updateLogo(isDark) {
+            const logo = document.getElementById('site-logo');
+            if (logo) {
+                logo.src = isDark ? 'assets/images/ybk_logo.png' : 'assets/images/ybk_logo_white.png';
+            }
+        }
+
         // Load saved theme on page load
         document.addEventListener('DOMContentLoaded', function() {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark-theme');
                 updateThemeIcon(true);
+                updateLogo(true);
             }
         });
         </script>
@@ -651,9 +660,6 @@
     body.dark-theme nav a {
         color: #e0e0e0 !important;
     }
-    body.dark-theme header > a > img {
-        filter: invert(1) !important;
-    }
     body.dark-theme .card {
         background: #2a2a2a !important;
         color: #e0e0e0 !important;
@@ -717,13 +723,13 @@
     
     <body class="home page-template page-template-home page-template-home-php page page-id-25">
         <header class="noSelect">
-            <a href="https://ybkim95.github.io/"><img src="assets/images/ybk_logo_white.png" style="width:5.5%;"></a>
+            <a href="https://ybkim95.github.io/"><img id="site-logo" src="assets/images/ybk_logo_white.png" style="width:5.5%;"></a>
             <nav>
                 <ul>
                   <!-- <li><a href="/elements.html">Motivation</a></li> -->
-                  <li>
-                    <button id="theme-toggle" onclick="toggleTheme()" style="background: none; border: none; outline: none; cursor: pointer; padding: 0; margin-right: 10px; vertical-align: middle;" title="Toggle theme">
-                      <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <li style="border: none; background: none; box-shadow: none;">
+                    <button id="theme-toggle" onclick="toggleTheme()" style="background: transparent; border: none; outline: none; box-shadow: none; cursor: pointer; padding: 0; margin: 0; vertical-align: middle; -webkit-appearance: none; -moz-appearance: none; appearance: none;" title="Toggle theme">
+                      <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="9"/>
                         <path d="M12 3a9 9 0 0 0 0 18" fill="currentColor"/>
                       </svg>
@@ -738,17 +744,17 @@
     
     <br>
     <br>
-    <div class="profile" style="float: right; margin: 5% 10% 15px 15px; width: 14%; text-align: center;">
-        <img src="/assets/images/yubin2025.png" style="width: 100%; border-radius: 10px;" />
-        <div class="social-icons" style="margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 32px;">
-            <a href="mailto:ybkim95@mit.edu" title="Email" style="color: #555; text-decoration: none; transition: color 0.2s; display: inline-flex;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+    <div class="profile" style="float: right; margin: 5% 10% 15px 15px; width: 14%;">
+        <img src="/assets/images/yubin2025.png" style="width: 100%; border-radius: 10px; display: block;" />
+        <div class="social-icons" style="margin-top: 15px; width: 100%; display: flex; justify-content: center; align-items: center; column-gap: 28px;">
+            <a href="mailto:ybkim95@mit.edu" title="Email" style="color: #555; text-decoration: none; transition: color 0.2s; display: flex; align-items: center; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             </a>
-            <a href="https://scholar.google.com/citations?user=tYK2WmQAAAAJ&hl=en" target="_blank" title="Google Scholar" style="color: #555; text-decoration: none; transition: color 0.2s; display: inline-flex;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 24a7 7 0 1 1 0-14 7 7 0 0 1 0 14z" fill="none"/><path d="M12 0L0 9.5l4.838 3.94A8 8 0 0 1 12 9a8 8 0 0 1 7.162 4.44L24 9.5 12 0z" fill="none"/></svg>
+            <a href="https://scholar.google.com/citations?user=tYK2WmQAAAAJ&hl=en" target="_blank" title="Google Scholar" style="color: #555; text-decoration: none; transition: color 0.2s; display: flex; align-items: center; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 24a7 7 0 1 1 0-14 7 7 0 0 1 0 14z" fill="none"/><path d="M12 0L0 9.5l4.838 3.94A8 8 0 0 1 12 9a8 8 0 0 1 7.162 4.44L24 9.5 12 0z" fill="none"/></svg>
             </a>
-            <a href="https://github.com/ybkim95?tab=repositories" target="_blank" title="GitHub" style="color: #555; text-decoration: none; transition: color 0.2s; display: inline-flex;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            <a href="https://github.com/ybkim95?tab=repositories" target="_blank" title="GitHub" style="color: #555; text-decoration: none; transition: color 0.2s; display: flex; align-items: center; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
             </a>
         </div>
     </div>

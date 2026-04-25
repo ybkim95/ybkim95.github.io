@@ -87,6 +87,7 @@
         function toggleTheme() {
             const body = document.body;
             const isDark = body.classList.toggle('dark-theme');
+            document.documentElement.classList.toggle('dark-theme', isDark);
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             updateThemeIcon(isDark);
             updateLogo(isDark);
@@ -130,6 +131,7 @@
             const isDark = savedTheme !== 'light'; // Default to dark theme
             if (isDark) {
                 document.body.classList.add('dark-theme');
+                document.documentElement.classList.add('dark-theme');
                 updateThemeIcon(true);
                 updateLogo(true);
             } else {
@@ -662,8 +664,8 @@
         background-color: #000000 !important;
         color: #e0e0e0 !important;
     }
-    body.dark-theme html {
-        background: #000000 !important;
+    html.dark-theme {
+        background-color: #000000 !important;
     }
     body.dark-theme h1,
     body.dark-theme h2,
@@ -817,7 +819,7 @@
                 <h3 style="font-size: 24px; color: #2C7A7B; margin: 30px 0 15px 0; padding-bottom: 5px; border-bottom: 1px solid #f8f8f8;">2026</h3>
                 <ul class="news-list" style="font-size: 20px; margin-bottom: 10px;">
                     <li><strong>May </strong> I've started a student researcher position at <strong>Google DeepMind</strong> <img src="assets/images/deepmind_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
-                    <li><strong>Apr </strong> Our paper on <a href="https://arxiv.org/abs/2604.14615"><strong>"CoDaS: AI Co-Data-Scientist for Biomarker Discovery via Wearable Sensors"</strong></a> is released as a preprint paper <img src="assets/images/deepmind_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
+                    <li><strong>Apr </strong> Our paper on <a href="https://arxiv.org/abs/2604.14615"><strong>"CoDaS: AI Co-Data-Scientist for Biomarker Discovery via Wearable Sensors"</strong></a> is released as a preprint paper <img src="assets/images/google_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
                     <li><strong>Mar </strong> Gave an invited talk on <strong>"Towards a science of scaling agent systems"</strong> at <img id="updates-sr-logo" src="assets/images/sr_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"> 🎙️.</li>
                     <li><strong>Feb </strong> Gave an invited talk on <strong>"Towards a science of scaling agent systems: When and why agent systems work?"</strong> at the <a href="https://www.youtube.com/@theaitalks226"><strong>AI Talks with NTU &amp; NUS</strong></a>. I enjoyed the discussions that followed, especially on how we can coordinate agents with different capabilities and the trade-offs between capability and cost 🎙️.</li>
                     <li><strong>Jan </strong> Gave an invited talk on <strong>"Agent Scaling Law"</strong> at Adobe Research <img src="assets/images/adobe_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;">. I enjoyed the insightful discussions that followed, especially on how we can approach evaluation for agent systems and architectural design 🎙️.</li>
@@ -1092,128 +1094,7 @@
             </div>
         </div>
     </div>
-    <!--
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
-
-            <h1>Journey</h1>
-
-            <div class="solutions_6_blocks">
-                <div class="rounded solutions_6_left" ui_shown="true">
-                </div>
-            </div>
-
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Document</title>
-                <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
-                <!-- <link rel="stylesheet" href="style.css"> -->
-            </head>
-            <body>
-                <div class="timeline">
-                    <div class="container container-left">
-                        <div class="image" style="background-image:url('/assets/images/baby.jpg')"></div>
-                        <a href="">
-                            <div class="content">
-                                <span>April 19th, 1995</span><br>
-                                <b>Borned in South Korea</b><br>
-                                    Grew up in a city called Incheon which is located next to Seoul.
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="container container-right">
-                        <div class="image" style="background-image:url('/assets/images/crestwood.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=100')"></div>
-                        <div class="content">
-                            <span>Sept, 2007</span><br>
-                            <b>Lived in Toronto, Canada</b><br>
-                                Graduated from Crestwood elmentary school in Toronto.
-                        </div>
-                    </div>
-                    <div class="container container-left">
-                        <div class="image" style="background-image:url('https://lh3.googleusercontent.com/-52863IbdycQ/Wnb_T-UlDcI/AAAAAAAAEoI/4lBUn3fTbGUL4Lu9xYn0KrUDuSHZDC8HgCHMYCw/s0/6ff12973940eac92cd66d9ab95bdb39a1faa165d.png')"></div>
-                        <div class="content">
-                            <span>Mar 2011 - Feb 2013</span><br>
-                            <b>Graduated from Incheon Science High School (ISHS)</b><br>
-
-                                Majoring Mathematics and Physics.
-
-                        </div>
-                    </div>
-                    <div class="container container-right">
-                        <div class="image" style="background-image:url('/assets/images/yonsei_thumbnail.jpg')"></div>
-                        <div class="content">
-                            <span>Mar 2014 - Feb 2022</span><br>
-                            <b>Graduated from Yonsei University</b><br>
-
-                                Majoring Computer Science and Mechanical Engineering.
-
-                        </div>
-                    </div>
-                    <div class="container container-left">
-                        <div class="image" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Seal_of_the_Republic_of_Korea_Marine_Corps.svg/1200px-Seal_of_the_Republic_of_Korea_Marine_Corps.svg.png?auto=compress&cs=tinysrgb&dpr=2&w=100')"></div>
-                        <div class="content">
-                            <span>Mar 2016 - Dec 2017</span><br>
-                            <b>Military Service</b><br>
-                            Republic of Korea Marine Corps (ROKMC)
-                        </div>
-                    </div>
-                    <div class="container container-right">
-                        <div class="image" style="background-image:url('/assets/images/bear_thumbnail.JPG')"></div>
-                        <div class="content">
-                            <span>Mar 2019</span><br>
-                            <b>Robotics Engineer Intern, Bear Robotics</b><br>
-
-                                Interned at Bear Robotics, Redwood City, CA
-                        </div>
-                    </div>
-                    <div class="container container-left">
-                        <div class="image" style="background-image:url('/assets/images/icra_thumbnail.JPG')"></div>
-                        <div class="content">
-                            <span>May 2019</span><br>
-                            <b>ICRA RoboMaster AI Challenge</b><br>
-
-                                3rd Prize, Final Competition, Montreal
-                        </div>
-                    </div>
-                    <div class="container container-right">
-                        <div class="image" style="background-image:url('/assets/images/dmlab_thumbnail.JPG')"></div>
-                        <div class="content">
-                            <span>July 2020</span><br>
-                            <b>R&D, Deep Machine Lab</b><br>
-
-                                Interned at Deep Machine Lab, Seoul
-                        </div>
-                    </div>
-                    <div class="container container-left">
-                        <div class="image" style="background-image:url('/assets/images/prg_thumbnail.JPG')"></div>
-                        <div class="content">
-                            <span>2022</span><br>
-                            <b>Visiting Researcher, MIT Media Lab</b><br>
-
-                                Personal Robots Group, MIT Media Lab
-                        </div>
-                    </div>
-                    <div class="container container-right">
-                        <div class="image" style="background-image:url('/assets/images/media_logo.png')"></div>
-                        <div class="content">
-                            <span>2023 - Present</span><br>
-                            <b>Research Assistant, MIT Media Lab</b><br>
-
-                                Media Arts and Sciences (MAS)
-                        </div>
-                    </div>
-                </div>
-
-            </body>
-
-        </div>
-    </div>
-    -->
+    <!-- Journey section hidden for compact layout -->
 
     {% include footer.html %}
 

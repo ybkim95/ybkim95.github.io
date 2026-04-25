@@ -631,6 +631,10 @@
     text-align: center;
     }
 
+    body:not(.dark-theme) #footer .copyright li {
+        color: #555 !important;
+    }
+
     #contact input:focus,
     #contact textarea:focus {
     outline: 0;
@@ -740,11 +744,19 @@
             .hide {
     display:none!important;
     }		</style>
+        <script>
+            (function() {
+                var saved = localStorage.getItem('theme');
+                if (saved !== 'light') {
+                    document.documentElement.classList.add('dark-theme');
+                }
+            })();
+        </script>
             </head>
-    
+
     <body class="home page-template page-template-home page-template-home-php page page-id-25">
         <header class="noSelect">
-            <a href="https://ybkim95.github.io/"><img id="site-logo" src="assets/images/ybk_logo_white.png" style="width:5.5%;"></a>
+            <a href="https://ybkim95.github.io/"><img id="site-logo" src="assets/images/ybk_logo_white.png" style="width:5.5%;"><script>document.getElementById('site-logo').src=document.documentElement.classList.contains('dark-theme')?'assets/images/ybk_logo.png':'assets/images/ybk_logo_white.png';</script></a>
             <nav>
                 <ul>
                   <!-- <li><a href="/elements.html">Motivation</a></li> -->
@@ -835,7 +847,7 @@
                     <li><strong>Aug </strong> Our paper on <a href="https://arxiv.org/abs/2508.20148"><strong>"The Anatomy of a Personal Health Agent</strong>"</a> is released as a preprint paper</strong> <img src="assets/images/google_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
                     <li><strong>Aug </strong> Our paper on <a href="https://behavior-adaptation.github.io/"><strong>"BehaviorSFT: Behavioral Token Conditioning for Clinical Agents Across the Proactivity Spectrum</strong>"</a> is accepted as a <strong>findings paper at EMNLP 2025</strong>.</li>
                     <li><strong>May </strong> Our paper on <a href="https://han811.github.io/VocalAgent2025/"><strong>"VocalAgent: Large Language Models for Vocal Health Diagnostics with Safety-Aware Evaluation</strong>"</a> is accepted as an <strong>oral paper at Interspeech 2025</strong>.</li>
-                    <li><strong>May </strong> I've started a PhD internship at <strong>Google Research</strong> on Multi-Agent Systems for Biomarker Discovery at Scale <img src="assets/images/google_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
+                    <li><strong>Jun </strong> I've started a research intern program at <strong>Google Research</strong> <img src="assets/images/google_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
                     <li><strong>Mar </strong> Our paper on <a href="https://www.science.org/doi/10.1126/scirobotics.adk3307"><strong>"Social robots as conversational catalysts: Enhancing long-term human-human interaction at home</strong>"</a> is published as a <strong>cover paper at Science Robotics</strong>.</li>
                 </ul>
             </div>

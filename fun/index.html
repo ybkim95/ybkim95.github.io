@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Game of Possible Lives</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -17,460 +17,491 @@ html, body {
     overflow: hidden;
 }
 
-/* ── SCREENS ─────────────────────────────────────────── */
 .screen { display: none; width: 100vw; height: 100vh; position: absolute; inset: 0; }
 .screen.active { display: flex; }
 
-/* ── TITLE ───────────────────────────────────────────── */
+/* ══════════════════════════════════════════
+   TITLE
+══════════════════════════════════════════ */
 #screen-title {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 40px;
+    gap: 36px;
 }
 
-.title-ascii {
-    font-size: clamp(10px, 1.5vw, 15px);
+.title-main {
+    font-family: 'VT323', monospace;
+    font-size: clamp(40px, 6vw, 72px);
     letter-spacing: 0.15em;
-    line-height: 1.4;
-    white-space: pre;
     text-align: center;
-}
-
-.title-headline {
-    font-size: clamp(24px, 4vw, 48px);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    text-align: center;
+    line-height: 1.0;
     border: 2px solid #fff;
-    padding: 20px 40px;
-}
-
-.title-sub {
-    font-size: 14px;
-    letter-spacing: 0.2em;
-    color: #888;
-    text-align: center;
+    padding: 24px 48px;
 }
 
 .title-desc {
     font-size: 15px;
     letter-spacing: 0.05em;
-    color: #aaa;
+    color: #888;
     text-align: center;
-    max-width: 500px;
-    line-height: 1.7;
+    line-height: 1.9;
 }
 
-.blink { animation: blink 1s step-end infinite; }
-@keyframes blink { 50% { opacity: 0; } }
-
-.press-start-btn {
-    font-family: inherit;
-    font-size: 16px;
+.title-start {
+    font-size: 18px;
     letter-spacing: 0.3em;
     color: #fff;
     background: transparent;
     border: 2px solid #fff;
-    padding: 14px 36px;
+    padding: 14px 40px;
     cursor: pointer;
+    font-family: inherit;
     text-transform: uppercase;
+    animation: blink-border 1s step-end infinite;
 }
-.press-start-btn:hover { background: #fff; color: #000; }
+.title-start:hover { background: #fff; color: #000; animation: none; }
+
+@keyframes blink-border { 50% { border-color: transparent; } }
 
 .title-credit {
     font-size: 12px;
-    color: #444;
-    letter-spacing: 0.1em;
+    color: #3a3a3a;
+    letter-spacing: 0.08em;
     text-align: center;
 }
-.title-credit a { color: #666; text-decoration: none; }
+.title-credit a { color: #555; text-decoration: none; }
 .title-credit a:hover { color: #aaa; }
 
-/* ── CHAR GEN ─────────────────────────────────────────── */
+/* ══════════════════════════════════════════
+   CHAR GEN
+══════════════════════════════════════════ */
 #screen-chargen {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 24px;
+    gap: 28px;
 }
 
-.chargen-box {
+.cg-box {
     border: 2px solid #fff;
     padding: 28px 36px;
-    width: 480px;
+    width: min(460px, 90vw);
 }
 
-.chargen-label {
-    font-size: 11px;
-    letter-spacing: 0.3em;
-    color: #666;
-    margin-bottom: 20px;
+.cg-intro {
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    color: #555;
+    margin-bottom: 22px;
     text-transform: uppercase;
 }
 
-.chargen-name {
-    font-size: 26px;
-    letter-spacing: 0.1em;
+.cg-name {
+    font-family: 'VT323', monospace;
+    font-size: 32px;
+    letter-spacing: 0.08em;
     margin-bottom: 20px;
-    border-bottom: 1px solid #333;
-    padding-bottom: 14px;
+    border-bottom: 1px solid #222;
+    padding-bottom: 16px;
 }
 
-.chargen-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.cg-rows { display: flex; flex-direction: column; gap: 9px; margin-bottom: 20px; }
 
-.chargen-row {
+.cg-row {
     display: flex;
     justify-content: space-between;
     font-size: 14px;
-    letter-spacing: 0.05em;
 }
-.chargen-row .k { color: #666; }
-.chargen-row .v { color: #fff; }
+.cg-k { color: #555; }
+.cg-v { color: #fff; }
 
-.chargen-stats {
-    border-top: 1px solid #333;
-    padding-top: 14px;
+.cg-stats {
+    border-top: 1px solid #222;
+    padding-top: 16px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 }
 
-.chargen-stat {
+.cg-stat {
     display: flex;
     justify-content: space-between;
     font-size: 15px;
+    letter-spacing: 0.04em;
 }
-.chargen-stat .k { color: #666; }
+.cg-stat .cg-k { color: #555; }
 
-.chargen-btns {
-    display: flex;
-    gap: 16px;
-}
+.cg-btns { display: flex; gap: 16px; }
 
-.btn-outline {
+.btn-ghost {
     font-family: inherit;
     font-size: 13px;
     letter-spacing: 0.2em;
     color: #fff;
     background: transparent;
-    border: 1px solid #fff;
-    padding: 10px 24px;
+    border: 1px solid #555;
+    padding: 10px 22px;
     cursor: pointer;
     text-transform: uppercase;
 }
-.btn-outline:hover { background: #fff; color: #000; }
+.btn-ghost:hover { border-color: #fff; }
 
-.btn-fill {
+.btn-solid {
     font-family: inherit;
     font-size: 13px;
     letter-spacing: 0.2em;
     color: #000;
     background: #fff;
     border: 1px solid #fff;
-    padding: 10px 24px;
+    padding: 10px 22px;
     cursor: pointer;
     text-transform: uppercase;
 }
-.btn-fill:hover { background: #ddd; }
-.btn-fill:disabled { background: #444; color: #000; cursor: not-allowed; border-color: #444; }
+.btn-solid:hover { background: #ccc; }
+.btn-solid:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-/* ── GAME SCREEN ──────────────────────────────────────── */
-#screen-game {
-    flex-direction: row;
-    align-items: stretch;
-}
+/* ══════════════════════════════════════════
+   GAME SCREEN
+══════════════════════════════════════════ */
+#screen-game { flex-direction: row; align-items: stretch; }
 
-/* Left: flowchart */
-#flowchart-panel {
-    flex: 0 0 58%;
-    overflow: hidden;
+/* ─── Left: flowchart ─────────────────── */
+#fc-panel {
+    flex: 0 0 57%;
     position: relative;
-    border-right: 1px solid #222;
+    overflow: hidden;
 }
 
-#flowchart-scroll {
+#fc-scroll {
     position: absolute;
-    inset: 0;
+    inset: 0 0 40px 0;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: thin;
-    scrollbar-color: #333 #000;
+    scrollbar-color: #222 #000;
 }
 
-#flowchart-svg {
-    display: block;
-    width: 100%;
+#fc-svg { display: block; }
+
+#choose-hint {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    letter-spacing: 0.3em;
+    color: #555;
+    border-top: 1px solid #111;
+    user-select: none;
 }
 
-/* Right: character card */
-#char-panel {
-    flex: 0 0 42%;
+/* ─── Right: character card ───────────── */
+#card-panel {
+    flex: 0 0 43%;
+    display: flex;
+    align-items: stretch;
+    padding: 20px;
+}
+
+.char-card {
+    border: 2px solid #fff;
     display: flex;
     flex-direction: column;
-    padding: 24px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #333 #000;
+    width: 100%;
+    padding: 20px;
+    overflow: hidden;
 }
 
-.char-header {
+/* header */
+.card-header {
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: 2px 16px;
-    margin-bottom: 16px;
+    grid-template-rows: auto auto;
+    column-gap: 12px;
+    row-gap: 2px;
     padding-bottom: 14px;
     border-bottom: 1px solid #333;
+    margin-bottom: 14px;
+    flex-shrink: 0;
 }
 
-.char-header-name {
-    font-size: 22px;
-    letter-spacing: 0.08em;
-    grid-column: 1;
-    grid-row: 1;
-}
-
-.char-header-age {
-    font-size: 22px;
-    grid-column: 2;
-    grid-row: 1;
-    text-align: right;
-}
-
-.char-header-job {
-    font-size: 13px;
-    color: #888;
-    grid-column: 1;
-    grid-row: 2;
+.card-name {
+    font-family: 'VT323', monospace;
+    font-size: 28px;
     letter-spacing: 0.05em;
+    grid-column: 1; grid-row: 1;
+    line-height: 1;
 }
 
-.char-header-loc {
+.card-age {
+    font-family: 'VT323', monospace;
+    font-size: 28px;
+    grid-column: 2; grid-row: 1;
+    text-align: right;
+    line-height: 1;
+}
+
+.card-job {
     font-size: 13px;
-    color: #888;
-    grid-column: 2;
-    grid-row: 2;
+    color: #777;
+    grid-column: 1; grid-row: 2;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-loc {
+    font-size: 13px;
+    color: #777;
+    grid-column: 2; grid-row: 2;
     text-align: right;
 }
 
-/* Scene image */
-#scene-canvas-wrap {
-    width: 100%;
-    aspect-ratio: 16/9;
-    border: 1px solid #333;
-    margin-bottom: 16px;
-    position: relative;
+/* image */
+.card-img-wrap {
+    border: 1px solid #fff;
+    flex-shrink: 0;
+    margin-bottom: 14px;
     overflow: hidden;
     background: #000;
+    /* Keep 16:9 ratio, fill available width */
+    width: 100%;
+    position: relative;
+}
+
+/* Force 16:9 */
+.card-img-wrap::before {
+    content: '';
+    display: block;
+    padding-top: 56.25%;
 }
 
 #scene-canvas {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     display: block;
     image-rendering: pixelated;
 }
 
-/* Narrative text */
-#narrative-text {
-    font-size: 15px;
-    line-height: 1.8;
-    letter-spacing: 0.03em;
+/* narrative */
+#narrative {
+    font-size: 14px;
+    line-height: 1.85;
+    letter-spacing: 0.02em;
     color: #e0e0e0;
-    margin-bottom: 20px;
     flex: 1;
-    min-height: 100px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #222 #000;
+    margin-bottom: 14px;
+    min-height: 0;
 }
 
-.loading-text::after {
+.tw-cursor::after { content: '█'; animation: blink 0.7s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.loading-dot::after {
     content: '';
-    animation: loading-dots 1.2s steps(4, end) infinite;
+    animation: dotdot 1.4s steps(4,end) infinite;
 }
-@keyframes loading-dots {
-    0%   { content: ''; }
-    25%  { content: '.'; }
-    50%  { content: '..'; }
-    75%  { content: '...'; }
-}
+@keyframes dotdot { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
 
-/* Stats */
-.char-stats {
+/* stats */
+.card-stats {
     border-top: 1px solid #333;
-    padding-top: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.char-stat-row {
+    padding-top: 12px;
     display: flex;
     justify-content: space-between;
     font-size: 15px;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
 }
 
-.char-stat-row .k { color: #666; }
+.stat-label { color: #555; }
 
-/* Bottom nav hint */
-#game-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 58%;
-    padding: 10px 0;
-    text-align: center;
-    font-size: 13px;
-    letter-spacing: 0.3em;
-    color: #555;
-    border-top: 1px solid #111;
-    pointer-events: none;
-}
+/* ══════════════════════════════════════════
+   LIFE OVER
+══════════════════════════════════════════ */
+#screen-gameover { flex-direction: row; align-items: stretch; }
 
-/* ── LIFE OVER ────────────────────────────────────────── */
-#screen-gameover {
-    flex-direction: row;
-    align-items: stretch;
-}
-
-#go-flowchart-wrap {
-    flex: 0 0 58%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    border-right: 1px solid #222;
+#go-fc-wrap {
+    flex: 0 0 57%;
+    overflow: auto;
     scrollbar-width: thin;
-    scrollbar-color: #333 #000;
+    scrollbar-color: #222 #000;
 }
 
 #go-right {
-    flex: 0 0 42%;
+    flex: 0 0 43%;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 48px 36px;
-    gap: 40px;
+    padding: 0 48px;
+    gap: 44px;
+}
+
+.go-char-label {
+    font-size: 13px;
+    color: #555;
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
 }
 
 .go-title {
-    font-size: clamp(36px, 5vw, 64px);
-    letter-spacing: 0.1em;
-    line-height: 1.1;
+    font-family: 'VT323', monospace;
+    font-size: clamp(64px, 9vw, 110px);
+    line-height: 0.9;
+    letter-spacing: 0.06em;
 }
 
-.go-subtitle {
-    font-size: 14px;
-    color: #666;
-    letter-spacing: 0.1em;
-}
+.go-menu { display: flex; flex-direction: column; gap: 14px; }
 
-.go-menu { display: flex; flex-direction: column; gap: 12px; }
-
-.go-menu-item {
-    font-family: inherit;
-    font-size: 16px;
-    letter-spacing: 0.15em;
-    color: #fff;
+.go-item {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 18px;
+    letter-spacing: 0.12em;
     background: transparent;
     border: none;
-    padding: 8px 0;
     cursor: pointer;
     text-align: left;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
+    padding: 0;
     text-transform: uppercase;
 }
-.go-menu-item:hover { color: #aaa; }
-.go-menu-item .arrow { color: #fff; }
-.go-menu-item.dim { color: #444; }
-.go-menu-item.dim .arrow { color: #444; }
-.go-menu-item.dim:hover { color: #888; }
+.go-item .go-arr { color: #fff; font-size: 20px; }
+.go-item.active { color: #fff; }
+.go-item.inactive { color: #3a3a3a; }
+.go-item.inactive .go-arr { color: #3a3a3a; }
+.go-item:hover { opacity: 0.8; }
 
-/* ── RELIVE ───────────────────────────────────────────── */
-#screen-relive {
-    flex-direction: row;
-    align-items: stretch;
-}
+/* ══════════════════════════════════════════
+   RELIVE
+══════════════════════════════════════════ */
+#screen-relive { flex-direction: row; align-items: stretch; }
 
-#relive-flowchart-wrap {
-    flex: 0 0 58%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    border-right: 1px solid #222;
+#rv-fc-wrap {
+    flex: 0 0 57%;
+    position: relative;
+    overflow: auto;
     scrollbar-width: thin;
-    scrollbar-color: #333 #000;
+    scrollbar-color: #222 #000;
 }
 
-#relive-right {
-    flex: 0 0 42%;
+.rv-overlay {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    color: #555;
+    pointer-events: none;
+    z-index: 10;
+    line-height: 1.6;
+}
+
+#rv-right {
+    flex: 0 0 43%;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 48px 36px;
-    gap: 32px;
+    padding: 0 48px;
+    gap: 28px;
 }
 
-.relive-title { font-size: 13px; letter-spacing: 0.3em; color: #888; text-transform: uppercase; }
-.relive-headline { font-size: 26px; letter-spacing: 0.1em; line-height: 1.3; }
-.relive-hint { font-size: 13px; color: #555; letter-spacing: 0.1em; line-height: 1.6; }
+.rv-jp {
+    font-size: 22px;
+    letter-spacing: 0.05em;
+    color: #888;
+    line-height: 1;
+}
 
-.relive-selected-info {
+.rv-en {
+    font-family: 'VT323', monospace;
+    font-size: clamp(36px, 5vw, 58px);
+    letter-spacing: 0.08em;
+    line-height: 1.0;
+}
+
+.rv-info {
+    display: none;
     border: 1px solid #333;
     padding: 16px;
-    display: none;
+    gap: 8px;
+    flex-direction: column;
 }
-.relive-selected-info.visible { display: block; }
-.relive-selected-year { font-size: 11px; letter-spacing: 0.2em; color: #666; margin-bottom: 8px; }
-.relive-selected-text { font-size: 14px; line-height: 1.6; color: #ccc; }
+.rv-info.show { display: flex; }
 
-#btn-relive-confirm {
+.rv-info-year {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: #555;
+    text-transform: uppercase;
+}
+
+.rv-info-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #ccc;
+}
+
+#btn-rv-confirm {
+    display: none;
     font-family: inherit;
     font-size: 14px;
     letter-spacing: 0.2em;
     color: #000;
     background: #fff;
-    border: 1px solid #fff;
+    border: none;
     padding: 12px 24px;
     cursor: pointer;
     text-transform: uppercase;
-    display: none;
+    text-align: left;
 }
-#btn-relive-confirm.visible { display: block; }
-#btn-relive-confirm:hover { background: #ddd; }
+#btn-rv-confirm.show { display: block; }
+#btn-rv-confirm:hover { background: #ccc; }
 
-#btn-relive-back {
+.rv-back {
     font-family: inherit;
-    font-size: 13px;
-    letter-spacing: 0.15em;
-    color: #555;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: #444;
     background: transparent;
     border: none;
     cursor: pointer;
     text-align: left;
-    text-transform: uppercase;
     padding: 0;
+    text-transform: uppercase;
 }
-#btn-relive-back:hover { color: #fff; }
+.rv-back:hover { color: #fff; }
 
-/* ── TYPEWRITER cursor ────────────────────────────────── */
-.tw-cursor::after { content: '█'; animation: blink 0.8s step-end infinite; }
-
-/* scrollbar */
+/* scrollbars */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: #000; }
-::-webkit-scrollbar-thumb { background: #333; }
+::-webkit-scrollbar-thumb { background: #222; }
 </style>
 </head>
 <body>
 
 <!-- ════════════════ TITLE ════════════════ -->
 <div id="screen-title" class="screen active">
-    <div class="title-headline">GAME OF POSSIBLE LIVES</div>
+    <div class="title-main">GAME OF<br>POSSIBLE LIVES</div>
     <div class="title-desc">
         A randomly generated person.<br>
-        A life full of crossroads.<br>
+        A life shaped by crossroads.<br>
         Every choice forecloses a thousand others.
     </div>
-    <button class="press-start-btn blink" onclick="startGame()">▶ press start</button>
+    <button class="title-start" onclick="startGame()">▶ press start</button>
     <div class="title-credit">
         Inspired by <a href="https://www.tomokihara.com/en/game-of-possible-lives.html" target="_blank">Tomo Kihara's original work</a>
         &nbsp;·&nbsp; Based on Japan's 2020 National Census
@@ -478,73 +509,78 @@ html, body {
 </div>
 
 <!-- ════════════════ CHAR GEN ════════════════ -->
-<div id="screen-chargen" class="screen" style="flex-direction:column; align-items:center; justify-content:center; gap:24px;">
-    <div class="chargen-box">
-        <div class="chargen-label">A life begins —</div>
-        <div class="chargen-name" id="cg-name">—</div>
-        <div class="chargen-rows">
-            <div class="chargen-row"><span class="k">Age</span><span class="v" id="cg-age">—</span></div>
-            <div class="chargen-row"><span class="k">Gender</span><span class="v" id="cg-gender">—</span></div>
-            <div class="chargen-row"><span class="k">Prefecture</span><span class="v" id="cg-pref">—</span></div>
-            <div class="chargen-row"><span class="k">Occupation</span><span class="v" id="cg-job">—</span></div>
-            <div class="chargen-row"><span class="k">Education</span><span class="v" id="cg-edu">—</span></div>
-            <div class="chargen-row"><span class="k">Income</span><span class="v" id="cg-income">—</span></div>
-            <div class="chargen-row"><span class="k">Marital status</span><span class="v" id="cg-marital">—</span></div>
-            <div class="chargen-row"><span class="k">Nationality</span><span class="v" id="cg-nationality">—</span></div>
+<div id="screen-chargen" class="screen"
+     style="flex-direction:column;align-items:center;justify-content:center;gap:28px;">
+    <div class="cg-box">
+        <div class="cg-intro">A life begins —</div>
+        <div class="cg-name" id="cg-name">—</div>
+        <div class="cg-rows">
+            <div class="cg-row"><span class="cg-k">Age</span><span class="cg-v" id="cg-age">—</span></div>
+            <div class="cg-row"><span class="cg-k">Gender</span><span class="cg-v" id="cg-gender">—</span></div>
+            <div class="cg-row"><span class="cg-k">Prefecture</span><span class="cg-v" id="cg-pref">—</span></div>
+            <div class="cg-row"><span class="cg-k">Occupation</span><span class="cg-v" id="cg-job">—</span></div>
+            <div class="cg-row"><span class="cg-k">Education</span><span class="cg-v" id="cg-edu">—</span></div>
+            <div class="cg-row"><span class="cg-k">Income</span><span class="cg-v" id="cg-income">—</span></div>
+            <div class="cg-row"><span class="cg-k">Status</span><span class="cg-v" id="cg-marital">—</span></div>
+            <div class="cg-row"><span class="cg-k">Nationality</span><span class="cg-v" id="cg-nat">—</span></div>
         </div>
-        <div class="chargen-stats">
-            <div class="chargen-stat"><span class="k">money</span><span id="cg-money">—</span></div>
-            <div class="chargen-stat"><span class="k">health</span><span id="cg-health">—</span></div>
+        <div class="cg-stats">
+            <div class="cg-stat"><span class="cg-k">money</span><span id="cg-money">—</span></div>
+            <div class="cg-stat"><span class="cg-k">health</span><span id="cg-health">—</span></div>
         </div>
     </div>
-    <div class="chargen-btns">
-        <button class="btn-outline" onclick="generateAndShow()">↺ reroll</button>
-        <button class="btn-fill" id="btn-begin" onclick="beginLife()">begin this life →</button>
+    <div class="cg-btns">
+        <button class="btn-ghost" onclick="generateAndShow()">↺ reroll</button>
+        <button class="btn-solid" id="btn-begin" onclick="beginLife()">begin this life →</button>
     </div>
 </div>
 
 <!-- ════════════════ GAME ════════════════ -->
 <div id="screen-game" class="screen">
-    <div id="flowchart-panel">
-        <div id="flowchart-scroll">
-            <svg id="flowchart-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="fc-panel">
+        <div id="fc-scroll">
+            <svg id="fc-svg" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
-        <div id="game-footer">← choose →</div>
+        <div id="choose-hint">← CHOOSE →</div>
     </div>
-    <div id="char-panel">
-        <div class="char-header">
-            <div class="char-header-name" id="ch-name">—</div>
-            <div class="char-header-age" id="ch-age">—</div>
-            <div class="char-header-job" id="ch-job">—</div>
-            <div class="char-header-loc" id="ch-loc">—</div>
-        </div>
-        <div id="scene-canvas-wrap">
-            <canvas id="scene-canvas"></canvas>
-        </div>
-        <div id="narrative-text"></div>
-        <div class="char-stats">
-            <div class="char-stat-row"><span class="k">money</span><span id="ch-money">—</span></div>
-            <div class="char-stat-row"><span class="k">health</span><span id="ch-health">—</span></div>
+    <div id="card-panel">
+        <div class="char-card">
+            <div class="card-header">
+                <div class="card-name" id="card-name">—</div>
+                <div class="card-age"  id="card-age">—</div>
+                <div class="card-job"  id="card-job">—</div>
+                <div class="card-loc"  id="card-loc">—</div>
+            </div>
+            <div class="card-img-wrap">
+                <canvas id="scene-canvas"></canvas>
+            </div>
+            <div id="narrative"></div>
+            <div class="card-stats">
+                <span><span class="stat-label">money : </span><span id="s-money">—</span></span>
+                <span><span class="stat-label">health : </span><span id="s-health">—</span></span>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- ════════════════ LIFE OVER ════════════════ -->
 <div id="screen-gameover" class="screen">
-    <div id="go-flowchart-wrap">
-        <svg id="go-flowchart-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="go-fc-wrap">
+        <svg id="go-svg" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
     <div id="go-right">
         <div>
-            <div class="go-subtitle" id="go-name">—</div>
+            <div class="go-char-label" id="go-char-label">—</div>
             <div class="go-title">LIFE<br>OVER</div>
         </div>
         <div class="go-menu">
-            <button class="go-menu-item" onclick="showRelive()">
-                <span class="arrow">›</span> 生きなおす / RELIVE
+            <button class="go-item active" onclick="showRelive()">
+                <span class="go-arr">›</span>
+                <span>生きなおす / RELIVE</span>
             </button>
-            <button class="go-menu-item dim" onclick="newLife()">
-                <span class="arrow">›</span> おわる / END
+            <button class="go-item inactive" onclick="newLife()">
+                <span class="go-arr">›</span>
+                <span>おわる / END</span>
             </button>
         </div>
     </div>
@@ -552,47 +588,40 @@ html, body {
 
 <!-- ════════════════ RELIVE ════════════════ -->
 <div id="screen-relive" class="screen">
-    <div id="relive-flowchart-wrap">
-        <svg id="relive-flowchart-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="rv-fc-wrap">
+        <div class="rv-overlay">↓↑  いどう / move</div>
+        <svg id="rv-svg" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
-    <div id="relive-right">
+    <div id="rv-right">
         <div>
-            <div class="relive-title">どこから生きなおす？</div>
-            <div class="relive-headline">WHERE TO<br>RELIVE?</div>
+            <div class="rv-jp">どこから生きなおす？</div>
+            <div class="rv-en">WHERE TO<br>RELIVE?</div>
         </div>
-        <div class="relive-hint">↓↑ いどう / move<br>Click a crossroads node to select it.</div>
-        <div class="relive-selected-info" id="relive-info">
-            <div class="relive-selected-year" id="relive-info-year">—</div>
-            <div class="relive-selected-text" id="relive-info-text">—</div>
+        <div class="rv-info" id="rv-info">
+            <div class="rv-info-year" id="rv-info-year">—</div>
+            <div class="rv-info-text" id="rv-info-text">—</div>
         </div>
-        <button id="btn-relive-confirm" onclick="confirmRelive()">↩ relive from here</button>
-        <button id="btn-relive-back" onclick="showScreen('screen-gameover')">← back</button>
+        <button id="btn-rv-confirm" onclick="confirmRelive()">↩ relive from here</button>
+        <button class="rv-back" onclick="showScreen('screen-gameover')">← back</button>
     </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-// CENSUS DATA
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// CENSUS DATA (Japan 2020)
+// ═══════════════════════════════════════════════════════════
 const CENSUS = {
-    prefectures:[
-        {n:'Tokyo',w:11},{n:'Osaka',w:7},{n:'Kanagawa',w:7},{n:'Aichi',w:6},
-        {n:'Saitama',w:6},{n:'Chiba',w:5},{n:'Hyogo',w:4},{n:'Hokkaido',w:4},
-        {n:'Fukuoka',w:4},{n:'Shizuoka',w:3},{n:'Hiroshima',w:2},{n:'Kyoto',w:2},
-        {n:'Miyagi',w:2},{n:'Nagano',w:2},{n:'Other',w:35}
-    ],
-    occupations:[
-        {n:'Office Worker',w:25},{n:'Service Worker',w:18},{n:'Manufacturing',w:14},
-        {n:'Healthcare',w:10},{n:'IT / Tech',w:9},{n:'Education',w:7},
-        {n:'Retail',w:8},{n:'Freelance',w:6},{n:'Unemployed',w:3}
-    ],
-    educations:[
-        {n:'High School',w:35},{n:'Vocational School',w:20},
-        {n:'University',w:35},{n:'Graduate School',w:10}
-    ],
-    maleNames:['Hiroshi','Kenji','Takeshi','Satoshi','Naoki','Daisuke','Ryota','Shota','Kazuki','Haruto','Sota','Hayato','Ren','Yuto'],
-    femaleNames:['Haruka','Sakura','Aoi','Rina','Mika','Nana','Yui','Kana','Ayaka','Yuna','Hana','Misaki','Saki','Yuki'],
-    surnames:['Tanaka','Suzuki','Sato','Watanabe','Ito','Yamamoto','Nakamura','Kobayashi','Kato','Yoshida','Yamada','Sasaki','Matsumoto','Inoue','Kimura','Hayashi','Shimizu','Mori','Abe','Ikeda']
+    prefs: [{n:'Tokyo',w:11},{n:'Osaka',w:7},{n:'Kanagawa',w:7},{n:'Aichi',w:6},
+            {n:'Saitama',w:6},{n:'Chiba',w:5},{n:'Hyogo',w:4},{n:'Hokkaido',w:4},
+            {n:'Fukuoka',w:4},{n:'Shizuoka',w:3},{n:'Hiroshima',w:2},{n:'Kyoto',w:2},
+            {n:'Miyagi',w:2},{n:'Nagano',w:2},{n:'Other',w:35}],
+    jobs:  [{n:'Office Worker',w:25},{n:'Service Worker',w:18},{n:'Manufacturing',w:14},
+            {n:'Healthcare',w:10},{n:'IT / Tech',w:9},{n:'Education',w:7},
+            {n:'Retail',w:8},{n:'Freelance',w:6},{n:'Unemployed',w:3}],
+    edus:  [{n:'High School',w:35},{n:'Vocational',w:20},{n:'University',w:35},{n:'Graduate School',w:10}],
+    maleN: ['Hiroshi','Kenji','Takeshi','Satoshi','Naoki','Daisuke','Ryota','Shota','Kazuki','Haruto','Sota','Hayato','Ren','Yuto'],
+    femaN: ['Haruka','Sakura','Aoi','Rina','Mika','Nana','Yui','Kana','Ayaka','Yuna','Hana','Misaki','Saki','Yuki'],
+    surN:  ['Tanaka','Suzuki','Sato','Watanabe','Ito','Yamamoto','Nakamura','Kobayashi','Kato','Yoshida','Yamada','Sasaki','Matsumoto','Inoue','Kimura','Hayashi','Shimizu','Mori','Abe','Ikeda']
 };
 
 const EVENT_TYPES = [
@@ -601,49 +630,41 @@ const EVENT_TYPES = [
     'Financial Decision','Social Belonging','Later Chapter','Final Crossroads'
 ];
 
-const TOTAL_EVENTS = 8;
+const TOTAL = 8;
 const OLLAMA = 'https://matlaber15.media.mit.edu/ollama/api/generate';
 const MODEL  = 'qwen2.5:32b';
 
-// ═══════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════════════════
 let G = {
     char: null,
     eventIdx: 0,
-    history: [],      // [{year, eventType, situation, choice, outcome}]
-    currentEvent: null,
-    selectedChoice: -1,
-    reliveTarget: -1, // history index to relive from
+    history: [],   // [{year, eventType, situation, choices, chosenIdx, choice, outcome}]
+    current: null, // {year, eventType, situation, choices}
+    selIdx: 0,
+    reliveTarget: -1,
+    busy: false,
 };
 
-// ═══════════════════════════════════════════════════════
-// UTILITIES
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
 function weighted(arr) {
-    let t = arr.reduce((s,i)=>s+(i.w||1),0), r = Math.random()*t;
-    for (const x of arr) { r-=(x.w||1); if(r<=0) return x; }
+    let t = arr.reduce((s,i)=>s+(i.w||1),0), r=Math.random()*t;
+    for(const x of arr){r-=(x.w||1);if(r<=0)return x;}
     return arr[arr.length-1];
 }
 function clamp(v,a=0,b=100){return Math.max(a,Math.min(b,v));}
-function fmtIncome(y){return y>=1e6?`¥${(y/1e6).toFixed(1)}M`:`¥${(y/1e3).toFixed(0)}K`;}
+function fmtY(y){return y>=1e6?`¥${(y/1e6).toFixed(1)}M`:`¥${(y/1e3).toFixed(0)}K`;}
 
-function moneySymbols(v) {
-    const filled = Math.round(v/20); // 0-5
-    return '¥'.repeat(filled) + '¥'.repeat(5-filled).replace(/./g,'¥').split('').map(()=>'_').join('');
-}
-function healthSymbols(v) {
-    const filled = Math.round(v/20);
-    return '♡'.repeat(filled) + '♡'.repeat(5-filled).split('').map(()=>'♡').join('');
-}
-// Better versions:
 function moneyStr(v){
     const n=Math.round(clamp(v)/20);
-    return '¥'.repeat(n)+'¥'.repeat(5-n);
+    return '<span style="color:#fff">'+'¥'.repeat(n)+'</span><span style="color:#2a2a2a">'+'¥'.repeat(5-n)+'</span>';
 }
 function healthStr(v){
     const n=Math.round(clamp(v)/20);
-    return '♡'.repeat(n)+'♡'.repeat(5-n);
+    return '<span style="color:#fff">'+'♥'.repeat(n)+'</span><span style="color:#2a2a2a">'+'♡'.repeat(5-n)+'</span>';
 }
 
 function showScreen(id){
@@ -651,917 +672,637 @@ function showScreen(id){
     document.getElementById(id).classList.add('active');
 }
 
-async function typewrite(el, text, speed=16){
-    el.textContent='';
-    el.classList.add('tw-cursor');
-    for(const ch of text){
-        el.textContent+=ch;
-        await new Promise(r=>setTimeout(r,speed));
-    }
+async function typewrite(el, text, speed=14){
+    el.textContent=''; el.classList.add('tw-cursor');
+    for(const c of text){el.textContent+=c; await pause(speed);}
     el.classList.remove('tw-cursor');
 }
 
-// ═══════════════════════════════════════════════════════
-// SEEDED RNG (mulberry32)
-// ═══════════════════════════════════════════════════════
-function seededRng(seed){
+function pause(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// seeded RNG
+function srng(seed){
     let s=seed>>>0;
-    return function(){
-        s+=0x6D2B79F5;
-        let t=s;t=Math.imul(t^t>>>15,t|1);
-        t^=t+Math.imul(t^t>>>7,t|61);
-        return ((t^t>>>14)>>>0)/4294967296;
-    };
+    return()=>{s+=0x6D2B79F5;let t=s;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};
 }
-function hashStr(s){
-    let h=0;
-    for(let i=0;i<s.length;i++){h=Math.imul(31,h)+s.charCodeAt(i)|0;}
-    return h>>>0;
-}
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++)h=Math.imul(31,h)+s.charCodeAt(i)|0;return h>>>0;}
 
-// ═══════════════════════════════════════════════════════
-// SCENE IMAGE GENERATOR
-// ═══════════════════════════════════════════════════════
-function drawSceneImage(canvas, eventType, situation, char) {
-    const W = canvas.width = 320;
-    const H = canvas.height = 180;
-    const ctx = canvas.getContext('2d');
-    const rng = seededRng(hashStr(situation + char.name));
+// ═══════════════════════════════════════════════════════════
+// SCENE IMAGE (procedural B&W dithering)
+// ═══════════════════════════════════════════════════════════
+function drawScene(canvas, eventType, situation, char){
+    const W=320, H=180;
+    canvas.width=W; canvas.height=H;
+    const ctx=canvas.getContext('2d');
+    const rng=srng(hashStr(situation+char.name));
+    const bayer=[[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(r=>r.map(v=>(v+.5)/16));
+    const buf=new Float32Array(W*H);
 
-    // Black fill
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, W, H);
+    // sky gradient
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++) buf[y*W+x]=0.02+(H-y)/H*0.05;
 
-    // Bayer 4x4 dithering matrix (normalised 0-1)
-    const bayer = [
-        [0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]
-    ].map(row=>row.map(v=>(v+0.5)/16));
+    const gY=Math.floor(H*0.68);
+    // ground
+    for(let y=gY;y<H;y++) for(let x=0;x<W;x++) buf[y*W+x]=0.22+(y-gY)/(H-gY)*0.45;
+    for(let x=0;x<W;x++) buf[gY*W+x]=0.95;
 
-    // Build a scene as a grayscale buffer then dither it
-    const imgData = ctx.createImageData(W, H);
-    const buf = new Float32Array(W*H); // 0-1 luminance
+    const setR=(x,y,w,h,v)=>{for(let dy=0;dy<h;dy++)for(let dx=0;dx<w;dx++){const px=~~(x+dx),py=~~(y+dy);if(px>=0&&px<W&&py>=0&&py<H)buf[py*W+px]=Math.max(buf[py*W+px],v);}};
+    const setC=(cx,cy,r,v)=>{for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(dx*dx+dy*dy<=r*r){const px=~~(cx+dx),py=~~(cy+dy);if(px>=0&&px<W&&py>=0&&py<H)buf[py*W+px]=Math.max(buf[py*W+px],v);}}};
 
-    // ── background gradient (slightly lighter at horizon) ──
-    for(let y=0;y<H;y++){
-        for(let x=0;x<W;x++){
-            buf[y*W+x] = 0.04 + (H-y)/H * 0.06;
-        }
+    function person(cx,sc=1,bri=0.95){
+        const hr=~~(7*sc),torW=~~(10*sc),torH=~~(22*sc),legH=~~(18*sc),armW=~~(4*sc),armH=~~(14*sc);
+        setC(cx,gY-legH-torH-hr,hr,bri);
+        setR(cx-torW/2,gY-legH-torH,torW,torH,bri);
+        setR(cx-torW/2-armW,gY-legH-torH+4*sc,armW,armH,bri);
+        setR(cx+torW/2,gY-legH-torH+4*sc,armW,armH,bri);
+        setR(cx-torW/4-armW/2,gY-legH,armW+1,legH,bri);
+        setR(cx+torW/4+1,gY-legH,armW+1,legH,bri);
+    }
+    function building(x,w,h){
+        setR(x,gY-h,w,h,0.82);
+        for(let wy=gY-h+5;wy<gY-3;wy+=8)
+            for(let wx=x+3;wx<x+w-3;wx+=7)
+                setR(wx,wy,4,5,rng()<0.55?0.08:0.98);
+    }
+    function tree(cx,h){
+        setR(cx-2,gY-~~(h*.4),4,~~(h*.4),0.78);
+        setC(cx,gY-~~(h*.58),~~(h*.34),0.83);
     }
 
-    // ── ground plane ──
-    const gndY = Math.floor(H * 0.68);
-    for(let y=gndY;y<H;y++){
-        const bright = 0.25 + (y-gndY)/(H-gndY)*0.4;
-        for(let x=0;x<W;x++) buf[y*W+x]=bright;
-    }
-    // ground line
-    for(let x=0;x<W;x++) buf[gndY*W+x]=0.9;
-
-    // ── scene elements based on event type ──
-    const etype = eventType.toLowerCase();
-
-    // Draw filled rect (silhouette helper)
-    function fillRect(x,y,w,h,v){
-        for(let dy=0;dy<h;dy++) for(let dx=0;dx<w;dx++){
-            const px=Math.floor(x+dx), py=Math.floor(y+dy);
-            if(px>=0&&px<W&&py>=0&&py<H) buf[py*W+px]=Math.max(buf[py*W+px],v);
-        }
-    }
-    // Draw filled circle
-    function fillCircle(cx,cy,r,v){
-        for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++){
-            if(dx*dx+dy*dy<=r*r){
-                const px=Math.floor(cx+dx),py=Math.floor(cy+dy);
-                if(px>=0&&px<W&&py>=0&&py<H) buf[py*W+px]=Math.max(buf[py*W+px],v);
-            }
-        }
-    }
-    // Draw a standing human silhouette
-    function drawPerson(cx, scale=1.0, brightness=0.95){
-        const head=Math.round(7*scale), torsoH=Math.round(22*scale), torsoW=Math.round(10*scale);
-        const legH=Math.round(18*scale), armH=Math.round(14*scale), armW=Math.round(4*scale);
-        const py=gndY;
-        fillCircle(cx, py-legH-torsoH-head, head, brightness);
-        fillRect(cx-torsoW/2, py-legH-torsoH, torsoW, torsoH, brightness);
-        fillRect(cx-torsoW/2-armW, py-legH-torsoH+4*scale, armW, armH, brightness);
-        fillRect(cx+torsoW/2, py-legH-torsoH+4*scale, armW, armH, brightness);
-        fillRect(cx-torsoW/4-armW/2, py-legH, armW+1, legH, brightness);
-        fillRect(cx+torsoW/4-armW/2+2, py-legH, armW+1, legH, brightness);
-    }
-    // Draw a building silhouette
-    function drawBuilding(x, w, h, windows=true){
-        fillRect(x, gndY-h, w, h, 0.85);
-        if(windows){
-            for(let wy=gndY-h+6;wy<gndY-4;wy+=9){
-                for(let wx=x+4;wx<x+w-4;wx+=8){
-                    if(rng()<0.6) fillRect(wx,wy,4,5,0.1); // dark window
-                    else fillRect(wx,wy,4,5,1.0);            // lit window
-                }
-            }
-        }
-    }
-    // Draw a tree silhouette
-    function drawTree(cx, h){
-        fillRect(cx-2, gndY-h*0.4, 4, Math.round(h*0.4), 0.8);
-        fillCircle(cx, gndY-h*0.55, Math.round(h*0.35), 0.85);
-    }
-
-    if(etype.includes('career') || etype.includes('professional')){
-        // Office / city scene
-        drawBuilding(10, 40, 80+rng()*40);
-        drawBuilding(60, 55, 60+rng()*50);
-        drawBuilding(125, 35, 100+rng()*30);
-        drawBuilding(170, 48, 70+rng()*60);
-        drawBuilding(228, 60, 90+rng()*40);
-        drawBuilding(298, 30, 55+rng()*40);
-        drawPerson(W/2, 1.1);
-    } else if(etype.includes('heart') || etype.includes('relation')){
-        // Two people close together
-        drawBuilding(10, 30, 40+rng()*30);
-        drawBuilding(280, 25, 50+rng()*30);
-        drawPerson(W/2-18, 1.05);
-        drawPerson(W/2+18, 1.05);
-        // connecting detail: small elements between them
-        fillRect(W/2-4, gndY-28, 8, 2, 0.9);
-    } else if(etype.includes('family') || etype.includes('oblig')){
-        // Family group
-        drawBuilding(20, 60, 50+rng()*20);
-        drawPerson(W/2-40, 1.0);
-        drawPerson(W/2, 1.0);
-        drawPerson(W/2+40, 0.75); // child
-        // house shape
-        const hx=180, hw=80, hh=55;
-        fillRect(hx,gndY-hh,hw,hh,0.8);
-        // roof
-        for(let i=0;i<hw/2+10;i++){
-            const rw=hw+20-i*2;
-            fillRect(hx-10+i, gndY-hh-i, rw, 2, 0.9);
-        }
-    } else if(etype.includes('health')){
-        // Sparse, quiet scene
-        drawTree(60, 70+rng()*30);
-        drawTree(200, 60+rng()*30);
-        drawPerson(W/2, 1.0, 0.7); // dimmer figure
-        // some dots for atmosphere
-        for(let i=0;i<40;i++){
-            const px=rng()*W, py=rng()*(gndY-40);
-            fillCircle(px,py,1,0.6);
-        }
-    } else if(etype.includes('financial')){
-        // Urban scene with multiple buildings
-        drawBuilding(0, 38, 110+rng()*30);
-        drawBuilding(48, 30, 90+rng()*40);
-        drawBuilding(90, 50, 130+rng()*20);
-        drawBuilding(150, 35, 100+rng()*30);
-        drawBuilding(195, 45, 115+rng()*25);
-        drawBuilding(250, 32, 80+rng()*40);
-        drawBuilding(292, 28, 70+rng()*30);
-        drawPerson(W/2, 0.95);
-    } else if(etype.includes('social') || etype.includes('belonging')){
-        // Crowd scene
-        const n=4+Math.floor(rng()*3);
-        const spacing=(W-80)/n;
-        for(let i=0;i<n;i++){
-            drawPerson(50+i*spacing+rng()*10-5, 0.85+rng()*0.2);
-        }
-        drawBuilding(5, 25, 45+rng()*20);
-        drawBuilding(285, 20, 40+rng()*25);
-    } else if(etype.includes('live') || etype.includes('place') || etype.includes('home')){
-        // Residential scene
-        const hx=W/2-40, hw=80, hh=65;
-        fillRect(hx, gndY-hh, hw, hh, 0.82);
-        for(let i=0;i<=hw/2+12;i++){
-            const rw=hw+24-i*2;
-            if(rw>0) fillRect(hx-12+i,gndY-hh-i,rw,2,0.92);
-        }
-        drawTree(hx-35, 65);
-        drawTree(hx+hw+25, 55);
-        drawPerson(W/2, 0.95);
+    const et=eventType.toLowerCase();
+    if(et.includes('career')||et.includes('professional')){
+        [0,50,105,160,215,272].forEach((x,i)=>building(x,35+~~(rng()*20),50+~~(rng()*90)));
+        person(W/2,1.1);
+    } else if(et.includes('heart')||et.includes('relation')){
+        building(5,28,35+~~(rng()*25)); building(280,22,40+~~(rng()*25));
+        person(W/2-18,1.0); person(W/2+18,1.0);
+    } else if(et.includes('family')||et.includes('oblig')){
+        const hx=180,hw=78,hh=60;
+        setR(hx,gY-hh,hw,hh,0.80);
+        for(let i=0;i<=hw/2+10;i++){const rw=hw+20-i*2;if(rw>0)setR(hx-10+i,gY-hh-i,rw,2,0.92);}
+        person(W/2-36,1.0); person(W/2,1.0); person(W/2+36,0.72);
+    } else if(et.includes('health')){
+        tree(55,68+~~(rng()*25)); tree(195,58+~~(rng()*25));
+        person(W/2,1.0,0.65);
+        for(let i=0;i<35;i++){const px=rng()*W,py=rng()*(gY-40);setC(px,py,1,0.5);}
+    } else if(et.includes('financial')){
+        [0,40,88,140,192,245,295].forEach(x=>building(x,30+~~(rng()*18),90+~~(rng()*80)));
+        person(W/2,0.95);
+    } else if(et.includes('social')||et.includes('belonging')){
+        const n=4+~~(rng()*3);
+        Array.from({length:n},(_,i)=>person(48+i*(W-80)/n+rng()*12-6, 0.82+rng()*.22));
+        building(2,22,38+~~(rng()*18)); building(290,18,32+~~(rng()*20));
+    } else if(et.includes('live')||et.includes('place')){
+        const hx=W/2-38,hw=76,hh=62;
+        setR(hx,gY-hh,hw,hh,0.80);
+        for(let i=0;i<=hw/2+12;i++){const rw=hw+24-i*2;if(rw>0)setR(hx-12+i,gY-hh-i,rw,2,0.92);}
+        tree(hx-30,62); tree(hx+hw+22,52); person(W/2,0.95);
     } else {
-        // Generic: lone figure + cityscape
-        drawBuilding(0,30,50+rng()*60);
-        drawBuilding(35,42,40+rng()*70);
-        drawBuilding(90,28,80+rng()*40);
-        drawBuilding(230,38,60+rng()*50);
-        drawBuilding(278,33,55+rng()*45);
-        drawPerson(W/2, 1.0);
+        building(0,32,55+~~(rng()*60)); building(38,28,45+~~(rng()*70));
+        building(82,25,80+~~(rng()*40)); building(228,36,58+~~(rng()*50));
+        building(272,30,52+~~(rng()*45)); person(W/2,1.0);
     }
 
-    // ── apply Bayer ordered dithering ──
-    for(let y=0;y<H;y++){
-        for(let x=0;x<W;x++){
-            const lum = buf[y*W+x];
-            const threshold = bayer[y%4][x%4];
-            const on = lum > threshold ? 255 : 0;
-            const idx=(y*W+x)*4;
-            imgData.data[idx]=on;
-            imgData.data[idx+1]=on;
-            imgData.data[idx+2]=on;
-            imgData.data[idx+3]=255;
-        }
+    const img=ctx.createImageData(W,H);
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+        const v=buf[y*W+x]>bayer[y%4][x%4]?255:0;
+        const i=(y*W+x)*4; img.data[i]=v; img.data[i+1]=v; img.data[i+2]=v; img.data[i+3]=255;
     }
-    ctx.putImageData(imgData,0,0);
+    ctx.putImageData(img,0,0);
 }
 
-// ═══════════════════════════════════════════════════════
-// FLOWCHART SVG RENDERER
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// FLOWCHART SVG
+// ═══════════════════════════════════════════════════════════
 
-// Layout constants
-const FC = {
-    W: 0,          // set from element width
-    CX: 0,         // center X
-    rowH: 170,     // vertical step per event
-    decY: 55,      // diamond below year node
-    choiceY: 110,  // choices below diamond
-    termY: 150,    // terminal circle below choice
-    nodeR: 22,     // year octagon radius
-    choiceW: 90,   // choice rectangle width
-    choiceH: 30,   // choice rectangle height
-    spread: 105,   // horizontal spread of choices
+// Layout constants (base scale = 1)
+const B = {
+    rowH:  220,   // vertical spacing per event
+    topPad: 50,   // top padding
+    yearR:  28,   // octagon radius
+    diaRX:  52,   // diamond x-radius
+    diaRY:  28,   // diamond y-radius
+    cW:    130,   // choice rect width
+    cH:     36,   // choice rect height
+    spread: 145,  // horizontal spread between choice centers
+    termR:  12,   // terminal circle radius
 };
 
-// Compute positions for event i
-function eventPositions(i, choiceCount=3) {
-    const ey = 40 + i * FC.rowH;
-    const positions = {
-        year: { x: FC.CX, y: ey },
-        decision: { x: FC.CX, y: ey + FC.decY },
-        choices: [],
-        terminals: [],
-    };
-    // spread choices evenly
-    const offsets = choiceCount === 3
-        ? [-FC.spread, 0, FC.spread]
-        : choiceCount === 2
-        ? [-FC.spread/1.5, FC.spread/1.5]
-        : [0];
-    offsets.forEach(dx=>{
-        positions.choices.push({ x: FC.CX+dx, y: ey+FC.choiceY });
-        positions.terminals.push({ x: FC.CX+dx, y: ey+FC.termY });
-    });
-    return positions;
+function octPts(cx,cy,r){
+    const s=r*0.414,m=r-s;
+    return `${cx-s},${cy-r} ${cx+s},${cy-r} ${cx+r},${cy-m} ${cx+r},${cy+m} ${cx+s},${cy+r} ${cx-s},${cy+r} ${cx-r},${cy+m} ${cx-r},${cy-m}`;
 }
+function diaPts(cx,cy,rx,ry){return `${cx},${cy-ry} ${cx+rx},${cy} ${cx},${cy+ry} ${cx-rx},${cy}`;}
 
-function makeOctagon(cx, cy, r) {
-    const s = r * 0.41;
-    const m = r - s;
-    return [
-        `${cx-s},${cy-r}`, `${cx+s},${cy-r}`,
-        `${cx+r},${cy-m}`, `${cx+r},${cy+m}`,
-        `${cx+s},${cy+r}`, `${cx-s},${cy+r}`,
-        `${cx-r},${cy+m}`, `${cx-r},${cy-m}`
-    ].join(' ');
-}
-
-function makeDiamond(cx, cy, rx, ry) {
-    return `${cx},${cy-ry} ${cx+rx},${cy} ${cx},${cy+ry} ${cx-rx},${cy}`;
-}
-
-function svgNS(tag, attrs){
+function ns(tag,attrs){
     const el=document.createElementNS('http://www.w3.org/2000/svg',tag);
-    for(const [k,v] of Object.entries(attrs)) el.setAttribute(k,String(v));
+    for(const[k,v]of Object.entries(attrs))el.setAttribute(k,String(v));
     return el;
 }
 
-function starburst(cx, cy, innerR, outerR, rays=16){
+function svgText(svg,x,y,text,size,anchor='middle',col='#fff',letterSp=0){
+    const t=ns('text',{x,y,'text-anchor':anchor,fill:col,
+        'font-family':"'Share Tech Mono','Courier New',monospace",
+        'font-size':size,'letter-spacing':letterSp});
+    t.textContent=text; svg.appendChild(t); return t;
+}
+
+function starburst(cx,cy,r1,r2,rays){
     const pts=[];
     for(let i=0;i<rays*2;i++){
-        const angle=(i*Math.PI)/rays - Math.PI/2;
-        const r=i%2===0?outerR:innerR;
-        pts.push(`${cx+r*Math.cos(angle)},${cy+r*Math.sin(angle)}`);
+        const a=(i*Math.PI)/rays-Math.PI/2;
+        const r=i%2===0?r2:r1;
+        pts.push(`${cx+r*Math.cos(a)},${cy+r*Math.sin(a)}`);
     }
     return pts.join(' ');
 }
 
-function buildFlowchartSVG(svgEl, history, currentEvent, selectedIdx, highlightMode) {
-    // highlightMode: 'game' | 'gameover' | 'relive'
-    const panel = svgEl.parentElement;
-    FC.W = panel.clientWidth || 400;
-    FC.CX = FC.W / 2;
+// eventY: Y-coordinate of the YEAR NODE for event index i (at scale 1)
+function eY(i){return B.topPad+i*B.rowH+B.yearR;}
 
-    const totalEvents = history.length + (currentEvent ? 1 : 0);
-    const svgH = 60 + (totalEvents + 1) * FC.rowH + 60;
-    svgEl.setAttribute('viewBox', `0 0 ${FC.W} ${svgH}`);
-    svgEl.setAttribute('width', FC.W);
-    svgEl.setAttribute('height', svgH);
-    svgEl.innerHTML = '';
+// choice offsets (3 choices: left, center, right)
+function choiceOffsets(n){
+    if(n===3)return[-B.spread,0,B.spread];
+    if(n===2)return[-B.spread*0.6,B.spread*0.6];
+    return[0];
+}
 
-    // defs for dashed line
-    const defs = svgNS('defs',{});
-    svgEl.appendChild(defs);
+function renderFlowchart(svgEl, history, current, selIdx, mode){
+    // mode: 'game' | 'gameover' | 'relive'
+    const wrap=svgEl.parentElement;
+    const W=wrap.clientWidth||500;
+    const CX=W/2;
 
-    // Draw completed events
-    history.forEach((h, i) => {
-        const pos = eventPositions(i, h.choices ? h.choices.length : 3);
-        const choiceCount = h.choices ? h.choices.length : 3;
-        const chosenIdx = h.chosenIdx ?? 0;
+    // For gameover: scale everything to fit in the panel
+    let scale=1;
+    if(mode==='gameover'||mode==='relive'){
+        const totalEvents=history.length+(current?1:0)||1;
+        const rawH=B.topPad+totalEvents*B.rowH+100;
+        const availH=wrap.clientHeight||800;
+        scale=Math.min(1, availH/rawH);
+        // But we still allow scrolling if needed, just scale to reasonable size
+        scale=Math.min(scale, 1);
+    }
 
-        // ── year → decision line ──
-        svgEl.appendChild(svgNS('line',{
-            x1:pos.year.x, y1:pos.year.y+FC.nodeR,
-            x2:pos.decision.x, y2:pos.decision.y-16,
-            stroke:'#fff', 'stroke-width':1.5
-        }));
+    const s=scale; // shorthand
+    const totalH=B.topPad+(history.length+(current?1:0))*B.rowH+120;
 
-        // ── Year octagon ──
-        const oct = svgNS('polygon',{
-            points: makeOctagon(pos.year.x, pos.year.y, FC.nodeR),
-            fill:'#000', stroke:'#fff', 'stroke-width':1.5
-        });
-        svgEl.appendChild(oct);
-        const yearLbl = svgNS('text',{
-            x:pos.year.x, y:pos.year.y+5,
-            'text-anchor':'middle', fill:'#fff',
-            'font-family':"'Share Tech Mono','Courier New',monospace",
-            'font-size':11, 'letter-spacing':1
-        });
-        yearLbl.textContent = h.year;
-        svgEl.appendChild(yearLbl);
+    svgEl.setAttribute('width', W);
+    svgEl.setAttribute('height', totalH*s);
+    svgEl.setAttribute('viewBox', `0 0 ${W} ${totalH}`);
+    svgEl.setAttribute('preserveAspectRatio','xMidYMin meet');
+    if(s<1) svgEl.setAttribute('height', totalH*s);
+    svgEl.innerHTML='';
 
-        // ── Decision diamond ──
-        const dia = svgNS('polygon',{
-            points: makeDiamond(pos.decision.x, pos.decision.y, 42, 22),
-            fill:'#000', stroke:'#fff', 'stroke-width':1.5
-        });
-        svgEl.appendChild(dia);
-        // Wrap decision label
-        const diaLbl = svgNS('text',{
-            x:pos.decision.x, y:pos.decision.y+4,
-            'text-anchor':'middle', fill:'#fff',
-            'font-family':"'Share Tech Mono','Courier New',monospace",
-            'font-size':8
-        });
-        diaLbl.textContent = h.eventType.split(' ').slice(0,2).join(' ');
-        svgEl.appendChild(diaLbl);
+    // helper: absolute year-node Y
+    function yearY(i){return B.topPad+(i)*B.rowH;}
+    function diaY(i){return yearY(i)+B.yearR*2+30;}
+    function choY(i){return diaY(i)+B.diaRY+40;}
+    function termY(i){return choY(i)+B.cH/2+40;}
 
-        // ── Choices ──
-        pos.choices.forEach((cp, ci) => {
-            const isChosen = ci === chosenIdx;
-            const dashAttr = isChosen ? null : '4 3';
+    // Draw a year octagon
+    function drawYear(i,label){
+        const cy=yearY(i)+B.yearR;
+        svgEl.appendChild(ns('polygon',{points:octPts(CX,cy,B.yearR),fill:'#000',stroke:'#fff','stroke-width':1.5}));
+        // letter-spaced year label
+        svgText(svgEl,CX,cy+5,label.split('').join(' '),10,'middle','#fff',1);
+    }
 
-            // Decision → Choice line
-            const line = svgNS('line',{
-                x1:pos.decision.x, y1:pos.decision.y+22,
-                x2:cp.x, y2:cp.y-FC.choiceH/2,
-                stroke:'#fff','stroke-width':isChosen?1.5:0.7
+    // Draw decision diamond
+    function drawDiamond(i,label){
+        const cy=diaY(i);
+        svgEl.appendChild(ns('polygon',{points:diaPts(CX,cy,B.diaRX,B.diaRY),fill:'#000',stroke:'#fff','stroke-width':1.5}));
+        // wrap label into two lines if needed
+        const words=label.split(' ');
+        const mid=Math.ceil(words.length/2);
+        const l1=words.slice(0,mid).join(' ');
+        const l2=words.slice(mid).join(' ');
+        if(l2){
+            svgText(svgEl,CX,cy-4,l1,8); svgText(svgEl,CX,cy+9,l2,8);
+        } else {
+            svgText(svgEl,CX,cy+4,l1,8);
+        }
+    }
+
+    // Draw year→diamond connector
+    function connYearDia(i){
+        const y1=yearY(i)+B.yearR*2, y2=diaY(i)-B.diaRY;
+        svgEl.appendChild(ns('line',{x1:CX,y1,x2:CX,y2,stroke:'#fff','stroke-width':1.5}));
+    }
+
+    // Draw diamond→choice connectors + choice boxes
+    function drawChoices(i,choices,chosenIdx,isActive,selI,rvTarget){
+        const offsets=choiceOffsets(choices.length);
+        const dy=diaY(i)+B.diaRY;
+        const cy=choY(i);
+
+        offsets.forEach((dx,ci)=>{
+            const cx=CX+dx;
+            const isChosen = !isActive && ci===chosenIdx;
+            const isSelected = isActive && ci===selI;
+            const isRvSelected = mode==='relive' && i===rvTarget && ci===chosenIdx;
+
+            const dashed=(!isActive && !isChosen)||false;
+            const dashArr=dashed?'5 4':null;
+            const sw=isChosen||isSelected?2:1;
+            const lineCol=isChosen||isSelected?'#fff':'#444';
+
+            // connector line from diamond to choice
+            // L-shaped: vertical then diagonal if offset
+            const midY=dy+20;
+            if(Math.abs(dx)>10){
+                svgEl.appendChild(ns('line',{x1:CX,y1:dy,x2:CX,y2:midY,stroke:lineCol,'stroke-width':sw,...(dashArr?{'stroke-dasharray':dashArr}:{})}));
+                svgEl.appendChild(ns('line',{x1:CX,y1:midY,x2:cx,y2:midY,stroke:lineCol,'stroke-width':sw,...(dashArr?{'stroke-dasharray':dashArr}:{})}));
+                svgEl.appendChild(ns('line',{x1:cx,y1:midY,x2:cx,y2:cy-B.cH/2,stroke:lineCol,'stroke-width':sw,...(dashArr?{'stroke-dasharray':dashArr}:{})}));
+            } else {
+                svgEl.appendChild(ns('line',{x1:CX,y1:dy,x2:cx,y2:cy-B.cH/2,stroke:lineCol,'stroke-width':sw,...(dashArr?{'stroke-dasharray':dashArr}:{})}));
+            }
+
+            // starburst for selected (game or relive)
+            if(isSelected||isRvSelected){
+                const burst=ns('polygon',{points:starburst(cx,cy,B.cH/2+10,B.cH/2+32,18),
+                    fill:'none',stroke:'#fff','stroke-width':1.0,'pointer-events':'none'});
+                svgEl.appendChild(burst);
+            }
+
+            // choice rectangle
+            const fillCol=isChosen?'#fff':(isSelected?'#fff':'#000');
+            const strokeCol=isChosen||isSelected?'#fff':'#444';
+            const rect=ns('rect',{
+                x:cx-B.cW/2, y:cy-B.cH/2,
+                width:B.cW, height:B.cH,
+                fill:fillCol, stroke:strokeCol,
+                'stroke-width': isSelected?2.5:sw,
+                ...(dashArr&&!isActive?{'stroke-dasharray':dashArr}:{})
             });
-            if(!isChosen) line.setAttribute('stroke-dasharray','4 3');
-            svgEl.appendChild(line);
-
-            // Choice rectangle
-            const rect = svgNS('rect',{
-                x:cp.x-FC.choiceW/2, y:cp.y-FC.choiceH/2,
-                width:FC.choiceW, height:FC.choiceH,
-                fill: isChosen ? '#fff' : '#000',
-                stroke:'#fff','stroke-width': isChosen?1.5:0.7
-            });
-            if(!isChosen) rect.setAttribute('stroke-dasharray','4 3');
+            if(isActive){
+                rect.style.cursor='pointer';
+                rect.addEventListener('click',()=>onChoiceClick(ci));
+                rect.addEventListener('mouseenter',()=>onChoiceHover(ci));
+            }
+            if(mode==='relive'&&!isActive){
+                rect.style.cursor='pointer';
+                rect.addEventListener('click',()=>onReliveClick(i,ci));
+                rect.addEventListener('mouseenter',()=>onReliveHover(i,ci));
+            }
             svgEl.appendChild(rect);
 
-            // Choice label
-            const txt = h.choices && h.choices[ci]
-                ? h.choices[ci].text.substring(0,14)
-                : (isChosen ? 'chosen' : '—');
-            const lbl = svgNS('text',{
-                x:cp.x, y:cp.y+4,
-                'text-anchor':'middle',
-                fill: isChosen ? '#000' : '#555',
-                'font-family':"'Share Tech Mono','Courier New',monospace",
-                'font-size':8
-            });
-            lbl.textContent = txt;
-            svgEl.appendChild(lbl);
+            // label inside rect
+            const lbl=(choices[ci]&&choices[ci].text)||'?';
+            const textCol=isChosen||isSelected?'#000':'#777';
+            svgText(svgEl,cx,cy+4,lbl.substring(0,18),8,'middle',textCol);
 
-            if(!isChosen){
-                // Terminal circle
-                const term = svgNS('circle',{
-                    cx:pos.terminals[ci].x, cy:pos.terminals[ci].y,
-                    r:9, fill:'#000', stroke:'#fff','stroke-width':0.7
-                });
-                svgEl.appendChild(term);
-            } else {
-                // Continuation line going down to next year node
-                svgEl.appendChild(svgNS('line',{
-                    x1:cp.x, y1:cp.y+FC.choiceH/2,
-                    x2:cp.x, y2:cp.y+FC.choiceH/2+20,
-                    stroke:'#fff','stroke-width':1.5
-                }));
-                // Connect to center if choice isn't centered
-                if(Math.abs(cp.x-FC.CX)>5){
-                    svgEl.appendChild(svgNS('line',{
-                        x1:cp.x, y1:cp.y+FC.choiceH/2+20,
-                        x2:FC.CX, y2:cp.y+FC.choiceH/2+20,
-                        stroke:'#fff','stroke-width':1.5
-                    }));
-                    svgEl.appendChild(svgNS('line',{
-                        x1:FC.CX, y1:cp.y+FC.choiceH/2+20,
-                        x2:FC.CX, y2:pos.year.y+FC.rowH,
-                        stroke:'#fff','stroke-width':1.5
-                    }));
-                }
-            }
-
-            // Relive mode: clickable decision nodes
-            if(highlightMode === 'relive'){
-                const hitRect = svgNS('rect',{
-                    x:pos.decision.x-42, y:pos.decision.y-22,
-                    width:84, height:44,
-                    fill:'transparent', cursor:'pointer'
-                });
-                hitRect.dataset.historyIdx = i;
-                hitRect.addEventListener('click', ()=>selectReliveNode(i));
-                svgEl.appendChild(hitRect);
-
-                if(G.reliveTarget === i){
-                    const burst = svgNS('polygon',{
-                        points: starburst(pos.decision.x, pos.decision.y, 28, 48, 12),
-                        fill:'none', stroke:'#fff','stroke-width':1
-                    });
-                    svgEl.appendChild(burst);
+            // terminal or continuation
+            if(!isActive&&!isChosen){
+                // unchosen → terminal circle
+                const termLineCol='#333';
+                svgEl.appendChild(ns('line',{x1:cx,y1:cy+B.cH/2,x2:cx,y2:termY(i),
+                    stroke:termLineCol,'stroke-width':1,'stroke-dasharray':'5 4'}));
+                svgEl.appendChild(ns('circle',{cx,cy:termY(i),r:B.termR,
+                    fill:'#000',stroke:termLineCol,'stroke-width':1}));
+            } else if(!isActive&&isChosen){
+                // chosen → connector to next year node
+                const nextYearY=yearY(i+1);
+                const midback=cy+B.cH/2+20;
+                // go to center
+                svgEl.appendChild(ns('line',{x1:cx,y1:cy+B.cH/2,x2:cx,y2:midback,stroke:'#fff','stroke-width':1.5}));
+                if(Math.abs(dx)>10){
+                    svgEl.appendChild(ns('line',{x1:cx,y1:midback,x2:CX,y2:midback,stroke:'#fff','stroke-width':1.5}));
+                    svgEl.appendChild(ns('line',{x1:CX,y1:midback,x2:CX,y2:nextYearY,stroke:'#fff','stroke-width':1.5}));
+                } else {
+                    svgEl.appendChild(ns('line',{x1:cx,y1:midback,x2:CX,y2:nextYearY,stroke:'#fff','stroke-width':1.5}));
                 }
             }
         });
+    }
+
+    // ── Render completed history ──
+    history.forEach((h,i)=>{
+        drawYear(i, String(h.year));
+        connYearDia(i);
+        drawDiamond(i, h.eventType);
+        drawChoices(i, h.choices, h.chosenIdx, false, -1, G.reliveTarget);
     });
 
-    // ── Current (active) event ──
-    if(currentEvent){
-        const i = history.length;
-        const pos = eventPositions(i, currentEvent.choices.length);
-
-        // Connection from last choice to this year
+    // ── Render current active event ──
+    if(current){
+        const i=history.length;
+        // connector from previous event
         if(i>0){
-            svgEl.appendChild(svgNS('line',{
-                x1:FC.CX, y1:pos.year.y-FC.nodeR-10,
-                x2:FC.CX, y2:pos.year.y-FC.nodeR,
-                stroke:'#fff','stroke-width':1.5
-            }));
+            const prevChoY=choY(i-1);
+            // already drawn by drawChoices continuation
         }
+        drawYear(i, String(current.year));
+        connYearDia(i);
+        drawDiamond(i, current.eventType);
+        drawChoices(i, current.choices, -1, true, selIdx, -1);
 
-        // Year → Decision line
-        svgEl.appendChild(svgNS('line',{
-            x1:pos.year.x, y1:pos.year.y+FC.nodeR,
-            x2:pos.decision.x, y2:pos.decision.y-16,
-            stroke:'#fff','stroke-width':1.5
-        }));
-
-        // Year octagon (thicker border = active)
-        svgEl.appendChild(svgNS('polygon',{
-            points:makeOctagon(pos.year.x, pos.year.y, FC.nodeR),
-            fill:'#000', stroke:'#fff','stroke-width':2
-        }));
-        const yl = svgNS('text',{
-            x:pos.year.x, y:pos.year.y+5,
-            'text-anchor':'middle',fill:'#fff',
-            'font-family':"'Share Tech Mono','Courier New',monospace",
-            'font-size':11,'letter-spacing':1
-        });
-        yl.textContent = currentEvent.year;
-        svgEl.appendChild(yl);
-
-        // Decision diamond
-        svgEl.appendChild(svgNS('polygon',{
-            points:makeDiamond(pos.decision.x, pos.decision.y, 42, 22),
-            fill:'#000',stroke:'#fff','stroke-width':2
-        }));
-        const dl = svgNS('text',{
-            x:pos.decision.x, y:pos.decision.y+4,
-            'text-anchor':'middle',fill:'#fff',
-            'font-family':"'Share Tech Mono','Courier New',monospace",
-            'font-size':8
-        });
-        dl.textContent = currentEvent.eventType.split(' ').slice(0,2).join(' ');
-        svgEl.appendChild(dl);
-
-        // Active choices
-        currentEvent.choices.forEach((ch, ci) => {
-            const cp = pos.choices[ci];
-            const isSelected = ci === selectedIdx;
-
-            // Branch line
-            svgEl.appendChild(svgNS('line',{
-                x1:pos.decision.x, y1:pos.decision.y+22,
-                x2:cp.x, y2:cp.y-FC.choiceH/2,
-                stroke:'#fff','stroke-width':isSelected?2:1
-            }));
-
-            // Choice rect
-            const rect = svgNS('rect',{
-                x:cp.x-FC.choiceW/2, y:cp.y-FC.choiceH/2,
-                width:FC.choiceW, height:FC.choiceH,
-                fill: isSelected ? '#fff':'#000',
-                stroke:'#fff','stroke-width': isSelected?2:1,
-                cursor:'pointer', rx:0
-            });
-            rect.addEventListener('click', ()=>handleChoiceClick(ci));
-            rect.addEventListener('mouseenter', ()=>handleChoiceHover(ci));
-            svgEl.appendChild(rect);
-
-            // Starburst on selected
-            if(isSelected){
-                svgEl.appendChild(svgNS('polygon',{
-                    points:starburst(cp.x, cp.y, FC.choiceH/2+8, FC.choiceH/2+22, 14),
-                    fill:'none', stroke:'#fff','stroke-width':1.2,
-                    'pointer-events':'none'
-                }));
-            }
-
-            // Label
-            const lbl = svgNS('text',{
-                x:cp.x, y:cp.y+4,
-                'text-anchor':'middle',
-                fill: isSelected?'#000':'#fff',
-                'font-family':"'Share Tech Mono','Courier New',monospace",
-                'font-size':8, 'pointer-events':'none'
-            });
-            lbl.textContent = ch.text.substring(0,14);
-            svgEl.appendChild(lbl);
-        });
-
-        // Scroll to current position
+        // Scroll to show current node
         setTimeout(()=>{
-            const scrollEl = svgEl.parentElement;
-            const targetY = (pos.year.y - 60) * (scrollEl.scrollHeight / svgH);
-            scrollEl.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
-        }, 100);
+            const el=svgEl.parentElement;
+            const targetY=(yearY(i)-80)*scale;
+            el.scrollTo({top:Math.max(0,targetY),behavior:'smooth'});
+        },200);
+    }
+
+    // ── Final end-of-life marker (gameover) ──
+    if(mode==='gameover'&&history.length>0&&!current){
+        const i=history.length;
+        const cy=yearY(i)+B.yearR;
+        svgEl.appendChild(ns('polygon',{points:octPts(CX,cy,B.yearR),fill:'#000',stroke:'#fff','stroke-width':1.5}));
+        // ≡ symbol inside
+        svgText(svgEl,CX,cy+2,'≡',14,'middle','#fff');
     }
 }
 
-// ═══════════════════════════════════════════════════════
-// CHARACTER GENERATION
-// ═══════════════════════════════════════════════════════
-function generateCharacter(){
-    const gender = Math.random()<0.5?'Male':'Female';
-    const surname = CENSUS.surnames[Math.floor(Math.random()*CENSUS.surnames.length)];
-    const given = gender==='Male'
-        ? CENSUS.maleNames[Math.floor(Math.random()*CENSUS.maleNames.length)]
-        : CENSUS.femaleNames[Math.floor(Math.random()*CENSUS.femaleNames.length)];
-    const age = Math.floor(Math.random()*38)+22;
-    const prefecture = weighted(CENSUS.prefectures).n;
-    const occupation = weighted(CENSUS.occupations).n;
-    const education = weighted(CENSUS.educations).n;
+// ═══════════════════════════════════════════════════════════
+// CHAR GENERATION
+// ═══════════════════════════════════════════════════════════
+function genChar(){
+    const g=Math.random()<.5?'Male':'Female';
+    const sur=CENSUS.surN[~~(Math.random()*CENSUS.surN.length)];
+    const giv=g==='Male'?CENSUS.maleN[~~(Math.random()*CENSUS.maleN.length)]:CENSUS.femaN[~~(Math.random()*CENSUS.femaN.length)];
+    const age=~~(Math.random()*38)+22;
+    const pref=weighted(CENSUS.prefs).n;
+    const job=weighted(CENSUS.jobs).n;
+    const edu=weighted(CENSUS.edus).n;
     let base=2800000;
-    if(education==='University') base+=600000;
-    if(education==='Graduate School') base+=1200000;
+    if(edu==='University')base+=600000; if(edu==='Graduate School')base+=1200000;
     base+=(age-22)*28000;
-    const income=Math.round((base+(Math.random()-0.5)*2000000)/100000)*100000;
+    const inc=Math.round((base+(Math.random()-.5)*2000000)/100000)*100000;
     const r=Math.random();
-    const marital = age<27?(r<0.85?'Single':'Married'):
-        age<38?(r<0.5?'Married':r<0.8?'Single':'Divorced'):
-        (r<0.62?'Married':r<0.8?'Single':r<0.94?'Divorced':'Widowed');
-    const hasChildren = marital==='Married' && age>27 && Math.random()<0.55;
-    return {
-        name:`${surname} ${given}`, gender, age, prefecture,
-        occupation, education, income, maritalStatus:marital,
-        hasChildren, nationality: Math.random()<0.025?'Non-Japanese':'Japanese',
-        health:clamp(Math.floor(Math.random()*30)+60),
-        money:clamp(Math.floor(Math.random()*40)+30),
-        startYear: 2026 - (age - 20),
-    };
+    const mar=age<27?(r<.85?'Single':'Married'):age<38?(r<.5?'Married':r<.8?'Single':'Divorced'):(r<.62?'Married':r<.8?'Single':r<.94?'Divorced':'Widowed');
+    return{name:`${sur} ${giv}`,gender:g,age,pref,job,edu,income:inc,
+        marital:mar,children:mar==='Married'&&age>27&&Math.random()<.55,
+        nat:Math.random()<.025?'Non-Japanese':'Japanese',
+        money:clamp(~~(Math.random()*40)+30),health:clamp(~~(Math.random()*30)+60),
+        startYear:2026-(age-20)};
 }
 
 function generateAndShow(){
-    const c = generateCharacter();
-    G.char = c;
-    document.getElementById('cg-name').textContent = c.name;
-    document.getElementById('cg-age').textContent = c.age;
-    document.getElementById('cg-gender').textContent = c.gender;
-    document.getElementById('cg-pref').textContent = c.prefecture;
-    document.getElementById('cg-job').textContent = c.occupation;
-    document.getElementById('cg-edu').textContent = c.education;
-    document.getElementById('cg-income').textContent = fmtIncome(c.income)+'/yr';
-    document.getElementById('cg-marital').textContent = c.maritalStatus+(c.hasChildren?', children':'');
-    document.getElementById('cg-nationality').textContent = c.nationality;
-    document.getElementById('cg-money').textContent = moneyStr(c.money);
-    document.getElementById('cg-health').textContent = healthStr(c.health);
+    const c=genChar(); G.char=c;
+    document.getElementById('cg-name').textContent=c.name;
+    document.getElementById('cg-age').textContent=c.age;
+    document.getElementById('cg-gender').textContent=c.gender;
+    document.getElementById('cg-pref').textContent=c.pref;
+    document.getElementById('cg-job').textContent=c.job;
+    document.getElementById('cg-edu').textContent=c.edu;
+    document.getElementById('cg-income').textContent=fmtY(c.income)+'/yr';
+    document.getElementById('cg-marital').textContent=c.marital+(c.children?', children':'');
+    document.getElementById('cg-nat').textContent=c.nat;
+    document.getElementById('cg-money').innerHTML=moneyStr(c.money);
+    document.getElementById('cg-health').innerHTML=healthStr(c.health);
 }
 
-function updateCharPanel(){
+function updateCard(){
     const c=G.char;
-    document.getElementById('ch-name').textContent = c.name;
-    document.getElementById('ch-age').textContent = c.age;
-    document.getElementById('ch-job').textContent = c.occupation;
-    document.getElementById('ch-loc').textContent = c.prefecture;
-    document.getElementById('ch-money').textContent = moneyStr(c.money);
-    document.getElementById('ch-health').textContent = healthStr(c.health);
+    document.getElementById('card-name').textContent=c.name;
+    document.getElementById('card-age').textContent=c.age;
+    document.getElementById('card-job').textContent=c.job;
+    document.getElementById('card-loc').textContent=c.pref;
+    document.getElementById('s-money').innerHTML=moneyStr(c.money);
+    document.getElementById('s-health').innerHTML=healthStr(c.health);
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // LLM
-// ═══════════════════════════════════════════════════════
-function charContext(c){
-    return `Name: ${c.name}, Age: ${c.age}, Gender: ${c.gender}, Prefecture: ${c.prefecture}, Occupation: ${c.occupation}, Education: ${c.education}, Income: ${fmtIncome(c.income)}/yr, Status: ${c.maritalStatus}${c.hasChildren?' with children':''}, Nationality: ${c.nationality}, Health: ${c.health}/100, Money: ${c.money}/100`;
+// ═══════════════════════════════════════════════════════════
+function cCtx(c){
+    return `Name:${c.name}, Age:${c.age}, Gender:${c.gender}, Prefecture:${c.pref}, Occupation:${c.job}, Education:${c.edu}, Income:${fmtY(c.income)}/yr, Status:${c.marital}${c.children?' w/children':''}, Nationality:${c.nat}, Health:${c.health}/100, Money:${c.money}/100`;
 }
 
-async function callLLM(prompt, system){
-    const res = await fetch(OLLAMA, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({model:MODEL, system, prompt, stream:false, format:'json'})
-    });
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    const d = await res.json();
-    try { return JSON.parse(d.response); }
-    catch {
-        const m = d.response.match(/\{[\s\S]*\}/);
-        if(m) return JSON.parse(m[0]);
-        throw new Error('parse failed');
-    }
+async function callLLM(prompt,sys){
+    const res=await fetch(OLLAMA,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:MODEL,system:sys,prompt,stream:false,format:'json'})});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const d=await res.json();
+    try{return JSON.parse(d.response);}catch{const m=d.response.match(/\{[\s\S]*\}/);if(m)return JSON.parse(m[0]);throw new Error('parse');}
 }
 
-const SYS_EVENT = `You are the narrative engine for "Game of Possible Lives," a contemplative game about life paths in contemporary Japan, grounded in the 2020 national census.
-Generate specific, emotionally resonant life decision moments. Reflect genuine social realities: gender pressures, karoshi, housing costs, aging parents, marriage expectations, demographic decline.
-Do not sanitize — include complexity, regret, and the weight of real choices. Respond with valid JSON only.`;
+const SYS_EV=`You are the narrative engine for "Game of Possible Lives," set in contemporary Japan.
+Generate specific, emotionally resonant life decision moments grounded in the 2020 census.
+Reflect real social pressures: karoshi, housing costs, aging parents, gender expectations.
+Do not sugarcoat — include complexity and the weight of real choices.
+Respond with valid JSON only.`;
 
-const SYS_OUTCOME = `You are the narrative engine for "Game of Possible Lives," a game about life in contemporary Japan.
-Generate authentic, nuanced outcomes over time — sometimes as expected, sometimes not. Reflect statistical reality: some paths lead to regret, some to joy, most to a mixture.
+const SYS_OUT=`You are the narrative engine for "Game of Possible Lives," set in Japan.
+Generate authentic outcomes — sometimes as expected, sometimes not.
+Reflect statistical reality: some paths lead to regret, some to unexpected joy, most to a mixture.
 Respond with valid JSON only.`;
 
 async function fetchEvent(){
-    const c=G.char;
-    const et=EVENT_TYPES[G.eventIdx % EVENT_TYPES.length];
-    const histCtx=G.history.map((h,i)=>`Event ${i+1}: chose "${h.choice.text}" → ${h.outcome.narrative.slice(0,80)}...`).join('\n');
-    const prompt=`Character: ${charContext(c)}
-Event: #${G.eventIdx+1} of ${TOTAL_EVENTS}, theme: ${et}
-${G.history.length>0?`Life so far:\n${histCtx}`:''}
-
-Generate a life crossroads. Return JSON:
-{
-  "situation": "2-3 vivid, specific sentences about their current moment and the decision they face.",
-  "choices": [
-    {"text": "Label ≤8 words", "description": "One sentence on what this path means."},
-    {"text": "Label ≤8 words", "description": "One sentence on what this path means."},
-    {"text": "Label ≤8 words", "description": "One sentence on what this path means."}
-  ]
-}`;
-    return callLLM(prompt, SYS_EVENT);
+    const c=G.char, et=EVENT_TYPES[G.eventIdx%EVENT_TYPES.length];
+    const hist=G.history.map((h,i)=>`#${i+1}: chose "${h.choice.text}" → ${h.outcome.narrative.slice(0,70)}...`).join('\n');
+    return callLLM(
+        `Character: ${cCtx(c)}\nEvent #${G.eventIdx+1}/${TOTAL}, theme: ${et}\n${hist?'Life so far:\n'+hist:''}\n\nGenerate a life crossroads. Return JSON:\n{"situation":"2-3 vivid specific sentences about their moment and the decision.","choices":[{"text":"≤7 word label","description":"One sentence on this path."},{"text":"≤7 word label","description":"One sentence."},{"text":"≤7 word label","description":"One sentence."}]}`,
+        SYS_EV);
 }
 
 async function fetchOutcome(choice){
-    const c=G.char;
-    const et=EVENT_TYPES[G.eventIdx % EVENT_TYPES.length];
-    const prompt=`Character: ${charContext(c)}
-Situation: ${G.currentEvent.situation}
-Choice: "${choice.text}" — ${choice.description}
-Theme: ${et}, Event ${G.eventIdx+1}/${TOTAL_EVENTS}
-
-Generate the outcome. Return JSON:
-{
-  "narrative": "3-4 sentences: what unfolded, how life changed, specific and emotionally honest.",
-  "years_passed": <1-6>,
-  "money_delta": <-20 to 20>,
-  "health_delta": <-20 to 15>,
-  "occupation_update": "<new occupation or null>",
-  "marital_update": "<new status or null>",
-  "life_insight": "One reflective sentence about what this reveals."
-}`;
-    return callLLM(prompt, SYS_OUTCOME);
+    const c=G.char, et=EVENT_TYPES[G.eventIdx%EVENT_TYPES.length];
+    return callLLM(
+        `Character: ${cCtx(c)}\nSituation: ${G.current.situation}\nChoice: "${choice.text}" — ${choice.description}\nTheme: ${et}, Event ${G.eventIdx+1}/${TOTAL}\n\nGenerate the outcome. Return JSON:\n{"narrative":"3-4 sentences: what unfolded, specific and emotionally honest.","years_passed":3,"money_delta":0,"health_delta":0,"occupation_update":null,"marital_update":null,"life_insight":"One reflective sentence."}`,
+        SYS_OUT);
 }
 
-// ═══════════════════════════════════════════════════════
-// FALLBACKS
-// ═══════════════════════════════════════════════════════
-const FB_EVENTS = [
-    {situation:"Your company has offered a promotion requiring longer hours and a move to Tokyo. Meanwhile, a close friend is asking you to join their startup. Both paths feel impossible to refuse.",choices:[{text:"Accept the promotion",description:"Security, prestige — and less of yourself."},{text:"Join the startup",description:"Risk, but a chance to build something real."},{text:"Stay where you are",description:"Neither path, for now."}]},
-    {situation:"You've been in this relationship for two years. They've brought up marriage. You love them, but something makes you hesitate — life still feels unsettled.",choices:[{text:"Say yes",description:"Commit to a shared future."},{text:"Ask for more time",description:"Honesty about your uncertainty."},{text:"End it",description:"Painful, but honest."}]},
-    {situation:"Your aging parent in another prefecture can no longer live alone. You could move back, transfer offices, or manage the situation from a distance.",choices:[{text:"Move back home",description:"Be present, but upend everything."},{text:"Transfer to regional office",description:"Compromise — career and duty."},{text:"Manage from afar",description:"Send money, keep your life."}]}
+// Fallbacks
+const FB_EV=[
+    {situation:"Your company offers a promotion requiring longer hours. Meanwhile, a close friend asks you to join their startup. Both feel impossible to refuse.",choices:[{text:"Accept the promotion",description:"Security, prestige — but less of yourself."},{text:"Join the startup",description:"Risk, but a chance to build something real."},{text:"Stay where you are",description:"Neither path, for now."}]},
+    {situation:"You've been in this relationship for two years. They've brought up marriage. You love them, but something makes you hesitate.",choices:[{text:"Say yes",description:"Commit to a shared future."},{text:"Ask for more time",description:"Honesty about your uncertainty."},{text:"End it gently",description:"Painful, but honest."}]},
+    {situation:"Your aging parent in another prefecture can no longer live alone. You must decide how to respond.",choices:[{text:"Move back home",description:"Be present — but upend everything."},{text:"Transfer to regional office",description:"Compromise between duty and career."},{text:"Manage from a distance",description:"Send money, keep your life."}]}
 ];
-const FB_OUTCOME = {narrative:"The years passed with a mixture of small victories and quiet regrets. Life carried you forward whether you were ready or not. You learned to make peace with the roads not taken.",years_passed:3,money_delta:5,health_delta:-3,occupation_update:null,marital_update:null,life_insight:"Every choice forecloses a thousand others, and we learn to live with that."};
+const FB_OUT={narrative:"The years passed with a mixture of small victories and quiet regrets. Life carried you forward whether you were ready or not. You learned to make peace with the roads not taken.",years_passed:3,money_delta:4,health_delta:-2,occupation_update:null,marital_update:null,life_insight:"Every choice forecloses a thousand others, and we learn to live with that."};
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // GAME FLOW
-// ═══════════════════════════════════════════════════════
-function startGame(){
-    generateAndShow();
-    showScreen('screen-chargen');
-}
+// ═══════════════════════════════════════════════════════════
+function startGame(){generateAndShow();showScreen('screen-chargen');}
 
 async function beginLife(){
-    G.eventIdx = 0;
-    G.history = [];
-    G.selectedChoice = -1;
-    document.getElementById('btn-begin').disabled = true;
+    G.eventIdx=0; G.history=[]; G.selIdx=0; G.busy=false;
+    document.getElementById('btn-begin').disabled=true;
     showScreen('screen-game');
-    updateCharPanel();
-    await loadNextEvent();
-    document.getElementById('btn-begin').disabled = false;
+    updateCard();
+    await loadEvent();
+    document.getElementById('btn-begin').disabled=false;
 }
 
 function currentYear(){
-    let y = G.char.startYear;
-    G.history.forEach(h => y += (h.outcome.years_passed||3));
-    return Math.min(y, 2100);
+    let y=G.char.startYear;
+    G.history.forEach(h=>y+=(h.outcome.years_passed||3));
+    return Math.min(y,2100);
 }
 
-async function loadNextEvent(){
-    // Show loading in narrative
-    const narEl = document.getElementById('narrative-text');
-    narEl.className = 'loading-text';
-    narEl.textContent = 'Loading';
+async function loadEvent(){
+    if(G.busy)return; G.busy=true;
+
+    // Show loading state
+    const narEl=document.getElementById('narrative');
+    narEl.innerHTML=''; narEl.classList.add('loading-dot');
+    narEl.textContent='';
 
     // Clear canvas
-    const canvas = document.getElementById('scene-canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width=320; canvas.height=180;
-    ctx.fillStyle='#000'; ctx.fillRect(0,0,320,180);
+    const cv=document.getElementById('scene-canvas');
+    cv.width=320;cv.height=180;
+    cv.getContext('2d').fillStyle='#000';cv.getContext('2d').fillRect(0,0,320,180);
 
-    // Build partial flowchart with loading state
-    buildFlowchartSVG(document.getElementById('flowchart-svg'), G.history, null, -1, 'game');
+    renderFlowchart(document.getElementById('fc-svg'),G.history,null,G.selIdx,'game');
 
-    let event;
-    try { event = await fetchEvent(); }
-    catch(e){ console.warn('LLM failed:', e); event = FB_EVENTS[G.eventIdx % FB_EVENTS.length]; }
+    let ev;
+    try{ev=await fetchEvent();}catch(e){console.warn(e);ev=FB_EV[G.eventIdx%FB_EV.length];}
 
-    const et = EVENT_TYPES[G.eventIdx % EVENT_TYPES.length];
-    const year = currentYear();
-    G.currentEvent = { ...event, eventType: et, year };
-    G.selectedChoice = 0;
+    const et=EVENT_TYPES[G.eventIdx%EVENT_TYPES.length];
+    G.current={...ev, eventType:et, year:currentYear()};
+    G.selIdx=0;
 
-    // Draw scene
-    drawSceneImage(canvas, et, event.situation, G.char);
+    // Draw scene image
+    drawScene(cv,et,ev.situation,G.char);
 
-    // Show narrative via typewriter
-    narEl.className = '';
-    await typewrite(narEl, event.situation, 14);
+    // Typewrite narrative
+    narEl.classList.remove('loading-dot');
+    await typewrite(narEl,ev.situation,13);
 
-    // Render flowchart with current choices
-    buildFlowchartSVG(document.getElementById('flowchart-svg'), G.history, G.currentEvent, G.selectedChoice, 'game');
+    renderFlowchart(document.getElementById('fc-svg'),G.history,G.current,G.selIdx,'game');
+    G.busy=false;
 }
 
-function handleChoiceHover(idx){
-    if(G.selectedChoice === idx) return;
-    G.selectedChoice = idx;
-    buildFlowchartSVG(document.getElementById('flowchart-svg'), G.history, G.currentEvent, G.selectedChoice, 'game');
+function onChoiceHover(idx){
+    if(G.busy||G.selIdx===idx)return;
+    G.selIdx=idx;
+    renderFlowchart(document.getElementById('fc-svg'),G.history,G.current,G.selIdx,'game');
 }
 
-async function handleChoiceClick(idx){
-    G.selectedChoice = idx;
-    const choice = G.currentEvent.choices[idx];
+async function onChoiceClick(idx){
+    if(G.busy)return; G.busy=true;
+    G.selIdx=idx;
+    const choice=G.current.choices[idx];
+    document.getElementById('fc-svg').style.pointerEvents='none';
 
-    // Freeze UI
-    document.getElementById('flowchart-svg').style.pointerEvents = 'none';
-    const narEl = document.getElementById('narrative-text');
+    const narEl=document.getElementById('narrative');
+    narEl.textContent=`You chose: ${choice.text}`;
+    narEl.classList.remove('tw-cursor');
 
-    // Show choice echo
-    narEl.textContent = `You chose: ${choice.text}`;
-    narEl.className = '';
+    await pause(500);
+    narEl.innerHTML=''; narEl.classList.add('loading-dot'); narEl.textContent='';
 
-    // Fetch outcome
-    await new Promise(r=>setTimeout(r,600));
-    narEl.className = 'loading-text';
-    narEl.textContent = 'Years pass';
-
-    let outcome;
-    try { outcome = await fetchOutcome(choice); }
-    catch(e){ console.warn('LLM outcome failed:', e); outcome = FB_OUTCOME; }
+    let out;
+    try{out=await fetchOutcome(choice);}catch(e){console.warn(e);out=FB_OUT;}
 
     // Apply changes
-    const c = G.char;
-    c.money  = clamp(c.money  + (outcome.money_delta  || 0));
-    c.health = clamp(c.health + (outcome.health_delta || 0));
-    c.age   += (outcome.years_passed || 3);
-    if(outcome.occupation_update) c.occupation = outcome.occupation_update;
-    if(outcome.marital_update)    c.maritalStatus = outcome.marital_update;
+    const c=G.char;
+    c.money=clamp(c.money+(out.money_delta||0));
+    c.health=clamp(c.health+(out.health_delta||0));
+    c.age+=(out.years_passed||3);
+    if(out.occupation_update)c.job=out.occupation_update;
+    if(out.marital_update)c.marital=out.marital_update;
 
-    // Save to history
     G.history.push({
-        year: G.currentEvent.year,
-        eventType: G.currentEvent.eventType,
-        situation: G.currentEvent.situation,
-        choices: G.currentEvent.choices,
-        chosenIdx: idx,
-        choice,
-        outcome,
+        year:G.current.year, eventType:G.current.eventType,
+        situation:G.current.situation, choices:G.current.choices,
+        chosenIdx:idx, choice, outcome:out
     });
 
-    // Show outcome narrative
-    narEl.className = '';
-    await typewrite(narEl, outcome.narrative, 13);
+    narEl.classList.remove('loading-dot');
+    await typewrite(narEl,out.narrative,13);
 
-    // Show insight
-    if(outcome.life_insight){
-        await new Promise(r=>setTimeout(r,300));
-        narEl.textContent += '\n\n"' + outcome.life_insight + '"';
+    if(out.life_insight){
+        await pause(300);
+        narEl.textContent+='\n\n"'+out.life_insight+'"';
     }
 
-    updateCharPanel();
+    updateCard();
+    renderFlowchart(document.getElementById('fc-svg'),G.history,null,-1,'game');
+    document.getElementById('fc-svg').style.pointerEvents='';
 
-    // Update flowchart to show committed choice
-    buildFlowchartSVG(document.getElementById('flowchart-svg'), G.history, null, -1, 'game');
+    G.current=null; G.eventIdx++;
 
-    // Re-enable
-    document.getElementById('flowchart-svg').style.pointerEvents = '';
-
-    G.eventIdx++;
-
-    // Next event or game over
-    if(G.eventIdx >= TOTAL_EVENTS || G.char.health <= 0){
-        await new Promise(r=>setTimeout(r,2000));
+    if(G.eventIdx>=TOTAL||c.health<=0){
+        await pause(2200);
         showGameOver();
+        G.busy=false;
         return;
     }
 
-    await new Promise(r=>setTimeout(r,1500));
-    await loadNextEvent();
+    await pause(1600);
+    G.busy=false;
+    await loadEvent();
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // GAME OVER
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 function showGameOver(){
-    // Render complete flowchart in game-over panel
-    const goSvg = document.getElementById('go-flowchart-svg');
-    buildFlowchartSVG(goSvg, G.history, null, -1, 'gameover');
-
-    document.getElementById('go-name').textContent =
-        G.char.name.toUpperCase() + '  ·  AGE ' + G.char.age;
-
-    // Scroll to top
-    document.getElementById('go-flowchart-wrap').scrollTop = 0;
-
+    const c=G.char;
+    document.getElementById('go-char-label').textContent=c.name.toUpperCase()+' · AGE '+c.age;
+    renderFlowchart(document.getElementById('go-svg'),G.history,null,-1,'gameover');
+    document.getElementById('go-fc-wrap').scrollTop=0;
     showScreen('screen-gameover');
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // RELIVE
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+function onReliveHover(histIdx,choiceIdx){
+    G.reliveTarget=histIdx;
+    const h=G.history[histIdx];
+    document.getElementById('rv-info-year').textContent=`${h.year}  ·  ${h.eventType}`;
+    document.getElementById('rv-info-text').textContent=h.situation.slice(0,140)+(h.situation.length>140?'…':'');
+    document.getElementById('rv-info').classList.add('show');
+    document.getElementById('btn-rv-confirm').classList.add('show');
+    renderFlowchart(document.getElementById('rv-svg'),G.history,null,-1,'relive');
+}
+
+function onReliveClick(histIdx,choiceIdx){
+    G.reliveTarget=histIdx;
+    onReliveHover(histIdx,choiceIdx); // update info panel too
+}
+
 function showRelive(){
-    G.reliveTarget = -1;
-    document.getElementById('relive-info').classList.remove('visible');
-    document.getElementById('btn-relive-confirm').classList.remove('visible');
-
-    const rSvg = document.getElementById('relive-flowchart-svg');
-    buildFlowchartSVG(rSvg, G.history, null, -1, 'relive');
-
-    document.getElementById('relive-flowchart-wrap').scrollTop = 0;
+    G.reliveTarget=-1;
+    document.getElementById('rv-info').classList.remove('show');
+    document.getElementById('btn-rv-confirm').classList.remove('show');
+    renderFlowchart(document.getElementById('rv-svg'),G.history,null,-1,'relive');
+    document.getElementById('rv-fc-wrap').scrollTop=0;
     showScreen('screen-relive');
 }
 
-function selectReliveNode(historyIdx){
-    G.reliveTarget = historyIdx;
-    const h = G.history[historyIdx];
-    document.getElementById('relive-info-year').textContent = `${h.year}  ·  ${h.eventType}`;
-    document.getElementById('relive-info-text').textContent = h.situation.slice(0,120) + (h.situation.length>120?'…':'');
-    document.getElementById('relive-info').classList.add('visible');
-    document.getElementById('btn-relive-confirm').classList.add('visible');
-
-    // Re-render with starburst on selected
-    buildFlowchartSVG(document.getElementById('relive-flowchart-svg'), G.history, null, -1, 'relive');
-}
-
 async function confirmRelive(){
-    if(G.reliveTarget < 0) return;
-    const idx = G.reliveTarget;
-
-    // Truncate history to before this event and roll back stats
-    // For simplicity: replay only the kept history's stat changes from scratch
-    const originalChar = G.history[0] ? null : null; // We don't store original char, so just rewind age/stats by reversing deltas
-    G.history.slice(idx).reverse().forEach(h=>{
-        G.char.money  = clamp(G.char.money  - (h.outcome.money_delta  || 0));
-        G.char.health = clamp(G.char.health - (h.outcome.health_delta || 0));
-        G.char.age   -= (h.outcome.years_passed || 3);
-        if(h.outcome.occupation_update) G.char.occupation = h.choice.text; // approximate
+    if(G.reliveTarget<0)return;
+    const idx=G.reliveTarget;
+    // Reverse stat changes from idx onward
+    [...G.history.slice(idx)].reverse().forEach(h=>{
+        G.char.money=clamp(G.char.money-(h.outcome.money_delta||0));
+        G.char.health=clamp(G.char.health-(h.outcome.health_delta||0));
+        G.char.age-=(h.outcome.years_passed||3);
     });
-
-    G.history = G.history.slice(0, idx);
-    G.eventIdx = idx;
-    G.selectedChoice = -1;
-
+    G.history=G.history.slice(0,idx);
+    G.eventIdx=idx;
+    G.selIdx=0;
+    G.current=null;
+    G.busy=false;
     showScreen('screen-game');
-    updateCharPanel();
-    await loadNextEvent();
+    updateCard();
+    await loadEvent();
 }
 
-function newLife(){
-    generateAndShow();
-    showScreen('screen-chargen');
-}
+function newLife(){generateAndShow();showScreen('screen-chargen');}
 
-// ═══════════════════════════════════════════════════════
-// KEYBOARD NAV
-// ═══════════════════════════════════════════════════════
-document.addEventListener('keydown', e => {
-    if(!document.getElementById('screen-game').classList.contains('active')) return;
-    if(!G.currentEvent) return;
-    const n = G.currentEvent.choices.length;
-    if(e.key==='ArrowLeft'){
-        G.selectedChoice = (G.selectedChoice-1+n)%n;
-        buildFlowchartSVG(document.getElementById('flowchart-svg'), G.history, G.currentEvent, G.selectedChoice, 'game');
-    } else if(e.key==='ArrowRight'){
-        G.selectedChoice = (G.selectedChoice+1)%n;
-        buildFlowchartSVG(document.getElementById('flowchart-svg'), G.history, G.currentEvent, G.selectedChoice, 'game');
-    } else if(e.key==='Enter'||e.key===' '){
-        handleChoiceClick(G.selectedChoice);
-    }
+// ═══════════════════════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+    if(!document.getElementById('screen-game').classList.contains('active'))return;
+    if(!G.current||G.busy)return;
+    const n=G.current.choices.length;
+    if(e.key==='ArrowLeft'){G.selIdx=(G.selIdx-1+n)%n;renderFlowchart(document.getElementById('fc-svg'),G.history,G.current,G.selIdx,'game');}
+    else if(e.key==='ArrowRight'){G.selIdx=(G.selIdx+1)%n;renderFlowchart(document.getElementById('fc-svg'),G.history,G.current,G.selIdx,'game');}
+    else if(e.key==='Enter'||e.key===' '){e.preventDefault();onChoiceClick(G.selIdx);}
 });
 
-// ═══════════════════════════════════════════════════════
-// RESIZE
-// ═══════════════════════════════════════════════════════
-window.addEventListener('resize', ()=>{
-    if(document.getElementById('screen-game').classList.contains('active') && G.currentEvent){
-        buildFlowchartSVG(document.getElementById('flowchart-svg'), G.history, G.currentEvent, G.selectedChoice, 'game');
-    }
+window.addEventListener('resize',()=>{
+    const gs=document.getElementById('screen-game');
+    if(gs.classList.contains('active')&&G.current)
+        renderFlowchart(document.getElementById('fc-svg'),G.history,G.current,G.selIdx,'game');
 });
 </script>
 </body>

@@ -1,1383 +1,1568 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game of Possible Lives</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #080810;
-            --card-bg: #10101e;
-            --border: #2a2a4a;
-            --red: #e94560;
-            --teal: #00d4aa;
-            --gold: #ffd700;
-            --purple: #a855f7;
-            --blue: #3b82f6;
-            --text: #e8e8f0;
-            --dim: #7070a0;
-            --green: #22c55e;
-            --orange: #f97316;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        html, body {
-            width: 100%; height: 100%;
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'VT323', monospace;
-            font-size: 20px;
-            overflow: hidden;
-        }
-
-        /* CRT scanlines */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0,0,0,0.07) 2px,
-                rgba(0,0,0,0.07) 4px
-            );
-            pointer-events: none;
-            z-index: 9999;
-        }
-
-        /* CRT vignette */
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.6) 100%);
-            pointer-events: none;
-            z-index: 9998;
-        }
-
-        #game {
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .screen {
-            display: none;
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            inset: 0;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            padding: 20px;
-        }
-        .screen.active { display: flex; }
-
-        /* =================== TITLE SCREEN =================== */
-        #screen-title {
-            text-align: center;
-            gap: 32px;
-        }
-
-        .title-box {
-            border: 3px solid var(--red);
-            padding: 32px 48px;
-            box-shadow: 0 0 30px rgba(233,69,96,0.3), inset 0 0 30px rgba(233,69,96,0.05);
-            max-width: 720px;
-        }
-
-        .title-main {
-            font-family: 'Press Start 2P', monospace;
-            font-size: clamp(14px, 2.5vw, 22px);
-            color: var(--red);
-            text-shadow: 0 0 20px rgba(233,69,96,0.8);
-            line-height: 1.6;
-            margin-bottom: 16px;
-            letter-spacing: 2px;
-        }
-
-        .title-sub {
-            font-size: 22px;
-            color: var(--teal);
-            letter-spacing: 3px;
-            text-shadow: 0 0 10px rgba(0,212,170,0.5);
-        }
-
-        .press-start {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 14px;
-            color: var(--gold);
-            animation: blink 1s step-end infinite;
-            cursor: pointer;
-            padding: 16px 32px;
-            border: 2px solid var(--gold);
-            box-shadow: 0 0 15px rgba(255,215,0,0.3);
-        }
-        .press-start:hover {
-            background: rgba(255,215,0,0.1);
-        }
-
-        @keyframes blink { 50% { opacity: 0; } }
-
-        .title-desc {
-            font-size: 20px;
-            color: var(--dim);
-            max-width: 500px;
-            line-height: 1.6;
-            text-align: center;
-        }
-
-        .credit-line {
-            font-size: 16px;
-            color: #404060;
-        }
-        .credit-line a { color: #606090; text-decoration: none; }
-        .credit-line a:hover { color: var(--dim); }
-
-        /* =================== CHARACTER GEN SCREEN =================== */
-        #screen-chargen {
-            gap: 24px;
-            max-width: 800px;
-            margin: auto;
-        }
-
-        .section-title {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 12px;
-            color: var(--teal);
-            letter-spacing: 3px;
-            text-align: center;
-            margin-bottom: 8px;
-        }
-
-        .char-card {
-            width: 100%;
-            max-width: 700px;
-            border: 2px solid var(--border);
-            background: var(--card-bg);
-            padding: 28px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        .char-name {
-            font-family: 'Press Start 2P', monospace;
-            font-size: clamp(13px, 2vw, 18px);
-            color: var(--gold);
-            text-shadow: 0 0 10px rgba(255,215,0,0.4);
-            margin-bottom: 20px;
-        }
-
-        .char-stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px 32px;
-            margin-bottom: 20px;
-        }
-
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 6px;
-        }
-
-        .stat-label {
-            color: var(--dim);
-            font-size: 18px;
-            letter-spacing: 1px;
-        }
-
-        .stat-value {
-            color: var(--text);
-            font-size: 18px;
-        }
-
-        .vitals-row {
-            display: flex;
-            gap: 20px;
-            margin-top: 16px;
-            flex-wrap: wrap;
-        }
-
-        .vital {
-            flex: 1;
-            min-width: 120px;
-        }
-
-        .vital-label {
-            font-size: 15px;
-            color: var(--dim);
-            margin-bottom: 4px;
-        }
-
-        .vital-bar-bg {
-            height: 12px;
-            background: rgba(255,255,255,0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .vital-bar-fill {
-            height: 100%;
-            transition: width 1s ease;
-        }
-
-        .vital-health .vital-bar-fill { background: var(--green); box-shadow: 0 0 8px rgba(34,197,94,0.5); }
-        .vital-happiness .vital-bar-fill { background: var(--gold); box-shadow: 0 0 8px rgba(255,215,0,0.5); }
-        .vital-wealth .vital-bar-fill { background: var(--teal); box-shadow: 0 0 8px rgba(0,212,170,0.5); }
-        .vital-social .vital-bar-fill { background: var(--purple); box-shadow: 0 0 8px rgba(168,85,247,0.5); }
-
-        .btn-primary {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 11px;
-            color: var(--bg);
-            background: var(--red);
-            border: none;
-            padding: 14px 28px;
-            cursor: pointer;
-            letter-spacing: 2px;
-            box-shadow: 0 0 20px rgba(233,69,96,0.4);
-            transition: all 0.15s;
-        }
-        .btn-primary:hover {
-            background: #ff6b80;
-            box-shadow: 0 0 30px rgba(233,69,96,0.7);
-            transform: translateY(-1px);
-        }
-        .btn-primary:active { transform: translateY(0); }
-        .btn-primary:disabled {
-            background: #404040;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 10px;
-            color: var(--teal);
-            background: transparent;
-            border: 2px solid var(--teal);
-            padding: 12px 24px;
-            cursor: pointer;
-            letter-spacing: 2px;
-            box-shadow: 0 0 10px rgba(0,212,170,0.2);
-            transition: all 0.15s;
-        }
-        .btn-secondary:hover {
-            background: rgba(0,212,170,0.1);
-            box-shadow: 0 0 20px rgba(0,212,170,0.4);
-        }
-
-        /* =================== EVENT SCREEN =================== */
-        #screen-event {
-            max-width: 960px;
-            margin: auto;
-            gap: 0;
-            padding: 16px;
-        }
-
-        .event-layout {
-            display: grid;
-            grid-template-columns: 260px 1fr;
-            grid-template-rows: auto 1fr auto;
-            gap: 16px;
-            width: 100%;
-            height: 100%;
-            max-height: calc(100vh - 32px);
-        }
-
-        /* Life progress bar across top */
-        .life-progress-bar {
-            grid-column: 1 / -1;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .progress-label {
-            font-size: 16px;
-            color: var(--dim);
-            white-space: nowrap;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 9px;
-        }
-
-        .progress-track {
-            flex: 1;
-            height: 8px;
-            background: rgba(255,255,255,0.1);
-            display: flex;
-            gap: 2px;
-        }
-
-        .progress-pip {
-            flex: 1;
-            background: rgba(255,255,255,0.1);
-        }
-        .progress-pip.done { background: var(--red); box-shadow: 0 0 6px rgba(233,69,96,0.5); }
-        .progress-pip.current { background: var(--gold); box-shadow: 0 0 6px rgba(255,215,0,0.5); animation: pulse-pip 1s ease-in-out infinite; }
-
-        @keyframes pulse-pip { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-        /* Mini character card (left column) */
-        .mini-char {
-            grid-row: 2;
-            border: 1px solid var(--border);
-            background: var(--card-bg);
-            padding: 16px;
-            overflow-y: auto;
-        }
-
-        .mini-name {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 9px;
-            color: var(--gold);
-            margin-bottom: 14px;
-            line-height: 1.5;
-        }
-
-        .mini-stat {
-            font-size: 16px;
-            color: var(--dim);
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
-        .mini-stat span:last-child { color: var(--text); }
-
-        .mini-vitals { margin-top: 12px; }
-        .mini-vital-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-        .mini-vital-label { font-size: 15px; color: var(--dim); width: 70px; }
-        .mini-vital-bar { flex: 1; height: 8px; background: rgba(255,255,255,0.1); }
-        .mini-vital-fill { height: 100%; transition: width 0.8s ease; }
-        .mv-health .mini-vital-fill { background: var(--green); }
-        .mv-happy .mini-vital-fill { background: var(--gold); }
-        .mv-wealth .mini-vital-fill { background: var(--teal); }
-        .mv-social .mini-vital-fill { background: var(--purple); }
-
-        /* Narrative area (right column) */
-        .narrative-area {
-            grid-row: 2;
-            border: 1px solid var(--border);
-            background: var(--card-bg);
-            padding: 24px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .event-label {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 9px;
-            color: var(--red);
-            letter-spacing: 2px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .narrative-text {
-            font-size: 22px;
-            line-height: 1.7;
-            color: var(--text);
-            min-height: 80px;
-        }
-
-        .loading-dots {
-            display: inline-block;
-        }
-        .loading-dots::after {
-            content: '';
-            animation: dots 1.5s steps(4, end) infinite;
-        }
-        @keyframes dots {
-            0%   { content: ''; }
-            25%  { content: '.'; }
-            50%  { content: '..'; }
-            75%  { content: '...'; }
-            100% { content: ''; }
-        }
-
-        /* Choices (bottom full width) */
-        .choices-area {
-            grid-column: 1 / -1;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-
-        .choice-btn {
-            border: 2px solid var(--border);
-            background: var(--card-bg);
-            color: var(--text);
-            padding: 14px 16px;
-            cursor: pointer;
-            text-align: left;
-            transition: all 0.15s;
-            font-family: 'VT323', monospace;
-        }
-
-        .choice-btn:hover:not(:disabled) {
-            border-color: var(--teal);
-            background: rgba(0,212,170,0.08);
-            box-shadow: 0 0 15px rgba(0,212,170,0.2);
-        }
-
-        .choice-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        .choice-btn.selected {
-            border-color: var(--gold);
-            background: rgba(255,215,0,0.08);
-        }
-
-        .choice-letter {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 10px;
-            color: var(--teal);
-            display: block;
-            margin-bottom: 6px;
-        }
-
-        .choice-main {
-            font-size: 20px;
-            line-height: 1.3;
-            margin-bottom: 6px;
-            color: var(--text);
-        }
-
-        .choice-desc {
-            font-size: 17px;
-            color: var(--dim);
-            line-height: 1.4;
-        }
-
-        /* =================== OUTCOME SCREEN =================== */
-        #screen-outcome {
-            max-width: 800px;
-            margin: auto;
-            gap: 20px;
-        }
-
-        .outcome-box {
-            width: 100%;
-            border: 2px solid var(--border);
-            background: var(--card-bg);
-            padding: 28px;
-        }
-
-        .outcome-choice-echo {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 9px;
-            color: var(--gold);
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-            line-height: 1.6;
-        }
-
-        .outcome-narrative {
-            font-size: 22px;
-            line-height: 1.8;
-            color: var(--text);
-            margin-bottom: 20px;
-        }
-
-        .outcome-insight {
-            font-size: 19px;
-            color: var(--purple);
-            font-style: italic;
-            border-left: 3px solid var(--purple);
-            padding-left: 16px;
-            line-height: 1.6;
-        }
-
-        .stat-deltas {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            width: 100%;
-        }
-
-        .stat-delta {
-            flex: 1;
-            min-width: 100px;
-            border: 1px solid var(--border);
-            background: var(--card-bg);
-            padding: 12px;
-            text-align: center;
-        }
-
-        .delta-label {
-            font-size: 15px;
-            color: var(--dim);
-            margin-bottom: 4px;
-        }
-
-        .delta-value {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 12px;
-        }
-        .delta-value.pos { color: var(--green); }
-        .delta-value.neg { color: var(--red); }
-        .delta-value.zero { color: var(--dim); }
-
-        .years-passed {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 10px;
-            color: var(--teal);
-            letter-spacing: 2px;
-        }
-
-        .outcome-actions {
-            display: flex;
-            gap: 16px;
-            width: 100%;
-            justify-content: flex-end;
-        }
-
-        /* =================== GAME OVER SCREEN =================== */
-        #screen-gameover {
-            max-width: 900px;
-            margin: auto;
-            gap: 20px;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .gameover-header {
-            text-align: center;
-        }
-
-        .gameover-title {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 16px;
-            color: var(--red);
-            text-shadow: 0 0 20px rgba(233,69,96,0.6);
-            margin-bottom: 8px;
-        }
-
-        .gameover-name {
-            font-size: 26px;
-            color: var(--gold);
-        }
-
-        .timeline {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .timeline-item {
-            border: 1px solid var(--border);
-            background: var(--card-bg);
-            padding: 12px 16px;
-            display: flex;
-            gap: 16px;
-            align-items: flex-start;
-            cursor: pointer;
-            transition: border-color 0.15s;
-        }
-
-        .timeline-item:hover {
-            border-color: var(--teal);
-        }
-
-        .timeline-item.relive-candidate:hover::after {
-            content: ' ↩ RELIVE';
-            font-family: 'Press Start 2P', monospace;
-            font-size: 8px;
-            color: var(--teal);
-        }
-
-        .timeline-num {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 9px;
-            color: var(--dim);
-            min-width: 28px;
-            margin-top: 2px;
-        }
-
-        .timeline-content { flex: 1; }
-
-        .timeline-choice {
-            font-size: 18px;
-            color: var(--teal);
-            margin-bottom: 4px;
-        }
-
-        .timeline-outcome {
-            font-size: 17px;
-            color: var(--dim);
-            line-height: 1.5;
-        }
-
-        .final-stats {
-            display: flex;
-            gap: 12px;
-            width: 100%;
-            flex-wrap: wrap;
-        }
-
-        .final-stat-box {
-            flex: 1;
-            min-width: 120px;
-            border: 2px solid var(--border);
-            background: var(--card-bg);
-            padding: 14px;
-            text-align: center;
-        }
-
-        .final-stat-num {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 18px;
-            margin-bottom: 4px;
-        }
-
-        .final-stat-label {
-            font-size: 16px;
-            color: var(--dim);
-        }
-
-        .gameover-actions {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        /* =================== RELIVE SCREEN =================== */
-        #screen-relive {
-            max-width: 700px;
-            margin: auto;
-            gap: 20px;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .relive-item {
-            width: 100%;
-            border: 2px solid var(--border);
-            background: var(--card-bg);
-            padding: 16px 20px;
-            cursor: pointer;
-            transition: all 0.15s;
-            text-align: left;
-        }
-
-        .relive-item:hover {
-            border-color: var(--gold);
-            background: rgba(255,215,0,0.05);
-            box-shadow: 0 0 15px rgba(255,215,0,0.15);
-        }
-
-        .relive-item-num {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 9px;
-            color: var(--dim);
-            margin-bottom: 6px;
-        }
-
-        .relive-item-text {
-            font-size: 20px;
-            color: var(--text);
-            line-height: 1.5;
-        }
-
-        .relive-item-choice {
-            font-size: 18px;
-            color: var(--teal);
-            margin-top: 4px;
-        }
-
-        /* =================== TYPEWRITER =================== */
-        .typewriter-cursor::after {
-            content: '▋';
-            animation: blink 0.8s step-end infinite;
-        }
-
-        /* =================== SCROLLBAR =================== */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--border); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--dim); }
-
-        /* =================== RESPONSIVE =================== */
-        @media (max-width: 700px) {
-            .event-layout { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr auto; }
-            .mini-char { grid-row: 2; }
-            .narrative-area { grid-row: 3; }
-            .choices-area { grid-column: 1; grid-row: 4; grid-template-columns: 1fr; }
-            .char-stats-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game of Possible Lives</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    width: 100%; height: 100%;
+    background: #000;
+    color: #fff;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    overflow: hidden;
+}
+
+/* ── SCREENS ─────────────────────────────────────────── */
+.screen { display: none; width: 100vw; height: 100vh; position: absolute; inset: 0; }
+.screen.active { display: flex; }
+
+/* ── TITLE ───────────────────────────────────────────── */
+#screen-title {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+}
+
+.title-ascii {
+    font-size: clamp(10px, 1.5vw, 15px);
+    letter-spacing: 0.15em;
+    line-height: 1.4;
+    white-space: pre;
+    text-align: center;
+}
+
+.title-headline {
+    font-size: clamp(24px, 4vw, 48px);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: center;
+    border: 2px solid #fff;
+    padding: 20px 40px;
+}
+
+.title-sub {
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    color: #888;
+    text-align: center;
+}
+
+.title-desc {
+    font-size: 15px;
+    letter-spacing: 0.05em;
+    color: #aaa;
+    text-align: center;
+    max-width: 500px;
+    line-height: 1.7;
+}
+
+.blink { animation: blink 1s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.press-start-btn {
+    font-family: inherit;
+    font-size: 16px;
+    letter-spacing: 0.3em;
+    color: #fff;
+    background: transparent;
+    border: 2px solid #fff;
+    padding: 14px 36px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+.press-start-btn:hover { background: #fff; color: #000; }
+
+.title-credit {
+    font-size: 12px;
+    color: #444;
+    letter-spacing: 0.1em;
+    text-align: center;
+}
+.title-credit a { color: #666; text-decoration: none; }
+.title-credit a:hover { color: #aaa; }
+
+/* ── CHAR GEN ─────────────────────────────────────────── */
+#screen-chargen {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+}
+
+.chargen-box {
+    border: 2px solid #fff;
+    padding: 28px 36px;
+    width: 480px;
+}
+
+.chargen-label {
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: #666;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.chargen-name {
+    font-size: 26px;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 14px;
+}
+
+.chargen-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+
+.chargen-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+}
+.chargen-row .k { color: #666; }
+.chargen-row .v { color: #fff; }
+
+.chargen-stats {
+    border-top: 1px solid #333;
+    padding-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.chargen-stat {
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+}
+.chargen-stat .k { color: #666; }
+
+.chargen-btns {
+    display: flex;
+    gap: 16px;
+}
+
+.btn-outline {
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: #fff;
+    background: transparent;
+    border: 1px solid #fff;
+    padding: 10px 24px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+.btn-outline:hover { background: #fff; color: #000; }
+
+.btn-fill {
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: #000;
+    background: #fff;
+    border: 1px solid #fff;
+    padding: 10px 24px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+.btn-fill:hover { background: #ddd; }
+.btn-fill:disabled { background: #444; color: #000; cursor: not-allowed; border-color: #444; }
+
+/* ── GAME SCREEN ──────────────────────────────────────── */
+#screen-game {
+    flex-direction: row;
+    align-items: stretch;
+}
+
+/* Left: flowchart */
+#flowchart-panel {
+    flex: 0 0 58%;
+    overflow: hidden;
+    position: relative;
+    border-right: 1px solid #222;
+}
+
+#flowchart-scroll {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #000;
+}
+
+#flowchart-svg {
+    display: block;
+    width: 100%;
+}
+
+/* Right: character card */
+#char-panel {
+    flex: 0 0 42%;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #000;
+}
+
+.char-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 16px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #333;
+}
+
+.char-header-name {
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.char-header-age {
+    font-size: 22px;
+    grid-column: 2;
+    grid-row: 1;
+    text-align: right;
+}
+
+.char-header-job {
+    font-size: 13px;
+    color: #888;
+    grid-column: 1;
+    grid-row: 2;
+    letter-spacing: 0.05em;
+}
+
+.char-header-loc {
+    font-size: 13px;
+    color: #888;
+    grid-column: 2;
+    grid-row: 2;
+    text-align: right;
+}
+
+/* Scene image */
+#scene-canvas-wrap {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border: 1px solid #333;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+    background: #000;
+}
+
+#scene-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+}
+
+/* Narrative text */
+#narrative-text {
+    font-size: 15px;
+    line-height: 1.8;
+    letter-spacing: 0.03em;
+    color: #e0e0e0;
+    margin-bottom: 20px;
+    flex: 1;
+    min-height: 100px;
+}
+
+.loading-text::after {
+    content: '';
+    animation: loading-dots 1.2s steps(4, end) infinite;
+}
+@keyframes loading-dots {
+    0%   { content: ''; }
+    25%  { content: '.'; }
+    50%  { content: '..'; }
+    75%  { content: '...'; }
+}
+
+/* Stats */
+.char-stats {
+    border-top: 1px solid #333;
+    padding-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.char-stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+    letter-spacing: 0.05em;
+}
+
+.char-stat-row .k { color: #666; }
+
+/* Bottom nav hint */
+#game-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 58%;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    color: #555;
+    border-top: 1px solid #111;
+    pointer-events: none;
+}
+
+/* ── LIFE OVER ────────────────────────────────────────── */
+#screen-gameover {
+    flex-direction: row;
+    align-items: stretch;
+}
+
+#go-flowchart-wrap {
+    flex: 0 0 58%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-right: 1px solid #222;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #000;
+}
+
+#go-right {
+    flex: 0 0 42%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px 36px;
+    gap: 40px;
+}
+
+.go-title {
+    font-size: clamp(36px, 5vw, 64px);
+    letter-spacing: 0.1em;
+    line-height: 1.1;
+}
+
+.go-subtitle {
+    font-size: 14px;
+    color: #666;
+    letter-spacing: 0.1em;
+}
+
+.go-menu { display: flex; flex-direction: column; gap: 12px; }
+
+.go-menu-item {
+    font-family: inherit;
+    font-size: 16px;
+    letter-spacing: 0.15em;
+    color: #fff;
+    background: transparent;
+    border: none;
+    padding: 8px 0;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-transform: uppercase;
+}
+.go-menu-item:hover { color: #aaa; }
+.go-menu-item .arrow { color: #fff; }
+.go-menu-item.dim { color: #444; }
+.go-menu-item.dim .arrow { color: #444; }
+.go-menu-item.dim:hover { color: #888; }
+
+/* ── RELIVE ───────────────────────────────────────────── */
+#screen-relive {
+    flex-direction: row;
+    align-items: stretch;
+}
+
+#relive-flowchart-wrap {
+    flex: 0 0 58%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-right: 1px solid #222;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #000;
+}
+
+#relive-right {
+    flex: 0 0 42%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px 36px;
+    gap: 32px;
+}
+
+.relive-title { font-size: 13px; letter-spacing: 0.3em; color: #888; text-transform: uppercase; }
+.relive-headline { font-size: 26px; letter-spacing: 0.1em; line-height: 1.3; }
+.relive-hint { font-size: 13px; color: #555; letter-spacing: 0.1em; line-height: 1.6; }
+
+.relive-selected-info {
+    border: 1px solid #333;
+    padding: 16px;
+    display: none;
+}
+.relive-selected-info.visible { display: block; }
+.relive-selected-year { font-size: 11px; letter-spacing: 0.2em; color: #666; margin-bottom: 8px; }
+.relive-selected-text { font-size: 14px; line-height: 1.6; color: #ccc; }
+
+#btn-relive-confirm {
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    color: #000;
+    background: #fff;
+    border: 1px solid #fff;
+    padding: 12px 24px;
+    cursor: pointer;
+    text-transform: uppercase;
+    display: none;
+}
+#btn-relive-confirm.visible { display: block; }
+#btn-relive-confirm:hover { background: #ddd; }
+
+#btn-relive-back {
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    color: #555;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    text-transform: uppercase;
+    padding: 0;
+}
+#btn-relive-back:hover { color: #fff; }
+
+/* ── TYPEWRITER cursor ────────────────────────────────── */
+.tw-cursor::after { content: '█'; animation: blink 0.8s step-end infinite; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { background: #333; }
+</style>
 </head>
 <body>
-<div id="game">
 
-    <!-- =================== TITLE SCREEN =================== -->
-    <div id="screen-title" class="screen active">
-        <div class="title-box">
-            <div class="title-main">GAME OF<br>POSSIBLE LIVES</div>
-            <div class="title-sub">POSSIBLE LIVES SIMULATOR</div>
+<!-- ════════════════ TITLE ════════════════ -->
+<div id="screen-title" class="screen active">
+    <div class="title-headline">GAME OF POSSIBLE LIVES</div>
+    <div class="title-desc">
+        A randomly generated person.<br>
+        A life full of crossroads.<br>
+        Every choice forecloses a thousand others.
+    </div>
+    <button class="press-start-btn blink" onclick="startGame()">▶ press start</button>
+    <div class="title-credit">
+        Inspired by <a href="https://www.tomokihara.com/en/game-of-possible-lives.html" target="_blank">Tomo Kihara's original work</a>
+        &nbsp;·&nbsp; Based on Japan's 2020 National Census
+    </div>
+</div>
+
+<!-- ════════════════ CHAR GEN ════════════════ -->
+<div id="screen-chargen" class="screen" style="flex-direction:column; align-items:center; justify-content:center; gap:24px;">
+    <div class="chargen-box">
+        <div class="chargen-label">A life begins —</div>
+        <div class="chargen-name" id="cg-name">—</div>
+        <div class="chargen-rows">
+            <div class="chargen-row"><span class="k">Age</span><span class="v" id="cg-age">—</span></div>
+            <div class="chargen-row"><span class="k">Gender</span><span class="v" id="cg-gender">—</span></div>
+            <div class="chargen-row"><span class="k">Prefecture</span><span class="v" id="cg-pref">—</span></div>
+            <div class="chargen-row"><span class="k">Occupation</span><span class="v" id="cg-job">—</span></div>
+            <div class="chargen-row"><span class="k">Education</span><span class="v" id="cg-edu">—</span></div>
+            <div class="chargen-row"><span class="k">Income</span><span class="v" id="cg-income">—</span></div>
+            <div class="chargen-row"><span class="k">Marital status</span><span class="v" id="cg-marital">—</span></div>
+            <div class="chargen-row"><span class="k">Nationality</span><span class="v" id="cg-nationality">—</span></div>
         </div>
-        <div class="title-desc">
-            Guide a randomly generated person through the crossroads of their life.
-            Every choice shapes who they become.
-        </div>
-        <div class="press-start" onclick="startGame()">▶ PRESS START</div>
-        <div class="credit-line">
-            Inspired by <a href="https://www.tomokihara.com/en/game-of-possible-lives.html" target="_blank">Tomo Kihara's original work</a>
-            &nbsp;·&nbsp; Based on Japan's 2020 National Census
+        <div class="chargen-stats">
+            <div class="chargen-stat"><span class="k">money</span><span id="cg-money">—</span></div>
+            <div class="chargen-stat"><span class="k">health</span><span id="cg-health">—</span></div>
         </div>
     </div>
+    <div class="chargen-btns">
+        <button class="btn-outline" onclick="generateAndShow()">↺ reroll</button>
+        <button class="btn-fill" id="btn-begin" onclick="beginLife()">begin this life →</button>
+    </div>
+</div>
 
-    <!-- =================== CHARACTER GEN SCREEN =================== -->
-    <div id="screen-chargen" class="screen">
-        <div class="section-title">A LIFE BEGINS</div>
-        <div class="char-card" id="char-card">
-            <div class="char-name" id="cg-name">—</div>
-            <div class="char-stats-grid">
-                <div class="stat-row"><span class="stat-label">AGE</span><span class="stat-value" id="cg-age">—</span></div>
-                <div class="stat-row"><span class="stat-label">GENDER</span><span class="stat-value" id="cg-gender">—</span></div>
-                <div class="stat-row"><span class="stat-label">PREFECTURE</span><span class="stat-value" id="cg-pref">—</span></div>
-                <div class="stat-row"><span class="stat-label">OCCUPATION</span><span class="stat-value" id="cg-job">—</span></div>
-                <div class="stat-row"><span class="stat-label">EDUCATION</span><span class="stat-value" id="cg-edu">—</span></div>
-                <div class="stat-row"><span class="stat-label">INCOME</span><span class="stat-value" id="cg-income">—</span></div>
-                <div class="stat-row"><span class="stat-label">STATUS</span><span class="stat-value" id="cg-marital">—</span></div>
-                <div class="stat-row"><span class="stat-label">NATIONALITY</span><span class="stat-value" id="cg-nationality">—</span></div>
-            </div>
-            <div class="vitals-row">
-                <div class="vital vital-health">
-                    <div class="vital-label">HEALTH</div>
-                    <div class="vital-bar-bg"><div class="vital-bar-fill" id="cg-health-bar"></div></div>
-                </div>
-                <div class="vital vital-happiness">
-                    <div class="vital-label">HAPPINESS</div>
-                    <div class="vital-bar-bg"><div class="vital-bar-fill" id="cg-happy-bar"></div></div>
-                </div>
-                <div class="vital vital-wealth">
-                    <div class="vital-label">WEALTH</div>
-                    <div class="vital-bar-bg"><div class="vital-bar-fill" id="cg-wealth-bar"></div></div>
-                </div>
-                <div class="vital vital-social">
-                    <div class="vital-label">SOCIAL</div>
-                    <div class="vital-bar-bg"><div class="vital-bar-fill" id="cg-social-bar"></div></div>
-                </div>
-            </div>
+<!-- ════════════════ GAME ════════════════ -->
+<div id="screen-game" class="screen">
+    <div id="flowchart-panel">
+        <div id="flowchart-scroll">
+            <svg id="flowchart-svg" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
-        <div style="display:flex; gap:16px;">
-            <button class="btn-secondary" onclick="generateAndShowCharacter()">↺ REROLL</button>
-            <button class="btn-primary" id="btn-begin" onclick="beginLife()">BEGIN THIS LIFE →</button>
+        <div id="game-footer">← choose →</div>
+    </div>
+    <div id="char-panel">
+        <div class="char-header">
+            <div class="char-header-name" id="ch-name">—</div>
+            <div class="char-header-age" id="ch-age">—</div>
+            <div class="char-header-job" id="ch-job">—</div>
+            <div class="char-header-loc" id="ch-loc">—</div>
+        </div>
+        <div id="scene-canvas-wrap">
+            <canvas id="scene-canvas"></canvas>
+        </div>
+        <div id="narrative-text"></div>
+        <div class="char-stats">
+            <div class="char-stat-row"><span class="k">money</span><span id="ch-money">—</span></div>
+            <div class="char-stat-row"><span class="k">health</span><span id="ch-health">—</span></div>
         </div>
     </div>
+</div>
 
-    <!-- =================== EVENT SCREEN =================== -->
-    <div id="screen-event" class="screen">
-        <div class="event-layout">
-            <div class="life-progress-bar">
-                <span class="progress-label">LIFE</span>
-                <div class="progress-track" id="progress-track"></div>
-                <span class="progress-label" id="progress-label">0/8</span>
-            </div>
-
-            <div class="mini-char" id="mini-char">
-                <div class="mini-name" id="mc-name">—</div>
-                <div class="mini-stat"><span>AGE</span><span id="mc-age">—</span></div>
-                <div class="mini-stat"><span>JOB</span><span id="mc-job">—</span></div>
-                <div class="mini-stat"><span>STATUS</span><span id="mc-status">—</span></div>
-                <div class="mini-vitals">
-                    <div class="mini-vital-row mv-health">
-                        <span class="mini-vital-label">HEALTH</span>
-                        <div class="mini-vital-bar"><div class="mini-vital-fill" id="mv-health"></div></div>
-                    </div>
-                    <div class="mini-vital-row mv-happy">
-                        <span class="mini-vital-label">HAPPY</span>
-                        <div class="mini-vital-bar"><div class="mini-vital-fill" id="mv-happy"></div></div>
-                    </div>
-                    <div class="mini-vital-row mv-wealth">
-                        <span class="mini-vital-label">WEALTH</span>
-                        <div class="mini-vital-bar"><div class="mini-vital-fill" id="mv-wealth"></div></div>
-                    </div>
-                    <div class="mini-vital-row mv-social">
-                        <span class="mini-vital-label">SOCIAL</span>
-                        <div class="mini-vital-bar"><div class="mini-vital-fill" id="mv-social"></div></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="narrative-area">
-                <div class="event-label" id="event-type-label">◆ LIFE CROSSROADS</div>
-                <div class="narrative-text" id="situation-text">
-                    <span class="loading-dots">Generating your life situation</span>
-                </div>
-            </div>
-
-            <div class="choices-area" id="choices-area">
-                <!-- populated dynamically -->
-            </div>
+<!-- ════════════════ LIFE OVER ════════════════ -->
+<div id="screen-gameover" class="screen">
+    <div id="go-flowchart-wrap">
+        <svg id="go-flowchart-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <div id="go-right">
+        <div>
+            <div class="go-subtitle" id="go-name">—</div>
+            <div class="go-title">LIFE<br>OVER</div>
+        </div>
+        <div class="go-menu">
+            <button class="go-menu-item" onclick="showRelive()">
+                <span class="arrow">›</span> 生きなおす / RELIVE
+            </button>
+            <button class="go-menu-item dim" onclick="newLife()">
+                <span class="arrow">›</span> おわる / END
+            </button>
         </div>
     </div>
+</div>
 
-    <!-- =================== OUTCOME SCREEN =================== -->
-    <div id="screen-outcome" class="screen">
-        <div class="outcome-box">
-            <div class="outcome-choice-echo" id="outcome-choice-echo">YOU CHOSE: —</div>
-            <div class="outcome-narrative" id="outcome-narrative">
-                <span class="loading-dots">The years unfold</span>
-            </div>
-            <div class="outcome-insight" id="outcome-insight" style="display:none;"></div>
-        </div>
-        <div class="stat-deltas" id="stat-deltas"></div>
-        <div class="outcome-actions">
-            <span class="years-passed" id="years-passed"></span>
-            <button class="btn-primary" id="btn-continue" onclick="continueLife()" disabled>CONTINUE →</button>
-        </div>
+<!-- ════════════════ RELIVE ════════════════ -->
+<div id="screen-relive" class="screen">
+    <div id="relive-flowchart-wrap">
+        <svg id="relive-flowchart-svg" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
-
-    <!-- =================== GAME OVER SCREEN =================== -->
-    <div id="screen-gameover" class="screen">
-        <div class="gameover-header">
-            <div class="gameover-title">LIFE COMPLETE</div>
-            <div class="gameover-name" id="go-name">—</div>
+    <div id="relive-right">
+        <div>
+            <div class="relive-title">どこから生きなおす？</div>
+            <div class="relive-headline">WHERE TO<br>RELIVE?</div>
         </div>
-        <div class="final-stats" id="final-stats"></div>
-        <div class="section-title">LIFE TIMELINE — CLICK ANY MOMENT TO RELIVE</div>
-        <div class="timeline" id="timeline"></div>
-        <div class="gameover-actions">
-            <button class="btn-secondary" onclick="showRelive()">↩ RELIVE A MOMENT</button>
-            <button class="btn-primary" onclick="newLife()">NEW LIFE</button>
+        <div class="relive-hint">↓↑ いどう / move<br>Click a crossroads node to select it.</div>
+        <div class="relive-selected-info" id="relive-info">
+            <div class="relive-selected-year" id="relive-info-year">—</div>
+            <div class="relive-selected-text" id="relive-info-text">—</div>
         </div>
+        <button id="btn-relive-confirm" onclick="confirmRelive()">↩ relive from here</button>
+        <button id="btn-relive-back" onclick="showScreen('screen-gameover')">← back</button>
     </div>
-
-    <!-- =================== RELIVE SCREEN =================== -->
-    <div id="screen-relive" class="screen">
-        <div class="section-title">CHOOSE A CROSSROADS TO REVISIT</div>
-        <div id="relive-list" style="width:100%; display:flex; flex-direction:column; gap:10px;"></div>
-        <button class="btn-secondary" onclick="showScreen('screen-gameover')">← BACK</button>
-    </div>
-
 </div>
 
 <script>
-// =================== CENSUS DATA (Japan 2020) ===================
+// ═══════════════════════════════════════════════════════
+// CENSUS DATA
+// ═══════════════════════════════════════════════════════
 const CENSUS = {
-    prefectures: [
-        {name:'Tokyo',w:11},{name:'Osaka',w:7},{name:'Kanagawa',w:7},
-        {name:'Aichi',w:6},{name:'Saitama',w:6},{name:'Chiba',w:5},
-        {name:'Hyogo',w:4},{name:'Hokkaido',w:4},{name:'Fukuoka',w:4},
-        {name:'Shizuoka',w:3},{name:'Ibaraki',w:2},{name:'Hiroshima',w:2},
-        {name:'Kyoto',w:2},{name:'Miyagi',w:2},{name:'Niigata',w:2},
-        {name:'Nagano',w:2},{name:'Other',w:31}
+    prefectures:[
+        {n:'Tokyo',w:11},{n:'Osaka',w:7},{n:'Kanagawa',w:7},{n:'Aichi',w:6},
+        {n:'Saitama',w:6},{n:'Chiba',w:5},{n:'Hyogo',w:4},{n:'Hokkaido',w:4},
+        {n:'Fukuoka',w:4},{n:'Shizuoka',w:3},{n:'Hiroshima',w:2},{n:'Kyoto',w:2},
+        {n:'Miyagi',w:2},{n:'Nagano',w:2},{n:'Other',w:35}
     ],
-    occupations: [
-        {name:'Office Worker',w:25},{name:'Service Worker',w:20},
-        {name:'Manufacturing',w:15},{name:'Healthcare',w:10},
-        {name:'Education',w:7},{name:'IT / Tech',w:8},
-        {name:'Retail',w:8},{name:'Freelance',w:5},{name:'Unemployed',w:2}
+    occupations:[
+        {n:'Office Worker',w:25},{n:'Service Worker',w:18},{n:'Manufacturing',w:14},
+        {n:'Healthcare',w:10},{n:'IT / Tech',w:9},{n:'Education',w:7},
+        {n:'Retail',w:8},{n:'Freelance',w:6},{n:'Unemployed',w:3}
     ],
-    educations: [
-        {name:'High School',w:35},{name:'Vocational School',w:20},
-        {name:'University',w:35},{name:'Graduate School',w:10}
+    educations:[
+        {n:'High School',w:35},{n:'Vocational School',w:20},
+        {n:'University',w:35},{n:'Graduate School',w:10}
     ],
-    maleNames: ['Hiroshi','Kenji','Takeshi','Satoshi','Naoki','Daisuke','Ryota','Shota','Kazuki','Haruto','Sota','Yuto','Hayato'],
-    femaleNames: ['Haruka','Sakura','Aoi','Rina','Mika','Nana','Yui','Kana','Ayaka','Yuna','Hana','Misaki','Saki'],
-    surnames: ['Tanaka','Suzuki','Sato','Watanabe','Ito','Yamamoto','Nakamura','Kobayashi','Kato','Yoshida','Yamada','Sasaki','Yamaguchi','Matsumoto','Inoue','Kimura','Hayashi','Shimizu','Yamazaki','Mori']
+    maleNames:['Hiroshi','Kenji','Takeshi','Satoshi','Naoki','Daisuke','Ryota','Shota','Kazuki','Haruto','Sota','Hayato','Ren','Yuto'],
+    femaleNames:['Haruka','Sakura','Aoi','Rina','Mika','Nana','Yui','Kana','Ayaka','Yuna','Hana','Misaki','Saki','Yuki'],
+    surnames:['Tanaka','Suzuki','Sato','Watanabe','Ito','Yamamoto','Nakamura','Kobayashi','Kato','Yoshida','Yamada','Sasaki','Matsumoto','Inoue','Kimura','Hayashi','Shimizu','Mori','Abe','Ikeda']
 };
 
 const EVENT_TYPES = [
-    'CAREER CROSSROADS','MATTERS OF THE HEART','A PLACE TO CALL HOME',
-    'PROFESSIONAL TURNING POINT','FAMILY TIES','A HEALTH MOMENT',
-    'FINANCIAL DECISION','SOCIAL BELONGING','LATE CHAPTER','FINAL CROSSROADS'
+    'Career Crossroads','Matters of the Heart','A Place to Live',
+    'Professional Turning Point','Family & Obligations','A Health Moment',
+    'Financial Decision','Social Belonging','Later Chapter','Final Crossroads'
 ];
 
 const TOTAL_EVENTS = 8;
-const OLLAMA_ENDPOINT = 'https://matlaber15.media.mit.edu/ollama/api/generate';
-const MODEL = 'qwen2.5:32b';
+const OLLAMA = 'https://matlaber15.media.mit.edu/ollama/api/generate';
+const MODEL  = 'qwen2.5:32b';
 
-// =================== GAME STATE ===================
-let state = {
-    character: null,
-    eventIndex: 0,
-    history: [],       // [{situation, choice, outcome}]
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let G = {
+    char: null,
+    eventIdx: 0,
+    history: [],      // [{year, eventType, situation, choice, outcome}]
     currentEvent: null,
-    isReliving: false,
-    reliveFromIndex: -1
+    selectedChoice: -1,
+    reliveTarget: -1, // history index to relive from
 };
 
-// =================== UTILITIES ===================
-function weighted(items) {
-    const total = items.reduce((s,i) => s + (i.w||i.weight||1), 0);
-    let r = Math.random() * total;
-    for (const item of items) { r -= (item.w||item.weight||1); if (r <= 0) return item; }
-    return items[items.length-1];
+// ═══════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════
+function weighted(arr) {
+    let t = arr.reduce((s,i)=>s+(i.w||1),0), r = Math.random()*t;
+    for (const x of arr) { r-=(x.w||1); if(r<=0) return x; }
+    return arr[arr.length-1];
+}
+function clamp(v,a=0,b=100){return Math.max(a,Math.min(b,v));}
+function fmtIncome(y){return y>=1e6?`¥${(y/1e6).toFixed(1)}M`:`¥${(y/1e3).toFixed(0)}K`;}
+
+function moneySymbols(v) {
+    const filled = Math.round(v/20); // 0-5
+    return '¥'.repeat(filled) + '¥'.repeat(5-filled).replace(/./g,'¥').split('').map(()=>'_').join('');
+}
+function healthSymbols(v) {
+    const filled = Math.round(v/20);
+    return '♡'.repeat(filled) + '♡'.repeat(5-filled).split('').map(()=>'♡').join('');
+}
+// Better versions:
+function moneyStr(v){
+    const n=Math.round(clamp(v)/20);
+    return '¥'.repeat(n)+'¥'.repeat(5-n);
+}
+function healthStr(v){
+    const n=Math.round(clamp(v)/20);
+    return '♡'.repeat(n)+'♡'.repeat(5-n);
 }
 
-function clamp(v, min=0, max=100) { return Math.max(min, Math.min(max, v)); }
-
-function fmtIncome(yen) {
-    if (yen >= 1000000) return `¥${(yen/1000000).toFixed(1)}M`;
-    return `¥${(yen/1000).toFixed(0)}K`;
-}
-
-function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
 }
 
-async function typewrite(el, text, speed=18) {
-    el.textContent = '';
-    el.classList.add('typewriter-cursor');
-    for (const ch of text) {
-        el.textContent += ch;
-        await new Promise(r => setTimeout(r, speed));
+async function typewrite(el, text, speed=16){
+    el.textContent='';
+    el.classList.add('tw-cursor');
+    for(const ch of text){
+        el.textContent+=ch;
+        await new Promise(r=>setTimeout(r,speed));
     }
-    el.classList.remove('typewriter-cursor');
+    el.classList.remove('tw-cursor');
 }
 
-// =================== CHARACTER GENERATION ===================
-function generateCharacter() {
-    const gender = Math.random() < 0.5 ? 'Male' : 'Female';
-    const surname = CENSUS.surnames[Math.floor(Math.random() * CENSUS.surnames.length)];
-    const given = gender === 'Male'
-        ? CENSUS.maleNames[Math.floor(Math.random() * CENSUS.maleNames.length)]
-        : CENSUS.femaleNames[Math.floor(Math.random() * CENSUS.femaleNames.length)];
+// ═══════════════════════════════════════════════════════
+// SEEDED RNG (mulberry32)
+// ═══════════════════════════════════════════════════════
+function seededRng(seed){
+    let s=seed>>>0;
+    return function(){
+        s+=0x6D2B79F5;
+        let t=s;t=Math.imul(t^t>>>15,t|1);
+        t^=t+Math.imul(t^t>>>7,t|61);
+        return ((t^t>>>14)>>>0)/4294967296;
+    };
+}
+function hashStr(s){
+    let h=0;
+    for(let i=0;i<s.length;i++){h=Math.imul(31,h)+s.charCodeAt(i)|0;}
+    return h>>>0;
+}
 
-    const age = Math.floor(Math.random() * 38) + 22; // 22–60
-    const prefecture = weighted(CENSUS.prefectures).name;
-    const occupation = weighted(CENSUS.occupations).name;
-    const education = weighted(CENSUS.educations).name;
+// ═══════════════════════════════════════════════════════
+// SCENE IMAGE GENERATOR
+// ═══════════════════════════════════════════════════════
+function drawSceneImage(canvas, eventType, situation, char) {
+    const W = canvas.width = 320;
+    const H = canvas.height = 180;
+    const ctx = canvas.getContext('2d');
+    const rng = seededRng(hashStr(situation + char.name));
 
-    let base = 2800000;
-    if (education === 'University') base += 600000;
-    if (education === 'Graduate School') base += 1200000;
-    if (education === 'Vocational School') base += 200000;
-    base += (age - 22) * 30000;
-    const income = Math.round((base + (Math.random() - 0.5) * 2000000) / 100000) * 100000;
+    // Black fill
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
 
-    const r = Math.random();
-    let maritalStatus = age < 27
-        ? (r < 0.85 ? 'Single' : 'Married')
-        : age < 38
-        ? (r < 0.5 ? 'Married' : r < 0.8 ? 'Single' : 'Divorced')
-        : (r < 0.65 ? 'Married' : r < 0.8 ? 'Single' : r < 0.95 ? 'Divorced' : 'Widowed');
+    // Bayer 4x4 dithering matrix (normalised 0-1)
+    const bayer = [
+        [0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]
+    ].map(row=>row.map(v=>(v+0.5)/16));
 
-    const hasChildren = maritalStatus === 'Married' && age > 27 && Math.random() < 0.55;
-    const nationality = Math.random() < 0.025 ? 'Non-Japanese' : 'Japanese';
+    // Build a scene as a grayscale buffer then dither it
+    const imgData = ctx.createImageData(W, H);
+    const buf = new Float32Array(W*H); // 0-1 luminance
 
+    // ── background gradient (slightly lighter at horizon) ──
+    for(let y=0;y<H;y++){
+        for(let x=0;x<W;x++){
+            buf[y*W+x] = 0.04 + (H-y)/H * 0.06;
+        }
+    }
+
+    // ── ground plane ──
+    const gndY = Math.floor(H * 0.68);
+    for(let y=gndY;y<H;y++){
+        const bright = 0.25 + (y-gndY)/(H-gndY)*0.4;
+        for(let x=0;x<W;x++) buf[y*W+x]=bright;
+    }
+    // ground line
+    for(let x=0;x<W;x++) buf[gndY*W+x]=0.9;
+
+    // ── scene elements based on event type ──
+    const etype = eventType.toLowerCase();
+
+    // Draw filled rect (silhouette helper)
+    function fillRect(x,y,w,h,v){
+        for(let dy=0;dy<h;dy++) for(let dx=0;dx<w;dx++){
+            const px=Math.floor(x+dx), py=Math.floor(y+dy);
+            if(px>=0&&px<W&&py>=0&&py<H) buf[py*W+px]=Math.max(buf[py*W+px],v);
+        }
+    }
+    // Draw filled circle
+    function fillCircle(cx,cy,r,v){
+        for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++){
+            if(dx*dx+dy*dy<=r*r){
+                const px=Math.floor(cx+dx),py=Math.floor(cy+dy);
+                if(px>=0&&px<W&&py>=0&&py<H) buf[py*W+px]=Math.max(buf[py*W+px],v);
+            }
+        }
+    }
+    // Draw a standing human silhouette
+    function drawPerson(cx, scale=1.0, brightness=0.95){
+        const head=Math.round(7*scale), torsoH=Math.round(22*scale), torsoW=Math.round(10*scale);
+        const legH=Math.round(18*scale), armH=Math.round(14*scale), armW=Math.round(4*scale);
+        const py=gndY;
+        fillCircle(cx, py-legH-torsoH-head, head, brightness);
+        fillRect(cx-torsoW/2, py-legH-torsoH, torsoW, torsoH, brightness);
+        fillRect(cx-torsoW/2-armW, py-legH-torsoH+4*scale, armW, armH, brightness);
+        fillRect(cx+torsoW/2, py-legH-torsoH+4*scale, armW, armH, brightness);
+        fillRect(cx-torsoW/4-armW/2, py-legH, armW+1, legH, brightness);
+        fillRect(cx+torsoW/4-armW/2+2, py-legH, armW+1, legH, brightness);
+    }
+    // Draw a building silhouette
+    function drawBuilding(x, w, h, windows=true){
+        fillRect(x, gndY-h, w, h, 0.85);
+        if(windows){
+            for(let wy=gndY-h+6;wy<gndY-4;wy+=9){
+                for(let wx=x+4;wx<x+w-4;wx+=8){
+                    if(rng()<0.6) fillRect(wx,wy,4,5,0.1); // dark window
+                    else fillRect(wx,wy,4,5,1.0);            // lit window
+                }
+            }
+        }
+    }
+    // Draw a tree silhouette
+    function drawTree(cx, h){
+        fillRect(cx-2, gndY-h*0.4, 4, Math.round(h*0.4), 0.8);
+        fillCircle(cx, gndY-h*0.55, Math.round(h*0.35), 0.85);
+    }
+
+    if(etype.includes('career') || etype.includes('professional')){
+        // Office / city scene
+        drawBuilding(10, 40, 80+rng()*40);
+        drawBuilding(60, 55, 60+rng()*50);
+        drawBuilding(125, 35, 100+rng()*30);
+        drawBuilding(170, 48, 70+rng()*60);
+        drawBuilding(228, 60, 90+rng()*40);
+        drawBuilding(298, 30, 55+rng()*40);
+        drawPerson(W/2, 1.1);
+    } else if(etype.includes('heart') || etype.includes('relation')){
+        // Two people close together
+        drawBuilding(10, 30, 40+rng()*30);
+        drawBuilding(280, 25, 50+rng()*30);
+        drawPerson(W/2-18, 1.05);
+        drawPerson(W/2+18, 1.05);
+        // connecting detail: small elements between them
+        fillRect(W/2-4, gndY-28, 8, 2, 0.9);
+    } else if(etype.includes('family') || etype.includes('oblig')){
+        // Family group
+        drawBuilding(20, 60, 50+rng()*20);
+        drawPerson(W/2-40, 1.0);
+        drawPerson(W/2, 1.0);
+        drawPerson(W/2+40, 0.75); // child
+        // house shape
+        const hx=180, hw=80, hh=55;
+        fillRect(hx,gndY-hh,hw,hh,0.8);
+        // roof
+        for(let i=0;i<hw/2+10;i++){
+            const rw=hw+20-i*2;
+            fillRect(hx-10+i, gndY-hh-i, rw, 2, 0.9);
+        }
+    } else if(etype.includes('health')){
+        // Sparse, quiet scene
+        drawTree(60, 70+rng()*30);
+        drawTree(200, 60+rng()*30);
+        drawPerson(W/2, 1.0, 0.7); // dimmer figure
+        // some dots for atmosphere
+        for(let i=0;i<40;i++){
+            const px=rng()*W, py=rng()*(gndY-40);
+            fillCircle(px,py,1,0.6);
+        }
+    } else if(etype.includes('financial')){
+        // Urban scene with multiple buildings
+        drawBuilding(0, 38, 110+rng()*30);
+        drawBuilding(48, 30, 90+rng()*40);
+        drawBuilding(90, 50, 130+rng()*20);
+        drawBuilding(150, 35, 100+rng()*30);
+        drawBuilding(195, 45, 115+rng()*25);
+        drawBuilding(250, 32, 80+rng()*40);
+        drawBuilding(292, 28, 70+rng()*30);
+        drawPerson(W/2, 0.95);
+    } else if(etype.includes('social') || etype.includes('belonging')){
+        // Crowd scene
+        const n=4+Math.floor(rng()*3);
+        const spacing=(W-80)/n;
+        for(let i=0;i<n;i++){
+            drawPerson(50+i*spacing+rng()*10-5, 0.85+rng()*0.2);
+        }
+        drawBuilding(5, 25, 45+rng()*20);
+        drawBuilding(285, 20, 40+rng()*25);
+    } else if(etype.includes('live') || etype.includes('place') || etype.includes('home')){
+        // Residential scene
+        const hx=W/2-40, hw=80, hh=65;
+        fillRect(hx, gndY-hh, hw, hh, 0.82);
+        for(let i=0;i<=hw/2+12;i++){
+            const rw=hw+24-i*2;
+            if(rw>0) fillRect(hx-12+i,gndY-hh-i,rw,2,0.92);
+        }
+        drawTree(hx-35, 65);
+        drawTree(hx+hw+25, 55);
+        drawPerson(W/2, 0.95);
+    } else {
+        // Generic: lone figure + cityscape
+        drawBuilding(0,30,50+rng()*60);
+        drawBuilding(35,42,40+rng()*70);
+        drawBuilding(90,28,80+rng()*40);
+        drawBuilding(230,38,60+rng()*50);
+        drawBuilding(278,33,55+rng()*45);
+        drawPerson(W/2, 1.0);
+    }
+
+    // ── apply Bayer ordered dithering ──
+    for(let y=0;y<H;y++){
+        for(let x=0;x<W;x++){
+            const lum = buf[y*W+x];
+            const threshold = bayer[y%4][x%4];
+            const on = lum > threshold ? 255 : 0;
+            const idx=(y*W+x)*4;
+            imgData.data[idx]=on;
+            imgData.data[idx+1]=on;
+            imgData.data[idx+2]=on;
+            imgData.data[idx+3]=255;
+        }
+    }
+    ctx.putImageData(imgData,0,0);
+}
+
+// ═══════════════════════════════════════════════════════
+// FLOWCHART SVG RENDERER
+// ═══════════════════════════════════════════════════════
+
+// Layout constants
+const FC = {
+    W: 0,          // set from element width
+    CX: 0,         // center X
+    rowH: 170,     // vertical step per event
+    decY: 55,      // diamond below year node
+    choiceY: 110,  // choices below diamond
+    termY: 150,    // terminal circle below choice
+    nodeR: 22,     // year octagon radius
+    choiceW: 90,   // choice rectangle width
+    choiceH: 30,   // choice rectangle height
+    spread: 105,   // horizontal spread of choices
+};
+
+// Compute positions for event i
+function eventPositions(i, choiceCount=3) {
+    const ey = 40 + i * FC.rowH;
+    const positions = {
+        year: { x: FC.CX, y: ey },
+        decision: { x: FC.CX, y: ey + FC.decY },
+        choices: [],
+        terminals: [],
+    };
+    // spread choices evenly
+    const offsets = choiceCount === 3
+        ? [-FC.spread, 0, FC.spread]
+        : choiceCount === 2
+        ? [-FC.spread/1.5, FC.spread/1.5]
+        : [0];
+    offsets.forEach(dx=>{
+        positions.choices.push({ x: FC.CX+dx, y: ey+FC.choiceY });
+        positions.terminals.push({ x: FC.CX+dx, y: ey+FC.termY });
+    });
+    return positions;
+}
+
+function makeOctagon(cx, cy, r) {
+    const s = r * 0.41;
+    const m = r - s;
+    return [
+        `${cx-s},${cy-r}`, `${cx+s},${cy-r}`,
+        `${cx+r},${cy-m}`, `${cx+r},${cy+m}`,
+        `${cx+s},${cy+r}`, `${cx-s},${cy+r}`,
+        `${cx-r},${cy+m}`, `${cx-r},${cy-m}`
+    ].join(' ');
+}
+
+function makeDiamond(cx, cy, rx, ry) {
+    return `${cx},${cy-ry} ${cx+rx},${cy} ${cx},${cy+ry} ${cx-rx},${cy}`;
+}
+
+function svgNS(tag, attrs){
+    const el=document.createElementNS('http://www.w3.org/2000/svg',tag);
+    for(const [k,v] of Object.entries(attrs)) el.setAttribute(k,String(v));
+    return el;
+}
+
+function starburst(cx, cy, innerR, outerR, rays=16){
+    const pts=[];
+    for(let i=0;i<rays*2;i++){
+        const angle=(i*Math.PI)/rays - Math.PI/2;
+        const r=i%2===0?outerR:innerR;
+        pts.push(`${cx+r*Math.cos(angle)},${cy+r*Math.sin(angle)}`);
+    }
+    return pts.join(' ');
+}
+
+function buildFlowchartSVG(svgEl, history, currentEvent, selectedIdx, highlightMode) {
+    // highlightMode: 'game' | 'gameover' | 'relive'
+    const panel = svgEl.parentElement;
+    FC.W = panel.clientWidth || 400;
+    FC.CX = FC.W / 2;
+
+    const totalEvents = history.length + (currentEvent ? 1 : 0);
+    const svgH = 60 + (totalEvents + 1) * FC.rowH + 60;
+    svgEl.setAttribute('viewBox', `0 0 ${FC.W} ${svgH}`);
+    svgEl.setAttribute('width', FC.W);
+    svgEl.setAttribute('height', svgH);
+    svgEl.innerHTML = '';
+
+    // defs for dashed line
+    const defs = svgNS('defs',{});
+    svgEl.appendChild(defs);
+
+    // Draw completed events
+    history.forEach((h, i) => {
+        const pos = eventPositions(i, h.choices ? h.choices.length : 3);
+        const choiceCount = h.choices ? h.choices.length : 3;
+        const chosenIdx = h.chosenIdx ?? 0;
+
+        // ── year → decision line ──
+        svgEl.appendChild(svgNS('line',{
+            x1:pos.year.x, y1:pos.year.y+FC.nodeR,
+            x2:pos.decision.x, y2:pos.decision.y-16,
+            stroke:'#fff', 'stroke-width':1.5
+        }));
+
+        // ── Year octagon ──
+        const oct = svgNS('polygon',{
+            points: makeOctagon(pos.year.x, pos.year.y, FC.nodeR),
+            fill:'#000', stroke:'#fff', 'stroke-width':1.5
+        });
+        svgEl.appendChild(oct);
+        const yearLbl = svgNS('text',{
+            x:pos.year.x, y:pos.year.y+5,
+            'text-anchor':'middle', fill:'#fff',
+            'font-family':"'Share Tech Mono','Courier New',monospace",
+            'font-size':11, 'letter-spacing':1
+        });
+        yearLbl.textContent = h.year;
+        svgEl.appendChild(yearLbl);
+
+        // ── Decision diamond ──
+        const dia = svgNS('polygon',{
+            points: makeDiamond(pos.decision.x, pos.decision.y, 42, 22),
+            fill:'#000', stroke:'#fff', 'stroke-width':1.5
+        });
+        svgEl.appendChild(dia);
+        // Wrap decision label
+        const diaLbl = svgNS('text',{
+            x:pos.decision.x, y:pos.decision.y+4,
+            'text-anchor':'middle', fill:'#fff',
+            'font-family':"'Share Tech Mono','Courier New',monospace",
+            'font-size':8
+        });
+        diaLbl.textContent = h.eventType.split(' ').slice(0,2).join(' ');
+        svgEl.appendChild(diaLbl);
+
+        // ── Choices ──
+        pos.choices.forEach((cp, ci) => {
+            const isChosen = ci === chosenIdx;
+            const dashAttr = isChosen ? null : '4 3';
+
+            // Decision → Choice line
+            const line = svgNS('line',{
+                x1:pos.decision.x, y1:pos.decision.y+22,
+                x2:cp.x, y2:cp.y-FC.choiceH/2,
+                stroke:'#fff','stroke-width':isChosen?1.5:0.7
+            });
+            if(!isChosen) line.setAttribute('stroke-dasharray','4 3');
+            svgEl.appendChild(line);
+
+            // Choice rectangle
+            const rect = svgNS('rect',{
+                x:cp.x-FC.choiceW/2, y:cp.y-FC.choiceH/2,
+                width:FC.choiceW, height:FC.choiceH,
+                fill: isChosen ? '#fff' : '#000',
+                stroke:'#fff','stroke-width': isChosen?1.5:0.7
+            });
+            if(!isChosen) rect.setAttribute('stroke-dasharray','4 3');
+            svgEl.appendChild(rect);
+
+            // Choice label
+            const txt = h.choices && h.choices[ci]
+                ? h.choices[ci].text.substring(0,14)
+                : (isChosen ? 'chosen' : '—');
+            const lbl = svgNS('text',{
+                x:cp.x, y:cp.y+4,
+                'text-anchor':'middle',
+                fill: isChosen ? '#000' : '#555',
+                'font-family':"'Share Tech Mono','Courier New',monospace",
+                'font-size':8
+            });
+            lbl.textContent = txt;
+            svgEl.appendChild(lbl);
+
+            if(!isChosen){
+                // Terminal circle
+                const term = svgNS('circle',{
+                    cx:pos.terminals[ci].x, cy:pos.terminals[ci].y,
+                    r:9, fill:'#000', stroke:'#fff','stroke-width':0.7
+                });
+                svgEl.appendChild(term);
+            } else {
+                // Continuation line going down to next year node
+                svgEl.appendChild(svgNS('line',{
+                    x1:cp.x, y1:cp.y+FC.choiceH/2,
+                    x2:cp.x, y2:cp.y+FC.choiceH/2+20,
+                    stroke:'#fff','stroke-width':1.5
+                }));
+                // Connect to center if choice isn't centered
+                if(Math.abs(cp.x-FC.CX)>5){
+                    svgEl.appendChild(svgNS('line',{
+                        x1:cp.x, y1:cp.y+FC.choiceH/2+20,
+                        x2:FC.CX, y2:cp.y+FC.choiceH/2+20,
+                        stroke:'#fff','stroke-width':1.5
+                    }));
+                    svgEl.appendChild(svgNS('line',{
+                        x1:FC.CX, y1:cp.y+FC.choiceH/2+20,
+                        x2:FC.CX, y2:pos.year.y+FC.rowH,
+                        stroke:'#fff','stroke-width':1.5
+                    }));
+                }
+            }
+
+            // Relive mode: clickable decision nodes
+            if(highlightMode === 'relive'){
+                const hitRect = svgNS('rect',{
+                    x:pos.decision.x-42, y:pos.decision.y-22,
+                    width:84, height:44,
+                    fill:'transparent', cursor:'pointer'
+                });
+                hitRect.dataset.historyIdx = i;
+                hitRect.addEventListener('click', ()=>selectReliveNode(i));
+                svgEl.appendChild(hitRect);
+
+                if(G.reliveTarget === i){
+                    const burst = svgNS('polygon',{
+                        points: starburst(pos.decision.x, pos.decision.y, 28, 48, 12),
+                        fill:'none', stroke:'#fff','stroke-width':1
+                    });
+                    svgEl.appendChild(burst);
+                }
+            }
+        });
+    });
+
+    // ── Current (active) event ──
+    if(currentEvent){
+        const i = history.length;
+        const pos = eventPositions(i, currentEvent.choices.length);
+
+        // Connection from last choice to this year
+        if(i>0){
+            svgEl.appendChild(svgNS('line',{
+                x1:FC.CX, y1:pos.year.y-FC.nodeR-10,
+                x2:FC.CX, y2:pos.year.y-FC.nodeR,
+                stroke:'#fff','stroke-width':1.5
+            }));
+        }
+
+        // Year → Decision line
+        svgEl.appendChild(svgNS('line',{
+            x1:pos.year.x, y1:pos.year.y+FC.nodeR,
+            x2:pos.decision.x, y2:pos.decision.y-16,
+            stroke:'#fff','stroke-width':1.5
+        }));
+
+        // Year octagon (thicker border = active)
+        svgEl.appendChild(svgNS('polygon',{
+            points:makeOctagon(pos.year.x, pos.year.y, FC.nodeR),
+            fill:'#000', stroke:'#fff','stroke-width':2
+        }));
+        const yl = svgNS('text',{
+            x:pos.year.x, y:pos.year.y+5,
+            'text-anchor':'middle',fill:'#fff',
+            'font-family':"'Share Tech Mono','Courier New',monospace",
+            'font-size':11,'letter-spacing':1
+        });
+        yl.textContent = currentEvent.year;
+        svgEl.appendChild(yl);
+
+        // Decision diamond
+        svgEl.appendChild(svgNS('polygon',{
+            points:makeDiamond(pos.decision.x, pos.decision.y, 42, 22),
+            fill:'#000',stroke:'#fff','stroke-width':2
+        }));
+        const dl = svgNS('text',{
+            x:pos.decision.x, y:pos.decision.y+4,
+            'text-anchor':'middle',fill:'#fff',
+            'font-family':"'Share Tech Mono','Courier New',monospace",
+            'font-size':8
+        });
+        dl.textContent = currentEvent.eventType.split(' ').slice(0,2).join(' ');
+        svgEl.appendChild(dl);
+
+        // Active choices
+        currentEvent.choices.forEach((ch, ci) => {
+            const cp = pos.choices[ci];
+            const isSelected = ci === selectedIdx;
+
+            // Branch line
+            svgEl.appendChild(svgNS('line',{
+                x1:pos.decision.x, y1:pos.decision.y+22,
+                x2:cp.x, y2:cp.y-FC.choiceH/2,
+                stroke:'#fff','stroke-width':isSelected?2:1
+            }));
+
+            // Choice rect
+            const rect = svgNS('rect',{
+                x:cp.x-FC.choiceW/2, y:cp.y-FC.choiceH/2,
+                width:FC.choiceW, height:FC.choiceH,
+                fill: isSelected ? '#fff':'#000',
+                stroke:'#fff','stroke-width': isSelected?2:1,
+                cursor:'pointer', rx:0
+            });
+            rect.addEventListener('click', ()=>handleChoiceClick(ci));
+            rect.addEventListener('mouseenter', ()=>handleChoiceHover(ci));
+            svgEl.appendChild(rect);
+
+            // Starburst on selected
+            if(isSelected){
+                svgEl.appendChild(svgNS('polygon',{
+                    points:starburst(cp.x, cp.y, FC.choiceH/2+8, FC.choiceH/2+22, 14),
+                    fill:'none', stroke:'#fff','stroke-width':1.2,
+                    'pointer-events':'none'
+                }));
+            }
+
+            // Label
+            const lbl = svgNS('text',{
+                x:cp.x, y:cp.y+4,
+                'text-anchor':'middle',
+                fill: isSelected?'#000':'#fff',
+                'font-family':"'Share Tech Mono','Courier New',monospace",
+                'font-size':8, 'pointer-events':'none'
+            });
+            lbl.textContent = ch.text.substring(0,14);
+            svgEl.appendChild(lbl);
+        });
+
+        // Scroll to current position
+        setTimeout(()=>{
+            const scrollEl = svgEl.parentElement;
+            const targetY = (pos.year.y - 60) * (scrollEl.scrollHeight / svgH);
+            scrollEl.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+        }, 100);
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// CHARACTER GENERATION
+// ═══════════════════════════════════════════════════════
+function generateCharacter(){
+    const gender = Math.random()<0.5?'Male':'Female';
+    const surname = CENSUS.surnames[Math.floor(Math.random()*CENSUS.surnames.length)];
+    const given = gender==='Male'
+        ? CENSUS.maleNames[Math.floor(Math.random()*CENSUS.maleNames.length)]
+        : CENSUS.femaleNames[Math.floor(Math.random()*CENSUS.femaleNames.length)];
+    const age = Math.floor(Math.random()*38)+22;
+    const prefecture = weighted(CENSUS.prefectures).n;
+    const occupation = weighted(CENSUS.occupations).n;
+    const education = weighted(CENSUS.educations).n;
+    let base=2800000;
+    if(education==='University') base+=600000;
+    if(education==='Graduate School') base+=1200000;
+    base+=(age-22)*28000;
+    const income=Math.round((base+(Math.random()-0.5)*2000000)/100000)*100000;
+    const r=Math.random();
+    const marital = age<27?(r<0.85?'Single':'Married'):
+        age<38?(r<0.5?'Married':r<0.8?'Single':'Divorced'):
+        (r<0.62?'Married':r<0.8?'Single':r<0.94?'Divorced':'Widowed');
+    const hasChildren = marital==='Married' && age>27 && Math.random()<0.55;
     return {
-        name: `${surname} ${given}`,
-        gender, age, prefecture, occupation, education,
-        income, maritalStatus, hasChildren, nationality,
-        health:    clamp(Math.floor(Math.random() * 30) + 60),
-        happiness: clamp(Math.floor(Math.random() * 40) + 40),
-        wealth:    clamp(Math.floor(Math.random() * 40) + 30),
-        social:    clamp(Math.floor(Math.random() * 40) + 40),
+        name:`${surname} ${given}`, gender, age, prefecture,
+        occupation, education, income, maritalStatus:marital,
+        hasChildren, nationality: Math.random()<0.025?'Non-Japanese':'Japanese',
+        health:clamp(Math.floor(Math.random()*30)+60),
+        money:clamp(Math.floor(Math.random()*40)+30),
+        startYear: 2026 - (age - 20),
     };
 }
 
-function generateAndShowCharacter() {
+function generateAndShow(){
     const c = generateCharacter();
-    state.character = c;
-    document.getElementById('cg-name').textContent = c.name.toUpperCase();
+    G.char = c;
+    document.getElementById('cg-name').textContent = c.name;
     document.getElementById('cg-age').textContent = c.age;
     document.getElementById('cg-gender').textContent = c.gender;
     document.getElementById('cg-pref').textContent = c.prefecture;
     document.getElementById('cg-job').textContent = c.occupation;
     document.getElementById('cg-edu').textContent = c.education;
-    document.getElementById('cg-income').textContent = fmtIncome(c.income) + '/yr';
-    document.getElementById('cg-marital').textContent = c.maritalStatus + (c.hasChildren ? ', Children' : '');
+    document.getElementById('cg-income').textContent = fmtIncome(c.income)+'/yr';
+    document.getElementById('cg-marital').textContent = c.maritalStatus+(c.hasChildren?', children':'');
     document.getElementById('cg-nationality').textContent = c.nationality;
-    document.getElementById('cg-health-bar').style.width = c.health + '%';
-    document.getElementById('cg-happy-bar').style.width = c.happiness + '%';
-    document.getElementById('cg-wealth-bar').style.width = c.wealth + '%';
-    document.getElementById('cg-social-bar').style.width = c.social + '%';
+    document.getElementById('cg-money').textContent = moneyStr(c.money);
+    document.getElementById('cg-health').textContent = healthStr(c.health);
 }
 
-function updateMiniChar() {
-    const c = state.character;
-    document.getElementById('mc-name').textContent = c.name.toUpperCase();
-    document.getElementById('mc-age').textContent = `Age ${c.age}`;
-    document.getElementById('mc-job').textContent = c.occupation;
-    document.getElementById('mc-status').textContent = c.maritalStatus + (c.hasChildren ? ' + Kids' : '');
-    document.getElementById('mv-health').style.width = c.health + '%';
-    document.getElementById('mv-happy').style.width = c.happiness + '%';
-    document.getElementById('mv-wealth').style.width = c.wealth + '%';
-    document.getElementById('mv-social').style.width = c.social + '%';
+function updateCharPanel(){
+    const c=G.char;
+    document.getElementById('ch-name').textContent = c.name;
+    document.getElementById('ch-age').textContent = c.age;
+    document.getElementById('ch-job').textContent = c.occupation;
+    document.getElementById('ch-loc').textContent = c.prefecture;
+    document.getElementById('ch-money').textContent = moneyStr(c.money);
+    document.getElementById('ch-health').textContent = healthStr(c.health);
 }
 
-function updateProgressBar() {
-    const track = document.getElementById('progress-track');
-    track.innerHTML = '';
-    for (let i = 0; i < TOTAL_EVENTS; i++) {
-        const pip = document.createElement('div');
-        pip.className = 'progress-pip' + (i < state.eventIndex ? ' done' : i === state.eventIndex ? ' current' : '');
-        track.appendChild(pip);
-    }
-    document.getElementById('progress-label').textContent = `${state.eventIndex}/${TOTAL_EVENTS}`;
+// ═══════════════════════════════════════════════════════
+// LLM
+// ═══════════════════════════════════════════════════════
+function charContext(c){
+    return `Name: ${c.name}, Age: ${c.age}, Gender: ${c.gender}, Prefecture: ${c.prefecture}, Occupation: ${c.occupation}, Education: ${c.education}, Income: ${fmtIncome(c.income)}/yr, Status: ${c.maritalStatus}${c.hasChildren?' with children':''}, Nationality: ${c.nationality}, Health: ${c.health}/100, Money: ${c.money}/100`;
 }
 
-// =================== LLM CALLS ===================
-function charSummary(c) {
-    return `Name: ${c.name}, Age: ${c.age}, Gender: ${c.gender}, Prefecture: ${c.prefecture}, Occupation: ${c.occupation}, Education: ${c.education}, Income: ${fmtIncome(c.income)}/yr, Marital: ${c.maritalStatus}${c.hasChildren ? ' with children' : ''}, Nationality: ${c.nationality}, Health: ${c.health}/100, Happiness: ${c.happiness}/100, Wealth: ${c.wealth}/100, Social: ${c.social}/100`;
-}
-
-async function callLLM(prompt, systemPrompt) {
-    const res = await fetch(OLLAMA_ENDPOINT, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            model: MODEL,
-            system: systemPrompt,
-            prompt,
-            stream: false,
-            format: 'json'
-        })
+async function callLLM(prompt, system){
+    const res = await fetch(OLLAMA, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:MODEL, system, prompt, stream:false, format:'json'})
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    try {
-        return JSON.parse(data.response);
-    } catch {
-        const match = data.response.match(/\{[\s\S]*\}/);
-        if (match) return JSON.parse(match[0]);
-        throw new Error('Could not parse LLM response');
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+    try { return JSON.parse(d.response); }
+    catch {
+        const m = d.response.match(/\{[\s\S]*\}/);
+        if(m) return JSON.parse(m[0]);
+        throw new Error('parse failed');
     }
 }
 
-const SYSTEM_EVENT = `You are the narrative engine for "Game of Possible Lives," a contemplative game about exploring different life paths in contemporary Japan.
-Generate emotionally resonant, realistic life decision moments grounded in Japanese society and the 2020 national census statistics.
-Reflect genuine social realities including gender expectations, workplace pressures, housing costs, family obligations, and demographic shifts.
-Do not sugarcoat — include the complexity and sometimes painful tradeoffs of real life.
+const SYS_EVENT = `You are the narrative engine for "Game of Possible Lives," a contemplative game about life paths in contemporary Japan, grounded in the 2020 national census.
+Generate specific, emotionally resonant life decision moments. Reflect genuine social realities: gender pressures, karoshi, housing costs, aging parents, marriage expectations, demographic decline.
+Do not sanitize — include complexity, regret, and the weight of real choices. Respond with valid JSON only.`;
+
+const SYS_OUTCOME = `You are the narrative engine for "Game of Possible Lives," a game about life in contemporary Japan.
+Generate authentic, nuanced outcomes over time — sometimes as expected, sometimes not. Reflect statistical reality: some paths lead to regret, some to joy, most to a mixture.
 Respond with valid JSON only.`;
 
-const SYSTEM_OUTCOME = `You are the narrative engine for "Game of Possible Lives," a game about life paths in contemporary Japan.
-Generate authentic, nuanced outcomes that reflect how real choices play out over time — sometimes as expected, sometimes not.
-Honor statistical realities: some paths lead to regret, some to unexpected joy, many to quiet acceptance.
-Respond with valid JSON only.`;
+async function fetchEvent(){
+    const c=G.char;
+    const et=EVENT_TYPES[G.eventIdx % EVENT_TYPES.length];
+    const histCtx=G.history.map((h,i)=>`Event ${i+1}: chose "${h.choice.text}" → ${h.outcome.narrative.slice(0,80)}...`).join('\n');
+    const prompt=`Character: ${charContext(c)}
+Event: #${G.eventIdx+1} of ${TOTAL_EVENTS}, theme: ${et}
+${G.history.length>0?`Life so far:\n${histCtx}`:''}
 
-async function fetchLifeEvent() {
-    const c = state.character;
-    const eventType = EVENT_TYPES[state.eventIndex % EVENT_TYPES.length];
-    const histSummary = state.history.map((h,i) =>
-        `Event ${i+1} (${EVENT_TYPES[i]}): chose "${h.choice.text}" → ${h.outcome.narrative.slice(0,80)}...`
-    ).join('\n');
-
-    const prompt = `Character: ${charSummary(c)}
-Event number: ${state.eventIndex + 1} of ${TOTAL_EVENTS}
-Event theme: ${eventType}
-${state.history.length > 0 ? `Life so far:\n${histSummary}` : ''}
-
-Generate a significant life crossroads. Return JSON:
+Generate a life crossroads. Return JSON:
 {
-  "situation": "A 2-3 sentence narrative describing their current moment and the decision they are facing. Make it specific and vivid.",
+  "situation": "2-3 vivid, specific sentences about their current moment and the decision they face.",
   "choices": [
-    {"text": "Choice title (8 words max)", "description": "One sentence expanding on what this path means."},
-    {"text": "Choice title (8 words max)", "description": "One sentence expanding on what this path means."},
-    {"text": "Choice title (8 words max)", "description": "One sentence expanding on what this path means."}
+    {"text": "Label ≤8 words", "description": "One sentence on what this path means."},
+    {"text": "Label ≤8 words", "description": "One sentence on what this path means."},
+    {"text": "Label ≤8 words", "description": "One sentence on what this path means."}
   ]
 }`;
-
-    return callLLM(prompt, SYSTEM_EVENT);
+    return callLLM(prompt, SYS_EVENT);
 }
 
-async function fetchOutcome(choice) {
-    const c = state.character;
-    const eventType = EVENT_TYPES[state.eventIndex % EVENT_TYPES.length];
+async function fetchOutcome(choice){
+    const c=G.char;
+    const et=EVENT_TYPES[G.eventIdx % EVENT_TYPES.length];
+    const prompt=`Character: ${charContext(c)}
+Situation: ${G.currentEvent.situation}
+Choice: "${choice.text}" — ${choice.description}
+Theme: ${et}, Event ${G.eventIdx+1}/${TOTAL_EVENTS}
 
-    const prompt = `Character: ${charSummary(c)}
-Current situation: ${state.currentEvent.situation}
-Choice made: "${choice.text}" — ${choice.description}
-Event theme: ${eventType}
-Event number: ${state.eventIndex + 1} of ${TOTAL_EVENTS}
-
-Generate the outcome of this choice. Return JSON:
+Generate the outcome. Return JSON:
 {
-  "narrative": "3-4 sentences describing what unfolded over the following years. Be specific, emotionally resonant, and realistic.",
-  "years_passed": <integer 1-6>,
-  "stat_changes": {
-    "health": <integer -20 to 15>,
-    "happiness": <integer -20 to 20>,
-    "wealth": <integer -20 to 20>,
-    "social": <integer -20 to 15>
-  },
-  "character_updates": {
-    "occupation": "<new occupation or null if unchanged>",
-    "maritalStatus": "<new status or null if unchanged>",
-    "hasChildren": <true, false, or null if unchanged>
-  },
-  "life_insight": "A single, reflective sentence about what this choice reveals about life."
+  "narrative": "3-4 sentences: what unfolded, how life changed, specific and emotionally honest.",
+  "years_passed": <1-6>,
+  "money_delta": <-20 to 20>,
+  "health_delta": <-20 to 15>,
+  "occupation_update": "<new occupation or null>",
+  "marital_update": "<new status or null>",
+  "life_insight": "One reflective sentence about what this reveals."
 }`;
-
-    return callLLM(prompt, SYSTEM_OUTCOME);
+    return callLLM(prompt, SYS_OUTCOME);
 }
 
-// =================== FALLBACK EVENTS ===================
-const FALLBACK_EVENTS = [
-    {
-        situation: "At 28, you find yourself at a crossroads: your company has offered a promotion that would mean longer hours and more responsibility, but also more pay. Meanwhile, a friend has invited you to co-found a small startup with a risky but exciting idea.",
-        choices: [
-            {text: "Accept the promotion", description: "Security and a clear career ladder."},
-            {text: "Join the startup", description: "Risk, but a chance to build something your own."},
-            {text: "Stay where you are", description: "Neither path — preserve your current balance."}
-        ]
-    },
-    {
-        situation: "You've been in a relationship for two years. Your partner has brought up the idea of marriage. You love them, but something makes you hesitate — life feels unsettled, and you're not sure what you really want.",
-        choices: [
-            {text: "Propose and commit", description: "Take the leap into a shared future."},
-            {text: "Ask for more time", description: "Be honest about your uncertainty."},
-            {text: "End the relationship", description: "A painful but honest choice."}
-        ]
-    },
-    {
-        situation: "Your ageing parent in another prefecture needs more support. You could move back home, transfer to a regional office, or try to manage things from a distance while sending money.",
-        choices: [
-            {text: "Move back home", description: "Be there in person, but upend your life."},
-            {text: "Transfer to regional office", description: "Compromise between duty and career."},
-            {text: "Manage from a distance", description: "Send support without uprooting yourself."}
-        ]
-    }
+// ═══════════════════════════════════════════════════════
+// FALLBACKS
+// ═══════════════════════════════════════════════════════
+const FB_EVENTS = [
+    {situation:"Your company has offered a promotion requiring longer hours and a move to Tokyo. Meanwhile, a close friend is asking you to join their startup. Both paths feel impossible to refuse.",choices:[{text:"Accept the promotion",description:"Security, prestige — and less of yourself."},{text:"Join the startup",description:"Risk, but a chance to build something real."},{text:"Stay where you are",description:"Neither path, for now."}]},
+    {situation:"You've been in this relationship for two years. They've brought up marriage. You love them, but something makes you hesitate — life still feels unsettled.",choices:[{text:"Say yes",description:"Commit to a shared future."},{text:"Ask for more time",description:"Honesty about your uncertainty."},{text:"End it",description:"Painful, but honest."}]},
+    {situation:"Your aging parent in another prefecture can no longer live alone. You could move back, transfer offices, or manage the situation from a distance.",choices:[{text:"Move back home",description:"Be present, but upend everything."},{text:"Transfer to regional office",description:"Compromise — career and duty."},{text:"Manage from afar",description:"Send money, keep your life."}]}
 ];
+const FB_OUTCOME = {narrative:"The years passed with a mixture of small victories and quiet regrets. Life carried you forward whether you were ready or not. You learned to make peace with the roads not taken.",years_passed:3,money_delta:5,health_delta:-3,occupation_update:null,marital_update:null,life_insight:"Every choice forecloses a thousand others, and we learn to live with that."};
 
-const FALLBACK_OUTCOMES = [
-    {
-        narrative: "The years pass with a mixture of small victories and quiet regrets. You sometimes wonder about the roads not taken, but life has its own momentum — carrying you forward whether you're ready or not.",
-        years_passed: 3,
-        stat_changes: {health: -2, happiness: 5, wealth: 8, social: 3},
-        character_updates: {occupation: null, maritalStatus: null, hasChildren: null},
-        life_insight: "Every choice forecloses a thousand others, and we learn to make peace with that."
-    }
-];
-
-// =================== GAME FLOW ===================
-function startGame() {
-    generateAndShowCharacter();
+// ═══════════════════════════════════════════════════════
+// GAME FLOW
+// ═══════════════════════════════════════════════════════
+function startGame(){
+    generateAndShow();
     showScreen('screen-chargen');
 }
 
-async function beginLife() {
-    state.eventIndex = 0;
-    state.history = [];
-    state.isReliving = false;
+async function beginLife(){
+    G.eventIdx = 0;
+    G.history = [];
+    G.selectedChoice = -1;
     document.getElementById('btn-begin').disabled = true;
-    showScreen('screen-event');
-    updateMiniChar();
-    updateProgressBar();
+    showScreen('screen-game');
+    updateCharPanel();
     await loadNextEvent();
     document.getElementById('btn-begin').disabled = false;
 }
 
-async function loadNextEvent() {
-    const sitEl = document.getElementById('situation-text');
-    const choicesEl = document.getElementById('choices-area');
-    const labelEl = document.getElementById('event-type-label');
+function currentYear(){
+    let y = G.char.startYear;
+    G.history.forEach(h => y += (h.outcome.years_passed||3));
+    return Math.min(y, 2100);
+}
 
-    labelEl.textContent = `◆ ${EVENT_TYPES[state.eventIndex % EVENT_TYPES.length]}`;
-    sitEl.innerHTML = '<span class="loading-dots">Generating your life situation</span>';
-    choicesEl.innerHTML = '';
-    updateProgressBar();
+async function loadNextEvent(){
+    // Show loading in narrative
+    const narEl = document.getElementById('narrative-text');
+    narEl.className = 'loading-text';
+    narEl.textContent = 'Loading';
+
+    // Clear canvas
+    const canvas = document.getElementById('scene-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width=320; canvas.height=180;
+    ctx.fillStyle='#000'; ctx.fillRect(0,0,320,180);
+
+    // Build partial flowchart with loading state
+    buildFlowchartSVG(document.getElementById('flowchart-svg'), G.history, null, -1, 'game');
 
     let event;
-    try {
-        event = await fetchLifeEvent();
-    } catch (e) {
-        console.warn('LLM failed, using fallback:', e);
-        event = FALLBACK_EVENTS[state.eventIndex % FALLBACK_EVENTS.length];
-    }
+    try { event = await fetchEvent(); }
+    catch(e){ console.warn('LLM failed:', e); event = FB_EVENTS[G.eventIdx % FB_EVENTS.length]; }
 
-    state.currentEvent = event;
-    sitEl.textContent = '';
-    await typewrite(sitEl, event.situation, 15);
+    const et = EVENT_TYPES[G.eventIdx % EVENT_TYPES.length];
+    const year = currentYear();
+    G.currentEvent = { ...event, eventType: et, year };
+    G.selectedChoice = 0;
 
-    choicesEl.innerHTML = '';
-    event.choices.forEach((ch, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'choice-btn';
-        btn.innerHTML = `
-            <span class="choice-letter">${String.fromCharCode(65+i)}</span>
-            <div class="choice-main">${ch.text}</div>
-            <div class="choice-desc">${ch.description}</div>`;
-        btn.onclick = () => selectChoice(ch, btn);
-        choicesEl.appendChild(btn);
-    });
+    // Draw scene
+    drawSceneImage(canvas, et, event.situation, G.char);
+
+    // Show narrative via typewriter
+    narEl.className = '';
+    await typewrite(narEl, event.situation, 14);
+
+    // Render flowchart with current choices
+    buildFlowchartSVG(document.getElementById('flowchart-svg'), G.history, G.currentEvent, G.selectedChoice, 'game');
 }
 
-async function selectChoice(choice, btn) {
-    // Disable all choices
-    document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
-    btn.classList.add('selected');
+function handleChoiceHover(idx){
+    if(G.selectedChoice === idx) return;
+    G.selectedChoice = idx;
+    buildFlowchartSVG(document.getElementById('flowchart-svg'), G.history, G.currentEvent, G.selectedChoice, 'game');
+}
 
-    // Show outcome screen
-    document.getElementById('outcome-choice-echo').textContent = `YOU CHOSE: ${choice.text.toUpperCase()}`;
-    document.getElementById('outcome-narrative').innerHTML = '<span class="loading-dots">The years unfold</span>';
-    document.getElementById('outcome-insight').style.display = 'none';
-    document.getElementById('stat-deltas').innerHTML = '';
-    document.getElementById('years-passed').textContent = '';
-    document.getElementById('btn-continue').disabled = true;
-    showScreen('screen-outcome');
+async function handleChoiceClick(idx){
+    G.selectedChoice = idx;
+    const choice = G.currentEvent.choices[idx];
+
+    // Freeze UI
+    document.getElementById('flowchart-svg').style.pointerEvents = 'none';
+    const narEl = document.getElementById('narrative-text');
+
+    // Show choice echo
+    narEl.textContent = `You chose: ${choice.text}`;
+    narEl.className = '';
+
+    // Fetch outcome
+    await new Promise(r=>setTimeout(r,600));
+    narEl.className = 'loading-text';
+    narEl.textContent = 'Years pass';
 
     let outcome;
-    try {
-        outcome = await fetchOutcome(choice);
-    } catch (e) {
-        console.warn('LLM outcome failed, using fallback:', e);
-        outcome = FALLBACK_OUTCOMES[0];
-    }
+    try { outcome = await fetchOutcome(choice); }
+    catch(e){ console.warn('LLM outcome failed:', e); outcome = FB_OUTCOME; }
 
-    // Apply stat changes
-    const c = state.character;
-    const deltas = outcome.stat_changes || {};
-    c.health    = clamp(c.health    + (deltas.health    || 0));
-    c.happiness = clamp(c.happiness + (deltas.happiness || 0));
-    c.wealth    = clamp(c.wealth    + (deltas.wealth    || 0));
-    c.social    = clamp(c.social    + (deltas.social    || 0));
-    c.age += outcome.years_passed || 2;
-
-    if (outcome.character_updates) {
-        const u = outcome.character_updates;
-        if (u.occupation)    c.occupation    = u.occupation;
-        if (u.maritalStatus) c.maritalStatus = u.maritalStatus;
-        if (u.hasChildren != null) c.hasChildren = u.hasChildren;
-    }
+    // Apply changes
+    const c = G.char;
+    c.money  = clamp(c.money  + (outcome.money_delta  || 0));
+    c.health = clamp(c.health + (outcome.health_delta || 0));
+    c.age   += (outcome.years_passed || 3);
+    if(outcome.occupation_update) c.occupation = outcome.occupation_update;
+    if(outcome.marital_update)    c.maritalStatus = outcome.marital_update;
 
     // Save to history
-    state.history.push({
-        situation: state.currentEvent.situation,
+    G.history.push({
+        year: G.currentEvent.year,
+        eventType: G.currentEvent.eventType,
+        situation: G.currentEvent.situation,
+        choices: G.currentEvent.choices,
+        chosenIdx: idx,
         choice,
         outcome,
-        eventIndex: state.eventIndex,
-        eventType: EVENT_TYPES[state.eventIndex % EVENT_TYPES.length]
     });
 
-    // Show narrative
-    const narEl = document.getElementById('outcome-narrative');
-    narEl.textContent = '';
-    await typewrite(narEl, outcome.narrative, 14);
+    // Show outcome narrative
+    narEl.className = '';
+    await typewrite(narEl, outcome.narrative, 13);
 
-    if (outcome.life_insight) {
-        const ins = document.getElementById('outcome-insight');
-        ins.style.display = 'block';
-        ins.textContent = '"' + outcome.life_insight + '"';
+    // Show insight
+    if(outcome.life_insight){
+        await new Promise(r=>setTimeout(r,300));
+        narEl.textContent += '\n\n"' + outcome.life_insight + '"';
     }
 
-    // Show stat deltas
-    const deltaEl = document.getElementById('stat-deltas');
-    const vitals = [
-        {key:'health', label:'HEALTH', color:'var(--green)'},
-        {key:'happiness', label:'HAPPY', color:'var(--gold)'},
-        {key:'wealth', label:'WEALTH', color:'var(--teal)'},
-        {key:'social', label:'SOCIAL', color:'var(--purple)'},
-    ];
-    vitals.forEach(v => {
-        const d = deltas[v.key] || 0;
-        const box = document.createElement('div');
-        box.className = 'stat-delta';
-        box.innerHTML = `
-            <div class="delta-label">${v.label}</div>
-            <div class="delta-value ${d > 0 ? 'pos' : d < 0 ? 'neg' : 'zero'}">${d > 0 ? '+' : ''}${d}</div>`;
-        deltaEl.appendChild(box);
-    });
+    updateCharPanel();
 
-    document.getElementById('years-passed').textContent =
-        `+${outcome.years_passed || 2} YEAR${outcome.years_passed !== 1 ? 'S' : ''}`;
-    document.getElementById('btn-continue').disabled = false;
-    state.eventIndex++;
-}
+    // Update flowchart to show committed choice
+    buildFlowchartSVG(document.getElementById('flowchart-svg'), G.history, null, -1, 'game');
 
-async function continueLife() {
-    if (state.eventIndex >= TOTAL_EVENTS || state.character.health <= 0) {
+    // Re-enable
+    document.getElementById('flowchart-svg').style.pointerEvents = '';
+
+    G.eventIdx++;
+
+    // Next event or game over
+    if(G.eventIdx >= TOTAL_EVENTS || G.char.health <= 0){
+        await new Promise(r=>setTimeout(r,2000));
         showGameOver();
         return;
     }
-    showScreen('screen-event');
-    updateMiniChar();
+
+    await new Promise(r=>setTimeout(r,1500));
     await loadNextEvent();
 }
 
-// =================== GAME OVER ===================
-function showGameOver() {
-    const c = state.character;
-    document.getElementById('go-name').textContent = c.name.toUpperCase() + '  ·  AGE ' + c.age;
+// ═══════════════════════════════════════════════════════
+// GAME OVER
+// ═══════════════════════════════════════════════════════
+function showGameOver(){
+    // Render complete flowchart in game-over panel
+    const goSvg = document.getElementById('go-flowchart-svg');
+    buildFlowchartSVG(goSvg, G.history, null, -1, 'gameover');
 
-    const fs = document.getElementById('final-stats');
-    const vitals = [
-        {label:'HEALTH', val:c.health, color:'var(--green)'},
-        {label:'HAPPINESS', val:c.happiness, color:'var(--gold)'},
-        {label:'WEALTH', val:c.wealth, color:'var(--teal)'},
-        {label:'SOCIAL', val:c.social, color:'var(--purple)'},
-    ];
-    fs.innerHTML = vitals.map(v => `
-        <div class="final-stat-box">
-            <div class="final-stat-num" style="color:${v.color}">${v.val}</div>
-            <div class="final-stat-label">${v.label}</div>
-        </div>`).join('');
+    document.getElementById('go-name').textContent =
+        G.char.name.toUpperCase() + '  ·  AGE ' + G.char.age;
 
-    const tl = document.getElementById('timeline');
-    tl.innerHTML = state.history.map((h, i) => `
-        <div class="timeline-item" onclick="reliveFrom(${i})" title="Click to relive from this moment">
-            <div class="timeline-num">#${i+1}</div>
-            <div class="timeline-content">
-                <div class="timeline-choice">↪ ${h.choice.text}</div>
-                <div class="timeline-outcome">${h.outcome.narrative.slice(0, 120)}${h.outcome.narrative.length > 120 ? '…' : ''}</div>
-            </div>
-        </div>`).join('');
+    // Scroll to top
+    document.getElementById('go-flowchart-wrap').scrollTop = 0;
 
     showScreen('screen-gameover');
 }
 
-function showRelive() {
-    const list = document.getElementById('relive-list');
-    list.innerHTML = state.history.map((h, i) => `
-        <button class="relive-item" onclick="reliveFrom(${i})">
-            <div class="relive-item-num">CROSSROADS #${i+1} — ${h.eventType}</div>
-            <div class="relive-item-text">${h.situation.slice(0, 100)}…</div>
-            <div class="relive-item-choice">You chose: ${h.choice.text}</div>
-        </button>`).join('');
+// ═══════════════════════════════════════════════════════
+// RELIVE
+// ═══════════════════════════════════════════════════════
+function showRelive(){
+    G.reliveTarget = -1;
+    document.getElementById('relive-info').classList.remove('visible');
+    document.getElementById('btn-relive-confirm').classList.remove('visible');
+
+    const rSvg = document.getElementById('relive-flowchart-svg');
+    buildFlowchartSVG(rSvg, G.history, null, -1, 'relive');
+
+    document.getElementById('relive-flowchart-wrap').scrollTop = 0;
     showScreen('screen-relive');
 }
 
-async function reliveFrom(index) {
-    // Restore character state to before this event
-    // We rebuild by re-applying only history before this point
-    const fresh = generateCharacter();
-    // Keep same base character, replay changes up to (but not including) index
-    state.character = Object.assign({}, state.character);
+function selectReliveNode(historyIdx){
+    G.reliveTarget = historyIdx;
+    const h = G.history[historyIdx];
+    document.getElementById('relive-info-year').textContent = `${h.year}  ·  ${h.eventType}`;
+    document.getElementById('relive-info-text').textContent = h.situation.slice(0,120) + (h.situation.length>120?'…':'');
+    document.getElementById('relive-info').classList.add('visible');
+    document.getElementById('btn-relive-confirm').classList.add('visible');
 
-    // Reset to original character and replay only up to index
-    const originalChar = { ...state.character };
+    // Re-render with starburst on selected
+    buildFlowchartSVG(document.getElementById('relive-flowchart-svg'), G.history, null, -1, 'relive');
+}
 
-    // Rewind: remove events from index onward
-    state.history = state.history.slice(0, index);
-    state.eventIndex = index;
-    state.isReliving = true;
-    state.reliveFromIndex = index;
+async function confirmRelive(){
+    if(G.reliveTarget < 0) return;
+    const idx = G.reliveTarget;
 
-    showScreen('screen-event');
-    updateMiniChar();
-    updateProgressBar();
+    // Truncate history to before this event and roll back stats
+    // For simplicity: replay only the kept history's stat changes from scratch
+    const originalChar = G.history[0] ? null : null; // We don't store original char, so just rewind age/stats by reversing deltas
+    G.history.slice(idx).reverse().forEach(h=>{
+        G.char.money  = clamp(G.char.money  - (h.outcome.money_delta  || 0));
+        G.char.health = clamp(G.char.health - (h.outcome.health_delta || 0));
+        G.char.age   -= (h.outcome.years_passed || 3);
+        if(h.outcome.occupation_update) G.char.occupation = h.choice.text; // approximate
+    });
+
+    G.history = G.history.slice(0, idx);
+    G.eventIdx = idx;
+    G.selectedChoice = -1;
+
+    showScreen('screen-game');
+    updateCharPanel();
     await loadNextEvent();
 }
 
-function newLife() {
-    generateAndShowCharacter();
+function newLife(){
+    generateAndShow();
     showScreen('screen-chargen');
 }
+
+// ═══════════════════════════════════════════════════════
+// KEYBOARD NAV
+// ═══════════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+    if(!document.getElementById('screen-game').classList.contains('active')) return;
+    if(!G.currentEvent) return;
+    const n = G.currentEvent.choices.length;
+    if(e.key==='ArrowLeft'){
+        G.selectedChoice = (G.selectedChoice-1+n)%n;
+        buildFlowchartSVG(document.getElementById('flowchart-svg'), G.history, G.currentEvent, G.selectedChoice, 'game');
+    } else if(e.key==='ArrowRight'){
+        G.selectedChoice = (G.selectedChoice+1)%n;
+        buildFlowchartSVG(document.getElementById('flowchart-svg'), G.history, G.currentEvent, G.selectedChoice, 'game');
+    } else if(e.key==='Enter'||e.key===' '){
+        handleChoiceClick(G.selectedChoice);
+    }
+});
+
+// ═══════════════════════════════════════════════════════
+// RESIZE
+// ═══════════════════════════════════════════════════════
+window.addEventListener('resize', ()=>{
+    if(document.getElementById('screen-game').classList.contains('active') && G.currentEvent){
+        buildFlowchartSVG(document.getElementById('flowchart-svg'), G.history, G.currentEvent, G.selectedChoice, 'game');
+    }
+});
 </script>
 </body>
 </html>

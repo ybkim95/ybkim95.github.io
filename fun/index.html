@@ -519,15 +519,24 @@ function drawScene(canvas,eventType,situation,char,eventIdx){
     setRO(cx-torW/4-armW/2,gY-legH,armW+1,legH,0.0);
     setRO(cx+torW/4+1,gY-legH,armW+1,legH,0.0);
   }
-  function building(x,w,h,bri=0.90){
-    setR(x,gY-h,w,h,bri);
+  // buildings: solid white walls (0.99 > every Bayer threshold), solid dark windows
+  function building(x,w,h){
+    setRO(x,gY-h,w,h,0.99);
     const wd=char.isUrban?0.6:0.4;
-    for(let wy=gY-h+5;wy<gY-3;wy+=7) for(let wx=x+3;wx<x+w-3;wx+=6) if(rng()<wd) setRO(wx,wy,4,4,rng()<0.5?0.04:0.98);
+    for(let wy=gY-h+5;wy<gY-3;wy+=7) for(let wx=x+3;wx<x+w-3;wx+=6)
+      if(rng()<wd) setRO(wx,wy,4,4,rng()<0.5?0.02:0.99);
   }
   // solid black tree silhouette
   function tree(cx,h){setRO(cx-2,gY-~~(h*.42),4,~~(h*.42),0.0);setCO(cx,gY-~~(h*.58),~~(h*.36),0.0);}
-  function bench(cx){setR(cx-10,gY-8,20,3,0.8);setR(cx-12,gY-5,3,5,0.75);setR(cx+9,gY-5,3,5,0.75);}
-  function desk(cx){setR(cx-14,gY-16,28,4,0.85);setR(cx-12,gY-12,4,12,0.75);setR(cx+8,gY-12,4,12,0.75);setR(cx-4,gY-22,12,8,0.7);}
+  // solid black furniture
+  function bench(cx){setRO(cx-10,gY-8,20,3,0.0);setRO(cx-12,gY-5,3,5,0.0);setRO(cx+9,gY-5,3,5,0.0);}
+  function desk(cx){
+    setRO(cx-14,gY-16,28,4,0.0);  // desktop surface
+    setRO(cx-12,gY-12,4,12,0.0);  // left leg
+    setRO(cx+8,gY-12,4,12,0.0);   // right leg
+    setRO(cx-4,gY-22,12,9,0.0);   // monitor body
+    setRO(cx-2,gY-20,8,5,0.99);   // screen face (lit up)
+  }
 
   const et=eventType.toLowerCase();
   const variant=~~(rng()*3);
@@ -535,46 +544,98 @@ function drawScene(canvas,eventType,situation,char,eventIdx){
   const bldH=()=>55+~~(rng()*85), bldW=()=>28+~~(rng()*20);
 
   if(et.includes('career')||et.includes('professional')){
-    if(variant===0){let x=0;for(let i=0;i<numB+2;i++){const w=bldW();building(x,w,bldH());x+=w+3;}person(W/2,1.0+lifePct*(-.12));}
-    else if(variant===1){setR(0,~~(gY*.3),W,gY*.7,.90);desk(W/2);person(W/2-18,.9);setR(W-60,20,45,gY-25,.92);setRO(W-57,23,39,gY-31,0.04);}
-    else{setR(0,gY-4,W,4,.95);for(let i=0;i<4;i++) building(i*(W/4),W/4-3,bldH());const n=2+~~(rng()*3);for(let i=0;i<n;i++) person(60+i*(W-120)/n+rng()*20-10,.9);}
+    if(variant===0){
+      // outdoor cityscape + person
+      let x=0;for(let i=0;i<numB+2;i++){const w=bldW();building(x,w,bldH());x+=w+3;}
+      person(W/2,1.0+lifePct*(-.12));
+    }else if(variant===1){
+      // indoor office: white room, black desk, person at work
+      setRO(0,0,W,H,0.97);
+      desk(W/2+10);
+      person(W/2-10,.9);
+      // window on right wall
+      setRO(W-55,15,42,gY-20,0.0);   // window frame (dark)
+      setRO(W-51,19,34,gY-28,0.99);  // window glass (bright daylight)
+    }else{
+      // street-level with multiple people
+      for(let i=0;i<4;i++) building(i*(W/4),W/4-3,bldH());
+      const n=2+~~(rng()*3);
+      for(let i=0;i<n;i++) person(60+i*(W-120)/n+rng()*20-10,.9);
+    }
   }else if(et.includes('heart')||et.includes('relation')){
-    const dist=12+~~(rng()*40);
-    if(variant===0){building(0,32,40+~~(rng()*30));building(W-35,30,45+~~(rng()*25));person(W/2-dist/2,1.0);person(W/2+dist/2,1.0);if(rng()<.4)line(W/2-dist/2+5,gY-35,W/2+dist/2-5,gY-35,0.0,1);}
-    else if(variant===1){bench(W/2);person(W/2-16,.9);person(W/2+16,.9);tree(W/5,50);tree(4*W/5,45);}
-    else{for(let i=0;i<5;i++) building(i*(W/5),W/5-2,bldH());person(W/2,1.0);}
+    const dist=14+~~(rng()*30);
+    if(variant===0){
+      // two people outside buildings
+      building(0,32,40+~~(rng()*30));building(W-35,30,45+~~(rng()*25));
+      person(W/2-dist,1.0);person(W/2+dist,1.0);
+    }else if(variant===1){
+      // park bench scene
+      bench(W/2);person(W/2-16,.9);person(W/2+16,.9);
+      tree(W/5,50);tree(4*W/5,45);
+    }else{
+      // city street, lone figure
+      for(let i=0;i<5;i++) building(i*(W/5),W/5-2,bldH());
+      person(W/2,1.0);
+    }
   }else if(et.includes('family')||et.includes('oblig')){
-    const hx=~~(W/2)-38,hw=76,hh=58+~~(rng()*20);
-    setR(hx,gY-hh,hw,hh,.88);
-    for(let i=0;i<=hw/2+12;i++){const rw=hw+24-i*2;if(rw>0)setR(hx-12+i,gY-hh-i,rw,2,.95);}
-    setRO(hx+hw/2-5,gY-20,10,20,0.04);tree(hx-30,55+~~(rng()*15));
-    if(variant===0){person(W/2-34,1.0);person(W/2,1.0);if(char.children||rng()<.5) person(W/2+32,.70);}
-    else if(variant===1){person(W/2-20,1.0);person(W/2+20,1.0);person(W/2-48,.68);person(W/2+46,.65);}
-    else{person(W/2,1.0);if(char.children) person(W/2+24,.72);}
+    // Family scene: people in foreground, small house in background — distinct from "place" scene
+    const hx=~~(W*.62),hw=52,hh=40;
+    setRO(hx,gY-hh,hw,hh,0.99);
+    for(let i=0;i<=hw/2+8;i++){const rw=hw+14-i*2;if(rw>0)setRO(hx-7+i,gY-hh-i,rw,2,0.99);}
+    setRO(hx+hw/2-4,gY-14,8,14,0.02);  // door
+    tree(hx-20,40+~~(rng()*10));
+    if(variant===0){person(~~(W*.2),1.0);person(~~(W*.36),1.0);if(char.children||rng()<.5) person(~~(W*.52),.70);}
+    else if(variant===1){person(~~(W*.15),1.0);person(~~(W*.30),1.0);person(~~(W*.45),.68);person(~~(W*.58),.65);}
+    else{person(~~(W*.25),1.0);person(~~(W*.42),1.0);}
   }else if(et.includes('health')){
-    if(variant===0){tree(45,70+~~(rng()*20));tree(105,55+~~(rng()*25));tree(200,65+~~(rng()*20));tree(270,50+~~(rng()*20));person(W/2,1.0);}
-    else if(variant===1){setR(0,~~(gY*.2),W,gY*.8,.90);setR(W/2-25,20,50,gY-35,.92);setRO(W/2-22,23,44,gY-41,0.04);person(W/2-20,.9);setR(W/2-5,gY-22,38,12,.88);}
-    else{tree(30,45);tree(W-40,52);person(W/2+~~(rng()*60-30),1.0);}
+    if(variant===0){
+      // outdoor trees, solitary figure
+      tree(45,70+~~(rng()*20));tree(120,55+~~(rng()*25));tree(210,65+~~(rng()*20));tree(275,50+~~(rng()*20));
+      person(W/2,1.0);
+    }else if(variant===1){
+      // hospital/clinical room: white room, bed, person
+      setRO(0,0,W,H,0.97);
+      setRO(W/2-35,gY-30,70,30,0.0);  // bed frame
+      setRO(W/2-32,gY-42,50,14,0.0);  // pillow/patient area
+      person(W/2-12,.78);              // patient figure
+      setRO(W/2+30,gY-50,8,50,0.0);   // IV stand
+    }else{
+      tree(30,45);tree(W-40,52);person(W/2+~~(rng()*60-30),1.0);
+    }
   }else if(et.includes('financial')){
+    // dense cityscape, person below
     let x=0; while(x<W){const w=bldW()+5;building(x,w,bldH()+20);x+=w+1;}
-    for(let i=0;i<3;i++) setR(20+i*80+~~(rng()*30),gY-30-~~(rng()*60),25,8,.98);
     person(W/2,.95);
   }else if(et.includes('social')||et.includes('belonging')){
+    // group of people
     const n=3+~~(rng()*4),spacing=(W-100)/Math.max(n,1);
-    for(let i=0;i<n;i++) person(55+i*spacing+rng()*15-7,.80+rng()*.25);
+    for(let i=0;i<n;i++) person(55+i*spacing+rng()*15-7,.80+rng()*.20);
     if(variant===0){building(0,22,35+~~(rng()*20));building(W-25,20,40+~~(rng()*20));tree(W/2,30);}
-    else if(variant===2){bench(W/4);bench(3*W/4);}
+    else if(variant===1){bench(W/4);bench(3*W/4);}
   }else if(et.includes('live')||et.includes('place')){
-    const hx=~~(W/2)-40+~~(rng()*20-10),hw=75+~~(rng()*15),hh=55+~~(rng()*20);
-    setR(hx,gY-hh,hw,hh,.88);
-    for(let i=0;i<=hw/2+12;i++){const rw=hw+22-i*2;if(rw>0)setR(hx-11+i,gY-hh-i,rw,2,.95);}
-    setRO(hx+hw/2-5,gY-22,10,22,0.04);setR(hx+10,gY-hh+10,18,12,.92);
-    tree(hx-35,60+~~(rng()*15));tree(hx+hw+20,50+~~(rng()*15));
-    person(hx-15-~~(rng()*10),.95);
+    // "Place to Live": house is the dominant subject — centered, large, person approaching
+    const hx=~~(W/2)-42+~~(rng()*10-5),hw=84+~~(rng()*15),hh=62+~~(rng()*18);
+    setRO(hx,gY-hh,hw,hh,0.99);
+    for(let i=0;i<=hw/2+14;i++){const rw=hw+26-i*2;if(rw>0)setRO(hx-13+i,gY-hh-i,rw,2,0.99);}
+    setRO(hx+hw/2-6,gY-24,12,24,0.02);   // door (solid dark)
+    setRO(hx+8,gY-hh+12,20,14,0.02);     // window left (dark)
+    setRO(hx+hw-28,gY-hh+12,20,14,0.02); // window right (dark)
+    tree(hx-38,62+~~(rng()*14));tree(hx+hw+22,52+~~(rng()*14));
+    person(hx-18-~~(rng()*8),.95);
   }else if(et.includes('later')||et.includes('final')){
-    if(variant===0){tree(W/4,50+~~(rng()*20));tree(3*W/4,45+~~(rng()*20));bench(W/2);person(W/2-5,.88);}
-    else if(variant===1){setR(W/2-40,10,80,gY-15,.92);setRO(W/2-36,14,72,gY-23,0.04);person(W/2-14,.92);}
-    else{building(0,30,35+~~(rng()*25));building(W-32,28,40+~~(rng()*20));person(W/2,.90);}
+    if(variant===0){
+      // park bench, quiet end-of-day
+      tree(W/4,50+~~(rng()*20));tree(3*W/4,45+~~(rng()*20));
+      bench(W/2);person(W/2-5,.88);
+    }else if(variant===1){
+      // window at night: dark sky background, white window frame, dark glass
+      setRO(W/2-44,8,88,gY-12,0.99);   // window frame (solid white)
+      setRO(W/2-40,12,80,gY-20,0.02);  // window glass (dark night outside)
+      person(W/2-14,.92);
+    }else{
+      building(0,32,38+~~(rng()*24));building(W-34,30,42+~~(rng()*22));
+      person(W/2,.90);
+    }
   }else{
     let x=0; while(x<W){const w=bldW();building(x,w,bldH());x+=w+2;}
     person(W/2,1.0);
@@ -591,7 +652,7 @@ function drawScene(canvas,eventType,situation,char,eventIdx){
 // ══════════════════════════════════════════════════════════
 // FLOWCHART SVG
 // ══════════════════════════════════════════════════════════
-const B={rowH:160,topPad:55,yearR:30,diaRX:62,diaRY:34,cW:148,cH:40,spread:150,termR:13};
+const B={rowH:255,topPad:55,yearR:30,diaRX:62,diaRY:34,cW:148,cH:40,spread:150,termR:13};
 
 function ns(tag,a){const e=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const[k,v]of Object.entries(a))e.setAttribute(k,String(v));return e;}
 function octPts(cx,cy,r){const s=r*.414,m=r-s;return`${cx-s},${cy-r} ${cx+s},${cy-r} ${cx+r},${cy-m} ${cx+r},${cy+m} ${cx+s},${cy+r} ${cx-s},${cy+r} ${cx-r},${cy+m} ${cx-r},${cy-m}`;}
@@ -606,9 +667,9 @@ function renderFC(svgEl,history,current,selIdx,mode){
   const CX=panelW/2;
   const nEv=history.length+(current?1:0)+(mode==='gameover'?1:0);
 
-  // Scale layout to fit panel height in non-game modes (min 0.68 to keep text legible)
+  // Scale layout to fit panel height in non-game modes exactly (no minimum — Life Over is an overview)
   const naturalH=B.topPad+Math.max(nEv,1)*B.rowH+80;
-  const sc=(mode==='game')?1:Math.max(0.68,Math.min(1,(panelH-40)/naturalH));
+  const sc=(mode==='game')?1:Math.min(1,(panelH-20)/naturalH);
   const _B={
     rowH:Math.round(B.rowH*sc), topPad:Math.round(B.topPad*sc),
     yearR:Math.round(B.yearR*sc), diaRX:Math.round(B.diaRX*sc), diaRY:Math.round(B.diaRY*sc),
@@ -889,7 +950,16 @@ const FB_EV=[
   // 7 — final crossroads
   {situation:"You stand at the end of a long chapter. What actually mattered has become clearer. How you spend what remains feels like the only question left.",choices:[{text:"Deepen what you've already built",description:"Go further into the life you chose."},{text:"Give something back",description:"Shift focus outward, toward others."},{text:"Begin one small reinvention",description:"One more attempt at something new."}],choice_pcts:[35,38,27]}
 ];
-const FB_OUT={narrative:"The years passed with a mixture of small victories and quiet regrets. Life carried you forward whether you were ready or not. You found ways to adapt.",years_passed:3,money_delta:4,health_delta:-2,occupation_update:null,marital_update:null,life_insight:"Every choice forecloses a thousand others, and we learn to live with that."};
+const FB_OUT=[
+  {narrative:"The gamble paid off more than it cost. The early months were rough, but you found your footing faster than you expected.",years_passed:3,money_delta:7,health_delta:-4,occupation_update:null,marital_update:null,life_insight:"Growth often costs exactly what we didn't want to give up."},
+  {narrative:"The relationship carried forward in ways you hadn't planned for. Not without friction — but friction proved you were both real.",years_passed:3,money_delta:1,health_delta:3,occupation_update:null,marital_update:null,life_insight:"Love is mostly made of small, unremarkable days."},
+  {narrative:"The new place was never quite perfect, but it became yours in ways you hadn't expected. You learned which windows caught good light.",years_passed:3,money_delta:-4,health_delta:4,occupation_update:null,marital_update:null,life_insight:"Home is what you negotiate with yourself."},
+  {narrative:"The professional bet took three years to resolve. Some quarters felt like breakthroughs. Others felt like treading water. The net result was forward.",years_passed:3,money_delta:6,health_delta:-4,occupation_update:null,marital_update:null,life_insight:"Careers don't move in lines — they move in accumulations."},
+  {narrative:"The family situation resolved itself the way hard things do — slowly, with nobody getting exactly what they wanted, and everyone getting something.",years_passed:3,money_delta:-3,health_delta:-1,occupation_update:null,marital_update:null,life_insight:"Obligation and love are harder to untangle than they look."},
+  {narrative:"The health scare forced a reckoning you had been quietly avoiding. Changing course was inconvenient. Not changing would have been worse.",years_passed:3,money_delta:-3,health_delta:9,occupation_update:null,marital_update:null,life_insight:"The body keeps score whether you're watching or not."},
+  {narrative:"The years passed with a mixture of small victories and quiet regrets. Life carried you forward whether you were ready or not. You found ways to adapt.",years_passed:3,money_delta:3,health_delta:-2,occupation_update:null,marital_update:null,life_insight:"Every choice forecloses a thousand others, and we learn to live with that."},
+  {narrative:"The final chapter held more surprise than you expected. What looked like an ending turned out to be a different kind of peace — or at least a different kind of beginning.",years_passed:3,money_delta:0,health_delta:-2,occupation_update:null,marital_update:null,life_insight:"Meaning isn't found at the end — it's made along the way."}
+];
 
 // ══════════════════════════════════════════════════════════
 // COUNTRY SELECTION
@@ -993,7 +1063,7 @@ async function onChoiceClick(idx){
   narEl.innerHTML=''; narEl.classList.add('loading-d');
 
   let out;
-  try{out=await fetchOutcome(choice);}catch(e){console.warn(e);out=FB_OUT;}
+  try{out=await fetchOutcome(choice);}catch(e){console.warn(e);out=FB_OUT[Math.min(G.eventIdx,FB_OUT.length-1)];}
 
   const c=G.char;
   c.money=clamp(c.money+(out.money_delta||0));

@@ -23,6 +23,20 @@ html, body { width:100%; height:100%; background:#000; color:#fff; font-family:'
 .title-credit a { color:#555; text-decoration:none; }
 .title-credit a:hover { color:#aaa; }
 
+/* COUNTRY SELECT */
+#screen-country { flex-direction:column; align-items:center; justify-content:center; gap:44px; }
+.ctry-lbl { font-size:11px; letter-spacing:.35em; color:#444; text-transform:uppercase; }
+.ctry-cards { display:flex; gap:20px; }
+.ctry-card { border:1px solid #2a2a2a; padding:28px 24px; width:160px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:12px; transition:border-color .15s,background .15s; }
+.ctry-card:hover { border-color:#777; }
+.ctry-card.sel { border-color:#fff; background:#0a0a0a; }
+.ctry-flag { font-size:38px; line-height:1; }
+.ctry-name { font-family:'VT323',monospace; font-size:26px; letter-spacing:.1em; }
+.ctry-census { font-size:10px; color:#444; letter-spacing:.06em; text-align:center; line-height:1.7; }
+.ctry-go { font-family:inherit; font-size:13px; letter-spacing:.25em; color:#000; background:#fff; border:none; padding:12px 36px; cursor:pointer; text-transform:uppercase; opacity:.25; pointer-events:none; }
+.ctry-go.ready { opacity:1; pointer-events:auto; }
+.ctry-go.ready:hover { background:#ccc; }
+
 /* CHAR GEN */
 #screen-chargen { flex-direction:column; align-items:center; justify-content:center; gap:28px; }
 .cg-box { border:2px solid #fff; padding:28px 36px; width:min(460px,90vw); }
@@ -49,7 +63,7 @@ html, body { width:100%; height:100%; background:#000; color:#fff; font-family:'
 
 /* CARD */
 #card-panel { flex:0 0 43%; display:flex; align-items:stretch; padding:20px; }
-.char-card { border:2px solid #fff; display:flex; flex-direction:column; width:100%; padding:20px; overflow:hidden; gap:0; }
+.char-card { border:2px solid #fff; display:flex; flex-direction:column; width:100%; padding:20px; overflow:hidden; }
 .card-hdr { display:grid; grid-template-columns:1fr auto; grid-template-rows:auto auto; column-gap:12px; row-gap:3px; padding-bottom:14px; border-bottom:1px solid #333; margin-bottom:14px; flex-shrink:0; }
 .card-name { font-family:'VT323',monospace; font-size:28px; letter-spacing:.05em; grid-column:1; grid-row:1; line-height:1; }
 .card-age  { font-family:'VT323',monospace; font-size:28px; grid-column:2; grid-row:1; text-align:right; line-height:1; }
@@ -58,11 +72,16 @@ html, body { width:100%; height:100%; background:#000; color:#fff; font-family:'
 .card-img  { border:1px solid #fff; flex-shrink:0; margin-bottom:14px; overflow:hidden; background:#000; position:relative; }
 .card-img::before { content:''; display:block; padding-top:56.25%; }
 #scene-canvas { position:absolute; inset:0; width:100%; height:100%; display:block; image-rendering:pixelated; }
-#narrative { font-size:14px; line-height:1.85; letter-spacing:.02em; color:#e0e0e0; flex:1; overflow-y:auto; margin-bottom:14px; min-height:60px; scrollbar-width:thin; scrollbar-color:#222 #000; white-space:pre-wrap; }
+#narrative { font-size:14px; line-height:1.85; letter-spacing:.02em; color:#e0e0e0; flex:1; overflow-y:auto; margin-bottom:8px; min-height:60px; scrollbar-width:thin; scrollbar-color:#222 #000; white-space:pre-wrap; cursor:pointer; user-select:none; }
+#narrative:hover { color:#eee; }
 .tw-cursor::after { content:'█'; animation:blink .7s step-end infinite; }
 @keyframes blink { 50%{opacity:0;} }
 .loading-d::after { content:''; animation:ddd 1.4s steps(4,end) infinite; }
 @keyframes ddd { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
+.card-actions { display:flex; gap:16px; align-items:center; margin-bottom:10px; flex-shrink:0; height:18px; }
+.action-btn { font-family:inherit; font-size:10px; letter-spacing:.18em; color:#3a3a3a; background:transparent; border:none; cursor:pointer; padding:0; text-transform:uppercase; transition:color .15s; }
+.action-btn:hover { color:#888; }
+.action-btn.vis { color:#555; }
 .card-stats { border-top:1px solid #333; padding-top:12px; display:flex; justify-content:space-between; font-size:15px; letter-spacing:.04em; flex-shrink:0; }
 .s-lbl { color:#555; }
 
@@ -70,11 +89,12 @@ html, body { width:100%; height:100%; background:#000; color:#fff; font-family:'
 #screen-gameover { flex-direction:row; }
 #go-fc { flex:0 0 57%; overflow:hidden; position:relative; }
 #go-fc-svg-wrap { width:100%; height:100%; overflow:auto; scrollbar-width:thin; scrollbar-color:#222 #000; }
-#go-right { flex:0 0 43%; display:flex; flex-direction:column; justify-content:center; padding:0 48px; gap:44px; }
-.go-lbl { font-size:13px; color:#555; letter-spacing:.15em; text-transform:uppercase; margin-bottom:8px; }
+#go-right { flex:0 0 43%; display:flex; flex-direction:column; justify-content:center; padding:0 44px; gap:24px; }
+.go-lbl { font-size:13px; color:#555; letter-spacing:.15em; text-transform:uppercase; margin-bottom:6px; }
 .go-title { font-family:'VT323',monospace; font-size:clamp(64px,9vw,110px); line-height:.9; letter-spacing:.06em; }
+#go-summary { font-size:13px; line-height:1.85; color:#666; border-left:2px solid #1c1c1c; padding-left:14px; font-style:italic; max-height:120px; overflow-y:auto; scrollbar-width:thin; }
 .go-menu { display:flex; flex-direction:column; gap:14px; }
-.go-btn { font-family:'Share Tech Mono',monospace; font-size:18px; letter-spacing:.12em; background:transparent; border:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap:14px; padding:0; text-transform:uppercase; }
+.go-btn { font-family:'Share Tech Mono',monospace; font-size:17px; letter-spacing:.12em; background:transparent; border:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap:14px; padding:0; text-transform:uppercase; }
 .go-btn.on { color:#fff; }
 .go-btn.off { color:#3a3a3a; }
 .go-btn:hover { opacity:.8; }
@@ -85,9 +105,9 @@ html, body { width:100%; height:100%; background:#000; color:#fff; font-family:'
 #rv-fc { flex:0 0 57%; position:relative; overflow:hidden; }
 #rv-fc-wrap { width:100%; height:100%; overflow:auto; scrollbar-width:thin; scrollbar-color:#222 #000; }
 .rv-hint { position:absolute; top:18px; left:18px; font-size:13px; letter-spacing:.12em; color:#555; pointer-events:none; z-index:10; line-height:1.7; }
-#rv-right { flex:0 0 43%; display:flex; flex-direction:column; justify-content:center; padding:0 48px; gap:28px; }
-.rv-jp { font-size:22px; color:#888; }
-.rv-en { font-family:'VT323',monospace; font-size:clamp(36px,5vw,58px); line-height:1; }
+#rv-right { flex:0 0 43%; display:flex; flex-direction:column; justify-content:center; padding:0 44px; gap:28px; }
+.rv-jp { font-size:20px; color:#777; margin-bottom:4px; }
+.rv-en { font-family:'VT323',monospace; font-size:clamp(36px,5vw,56px); line-height:1; }
 .rv-info { display:none; border:1px solid #333; padding:16px; flex-direction:column; gap:8px; }
 .rv-info.show { display:flex; }
 .rv-yr { font-size:11px; letter-spacing:.25em; color:#555; text-transform:uppercase; }
@@ -98,117 +118,225 @@ html, body { width:100%; height:100%; background:#000; color:#fff; font-family:'
 .rv-back { font-family:inherit; font-size:12px; letter-spacing:.2em; color:#444; background:transparent; border:none; cursor:pointer; padding:0; text-transform:uppercase; }
 .rv-back:hover { color:#fff; }
 
+/* MUTE BUTTON */
+#btn-mute { position:fixed; top:14px; right:16px; z-index:500; font-family:inherit; font-size:10px; letter-spacing:.15em; color:#2a2a2a; background:transparent; border:none; cursor:pointer; padding:4px; text-transform:uppercase; }
+#btn-mute:hover { color:#666; }
+
+/* LOG MODAL */
+#log-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.97); z-index:400; overflow-y:auto; }
+#log-modal.open { display:block; }
+.log-inner { max-width:660px; margin:0 auto; padding:48px 40px; }
+.log-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:36px; border-bottom:1px solid #1a1a1a; padding-bottom:14px; }
+.log-hdr-lbl { font-size:11px; letter-spacing:.3em; color:#444; text-transform:uppercase; }
+.log-close { font-family:inherit; font-size:11px; letter-spacing:.2em; color:#333; background:transparent; border:none; cursor:pointer; text-transform:uppercase; }
+.log-close:hover { color:#aaa; }
+.log-entry { margin-bottom:32px; padding-bottom:32px; border-bottom:1px solid #0f0f0f; }
+.log-entry:last-child { border-bottom:none; }
+.log-ehdr { font-size:10px; letter-spacing:.2em; color:#333; text-transform:uppercase; margin-bottom:10px; }
+.log-sit { font-size:14px; line-height:1.85; color:#888; margin-bottom:10px; }
+.log-cho { font-size:13px; color:#ccc; letter-spacing:.04em; padding:8px 12px; border-left:2px solid #444; margin-bottom:10px; }
+.log-out { font-size:14px; line-height:1.85; color:#e0e0e0; margin-bottom:8px; }
+.log-ins { font-size:12px; color:#444; font-style:italic; }
+
 ::-webkit-scrollbar { width:4px; }
 ::-webkit-scrollbar-track { background:#000; }
-::-webkit-scrollbar-thumb { background:#222; }
+::-webkit-scrollbar-thumb { background:#1e1e1e; }
 </style>
 </head>
 <body>
 
+<!-- FIXED: MUTE -->
+<button id="btn-mute" onclick="toggleMute()">♪ SFX</button>
+
+<!-- LOG MODAL -->
+<div id="log-modal">
+  <div class="log-inner">
+    <div class="log-hdr">
+      <span class="log-hdr-lbl">≡ Life Log</span>
+      <button class="log-close" onclick="toggleLog()">✕ close</button>
+    </div>
+    <div id="log-entries"></div>
+  </div>
+</div>
+
 <!-- TITLE -->
 <div id="screen-title" class="screen active">
-    <div class="title-main">GAME OF<br>POSSIBLE LIVES</div>
-    <div class="title-desc">A randomly generated person.<br>A life shaped by crossroads.<br>Every choice forecloses a thousand others.</div>
-    <button class="title-start" onclick="startGame()">▶ press start</button>
-    <div class="title-credit">Inspired by <a href="https://www.tomokihara.com/en/game-of-possible-lives.html" target="_blank">Tomo Kihara's original work</a> · Based on Japan's 2020 National Census</div>
+  <div class="title-main">GAME OF<br>POSSIBLE LIVES</div>
+  <div class="title-desc">A randomly generated person.<br>A life shaped by crossroads.<br>Every choice forecloses a thousand others.</div>
+  <button class="title-start" onclick="goCountrySelect()">▶ press start</button>
+  <div class="title-credit">Inspired by <a href="https://www.tomokihara.com/en/game-of-possible-lives.html" target="_blank">Tomo Kihara's original work</a></div>
+</div>
+
+<!-- COUNTRY SELECT -->
+<div id="screen-country" class="screen">
+  <div class="ctry-lbl">Choose your world</div>
+  <div class="ctry-cards">
+    <div class="ctry-card" id="cc-jp" onclick="selectCountry('jp')">
+      <div class="ctry-flag">🇯🇵</div>
+      <div class="ctry-name">JAPAN</div>
+      <div class="ctry-census">Japan 2020<br>National Census</div>
+    </div>
+    <div class="ctry-card" id="cc-kr" onclick="selectCountry('kr')">
+      <div class="ctry-flag">🇰🇷</div>
+      <div class="ctry-name">KOREA</div>
+      <div class="ctry-census">Korea 2020<br>KOSTAT Census</div>
+    </div>
+    <div class="ctry-card" id="cc-us" onclick="selectCountry('us')">
+      <div class="ctry-flag">🇺🇸</div>
+      <div class="ctry-name">USA</div>
+      <div class="ctry-census">USA 2020<br>Census Bureau</div>
+    </div>
+  </div>
+  <button class="ctry-go" id="btn-ctry-go" onclick="confirmCountry()">begin →</button>
 </div>
 
 <!-- CHAR GEN -->
 <div id="screen-chargen" class="screen" style="flex-direction:column;align-items:center;justify-content:center;gap:28px;">
-    <div class="cg-box">
-        <div class="cg-intro">A life begins —</div>
-        <div class="cg-name" id="cg-name">—</div>
-        <div class="cg-rows">
-            <div class="cg-row"><span class="cg-k">Age</span><span class="cg-v" id="cg-age">—</span></div>
-            <div class="cg-row"><span class="cg-k">Gender</span><span class="cg-v" id="cg-gender">—</span></div>
-            <div class="cg-row"><span class="cg-k">Prefecture</span><span class="cg-v" id="cg-pref">—</span></div>
-            <div class="cg-row"><span class="cg-k">Occupation</span><span class="cg-v" id="cg-job">—</span></div>
-            <div class="cg-row"><span class="cg-k">Education</span><span class="cg-v" id="cg-edu">—</span></div>
-            <div class="cg-row"><span class="cg-k">Income</span><span class="cg-v" id="cg-income">—</span></div>
-            <div class="cg-row"><span class="cg-k">Status</span><span class="cg-v" id="cg-marital">—</span></div>
-            <div class="cg-row"><span class="cg-k">Nationality</span><span class="cg-v" id="cg-nat">—</span></div>
-        </div>
-        <div class="cg-stats">
-            <div class="cg-stat"><span class="cg-k">money</span><span id="cg-money">—</span></div>
-            <div class="cg-stat"><span class="cg-k">health</span><span id="cg-health">—</span></div>
-        </div>
+  <div class="cg-box">
+    <div class="cg-intro">A life begins —</div>
+    <div class="cg-name" id="cg-name">—</div>
+    <div class="cg-rows">
+      <div class="cg-row"><span class="cg-k">Age</span><span class="cg-v" id="cg-age">—</span></div>
+      <div class="cg-row"><span class="cg-k">Gender</span><span class="cg-v" id="cg-gender">—</span></div>
+      <div class="cg-row"><span class="cg-k" id="cg-lbl-region">Region</span><span class="cg-v" id="cg-pref">—</span></div>
+      <div class="cg-row"><span class="cg-k">Occupation</span><span class="cg-v" id="cg-job">—</span></div>
+      <div class="cg-row"><span class="cg-k">Education</span><span class="cg-v" id="cg-edu">—</span></div>
+      <div class="cg-row"><span class="cg-k">Income</span><span class="cg-v" id="cg-income">—</span></div>
+      <div class="cg-row"><span class="cg-k">Status</span><span class="cg-v" id="cg-marital">—</span></div>
+      <div class="cg-row"><span class="cg-k" id="cg-lbl-nat">Background</span><span class="cg-v" id="cg-nat">—</span></div>
     </div>
-    <div class="cg-btns">
-        <button class="btn-ghost" onclick="generateAndShow()">↺ reroll</button>
-        <button class="btn-solid" id="btn-begin" onclick="beginLife()">begin this life →</button>
+    <div class="cg-stats">
+      <div class="cg-stat"><span class="cg-k">money</span><span id="cg-money">—</span></div>
+      <div class="cg-stat"><span class="cg-k">health</span><span id="cg-health">—</span></div>
     </div>
+  </div>
+  <div class="cg-btns">
+    <button class="btn-ghost" onclick="generateAndShow()">↺ reroll</button>
+    <button class="btn-solid" id="btn-begin" onclick="beginLife()">begin this life →</button>
+  </div>
 </div>
 
 <!-- GAME -->
 <div id="screen-game" class="screen">
-    <div id="fc-panel">
-        <div id="fc-scroll"><svg id="fc-svg" xmlns="http://www.w3.org/2000/svg"></svg></div>
-        <div id="choose-hint">← CHOOSE →</div>
+  <div id="fc-panel">
+    <div id="fc-scroll"><svg id="fc-svg" xmlns="http://www.w3.org/2000/svg"></svg></div>
+    <div id="choose-hint">← CHOOSE →</div>
+  </div>
+  <div id="card-panel">
+    <div class="char-card">
+      <div class="card-hdr">
+        <div class="card-name" id="card-name">—</div>
+        <div class="card-age"  id="card-age">—</div>
+        <div class="card-job"  id="card-job">—</div>
+        <div class="card-loc"  id="card-loc">—</div>
+      </div>
+      <div class="card-img"><canvas id="scene-canvas"></canvas></div>
+      <div id="narrative" title="Click to skip typing"></div>
+      <div class="card-actions">
+        <button class="action-btn" id="btn-replay" onclick="replayNarrative()">◀ replay</button>
+        <button class="action-btn" id="btn-log" onclick="toggleLog()">≡ log</button>
+      </div>
+      <div class="card-stats">
+        <span><span class="s-lbl">money : </span><span id="s-money">—</span></span>
+        <span><span class="s-lbl">health : </span><span id="s-health">—</span></span>
+      </div>
     </div>
-    <div id="card-panel">
-        <div class="char-card">
-            <div class="card-hdr">
-                <div class="card-name" id="card-name">—</div>
-                <div class="card-age"  id="card-age">—</div>
-                <div class="card-job"  id="card-job">—</div>
-                <div class="card-loc"  id="card-loc">—</div>
-            </div>
-            <div class="card-img"><canvas id="scene-canvas"></canvas></div>
-            <div id="narrative"></div>
-            <div class="card-stats">
-                <span><span class="s-lbl">money : </span><span id="s-money">—</span></span>
-                <span><span class="s-lbl">health : </span><span id="s-health">—</span></span>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
 
 <!-- LIFE OVER -->
 <div id="screen-gameover" class="screen">
-    <div id="go-fc">
-        <div id="go-fc-svg-wrap"><svg id="go-svg" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <div id="go-fc">
+    <div id="go-fc-svg-wrap"><svg id="go-svg" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  </div>
+  <div id="go-right">
+    <div>
+      <div class="go-lbl" id="go-lbl">—</div>
+      <div class="go-title">LIFE<br>OVER</div>
     </div>
-    <div id="go-right">
-        <div>
-            <div class="go-lbl" id="go-lbl">—</div>
-            <div class="go-title">LIFE<br>OVER</div>
-        </div>
-        <div class="go-menu">
-            <button class="go-btn on" onclick="showRelive()"><span class="go-arr">›</span><span>生きなおす / RELIVE</span></button>
-            <button class="go-btn off" onclick="newLife()"><span class="go-arr">›</span><span>おわる / END</span></button>
-        </div>
+    <div id="go-summary">—</div>
+    <div class="go-menu">
+      <button class="go-btn on" onclick="showRelive()"><span class="go-arr">›</span><span id="go-relive-txt">RELIVE</span></button>
+      <button class="go-btn off" onclick="newLife()"><span class="go-arr">›</span><span id="go-end-txt">END</span></button>
     </div>
+  </div>
 </div>
 
 <!-- RELIVE -->
 <div id="screen-relive" class="screen">
-    <div id="rv-fc">
-        <div class="rv-hint">↓↑  いどう / move</div>
-        <div id="rv-fc-wrap"><svg id="rv-svg" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <div id="rv-fc">
+    <div class="rv-hint" id="rv-hint">↓↑  move</div>
+    <div id="rv-fc-wrap"><svg id="rv-svg" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  </div>
+  <div id="rv-right">
+    <div>
+      <div class="rv-jp" id="rv-jp">どこから生きなおす？</div>
+      <div class="rv-en">WHERE TO<br>RELIVE?</div>
     </div>
-    <div id="rv-right">
-        <div><div class="rv-jp">どこから生きなおす？</div><div class="rv-en">WHERE TO<br>RELIVE?</div></div>
-        <div class="rv-info" id="rv-info">
-            <div class="rv-yr" id="rv-yr">—</div>
-            <div class="rv-txt" id="rv-txt">—</div>
-        </div>
-        <button id="btn-rv" onclick="confirmRelive()">↩ relive from here</button>
-        <button class="rv-back" onclick="showScreen('screen-gameover')">← back</button>
+    <div class="rv-info" id="rv-info">
+      <div class="rv-yr" id="rv-yr">—</div>
+      <div class="rv-txt" id="rv-txt">—</div>
     </div>
+    <button id="btn-rv" onclick="confirmRelive()">↩ relive from here</button>
+    <button class="rv-back" onclick="showScreen('screen-gameover')">← back</button>
+  </div>
 </div>
 
 <script>
 // ══════════════════════════════════════════════════════════
 // CENSUS DATA
 // ══════════════════════════════════════════════════════════
-const CENSUS={
-    prefs:[{n:'Tokyo',w:11},{n:'Osaka',w:7},{n:'Kanagawa',w:7},{n:'Aichi',w:6},{n:'Saitama',w:6},{n:'Chiba',w:5},{n:'Hyogo',w:4},{n:'Hokkaido',w:4},{n:'Fukuoka',w:4},{n:'Shizuoka',w:3},{n:'Hiroshima',w:2},{n:'Kyoto',w:2},{n:'Miyagi',w:2},{n:'Nagano',w:2},{n:'Other',w:35}],
+const CENSUS_DATA={
+  jp:{
+    currency:'¥', regionLabel:'Prefecture',
+    regions:[{n:'Tokyo',w:11},{n:'Osaka',w:7},{n:'Kanagawa',w:7},{n:'Aichi',w:6},{n:'Saitama',w:6},{n:'Chiba',w:5},{n:'Hyogo',w:4},{n:'Hokkaido',w:4},{n:'Fukuoka',w:4},{n:'Shizuoka',w:3},{n:'Hiroshima',w:2},{n:'Kyoto',w:2},{n:'Miyagi',w:2},{n:'Nagano',w:2},{n:'Other',w:35}],
     jobs:[{n:'Office Worker',w:25},{n:'Service Worker',w:18},{n:'Manufacturing',w:14},{n:'Healthcare',w:10},{n:'IT / Tech',w:9},{n:'Education',w:7},{n:'Retail',w:8},{n:'Freelance',w:6},{n:'Unemployed',w:3}],
-    edus:[{n:'High School',w:35},{n:'Vocational',w:20},{n:'University',w:35},{n:'Graduate School',w:10}],
+    edus:[{n:'High School',w:35},{n:'Vocational School',w:20},{n:'University',w:35},{n:'Graduate School',w:10}],
     mN:['Hiroshi','Kenji','Takeshi','Satoshi','Naoki','Daisuke','Ryota','Shota','Kazuki','Haruto','Sota','Hayato','Ren','Yuto'],
     fN:['Haruka','Sakura','Aoi','Rina','Mika','Nana','Yui','Kana','Ayaka','Yuna','Hana','Misaki','Saki','Yuki'],
-    sN:['Tanaka','Suzuki','Sato','Watanabe','Ito','Yamamoto','Nakamura','Kobayashi','Kato','Yoshida','Yamada','Sasaki','Matsumoto','Inoue','Kimura','Hayashi','Shimizu','Mori','Abe','Ikeda']
+    sN:['Tanaka','Suzuki','Sato','Watanabe','Ito','Yamamoto','Nakamura','Kobayashi','Kato','Yoshida','Yamada','Sasaki','Matsumoto','Inoue','Kimura','Hayashi','Shimizu','Mori','Abe','Ikeda'],
+    urbanR:['Tokyo','Osaka','Kanagawa','Aichi','Saitama','Chiba'],
+    incBase:2800000,incPerYr:28000,incVar:2000000,incRnd:100000,
+    fmtInc:(v)=>v>=1e6?`¥${(v/1e6).toFixed(1)}M`:`¥${(v/1e3).toFixed(0)}K`,
+    natLabel:'Nationality', nat:(r)=>r<.025?'Non-Japanese':'Japanese',
+    i18n:{reliveQ:'どこから生きなおす？',reliveBtn:'生きなおす / RELIVE',endBtn:'おわる / END',moveHint:'↓↑  いどう / move'},
+    sysEv:`You are the narrative engine for "Game of Possible Lives," set in contemporary Japan.\nGenerate specific, emotionally resonant life decision moments grounded in the 2020 census.\nReflect real pressures: karoshi, housing costs in Tokyo/Osaka, aging parents, gender expectations, hikikomori, declining birth rate, rural depopulation.\nRespond with valid JSON only.`,
+    sysOut:`You are the narrative engine for "Game of Possible Lives," set in Japan.\nGenerate authentic outcomes — sometimes expected, sometimes surprising. Most lives are a mixture.\nRespond with valid JSON only.`
+  },
+  kr:{
+    currency:'₩', regionLabel:'Province',
+    regions:[{n:'Seoul',w:19},{n:'Gyeonggi',w:26},{n:'Busan',w:7},{n:'Incheon',w:6},{n:'Daegu',w:5},{n:'Daejeon',w:3},{n:'Gwangju',w:3},{n:'Ulsan',w:2},{n:'Jeju',w:1},{n:'Other',w:28}],
+    jobs:[{n:'Office Worker',w:22},{n:'Service Worker',w:20},{n:'Manufacturing',w:17},{n:'Healthcare',w:9},{n:'IT / Tech',w:10},{n:'Education',w:7},{n:'Retail',w:8},{n:'Freelance',w:5},{n:'Unemployed',w:2}],
+    edus:[{n:'High School',w:30},{n:'Vocational School',w:15},{n:'University',w:45},{n:'Graduate School',w:10}],
+    mN:['Minjun','Junhyeok','Jiwoo','Seunghyun','Taehyun','Hyunsoo','Minseok','Jihoon','Jaewon','Donghyun','Junyeong','Sungmin','Kyungmin','Wonseok'],
+    fN:['Jiyeon','Minji','Soyeon','Yuna','Jisoo','Hyuna','Seoyeon','Naeun','Jiae','Minjeong','Jiyoung','Soeun','Hyerin','Dahyun'],
+    sN:['Kim','Lee','Park','Choi','Jung','Kang','Cho','Yoon','Jang','Lim','Han','Oh','Shin','Kwon','Ryu'],
+    urbanR:['Seoul','Gyeonggi','Busan','Incheon','Daegu'],
+    incBase:28000000,incPerYr:280000,incVar:20000000,incRnd:1000000,
+    fmtInc:(v)=>v>=1e8?`₩${(v/1e8).toFixed(1)}억`:`₩${Math.round(v/1e4)}만`,
+    natLabel:'Nationality', nat:(r)=>r<.03?'Non-Korean':'Korean',
+    i18n:{reliveQ:'어디서 다시 살까요?',reliveBtn:'다시살기 / RELIVE',endBtn:'끝내기 / END',moveHint:'↓↑  이동 / move'},
+    sysEv:`You are the narrative engine for "Game of Possible Lives," set in contemporary South Korea.\nGenerate specific, emotionally resonant life decision moments grounded in Korean society.\nReflect real pressures: education obsession (수능/CSAT), chaebol work culture, mandatory military service for men, housing costs in Seoul/Gyeonggi, "sampo generation" giving up on marriage and dreams, age-based hierarchy, mental health stigma.\nRespond with valid JSON only.`,
+    sysOut:`You are the narrative engine for "Game of Possible Lives," set in South Korea.\nGenerate authentic outcomes — sometimes expected, sometimes surprising. Most lives are a mixture.\nRespond with valid JSON only.`
+  },
+  us:{
+    currency:'$', regionLabel:'State',
+    regions:[{n:'California',w:12},{n:'Texas',w:9},{n:'Florida',w:7},{n:'New York',w:6},{n:'Pennsylvania',w:4},{n:'Illinois',w:4},{n:'Ohio',w:3},{n:'Georgia',w:3},{n:'North Carolina',w:3},{n:'Michigan',w:3},{n:'Other',w:46}],
+    jobs:[{n:'Healthcare',w:14},{n:'Office / Admin',w:20},{n:'Technology',w:11},{n:'Service Industry',w:16},{n:'Manufacturing',w:8},{n:'Education',w:9},{n:'Retail',w:12},{n:'Freelance',w:7},{n:'Unemployed',w:3}],
+    edus:[{n:'High School',w:27},{n:"Community College",w:20},{n:"Bachelor's Degree",w:36},{n:'Graduate School',w:17}],
+    mN:['James','John','Robert','Michael','William','David','Richard','Joseph','Thomas','Christopher','Matthew','Anthony','Daniel','Joshua'],
+    fN:['Mary','Patricia','Jennifer','Linda','Barbara','Elizabeth','Susan','Jessica','Sarah','Karen','Lisa','Nancy','Betty','Ashley'],
+    sN:['Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Rodriguez','Martinez','Wilson','Anderson','Taylor','Thomas','Hernandez','Moore'],
+    urbanR:['California','New York','Illinois','Massachusetts','Washington'],
+    incBase:50000,incPerYr:800,incVar:30000,incRnd:1000,
+    fmtInc:(v)=>v>=1e6?`$${(v/1e6).toFixed(1)}M`:`$${(v/1e3).toFixed(0)}K`,
+    natLabel:'Background', nat:(r)=>r<.14?'Immigrant':'US-born',
+    i18n:{reliveQ:'WHERE WOULD YOU GO BACK?',reliveBtn:'RELIVE FROM HERE',endBtn:'END / NEW LIFE',moveHint:'↓↑  scroll to choose'},
+    sysEv:`You are the narrative engine for "Game of Possible Lives," set in the contemporary United States.\nGenerate specific, emotionally resonant life decision moments grounded in American society.\nReflect real pressures: student loan debt, lack of universal healthcare, hustle culture vs burnout, gig economy precarity, housing affordability crisis, racial and class dynamics, loneliness epidemic, political polarization.\nRespond with valid JSON only.`,
+    sysOut:`You are the narrative engine for "Game of Possible Lives," set in the United States.\nGenerate authentic outcomes — sometimes expected, sometimes surprising. Most lives are a mixture.\nRespond with valid JSON only.`
+  }
 };
+
 const ETYPES=['Career Crossroads','Matters of the Heart','A Place to Live','Professional Turning Point','Family & Obligations','A Health Moment','Financial Decision','Social Belonging','Later Chapter','Final Crossroads'];
 const TOTAL=8;
 const OLLAMA='https://matlaber15.media.mit.edu/ollama/api/generate';
@@ -218,772 +346,685 @@ const MODEL='qwen2.5:32b';
 // AUDIO
 // ══════════════════════════════════════════════════════════
 const Audio={
-    ctx:null, ambGain:null, started:false,
-    init(){
-        if(this.started)return;
-        this.started=true;
-        try{
-            this.ctx=new(window.AudioContext||window.webkitAudioContext)();
-            // Low ambient drone
-            const osc1=this.ctx.createOscillator();
-            const osc2=this.ctx.createOscillator();
-            this.ambGain=this.ctx.createGain();
-            this.ambGain.gain.value=0.025;
-            osc1.type='sine'; osc1.frequency.value=55;
-            osc2.type='sine'; osc2.frequency.value=82.4;
-            osc1.connect(this.ambGain); osc2.connect(this.ambGain);
-            this.ambGain.connect(this.ctx.destination);
-            osc1.start(); osc2.start();
-        }catch(e){}
-    },
-    click(){
-        if(!this.ctx)return;
-        const o=this.ctx.createOscillator(), g=this.ctx.createGain();
-        o.type='square'; o.frequency.value=600+Math.random()*300;
-        g.gain.setValueAtTime(0.04,this.ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.0001,this.ctx.currentTime+0.035);
-        o.connect(g); g.connect(this.ctx.destination);
-        o.start(); o.stop(this.ctx.currentTime+0.04);
-    },
-    chime(freq,dur){
-        if(!this.ctx)return;
-        const o=this.ctx.createOscillator(), g=this.ctx.createGain();
-        o.type='sine'; o.frequency.value=freq||440;
-        g.gain.setValueAtTime(0.12,this.ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.0001,this.ctx.currentTime+(dur||1.2));
-        o.connect(g); g.connect(this.ctx.destination);
-        o.start(); o.stop(this.ctx.currentTime+(dur||1.2)+0.05);
-    },
-    event(positive){
-        if(!this.ctx)return;
-        const freqs=positive?[330,440,554]:[220,277,330];
-        freqs.forEach((f,i)=>setTimeout(()=>this.chime(f,0.8),i*180));
-    },
-    lifeOver(){
-        if(!this.ctx)return;
-        if(this.ambGain){this.ambGain.gain.setTargetAtTime(0.005,this.ctx.currentTime,2);}
-        [110,138,165].forEach((f,i)=>setTimeout(()=>this.chime(f,2.5),i*400));
-    }
+  ctx:null,ambGain:null,started:false,
+  init(){
+    if(this.started)return; this.started=true;
+    try{
+      this.ctx=new(window.AudioContext||window.webkitAudioContext)();
+      const o1=this.ctx.createOscillator(),o2=this.ctx.createOscillator();
+      this.ambGain=this.ctx.createGain(); this.ambGain.gain.value=0.025;
+      o1.type='sine';o1.frequency.value=55;
+      o2.type='sine';o2.frequency.value=82.4;
+      o1.connect(this.ambGain);o2.connect(this.ambGain);
+      this.ambGain.connect(this.ctx.destination);
+      o1.start();o2.start();
+    }catch(e){}
+  },
+  _g(freq,type='sine'){
+    if(!this.ctx||G.muted)return null;
+    const o=this.ctx.createOscillator(),g=this.ctx.createGain();
+    o.type=type; o.frequency.value=freq;
+    o.connect(g); g.connect(this.ctx.destination);
+    return{o,g,t:this.ctx.currentTime};
+  },
+  click(){
+    const x=this._g(600+Math.random()*300,'square'); if(!x)return;
+    x.g.gain.setValueAtTime(0.04,x.t);
+    x.g.gain.exponentialRampToValueAtTime(0.0001,x.t+0.035);
+    x.o.start();x.o.stop(x.t+0.04);
+  },
+  chime(freq,dur=1.2){
+    const x=this._g(freq); if(!x)return;
+    x.g.gain.setValueAtTime(0.12,x.t);
+    x.g.gain.exponentialRampToValueAtTime(0.0001,x.t+dur);
+    x.o.start();x.o.stop(x.t+dur+0.05);
+  },
+  event(pos){const f=pos?[330,440,554]:[220,277,330];f.forEach((v,i)=>setTimeout(()=>this.chime(v,.8),i*180));},
+  lifeOver(){
+    if(!this.ctx)return;
+    if(this.ambGain)this.ambGain.gain.setTargetAtTime(0.005,this.ctx.currentTime,2);
+    [110,138,165].forEach((f,i)=>setTimeout(()=>this.chime(f,2.5),i*400));
+  },
+  setMuted(m){
+    G.muted=m;
+    if(this.ambGain&&this.ctx)this.ambGain.gain.setTargetAtTime(m?0:0.025,this.ctx.currentTime,.5);
+    document.getElementById('btn-mute').textContent=m?'✕ SFX':'♪ SFX';
+  }
+};
+
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+let G={
+  char:null,eventIdx:0,history:[],current:null,selIdx:0,reliveTarget:-1,busy:false,
+  country:'jp', C:CENSUS_DATA.jp,
+  lastText:'', eventLog:[], muted:false
 };
 
 // ══════════════════════════════════════════════════════════
 // UTILS
 // ══════════════════════════════════════════════════════════
-let G={char:null,eventIdx:0,history:[],current:null,selIdx:0,reliveTarget:-1,busy:false};
-
 function weighted(a){let t=a.reduce((s,i)=>s+(i.w||1),0),r=Math.random()*t;for(const x of a){r-=(x.w||1);if(r<=0)return x;}return a[a.length-1];}
 function clamp(v,a=0,b=100){return Math.max(a,Math.min(b,v));}
-function fmtY(y){return y>=1e6?`¥${(y/1e6).toFixed(1)}M`:`¥${(y/1e3).toFixed(0)}K`;}
-function mStr(v){const n=Math.round(clamp(v)/20);return`<span style="color:#fff">${'¥'.repeat(n)}</span><span style="color:#1e1e1e">${'¥'.repeat(5-n)}</span>`;}
-function hStr(v){const n=Math.round(clamp(v)/20);return`<span style="color:#fff">${'♥'.repeat(n)}</span><span style="color:#1e1e1e">${'♡'.repeat(5-n)}</span>`;}
+function mStr(v){const n=Math.round(clamp(v)/20);return`<span style="color:#fff">${'█'.repeat(n)}</span><span style="color:#252525">${'░'.repeat(5-n)}</span>`;}
+function hStr(v){const n=Math.round(clamp(v)/20);return`<span style="color:#fff">${'♥'.repeat(n)}</span><span style="color:#1a1a1a">${'♡'.repeat(5-n)}</span>`;}
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function pause(ms){return new Promise(r=>setTimeout(r,ms));}
-
 function srng(seed){let s=seed>>>0;return()=>{s+=0x6D2B79F5;let t=s;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
 function hashStr(s){let h=0;for(let i=0;i<s.length;i++)h=Math.imul(31,h)+s.charCodeAt(i)|0;return h>>>0;}
+function toggleMute(){Audio.setMuted(!G.muted);}
 
-async function typewrite(el,text,speed=14){
-    el.textContent=''; el.classList.add('tw-cursor');
-    for(const c of text){
-        el.textContent+=c;
-        if(c!==' '&&c!=='\n')Audio.click();
-        await pause(speed);
-    }
-    el.classList.remove('tw-cursor');
+// Typewrite — click narrative to skip
+let _twTok=0,_twTarget='';
+async function typewrite(el,text,speed=24){
+  _twTarget=text;
+  const tok=++_twTok;
+  el.textContent=''; el.classList.add('tw-cursor');
+  for(const c of text){
+    if(_twTok!==tok)return;
+    el.textContent+=c;
+    if(c!==' '&&c!=='\n')Audio.click();
+    await pause(speed);
+  }
+  if(_twTok===tok)el.classList.remove('tw-cursor');
+}
+function skipTypewrite(){
+  const el=document.getElementById('narrative');
+  if(!el.classList.contains('tw-cursor'))return;
+  _twTok++;
+  el.textContent=_twTarget;
+  el.classList.remove('tw-cursor');
+}
+async function replayNarrative(){
+  if(!G.lastText)return;
+  await typewrite(document.getElementById('narrative'),G.lastText,24);
+}
+
+// Log modal
+function toggleLog(){
+  const m=document.getElementById('log-modal');
+  if(m.classList.contains('open')){m.classList.remove('open');return;}
+  const el=document.getElementById('log-entries');
+  el.innerHTML='';
+  if(!G.eventLog.length){el.innerHTML='<p style="color:#333;font-size:13px;letter-spacing:.1em;">No events recorded yet.</p>';m.classList.add('open');return;}
+  G.eventLog.forEach((e,i)=>{
+    const d=document.createElement('div'); d.className='log-entry';
+    d.innerHTML=`<div class="log-ehdr">Event ${i+1} · ${e.year} · ${e.et}</div>`
+      +`<div class="log-sit">${e.situation}</div>`
+      +`<div class="log-cho">→ ${e.choiceText}</div>`
+      +`<div class="log-out">${e.narrative}</div>`
+      +(e.insight?`<div class="log-ins">"${e.insight}"</div>`:'');
+    el.appendChild(d);
+  });
+  m.classList.add('open');
+}
+
+// Choice % stats (pseudo-realistic, seeded by event type)
+function makePcts(n,seed){
+  const rng=srng(hashStr(seed));
+  const raw=Array.from({length:n},()=>15+rng()*50);
+  const sum=raw.reduce((a,b)=>a+b,0);
+  const p=raw.map(v=>Math.round(v/sum*100));
+  p[0]+=100-p.reduce((a,b)=>a+b,0);
+  return p;
 }
 
 // ══════════════════════════════════════════════════════════
-// SCENE IMAGE — context-aware procedural B&W dithering
+// SCENE IMAGE — procedural B&W dithering
 // ══════════════════════════════════════════════════════════
-function drawScene(canvas, eventType, situation, char, eventIdx){
-    const W=320,H=180;
-    canvas.width=W; canvas.height=H;
-    const ctx=canvas.getContext('2d');
+function drawScene(canvas,eventType,situation,char,eventIdx){
+  const W=320,H=180;
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  const rng=srng(hashStr(situation+char.name+String(eventIdx)));
+  const bayer=[[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(r=>r.map(v=>(v+.5)/16));
+  const buf=new Float32Array(W*H);
+  const lifePct=eventIdx/TOTAL;
+  const skyBase=0.03+lifePct*0.02;
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++) buf[y*W+x]=skyBase+(H-y)/H*0.05;
+  const gY=~~(H*(0.62+lifePct*0.06));
+  for(let y=gY;y<H;y++){const br=0.20+(y-gY)/(H-gY)*0.50-lifePct*0.05;for(let x=0;x<W;x++) buf[y*W+x]=Math.max(buf[y*W+x],br);}
+  for(let x=0;x<W;x++) buf[gY*W+x]=0.92;
 
-    // Unique seed per event: combines situation text + character name + event index
-    const rng=srng(hashStr(situation+char.name+String(eventIdx)));
+  const setR=(x,y,w,h,v,clp=true)=>{for(let dy=0;dy<h;dy++) for(let dx=0;dx<w;dx++){const px=~~(x+dx),py=~~(y+dy);if(px>=0&&px<W&&py>=0&&py<H) buf[py*W+px]=clp?Math.max(buf[py*W+px],v):v;}};
+  const setC=(cx,cy,r,v)=>{for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++){if(dx*dx+dy*dy<=r*r){const px=~~(cx+dx),py=~~(cy+dy);if(px>=0&&px<W&&py>=0&&py<H) buf[py*W+px]=Math.max(buf[py*W+px],v);}}};
+  const line=(x1,y1,x2,y2,v,tk=1)=>{const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy)||1;for(let i=0;i<=len;i++){const px=~~(x1+dx*i/len),py=~~(y1+dy*i/len);setC(px,py,tk,v);}};
 
-    const bayer=[[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(r=>r.map(v=>(v+.5)/16));
-    const buf=new Float32Array(W*H);
+  function person(cx,sc=1.0,bri=0.95){
+    const ao=char.age>50?-0.05:0;
+    const hr=~~(7*sc),torW=~~(10*sc),torH=~~(20*sc),legH=~~(18*sc),armH=~~(13*sc),armW=~~(4*sc);
+    setC(cx,gY-legH-torH-hr+~~(ao*10),hr,bri);
+    setR(cx-torW/2,gY-legH-torH,torW,torH,bri);
+    setR(cx-torW/2-armW,gY-legH-torH+3*sc,armW,armH,bri);
+    setR(cx+torW/2,gY-legH-torH+3*sc,armW,armH,bri);
+    setR(cx-torW/4-armW/2,gY-legH,armW+1,legH,bri);
+    setR(cx+torW/4+1,gY-legH,armW+1,legH,bri);
+  }
+  function building(x,w,h,bri=0.82){
+    setR(x,gY-h,w,h,bri);
+    const wd=char.isUrban?0.6:0.4;
+    for(let wy=gY-h+5;wy<gY-3;wy+=7) for(let wx=x+3;wx<x+w-3;wx+=6) if(rng()<wd) setR(wx,wy,4,4,rng()<0.5?0.06:0.97);
+  }
+  function tree(cx,h,bri=0.83){setR(cx-2,gY-~~(h*.42),4,~~(h*.42),bri);setC(cx,gY-~~(h*.58),~~(h*.36),bri);}
+  function bench(cx){setR(cx-10,gY-8,20,3,0.8);setR(cx-12,gY-5,3,5,0.75);setR(cx+9,gY-5,3,5,0.75);}
+  function desk(cx){setR(cx-14,gY-16,28,4,0.85);setR(cx-12,gY-12,4,12,0.75);setR(cx+8,gY-12,4,12,0.75);setR(cx-4,gY-22,12,8,0.7);}
 
-    // Background luminance — varies by life stage (darker later in life)
-    const lifePct=eventIdx/TOTAL;
-    const skyBase=0.03+lifePct*0.02;
-    for(let y=0;y<H;y++) for(let x=0;x<W;x++) buf[y*W+x]=skyBase+(H-y)/H*0.05;
+  const et=eventType.toLowerCase();
+  const variant=~~(rng()*3);
+  const numB=char.isUrban?6:3;
+  const bldH=()=>55+~~(rng()*85), bldW=()=>28+~~(rng()*20);
 
-    const gY=~~(H*(0.62+lifePct*0.06)); // ground line rises later in life
+  if(et.includes('career')||et.includes('professional')){
+    if(variant===0){let x=0;for(let i=0;i<numB+2;i++){const w=bldW();building(x,w,bldH());x+=w+3;}person(W/2,1.0+lifePct*(-.12));}
+    else if(variant===1){setR(0,~~(gY*.3),W,gY*.7,.06);desk(W/2);person(W/2-18,.9);setR(W-60,20,45,gY-25,.85);setR(W-57,23,39,gY-31,.04);}
+    else{setR(0,gY-4,W,4,.88);setR(0,gY-30,W,2,.7);for(let i=0;i<4;i++) building(i*(W/4),W/4-3,bldH());const n=2+~~(rng()*3);for(let i=0;i<n;i++) person(60+i*(W-120)/n+rng()*20-10,.9,.8+rng()*.15);}
+  }else if(et.includes('heart')||et.includes('relation')){
+    const dist=12+~~(rng()*40);
+    if(variant===0){building(0,32,40+~~(rng()*30));building(W-35,30,45+~~(rng()*25));person(W/2-dist/2,1.0);person(W/2+dist/2,1.0);if(rng()<.4)line(W/2-dist/2+5,gY-35,W/2+dist/2-5,gY-35,.6,1);}
+    else if(variant===1){bench(W/2);person(W/2-16,.9);person(W/2+16,.9);tree(W/5,50);tree(4*W/5,45);}
+    else{for(let i=0;i<5;i++) building(i*(W/5),W/5-2,bldH());person(W/2,1.0,.75);}
+  }else if(et.includes('family')||et.includes('oblig')){
+    const hx=~~(W/2)-38,hw=76,hh=58+~~(rng()*20);
+    setR(hx,gY-hh,hw,hh,.80);
+    for(let i=0;i<=hw/2+12;i++){const rw=hw+24-i*2;if(rw>0)setR(hx-12+i,gY-hh-i,rw,2,.90);}
+    setR(hx+hw/2-5,gY-20,10,20,.15);tree(hx-30,55+~~(rng()*15));
+    if(variant===0){person(W/2-34,1.0);person(W/2,1.0);if(char.children||rng()<.5) person(W/2+32,.70);}
+    else if(variant===1){person(W/2-20,1.0);person(W/2+20,1.0);person(W/2-48,.68);person(W/2+46,.65);}
+    else{person(W/2,1.0);if(char.children) person(W/2+24,.72,.9);}
+  }else if(et.includes('health')){
+    if(variant===0){tree(45,70+~~(rng()*20));tree(105,55+~~(rng()*25));tree(200,65+~~(rng()*20));tree(270,50+~~(rng()*20));line(W*.1,gY,W*.9,gY-5,.7,1);person(W/2,1.0,char.health<40?.55:.82);}
+    else if(variant===1){setR(0,0,W,H,.02);setR(20,30,W-40,gY-35,.06);setR(W/2-25,20,50,gY-35,.85);setR(W/2-22,23,44,gY-41,.04);person(W/2-20,.9,.6);setR(W/2-5,gY-22,38,12,.75);}
+    else{for(let i=0;i<18;i++){const px=rng()*W,py=rng()*(gY-20);setC(px,py,1.5,.4+rng()*.3);}tree(30,45);tree(W-40,52);person(W/2+~~(rng()*60-30),1.0,.65);}
+  }else if(et.includes('financial')){
+    let x=0; while(x<W){const w=bldW()+5;building(x,w,bldH()+20);x+=w+1;}
+    for(let i=0;i<3;i++) setR(20+i*80+~~(rng()*30),gY-30-~~(rng()*60),25,8,.96);
+    person(W/2,.95,.8);
+  }else if(et.includes('social')||et.includes('belonging')){
+    const n=3+~~(rng()*4),spacing=(W-100)/Math.max(n,1);
+    for(let i=0;i<n;i++) person(55+i*spacing+rng()*15-7,.80+rng()*.25,.75+rng()*.2);
+    if(variant===0){building(0,22,35+~~(rng()*20));building(W-25,20,40+~~(rng()*20));tree(W/2,30);}
+    else if(variant===1){setR(0,0,W,H,.02);setR(0,gY-60,W,60,.05);}
+    else{bench(W/4);bench(3*W/4);}
+  }else if(et.includes('live')||et.includes('place')){
+    const hx=~~(W/2)-40+~~(rng()*20-10),hw=75+~~(rng()*15),hh=55+~~(rng()*20);
+    setR(hx,gY-hh,hw,hh,.80);
+    for(let i=0;i<=hw/2+12;i++){const rw=hw+22-i*2;if(rw>0)setR(hx-11+i,gY-hh-i,rw,2,.92);}
+    setR(hx+hw/2-5,gY-22,10,22,.1);setR(hx+10,gY-hh+10,18,12,.85);
+    tree(hx-35,60+~~(rng()*15));tree(hx+hw+20,50+~~(rng()*15));
+    person(hx-15-~~(rng()*10),.95,.85);
+  }else if(et.includes('later')||et.includes('final')){
+    if(variant===0){setR(0,0,W,~~(gY*.6),.06);tree(W/4,50+~~(rng()*20));tree(3*W/4,45+~~(rng()*20));bench(W/2);person(W/2-5,.88,.70);}
+    else if(variant===1){setR(0,0,W,H,.03);setR(W/2-40,10,80,gY-15,.88);setR(W/2-36,14,72,gY-23,.02);person(W/2-14,.92,.6);}
+    else{building(0,30,35+~~(rng()*25));building(W-32,28,40+~~(rng()*20));person(W/2,.90,.65);}
+  }else{
+    let x=0; while(x<W){const w=bldW();building(x,w,bldH());x+=w+2;}
+    person(W/2,1.0);
+  }
 
-    // Ground — brighter in earlier life, more worn later
-    for(let y=gY;y<H;y++){
-        const br=0.20+(y-gY)/(H-gY)*0.50-lifePct*0.05;
-        for(let x=0;x<W;x++) buf[y*W+x]=Math.max(buf[y*W+x],br);
-    }
-    for(let x=0;x<W;x++) buf[gY*W+x]=0.92; // horizon line
-
-    // Helpers
-    const setR=(x,y,w,h,v,clp=true)=>{
-        for(let dy=0;dy<h;dy++) for(let dx=0;dx<w;dx++){
-            const px=~~(x+dx),py=~~(y+dy);
-            if(px>=0&&px<W&&py>=0&&py<H) buf[py*W+px]=clp?Math.max(buf[py*W+px],v):v;
-        }
-    };
-    const setC=(cx,cy,r,v)=>{for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(dx*dx+dy*dy<=r*r){const px=~~(cx+dx),py=~~(cy+dy);if(px>=0&&px<W&&py>=0&&py<H)buf[py*W+px]=Math.max(buf[py*W+px],v);}}};
-    const line=(x1,y1,x2,y2,v,thick=1)=>{
-        const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy)||1;
-        for(let i=0;i<=len;i++){const px=~~(x1+dx*i/len),py=~~(y1+dy*i/len);setC(px,py,thick,v);}
-    };
-
-    // Character-aware person silhouette
-    function person(cx, sc=1.0, bri=0.95){
-        const ageOffset=char.age>50?-0.05:0; // slightly hunched if old
-        const hr=~~(7*sc), torW=~~(10*sc), torH=~~(20*sc);
-        const legH=~~(18*sc), armH=~~(13*sc), armW=~~(4*sc);
-        setC(cx,gY-legH-torH-hr+~~(ageOffset*10),hr,bri);
-        setR(cx-torW/2,gY-legH-torH,torW,torH,bri);
-        setR(cx-torW/2-armW,gY-legH-torH+3*sc,armW,armH,bri);
-        setR(cx+torW/2,gY-legH-torH+3*sc,armW,armH,bri);
-        setR(cx-torW/4-armW/2,gY-legH,armW+1,legH,bri);
-        setR(cx+torW/4+1,gY-legH,armW+1,legH,bri);
-    }
-
-    function building(x,w,h,bri=0.82){
-        setR(x,gY-h,w,h,bri);
-        const isUrban=['Tokyo','Osaka','Kanagawa','Aichi'].includes(char.pref);
-        const winDensity=isUrban?0.6:0.4;
-        for(let wy=gY-h+5;wy<gY-3;wy+=7)
-            for(let wx=x+3;wx<x+w-3;wx+=6)
-                if(rng()<winDensity) setR(wx,wy,4,4,rng()<0.5?0.06:0.97);
-    }
-
-    function tree(cx,h,bri=0.83){
-        setR(cx-2,gY-~~(h*.42),4,~~(h*.42),bri);
-        setC(cx,gY-~~(h*.58),~~(h*.36),bri);
-    }
-
-    function bench(cx){
-        setR(cx-10,gY-8,20,3,0.8);
-        setR(cx-12,gY-5,3,5,0.75); setR(cx+9,gY-5,3,5,0.75);
-    }
-
-    function desk(cx){
-        setR(cx-14,gY-16,28,4,0.85);
-        setR(cx-12,gY-12,4,12,0.75); setR(cx+8,gY-12,4,12,0.75);
-        setR(cx-4,gY-22,12,8,0.7); // monitor
-    }
-
-    // ── Scene selection based on event type + character + variant ──
-    const et=eventType.toLowerCase();
-    const variant=~~(rng()*3); // 0,1,2 — adds variety within each type
-    const isUrban=['Tokyo','Osaka','Kanagawa','Aichi','Saitama'].includes(char.pref);
-    const numBuildings=isUrban?6:3;
-    const bldH=()=>55+~~(rng()*85);
-    const bldW=()=>28+~~(rng()*20);
-
-    if(et.includes('career')||et.includes('professional')){
-        // CAREER: urban/office scenes
-        if(variant===0){
-            // Dense city skyline, single figure
-            let x=0;
-            for(let i=0;i<numBuildings+2;i++){const w=bldW();building(x,w,bldH());x+=w+3;}
-            person(W/2,1.0+lifePct*(-0.12));
-        } else if(variant===1){
-            // Office desk scene
-            setR(0,~~(gY*.3),W,gY*0.7,0.06); // room
-            desk(W/2);
-            person(W/2-18,0.9);
-            // window
-            setR(W-60,20,45,gY-25,0.85); setR(W-57,23,39,gY-31,0.04);
-        } else {
-            // Commute — platform/station feel
-            setR(0,gY-4,W,4,0.88); // platform edge
-            setR(0,gY-30,W,2,0.7); // line on platform
-            for(let i=0;i<4;i++) building(i*(W/4),W/4-3,bldH());
-            const n=2+~~(rng()*3);
-            for(let i=0;i<n;i++) person(60+i*(W-120)/n+rng()*20-10,0.9,0.8+rng()*.15);
-        }
-    } else if(et.includes('heart')||et.includes('relation')){
-        // HEART: two-person scenes
-        const dist=12+~~(rng()*40); // distance between figures
-        if(variant===0){
-            // Couple in city
-            building(0,32,40+~~(rng()*30)); building(W-35,30,45+~~(rng()*25));
-            person(W/2-dist/2,1.0); person(W/2+dist/2,1.0);
-            // connection line (symbolic)
-            if(rng()<0.4) line(W/2-dist/2+5,gY-35,W/2+dist/2-5,gY-35,0.6,1);
-        } else if(variant===1){
-            // Bench scene, two people
-            bench(W/2);
-            person(W/2-16,0.9); person(W/2+16,0.9);
-            tree(W/5,50); tree(4*W/5,45);
-        } else {
-            // Alone in city (tension/choice)
-            for(let i=0;i<5;i++) building(i*(W/5),W/5-2,bldH());
-            person(W/2,1.0,0.75); // dimmer — uncertain
-        }
-    } else if(et.includes('family')||et.includes('oblig')){
-        // FAMILY: group scenes, house
-        const hx=~~(W/2)-38, hw=76, hh=58+~~(rng()*20);
-        setR(hx,gY-hh,hw,hh,0.80);
-        // roof
-        for(let i=0;i<=hw/2+12;i++){const rw=hw+24-i*2;if(rw>0)setR(hx-12+i,gY-hh-i,rw,2,0.90);}
-        // door
-        setR(hx+hw/2-5,gY-20,10,20,0.15);
-        tree(hx-30,55+~~(rng()*15));
-        if(variant===0){
-            person(W/2-34,1.0); person(W/2,1.0);
-            if(char.children||rng()<.5) person(W/2+32,0.70);
-        } else if(variant===1){
-            person(W/2-20,1.0); person(W/2+20,1.0);
-            person(W/2-48,0.68); person(W/2+46,0.65); // grandparents
-        } else {
-            person(W/2,1.0); // alone, facing house
-            if(char.children) person(W/2+24,0.72,0.9);
-        }
-    } else if(et.includes('health')){
-        // HEALTH: sparse, contemplative, natural
-        if(variant===0){
-            // Nature path
-            tree(45,70+~~(rng()*20)); tree(105,55+~~(rng()*25));
-            tree(200,65+~~(rng()*20)); tree(270,50+~~(rng()*20));
-            line(W*.1,gY,W*.9,gY-5,0.7,1); // path
-            person(W/2,1.0,char.health<40?0.55:0.82);
-        } else if(variant===1){
-            // Hospital/room feel
-            setR(0,0,W,H,0.02); // room bg
-            setR(20,30,W-40,gY-35,0.06); // wall
-            // window with light
-            setR(W/2-25,20,50,gY-35,0.85); setR(W/2-22,23,44,gY-41,0.04);
-            person(W/2-20,0.9,0.6);
-            // bed/chair
-            setR(W/2-5,gY-22,38,12,0.75);
-        } else {
-            // Walking alone, sparse
-            for(let i=0;i<18;i++){const px=rng()*W,py=rng()*(gY-20);setC(px,py,1.5,0.4+rng()*.3);}
-            tree(30,45); tree(W-40,52);
-            person(W/2+~~(rng()*60-30),1.0,0.65);
-        }
-    } else if(et.includes('financial')){
-        // FINANCIAL: dense urban, commerce feel
-        let x=0;
-        while(x<W){const w=bldW()+5;building(x,w,bldH()+20);x+=w+1;}
-        // Neon signs approximation (bright rectangles)
-        for(let i=0;i<3;i++) setR(20+i*80+~~(rng()*30),gY-30-~~(rng()*60),25,8,0.96);
-        person(W/2,0.95,0.8);
-    } else if(et.includes('social')||et.includes('belonging')){
-        // SOCIAL: crowd, gathering
-        const n=3+~~(rng()*4);
-        const spacing=(W-100)/Math.max(n,1);
-        for(let i=0;i<n;i++) person(55+i*spacing+rng()*15-7, 0.80+rng()*.25, 0.75+rng()*.2);
-        if(variant===0){
-            // Outdoor space
-            building(0,22,35+~~(rng()*20)); building(W-25,20,40+~~(rng()*20));
-            tree(W/2,30);
-        } else if(variant===1){
-            // Enclosed space (party/event)
-            setR(0,0,W,H,0.02);
-            setR(0,gY-60,W,60,0.05); // room
-        } else {
-            bench(W/4); bench(3*W/4);
-        }
-    } else if(et.includes('live')||et.includes('place')){
-        // HOME/MOVE: residential
-        const hx=~~(W/2)-40+~~(rng()*20-10);
-        const hw=75+~~(rng()*15), hh=55+~~(rng()*20);
-        setR(hx,gY-hh,hw,hh,0.80);
-        for(let i=0;i<=hw/2+12;i++){const rw=hw+22-i*2;if(rw>0)setR(hx-11+i,gY-hh-i,rw,2,0.92);}
-        setR(hx+hw/2-5,gY-22,10,22,0.1); // door
-        setR(hx+10,gY-hh+10,18,12,0.85); // window
-        tree(hx-35,60+~~(rng()*15)); tree(hx+hw+20,50+~~(rng()*15));
-        person(hx-15-~~(rng()*10), 0.95, 0.85);
-    } else if(et.includes('later')||et.includes('final')){
-        // LATE/FINAL: quieter, contemplative, older character
-        if(variant===0){
-            // Sunset feel — simplified, sparse
-            setR(0,0,W,~~(gY*.6),0.06); // sky gradient
-            tree(W/4,50+~~(rng()*20)); tree(3*W/4,45+~~(rng()*20));
-            bench(W/2);
-            person(W/2-5,0.88,0.70);
-        } else if(variant===1){
-            // Window view scene
-            setR(0,0,W,H,0.03);
-            setR(W/2-40,10,80,gY-15,0.88); // window
-            setR(W/2-36,14,72,gY-23,0.02); // view
-            // person silhouette looking at window
-            setR(W/2-10,gY-45,20,45,0.0); // clear space
-            person(W/2-14,0.92,0.6);
-        } else {
-            building(0,30,35+~~(rng()*25)); building(W-32,28,40+~~(rng()*20));
-            person(W/2,0.90,0.65);
-        }
-    } else {
-        // DEFAULT: generic city
-        let x=0; while(x<W){const w=bldW();building(x,w,bldH());x+=w+2;}
-        person(W/2,1.0);
-    }
-
-    // Apply ordered Bayer dithering
-    const img=ctx.createImageData(W,H);
-    for(let y=0;y<H;y++) for(let x=0;x<W;x++){
-        const v=buf[y*W+x]>bayer[y%4][x%4]?255:0;
-        const i=(y*W+x)*4; img.data[i]=v;img.data[i+1]=v;img.data[i+2]=v;img.data[i+3]=255;
-    }
-    ctx.putImageData(img,0,0);
+  const img=ctx.createImageData(W,H);
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    const v=buf[y*W+x]>bayer[y%4][x%4]?255:0;
+    const i=(y*W+x)*4; img.data[i]=v;img.data[i+1]=v;img.data[i+2]=v;img.data[i+3]=255;
+  }
+  ctx.putImageData(img,0,0);
 }
 
 // ══════════════════════════════════════════════════════════
 // FLOWCHART SVG
 // ══════════════════════════════════════════════════════════
-
-// Base node dimensions (at game scale 1:1)
-const B={
-    rowH:255,   // vertical spacing per event
-    topPad:55,
-    yearR:30,   // octagon radius
-    diaRX:62,   // diamond x-radius (wide/flat)
-    diaRY:34,   // diamond y-radius
-    cW:148,     // choice rect width
-    cH:40,      // choice rect height
-    spread:150, // horizontal spread
-    termR:13    // terminal circle radius
-};
+const B={rowH:255,topPad:55,yearR:30,diaRX:62,diaRY:34,cW:148,cH:40,spread:150,termR:13};
 
 function ns(tag,a){const e=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const[k,v]of Object.entries(a))e.setAttribute(k,String(v));return e;}
-
 function octPts(cx,cy,r){const s=r*.414,m=r-s;return`${cx-s},${cy-r} ${cx+s},${cy-r} ${cx+r},${cy-m} ${cx+r},${cy+m} ${cx+s},${cy+r} ${cx-s},${cy+r} ${cx-r},${cy+m} ${cx-r},${cy-m}`;}
 function diaPts(cx,cy,rx,ry){return`${cx},${cy-ry} ${cx+rx},${cy} ${cx},${cy+ry} ${cx-rx},${cy}`;}
+function starburst(cx,cy,r1,r2,rays=20){const p=[];for(let i=0;i<rays*2;i++){const a=(i*Math.PI)/rays-Math.PI/2,r=i%2===0?r2:r1;p.push(`${(cx+r*Math.cos(a)).toFixed(1)},${(cy+r*Math.sin(a)).toFixed(1)}`);}return p.join(' ');}
+function svgTxt(svg,x,y,text,size,anchor='middle',col='#fff',lsp=0){const t=ns('text',{x,y,'text-anchor':anchor,fill:col,'font-family':"'Share Tech Mono','Courier New',monospace",'font-size':size,'letter-spacing':lsp});t.textContent=text;svg.appendChild(t);return t;}
 
-function starburst(cx,cy,r1,r2,rays=20){
-    const pts=[];
-    for(let i=0;i<rays*2;i++){const a=(i*Math.PI)/rays-Math.PI/2;const r=i%2===0?r2:r1;pts.push(`${(cx+r*Math.cos(a)).toFixed(1)},${(cy+r*Math.sin(a)).toFixed(1)}`);}
-    return pts.join(' ');
-}
-
-function svgTxt(svg,x,y,text,size,anchor='middle',col='#fff',lsp=0){
-    const t=ns('text',{x,y,'text-anchor':anchor,fill:col,'font-family':"'Share Tech Mono','Courier New',monospace",'font-size':size,'letter-spacing':lsp});
-    t.textContent=text; svg.appendChild(t); return t;
-}
-
-// Y positions for event i
 function yearY(i){return B.topPad+i*B.rowH+B.yearR;}
 function diaY(i){return yearY(i)+B.yearR+36;}
 function choY(i){return diaY(i)+B.diaRY+44;}
-function termY(i){return choY(i)+B.cH/2+44;}
+function termY(i){return choY(i)+B.cH/2+50;}
 function offsets(n){return n===3?[-B.spread,0,B.spread]:n===2?[-B.spread*.65,B.spread*.65]:[0];}
 
 function renderFC(svgEl,history,current,selIdx,mode){
-    const wrap=svgEl.parentElement;
-    const panelW=wrap.clientWidth||500;
-    const panelH=wrap.clientHeight||800;
-    const CX=panelW/2;
+  const wrap=svgEl.parentElement;
+  const panelW=wrap.clientWidth||500;
+  const panelH=wrap.clientHeight||800;
+  const CX=panelW/2;
+  const nEv=history.length+(current?1:0)+(mode==='gameover'?1:0);
+  const contentH=B.topPad+Math.max(nEv,1)*B.rowH+80;
+  svgEl.innerHTML='';
 
-    const nEvents=history.length+(current?1:0)+(mode==='gameover'?1:0);
-    const contentH=B.topPad+Math.max(nEvents,1)*B.rowH+80;
+  if(mode==='game'){
+    svgEl.setAttribute('width',panelW); svgEl.setAttribute('height',contentH);
+    svgEl.removeAttribute('viewBox'); svgEl.removeAttribute('preserveAspectRatio');
+  }else{
+    svgEl.setAttribute('width',panelW); svgEl.setAttribute('height',panelH);
+    svgEl.setAttribute('viewBox',`0 0 ${panelW} ${contentH}`);
+    svgEl.setAttribute('preserveAspectRatio','xMidYMin meet');
+  }
 
-    svgEl.innerHTML='';
+  function drawYear(i,label){
+    const cy=yearY(i),sw=(mode==='game'&&i===history.length)?2.5:1.8;
+    svgEl.appendChild(ns('polygon',{points:octPts(CX,cy,B.yearR),fill:'#000',stroke:'#fff','stroke-width':sw}));
+    svgTxt(svgEl,CX,cy+5,label.split('').join(' '),11,'middle','#fff',2);
+  }
+  function connYD(i){svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)+B.yearR,x2:CX,y2:diaY(i)-B.diaRY,stroke:'#fff','stroke-width':1.8}));}
+  function drawDia(i,label,active){
+    const cy=diaY(i),sw=active?2.5:1.8;
+    svgEl.appendChild(ns('polygon',{points:diaPts(CX,cy,B.diaRX,B.diaRY),fill:'#000',stroke:'#fff','stroke-width':sw}));
+    const words=label.split(' '),mid=Math.ceil(words.length/2);
+    const l1=words.slice(0,mid).join(' '),l2=words.slice(mid).join(' ');
+    if(l2){svgTxt(svgEl,CX,cy-4,l1,8);svgTxt(svgEl,CX,cy+9,l2,8);}
+    else svgTxt(svgEl,CX,cy+4,l1,8);
+  }
 
-    if(mode==='game'){
-        // Full size, no scaling
-        svgEl.setAttribute('width',panelW);
-        svgEl.setAttribute('height',contentH);
-        svgEl.removeAttribute('viewBox');
-        svgEl.removeAttribute('preserveAspectRatio');
-    } else {
-        // Zoom to fit the entire life in the available panel
-        svgEl.setAttribute('width',panelW);
-        svgEl.setAttribute('height',panelH);
-        svgEl.setAttribute('viewBox',`0 0 ${panelW} ${contentH}`);
-        svgEl.setAttribute('preserveAspectRatio','xMidYMin meet');
-    }
+  function drawChoices(i,choices,chosenIdx,isActive,pcts){
+    const dBottomY=diaY(i)+B.diaRY,cy=choY(i),offs=offsets(choices.length);
+    offs.forEach((dx,ci)=>{
+      const cx=CX+dx;
+      const isChosen=!isActive&&ci===chosenIdx;
+      const isSel=isActive&&ci===selIdx;
+      const isRvSel=mode==='relive'&&i===G.reliveTarget&&ci===chosenIdx;
+      const chosen=isChosen||isSel;
+      const lineCol=chosen?'#fff':(isActive?'#aaa':'#333');
+      const dashed=!isActive&&!isChosen;
+      const sw=chosen?2.2:1;
+      const midY=dBottomY+22;
+      const la={'stroke':lineCol,'stroke-width':sw,...(dashed?{'stroke-dasharray':'6 4'}:{})};
+      if(Math.abs(dx)>5){
+        svgEl.appendChild(ns('line',{x1:CX,y1:dBottomY,x2:CX,y2:midY,...la}));
+        svgEl.appendChild(ns('line',{x1:CX,y1:midY,x2:cx,y2:midY,...la}));
+        svgEl.appendChild(ns('line',{x1:cx,y1:midY,x2:cx,y2:cy-B.cH/2,...la}));
+      }else{svgEl.appendChild(ns('line',{x1:CX,y1:dBottomY,x2:cx,y2:cy-B.cH/2,...la}));}
 
-    // ── draw year octagon ──
-    function drawYear(i,label){
-        const cy=yearY(i);
-        const sw=(mode==='game'&&i===history.length)?2.5:1.8;
-        svgEl.appendChild(ns('polygon',{points:octPts(CX,cy,B.yearR),fill:'#000',stroke:'#fff','stroke-width':sw}));
-        svgTxt(svgEl,CX,cy+5,label.split('').join(' '),11,'middle','#fff',2);
-    }
+      if(isSel||isRvSel) svgEl.appendChild(ns('polygon',{points:starburst(cx,cy,B.cH/2+12,B.cH/2+40,20),fill:'none',stroke:'#fff','stroke-width':1.0,'pointer-events':'none'}));
 
-    // ── year → diamond connector ──
-    function connYD(i){
-        svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)+B.yearR,x2:CX,y2:diaY(i)-B.diaRY,stroke:'#fff','stroke-width':1.8}));
-    }
+      const fillCol=chosen?'#fff':'#000',strCol=chosen?'#fff':(isActive?'#fff':'#333');
+      const rect=ns('rect',{x:cx-B.cW/2,y:cy-B.cH/2,width:B.cW,height:B.cH,fill:fillCol,stroke:strCol,'stroke-width':chosen?2.5:sw,...(dashed?{'stroke-dasharray':'6 4'}:{})});
+      if(isActive){rect.style.cursor='pointer';rect.addEventListener('click',()=>onChoiceClick(ci));rect.addEventListener('mouseenter',()=>onHover(ci));}
+      if(mode==='relive'&&!isActive){rect.style.cursor='pointer';rect.addEventListener('click',()=>onRelClick(i));rect.addEventListener('mouseenter',()=>onRelHover(i));}
+      svgEl.appendChild(rect);
 
-    // ── draw diamond ──
-    function drawDia(i,label,active){
-        const cy=diaY(i);
-        const sw=active?2.5:1.8;
-        svgEl.appendChild(ns('polygon',{points:diaPts(CX,cy,B.diaRX,B.diaRY),fill:'#000',stroke:'#fff','stroke-width':sw}));
-        // Two-line label
-        const words=label.split(' '), mid=Math.ceil(words.length/2);
-        const l1=words.slice(0,mid).join(' '), l2=words.slice(mid).join(' ');
-        if(l2){svgTxt(svgEl,CX,cy-4,l1,8);svgTxt(svgEl,CX,cy+9,l2,8);}
-        else svgTxt(svgEl,CX,cy+4,l1,8);
-    }
+      svgTxt(svgEl,cx,cy+5,(choices[ci]?.text||'?').substring(0,20),8.5,'middle',chosen?'#000':'#999');
 
-    // ── draw choices ──
-    function drawChoices(i,choices,chosenIdx,isActive){
-        const dBottomY=diaY(i)+B.diaRY;
-        const cy=choY(i);
-        const offs=offsets(choices.length);
+      // % stat label
+      if(pcts&&pcts[ci]!==undefined){
+        const pCol=chosen?(isActive?'#666':'#555'):'#282828';
+        svgTxt(svgEl,cx,cy+B.cH/2+16,`~${pcts[ci]}%`,7,'middle',pCol);
+      }
 
-        offs.forEach((dx,ci)=>{
-            const cx=CX+dx;
-            const isChosen=!isActive&&ci===chosenIdx;
-            const isSel=isActive&&ci===selIdx;
-            const isRvSel=mode==='relive'&&i===G.reliveTarget&&ci===chosenIdx;
-            const chosen=isChosen||isSel;
-
-            // colors/styles for unchosen paths
-            const lineCol=chosen?'#fff':(isActive?'#aaa':'#363636');
-            const dashed=!isActive&&!isChosen;
-            const sw=chosen?2.2:1;
-
-            // connector lines (L-shaped)
-            const midY=dBottomY+22;
-            const lattr={'stroke':lineCol,'stroke-width':sw,...(dashed?{'stroke-dasharray':'6 4'}:{})};
-            if(Math.abs(dx)>5){
-                svgEl.appendChild(ns('line',{x1:CX,y1:dBottomY,x2:CX,y2:midY,...lattr}));
-                svgEl.appendChild(ns('line',{x1:CX,y1:midY,x2:cx,y2:midY,...lattr}));
-                svgEl.appendChild(ns('line',{x1:cx,y1:midY,x2:cx,y2:cy-B.cH/2,...lattr}));
-            } else {
-                svgEl.appendChild(ns('line',{x1:CX,y1:dBottomY,x2:cx,y2:cy-B.cH/2,...lattr}));
-            }
-
-            // starburst (behind rect)
-            if(isSel||isRvSel){
-                svgEl.appendChild(ns('polygon',{points:starburst(cx,cy,B.cH/2+12,B.cH/2+40,20),fill:'none',stroke:'#fff','stroke-width':1.0,'pointer-events':'none'}));
-            }
-
-            // choice rectangle
-            const fillCol=chosen?'#fff':'#000';
-            const strCol=chosen?'#fff':(isActive?'#fff':'#363636');
-            const rattr={x:cx-B.cW/2,y:cy-B.cH/2,width:B.cW,height:B.cH,fill:fillCol,stroke:strCol,'stroke-width':chosen?2.5:sw,...(dashed?{'stroke-dasharray':'6 4'}:{})};
-            const rect=ns('rect',rattr);
-            if(isActive){rect.style.cursor='pointer';rect.addEventListener('click',()=>onChoiceClick(ci));rect.addEventListener('mouseenter',()=>onHover(ci));}
-            if(mode==='relive'&&!isActive){rect.style.cursor='pointer';rect.addEventListener('click',()=>onRelClick(i,ci));rect.addEventListener('mouseenter',()=>onRelHover(i,ci));}
-            svgEl.appendChild(rect);
-
-            // label
-            const lbl=choices[ci]?.text||'?';
-            svgTxt(svgEl,cx,cy+5,lbl.substring(0,20),8.5,'middle',chosen?'#000':'#999');
-
-            // after-rect: continuation or terminal
-            if(!isActive&&isChosen){
-                const contY=cy+B.cH/2;
-                const midback=contY+22;
-                svgEl.appendChild(ns('line',{x1:cx,y1:contY,x2:cx,y2:midback,stroke:'#fff','stroke-width':1.8}));
-                if(Math.abs(dx)>5){
-                    svgEl.appendChild(ns('line',{x1:cx,y1:midback,x2:CX,y2:midback,stroke:'#fff','stroke-width':1.8}));
-                    svgEl.appendChild(ns('line',{x1:CX,y1:midback,x2:CX,y2:yearY(i+1)-B.yearR,stroke:'#fff','stroke-width':1.8}));
-                } else {
-                    svgEl.appendChild(ns('line',{x1:CX,y1:midback,x2:CX,y2:yearY(i+1)-B.yearR,stroke:'#fff','stroke-width':1.8}));
-                }
-            } else if(!isActive&&!isChosen){
-                // terminal: line down → filled circle
-                svgEl.appendChild(ns('line',{x1:cx,y1:cy+B.cH/2,x2:cx,y2:termY(i),stroke:'#2a2a2a','stroke-width':.8,'stroke-dasharray':'5 4'}));
-                svgEl.appendChild(ns('circle',{cx,cy:termY(i),r:B.termR,fill:'#fff',stroke:'#fff','stroke-width':1}));
-            }
-        });
-    }
-
-    // ── render completed history ──
-    history.forEach((h,i)=>{
-        if(i>0){// connector from prev chosen choice
-            svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)-B.yearR-8,x2:CX,y2:yearY(i)-B.yearR,stroke:'#fff','stroke-width':1.8}));
-        }
-        drawYear(i,String(h.year));
-        connYD(i);
-        drawDia(i,h.eventType,false);
-        drawChoices(i,h.choices,h.chosenIdx,false);
+      if(!isActive&&isChosen){
+        const cY2=cy+B.cH/2,mb=cY2+22;
+        svgEl.appendChild(ns('line',{x1:cx,y1:cY2,x2:cx,y2:mb,stroke:'#fff','stroke-width':1.8}));
+        if(Math.abs(dx)>5){
+          svgEl.appendChild(ns('line',{x1:cx,y1:mb,x2:CX,y2:mb,stroke:'#fff','stroke-width':1.8}));
+          svgEl.appendChild(ns('line',{x1:CX,y1:mb,x2:CX,y2:yearY(i+1)-B.yearR,stroke:'#fff','stroke-width':1.8}));
+        }else{svgEl.appendChild(ns('line',{x1:CX,y1:mb,x2:CX,y2:yearY(i+1)-B.yearR,stroke:'#fff','stroke-width':1.8}));}
+      }else if(!isActive&&!isChosen){
+        svgEl.appendChild(ns('line',{x1:cx,y1:cy+B.cH/2,x2:cx,y2:termY(i),stroke:'#222','stroke-width':.8,'stroke-dasharray':'5 4'}));
+        svgEl.appendChild(ns('circle',{cx,cy:termY(i),r:B.termR,fill:'#fff',stroke:'#fff','stroke-width':1}));
+      }
     });
+  }
 
-    // ── current active event ──
-    if(current){
-        const i=history.length;
-        if(i>0) svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)-B.yearR-8,x2:CX,y2:yearY(i)-B.yearR,stroke:'#fff','stroke-width':1.8}));
-        drawYear(i,String(current.year));
-        connYD(i);
-        drawDia(i,current.eventType,true);
-        drawChoices(i,current.choices,-1,true);
+  history.forEach((h,i)=>{
+    if(i>0) svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)-B.yearR-8,x2:CX,y2:yearY(i)-B.yearR,stroke:'#fff','stroke-width':1.8}));
+    drawYear(i,String(h.year)); connYD(i); drawDia(i,h.eventType,false);
+    drawChoices(i,h.choices,h.chosenIdx,false,h.pcts);
+  });
 
-        // Scroll to show current event
-        if(mode==='game') setTimeout(()=>{
-            const el=svgEl.parentElement;
-            const targetY=Math.max(0,yearY(i)-80);
-            el.scrollTo({top:targetY,behavior:'smooth'});
-        },200);
-    }
+  if(current){
+    const i=history.length;
+    if(i>0) svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)-B.yearR-8,x2:CX,y2:yearY(i)-B.yearR,stroke:'#fff','stroke-width':1.8}));
+    drawYear(i,String(current.year)); connYD(i); drawDia(i,current.eventType,true);
+    drawChoices(i,current.choices,-1,true,current.pcts);
+    if(mode==='game') setTimeout(()=>{const el=svgEl.parentElement;el.scrollTo({top:Math.max(0,yearY(i)-80),behavior:'smooth'});},200);
+  }
 
-    // ── life-over terminal marker ──
-    if(mode==='gameover'&&history.length>0){
-        const i=history.length;
-        const cy=yearY(i);
-        svgEl.appendChild(ns('polygon',{points:octPts(CX,cy,B.yearR),fill:'#000',stroke:'#fff','stroke-width':1.8}));
-        svgTxt(svgEl,CX,cy+5,'≡',16);
-    }
+  if(mode==='gameover'&&history.length>0){
+    const i=history.length,cy=yearY(i);
+    svgEl.appendChild(ns('polygon',{points:octPts(CX,cy,B.yearR),fill:'#000',stroke:'#fff','stroke-width':1.8}));
+    svgTxt(svgEl,CX,cy+5,'≡',16);
+  }
 }
 
 // ══════════════════════════════════════════════════════════
 // CHARACTER GENERATION
 // ══════════════════════════════════════════════════════════
 function genChar(){
-    const g=Math.random()<.5?'Male':'Female';
-    const sur=CENSUS.sN[~~(Math.random()*CENSUS.sN.length)];
-    const giv=g==='Male'?CENSUS.mN[~~(Math.random()*CENSUS.mN.length)]:CENSUS.fN[~~(Math.random()*CENSUS.fN.length)];
-    const age=~~(Math.random()*38)+22;
-    const pref=weighted(CENSUS.prefs).n;
-    const job=weighted(CENSUS.jobs).n;
-    const edu=weighted(CENSUS.edus).n;
-    let base=2800000;
-    if(edu==='University')base+=600000; if(edu==='Graduate School')base+=1200000;
-    base+=(age-22)*28000;
-    const inc=Math.round((base+(Math.random()-.5)*2000000)/100000)*100000;
-    const r=Math.random();
-    const mar=age<27?(r<.85?'Single':'Married'):age<38?(r<.5?'Married':r<.8?'Single':'Divorced'):(r<.62?'Married':r<.8?'Single':r<.94?'Divorced':'Widowed');
-    return{name:`${sur} ${giv}`,gender:g,age,pref,job,edu,income:inc,marital:mar,
-        children:mar==='Married'&&age>27&&Math.random()<.55,nat:Math.random()<.025?'Non-Japanese':'Japanese',
-        money:clamp(~~(Math.random()*40)+30),health:clamp(~~(Math.random()*30)+60),startYear:2026-(age-20)};
+  const C=G.C;
+  const g=Math.random()<.5?'Male':'Female';
+  const sur=C.sN[~~(Math.random()*C.sN.length)];
+  const giv=g==='Male'?C.mN[~~(Math.random()*C.mN.length)]:C.fN[~~(Math.random()*C.fN.length)];
+  const age=~~(Math.random()*38)+22;
+  const pref=weighted(C.regions).n;
+  const job=weighted(C.jobs).n;
+  const edu=weighted(C.edus).n;
+  const eduIdx=C.edus.findIndex(e=>e.n===edu);
+  let base=C.incBase+eduIdx*C.incBase*0.18+(age-22)*C.incPerYr;
+  const inc=Math.round((base+(Math.random()-.5)*C.incVar)/C.incRnd)*C.incRnd;
+  const r=Math.random();
+  const mar=age<27?(r<.85?'Single':'Married'):age<38?(r<.5?'Married':r<.8?'Single':'Divorced'):(r<.62?'Married':r<.8?'Single':r<.94?'Divorced':'Widowed');
+  return{
+    name:`${sur} ${giv}`,gender:g,age,pref,job,edu,
+    income:Math.max(inc,C.incBase*0.3),
+    marital:mar,children:mar==='Married'&&age>27&&Math.random()<.55,
+    nat:C.nat(Math.random()),
+    money:clamp(~~(Math.random()*40)+30),
+    health:clamp(~~(Math.random()*30)+60),
+    startYear:2026-(age-20),
+    isUrban:C.urbanR.includes(pref)
+  };
 }
 
 function generateAndShow(){
-    const c=genChar(); G.char=c;
-    document.getElementById('cg-name').textContent=c.name;
-    document.getElementById('cg-age').textContent=c.age;
-    document.getElementById('cg-gender').textContent=c.gender;
-    document.getElementById('cg-pref').textContent=c.pref;
-    document.getElementById('cg-job').textContent=c.job;
-    document.getElementById('cg-edu').textContent=c.edu;
-    document.getElementById('cg-income').textContent=fmtY(c.income)+'/yr';
-    document.getElementById('cg-marital').textContent=c.marital+(c.children?', children':'');
-    document.getElementById('cg-nat').textContent=c.nat;
-    document.getElementById('cg-money').innerHTML=mStr(c.money);
-    document.getElementById('cg-health').innerHTML=hStr(c.health);
+  const c=genChar(); G.char=c;
+  const C=G.C;
+  document.getElementById('cg-lbl-region').textContent=C.regionLabel;
+  document.getElementById('cg-lbl-nat').textContent=C.natLabel;
+  document.getElementById('cg-name').textContent=c.name;
+  document.getElementById('cg-age').textContent=c.age;
+  document.getElementById('cg-gender').textContent=c.gender;
+  document.getElementById('cg-pref').textContent=c.pref;
+  document.getElementById('cg-job').textContent=c.job;
+  document.getElementById('cg-edu').textContent=c.edu;
+  document.getElementById('cg-income').textContent=C.fmtInc(c.income)+'/yr';
+  document.getElementById('cg-marital').textContent=c.marital+(c.children?', children':'');
+  document.getElementById('cg-nat').textContent=c.nat;
+  document.getElementById('cg-money').innerHTML=mStr(c.money);
+  document.getElementById('cg-health').innerHTML=hStr(c.health);
 }
 
 function updateCard(){
-    const c=G.char;
-    document.getElementById('card-name').textContent=c.name;
-    document.getElementById('card-age').textContent=c.age;
-    document.getElementById('card-job').textContent=c.job;
-    document.getElementById('card-loc').textContent=c.pref;
-    document.getElementById('s-money').innerHTML=mStr(c.money);
-    document.getElementById('s-health').innerHTML=hStr(c.health);
+  const c=G.char,C=G.C;
+  document.getElementById('card-name').textContent=c.name;
+  document.getElementById('card-age').textContent=c.age;
+  document.getElementById('card-job').textContent=c.job;
+  document.getElementById('card-loc').textContent=c.pref;
+  document.getElementById('s-money').innerHTML=mStr(c.money);
+  document.getElementById('s-health').innerHTML=hStr(c.health);
 }
 
 // ══════════════════════════════════════════════════════════
 // LLM
 // ══════════════════════════════════════════════════════════
-function cCtx(c){return`Name:${c.name},Age:${c.age},Gender:${c.gender},Prefecture:${c.pref},Job:${c.job},Education:${c.edu},Income:${fmtY(c.income)}/yr,Status:${c.marital}${c.children?'+children':''},Nationality:${c.nat},Health:${c.health}/100,Money:${c.money}/100`;}
-
-async function callLLM(prompt,sys){
-    const r=await fetch(OLLAMA,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,system:sys,prompt,stream:false,format:'json'})});
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const d=await r.json();
-    try{return JSON.parse(d.response);}catch{const m=d.response.match(/\{[\s\S]*\}/);if(m)return JSON.parse(m[0]);throw new Error('parse');}
+function cCtx(c){
+  const C=G.C;
+  return`Name:${c.name},Age:${c.age},Gender:${c.gender},${C.regionLabel}:${c.pref},Job:${c.job},Education:${c.edu},Income:${C.fmtInc(c.income)}/yr,Status:${c.marital}${c.children?'+children':''},${C.natLabel}:${c.nat},Health:${c.health}/100,Money:${c.money}/100`;
 }
 
-const SYS_EV=`You are the narrative engine for "Game of Possible Lives," set in contemporary Japan.
-Generate specific, emotionally resonant life decision moments grounded in the 2020 census.
-Reflect real social pressures: karoshi, housing costs, aging parents, gender expectations, loneliness.
-Do not sugarcoat — include complexity and weight. Respond with valid JSON only.`;
-
-const SYS_OUT=`You are the narrative engine for "Game of Possible Lives," set in Japan.
-Generate authentic outcomes — sometimes as expected, sometimes surprising.
-Reflect statistical reality: some paths lead to regret, some to joy, most to a mixture.
-Respond with valid JSON only.`;
+async function callLLM(prompt,sys){
+  const r=await fetch(OLLAMA,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,system:sys,prompt,stream:false,format:'json'})});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const d=await r.json();
+  try{return JSON.parse(d.response);}catch{const m=d.response.match(/\{[\s\S]*\}/);if(m)return JSON.parse(m[0]);throw new Error('parse');}
+}
 
 async function fetchEvent(){
-    const c=G.char,et=ETYPES[G.eventIdx%ETYPES.length];
-    const hist=G.history.map((h,i)=>`#${i+1}(${h.eventType}): chose "${h.choice.text}" → ${h.outcome.narrative.slice(0,60)}...`).join('\n');
-    return callLLM(`Character: ${cCtx(c)}\nEvent #${G.eventIdx+1}/${TOTAL}, theme: ${et}\n${hist?'Life so far:\n'+hist:''}\n\nGenerate a life crossroads. Return JSON:\n{"situation":"2-3 vivid specific sentences describing their moment and the exact decision they face.","choices":[{"text":"≤7 word label","description":"One sentence on this path."},{"text":"≤7 word label","description":"One sentence."},{"text":"≤7 word label","description":"One sentence."}]}`,SYS_EV);
+  const c=G.char,et=ETYPES[G.eventIdx%ETYPES.length];
+  const hist=G.history.map((h,i)=>`#${i+1}(${h.eventType}): chose "${h.choice.text}" → ${h.outcome.narrative.slice(0,60)}...`).join('\n');
+  return callLLM(
+    `Character: ${cCtx(c)}\nEvent #${G.eventIdx+1}/${TOTAL}, theme: ${et}\n${hist?'Life so far:\n'+hist:''}\n\nGenerate a life crossroads. Return JSON:\n{"situation":"2-3 vivid sentences describing the moment and exact decision.","choices":[{"text":"≤7 word label","description":"One sentence."},{"text":"≤7 word label","description":"One sentence."},{"text":"≤7 word label","description":"One sentence."}],"choice_pcts":[40,35,25]}`,
+    G.C.sysEv
+  );
 }
 
 async function fetchOutcome(choice){
-    const c=G.char,et=ETYPES[G.eventIdx%ETYPES.length];
-    return callLLM(`Character: ${cCtx(c)}\nSituation: ${G.current.situation}\nChoice: "${choice.text}" — ${choice.description}\nTheme: ${et}, Event ${G.eventIdx+1}/${TOTAL}\n\nGenerate the outcome. Return JSON:\n{"narrative":"3-4 sentences: what unfolded over the following years. Specific and emotionally honest.","years_passed":3,"money_delta":0,"health_delta":0,"occupation_update":null,"marital_update":null,"life_insight":"One reflective sentence."}`,SYS_OUT);
+  const c=G.char,et=ETYPES[G.eventIdx%ETYPES.length];
+  return callLLM(
+    `Character: ${cCtx(c)}\nSituation: ${G.current.situation}\nChoice: "${choice.text}" — ${choice.description}\nTheme: ${et}, Event ${G.eventIdx+1}/${TOTAL}\n\nGenerate outcome JSON:\n{"narrative":"3-4 sentences: what unfolded. Specific and emotionally honest.","years_passed":3,"money_delta":0,"health_delta":0,"occupation_update":null,"marital_update":null,"life_insight":"One reflective sentence."}`,
+    G.C.sysOut
+  );
+}
+
+async function fetchLifeSummary(){
+  const c=G.char;
+  const evs=G.history.map((h,i)=>`#${i+1}(${h.eventType}): chose "${h.choice.text}"`).join('; ');
+  try{
+    const r=await callLLM(
+      `Character: ${cCtx(c)}\nLife path: ${evs}\n\nWrite a 2-sentence life epitaph. Honest, specific, no clichés. JSON: {"summary":"..."}`,
+      `You are a literary narrator. Write honest 2-sentence life summaries. Respond with valid JSON only.`
+    );
+    return r.summary||null;
+  }catch{return null;}
 }
 
 const FB_EV=[
-    {situation:"Your company offers a promotion requiring longer hours. Meanwhile, a close friend asks you to join their startup. Both feel impossible to refuse.",choices:[{text:"Accept the promotion",description:"Security and prestige — less of yourself."},{text:"Join the startup",description:"Risk, but building something real."},{text:"Stay where you are",description:"Neither, for now."}]},
-    {situation:"You've been in this relationship for two years. They've brought up marriage. You love them, but something makes you hesitate — life still feels unsettled.",choices:[{text:"Say yes",description:"Commit to a shared future."},{text:"Ask for more time",description:"Honesty about your uncertainty."},{text:"End it gently",description:"Painful, but honest."}]},
-    {situation:"Your aging parent in another prefecture can no longer live alone. You must decide how to respond — career, distance, and duty pulling in different directions.",choices:[{text:"Move back home",description:"Be present, upend everything."},{text:"Transfer to regional office",description:"Compromise between duty and career."},{text:"Manage from a distance",description:"Send money, keep your life."}]}
+  {situation:"Your company offers a promotion requiring longer hours. Meanwhile, a close friend asks you to join their startup. Both feel impossible to refuse.",choices:[{text:"Accept the promotion",description:"Security and prestige."},{text:"Join the startup",description:"Risk, but building something real."},{text:"Stay where you are",description:"Neither, for now."}],choice_pcts:[42,33,25]},
+  {situation:"You've been in this relationship for two years. They've brought up marriage. You love them, but something makes you hesitate.",choices:[{text:"Say yes",description:"Commit to a shared future."},{text:"Ask for more time",description:"Honest about your uncertainty."},{text:"End it gently",description:"Painful, but honest."}],choice_pcts:[38,44,18]},
+  {situation:"Your aging parent can no longer live alone. Career, distance, and duty pull in different directions.",choices:[{text:"Move back home",description:"Be present, upend everything."},{text:"Compromise: transfer nearby",description:"Balance duty and career."},{text:"Manage from a distance",description:"Send money, keep your life."}],choice_pcts:[28,39,33]}
 ];
-const FB_OUT={narrative:"The years passed with a mixture of small victories and quiet regrets. Life carried you forward whether you were ready or not. You learned to make peace with the roads not taken.",years_passed:3,money_delta:4,health_delta:-2,occupation_update:null,marital_update:null,life_insight:"Every choice forecloses a thousand others, and we learn to live with that."};
+const FB_OUT={narrative:"The years passed with a mixture of small victories and quiet regrets. Life carried you forward whether you were ready or not. You found ways to adapt.",years_passed:3,money_delta:4,health_delta:-2,occupation_update:null,marital_update:null,life_insight:"Every choice forecloses a thousand others, and we learn to live with that."};
+
+// ══════════════════════════════════════════════════════════
+// COUNTRY SELECTION
+// ══════════════════════════════════════════════════════════
+function goCountrySelect(){
+  Audio.init();
+  showScreen('screen-country');
+}
+
+function selectCountry(c){
+  G.country=c; G.C=CENSUS_DATA[c];
+  document.querySelectorAll('.ctry-card').forEach(el=>el.classList.remove('sel'));
+  document.getElementById('cc-'+c).classList.add('sel');
+  document.getElementById('btn-ctry-go').classList.add('ready');
+}
+
+function confirmCountry(){
+  if(!document.getElementById('btn-ctry-go').classList.contains('ready'))return;
+  generateAndShow();
+  showScreen('screen-chargen');
+}
 
 // ══════════════════════════════════════════════════════════
 // GAME FLOW
 // ══════════════════════════════════════════════════════════
-function startGame(){
-    Audio.init();
-    generateAndShow();
-    showScreen('screen-chargen');
-}
+function startGame(){Audio.init();generateAndShow();showScreen('screen-chargen');}
 
 async function beginLife(){
-    G.eventIdx=0; G.history=[]; G.selIdx=0; G.current=null; G.busy=false;
-    document.getElementById('btn-begin').disabled=true;
-    showScreen('screen-game');
-    updateCard();
-    await loadEvent();
-    document.getElementById('btn-begin').disabled=false;
+  G.eventIdx=0; G.history=[]; G.selIdx=0; G.current=null; G.busy=false;
+  G.lastText=''; G.eventLog=[];
+  document.getElementById('btn-begin').disabled=true;
+  document.getElementById('btn-replay').classList.remove('vis');
+  document.getElementById('btn-log').classList.remove('vis');
+  showScreen('screen-game');
+  updateCard();
+  await loadEvent();
+  document.getElementById('btn-begin').disabled=false;
 }
 
 function currentYear(){
-    let y=G.char.startYear;
-    G.history.forEach(h=>y+=(h.outcome.years_passed||3));
-    return Math.min(y,2099);
+  let y=G.char.startYear;
+  G.history.forEach(h=>y+=(h.outcome.years_passed||3));
+  return Math.min(y,2099);
 }
 
 async function loadEvent(){
-    if(G.busy)return; G.busy=true;
-    const narEl=document.getElementById('narrative');
-    narEl.innerHTML=''; narEl.classList.add('loading-d');
+  if(G.busy)return; G.busy=true;
+  const narEl=document.getElementById('narrative');
+  narEl.innerHTML=''; narEl.classList.add('loading-d');
+  document.getElementById('btn-replay').classList.remove('vis');
 
-    const cv=document.getElementById('scene-canvas');
-    cv.width=320;cv.height=180;cv.getContext('2d').fillStyle='#000';cv.getContext('2d').fillRect(0,0,320,180);
+  const cv=document.getElementById('scene-canvas');
+  cv.width=320;cv.height=180;cv.getContext('2d').fillStyle='#000';cv.getContext('2d').fillRect(0,0,320,180);
+  renderFC(document.getElementById('fc-svg'),G.history,null,G.selIdx,'game');
 
-    renderFC(document.getElementById('fc-svg'),G.history,null,G.selIdx,'game');
+  let ev;
+  try{ev=await fetchEvent();}catch(e){console.warn(e);ev=FB_EV[G.eventIdx%FB_EV.length];}
 
-    let ev;
-    try{ev=await fetchEvent();}catch(e){console.warn(e);ev=FB_EV[G.eventIdx%FB_EV.length];}
+  const et=ETYPES[G.eventIdx%ETYPES.length];
+  const pcts=Array.isArray(ev.choice_pcts)&&ev.choice_pcts.length===ev.choices.length
+    ? ev.choice_pcts : makePcts(ev.choices.length, et+G.eventIdx);
+  G.current={...ev,eventType:et,year:currentYear(),pcts};
+  G.selIdx=0;
 
-    const et=ETYPES[G.eventIdx%ETYPES.length];
-    G.current={...ev,eventType:et,year:currentYear()};
-    G.selIdx=0;
+  drawScene(cv,et,ev.situation,G.char,G.eventIdx);
+  narEl.classList.remove('loading-d');
+  G.lastText=ev.situation;
+  await typewrite(narEl,ev.situation,24);
+  Audio.chime(330,.6);
+  document.getElementById('btn-replay').classList.add('vis');
 
-    drawScene(cv,et,ev.situation,G.char,G.eventIdx);
-
-    narEl.classList.remove('loading-d');
-    await typewrite(narEl,ev.situation,13);
-    Audio.chime(330,0.6);
-
-    renderFC(document.getElementById('fc-svg'),G.history,G.current,G.selIdx,'game');
-    G.busy=false;
+  renderFC(document.getElementById('fc-svg'),G.history,G.current,G.selIdx,'game');
+  G.busy=false;
 }
 
 function onHover(idx){
-    if(G.busy||G.selIdx===idx)return;
-    G.selIdx=idx;
-    renderFC(document.getElementById('fc-svg'),G.history,G.current,G.selIdx,'game');
+  if(G.busy||G.selIdx===idx)return;
+  G.selIdx=idx;
+  renderFC(document.getElementById('fc-svg'),G.history,G.current,G.selIdx,'game');
 }
 
 async function onChoiceClick(idx){
-    if(G.busy)return; G.busy=true;
-    G.selIdx=idx;
-    const choice=G.current.choices[idx];
-    document.getElementById('fc-svg').style.pointerEvents='none';
+  if(G.busy)return; G.busy=true;
+  G.selIdx=idx;
+  const choice=G.current.choices[idx];
+  document.getElementById('fc-svg').style.pointerEvents='none';
+  document.getElementById('btn-replay').classList.remove('vis');
 
-    const narEl=document.getElementById('narrative');
-    narEl.classList.remove('tw-cursor');
-    narEl.textContent='You chose: '+choice.text;
+  const narEl=document.getElementById('narrative');
+  narEl.classList.remove('tw-cursor');
+  narEl.textContent='You chose: '+choice.text;
+  await pause(600);
+  narEl.innerHTML=''; narEl.classList.add('loading-d');
 
-    await pause(600);
-    narEl.innerHTML=''; narEl.classList.add('loading-d');
+  let out;
+  try{out=await fetchOutcome(choice);}catch(e){console.warn(e);out=FB_OUT;}
 
-    let out;
-    try{out=await fetchOutcome(choice);}catch(e){console.warn(e);out=FB_OUT;}
+  const c=G.char;
+  c.money=clamp(c.money+(out.money_delta||0));
+  c.health=clamp(c.health+(out.health_delta||0));
+  c.age+=(out.years_passed||3);
+  if(out.occupation_update)c.job=out.occupation_update;
+  if(out.marital_update)c.marital=out.marital_update;
 
-    const c=G.char;
-    c.money=clamp(c.money+(out.money_delta||0));
-    c.health=clamp(c.health+(out.health_delta||0));
-    c.age+=(out.years_passed||3);
-    if(out.occupation_update)c.job=out.occupation_update;
-    if(out.marital_update)c.marital=out.marital_update;
+  G.history.push({year:G.current.year,eventType:G.current.eventType,situation:G.current.situation,choices:G.current.choices,chosenIdx:idx,choice,outcome:out,pcts:G.current.pcts});
+  G.eventLog.push({year:G.current.year,et:G.current.eventType,situation:G.current.situation,choiceText:choice.text,narrative:out.narrative,insight:out.life_insight||null});
+  document.getElementById('btn-log').classList.add('vis');
 
-    G.history.push({year:G.current.year,eventType:G.current.eventType,situation:G.current.situation,choices:G.current.choices,chosenIdx:idx,choice,outcome:out});
+  narEl.classList.remove('loading-d');
+  const fullText=out.narrative+(out.life_insight?`\n\n"${out.life_insight}"`:'');
+  G.lastText=fullText;
+  await typewrite(narEl,fullText,22);
+  document.getElementById('btn-replay').classList.add('vis');
 
-    narEl.classList.remove('loading-d');
-    await typewrite(narEl,out.narrative,12);
-    if(out.life_insight){await pause(300);narEl.textContent+='\n\n"'+out.life_insight+'"';}
+  Audio.event((out.money_delta||0)+(out.health_delta||0)>0);
+  updateCard();
+  renderFC(document.getElementById('fc-svg'),G.history,null,-1,'game');
+  document.getElementById('fc-svg').style.pointerEvents='';
+  G.current=null; G.eventIdx++;
 
-    Audio.event((out.money_delta||0)+(out.health_delta||0)>0);
-    updateCard();
-    renderFC(document.getElementById('fc-svg'),G.history,null,-1,'game');
-    document.getElementById('fc-svg').style.pointerEvents='';
-
-    G.current=null; G.eventIdx++;
-    if(G.eventIdx>=TOTAL||c.health<=0){
-        await pause(2000);
-        Audio.lifeOver();
-        showGameOver();
-        G.busy=false;
-        return;
-    }
-    await pause(1600);
+  if(G.eventIdx>=TOTAL||c.health<=0){
+    await pause(2000);
+    Audio.lifeOver();
+    await showGameOver();
     G.busy=false;
-    await loadEvent();
+    return;
+  }
+  await pause(1600);
+  G.busy=false;
+  await loadEvent();
 }
 
 // ══════════════════════════════════════════════════════════
 // GAME OVER
 // ══════════════════════════════════════════════════════════
-function showGameOver(){
-    document.getElementById('go-lbl').textContent=G.char.name.toUpperCase()+' · AGE '+G.char.age;
-    const wrap=document.getElementById('go-fc-svg-wrap');
-    renderFC(document.getElementById('go-svg'),G.history,null,-1,'gameover');
-    wrap.scrollTop=0;
-    showScreen('screen-gameover');
+async function showGameOver(){
+  const i18n=G.C.i18n;
+  document.getElementById('go-lbl').textContent=G.char.name.toUpperCase()+' · AGE '+G.char.age;
+  document.getElementById('go-relive-txt').textContent=i18n.reliveBtn;
+  document.getElementById('go-end-txt').textContent=i18n.endBtn;
+  document.getElementById('go-summary').textContent='…';
+  renderFC(document.getElementById('go-svg'),G.history,null,-1,'gameover');
+  document.getElementById('go-fc-svg-wrap').scrollTop=0;
+  showScreen('screen-gameover');
+
+  const summary=await fetchLifeSummary();
+  const c=G.char;
+  const fallback=c.health>60&&c.money>60
+    ?`${c.name} navigated ${G.history.length} crossroads and arrived somewhere that felt, if not chosen, at least theirs.`
+    :c.health<35||c.money<35
+    ?`${c.name}'s life was marked by hardship as much as hope. Across ${G.history.length} turning points, they found ways to endure.`
+    :`${c.name}'s life defied simple summary. ${G.history.length} crossroads, each foreclosing a thousand other possible lives.`;
+  document.getElementById('go-summary').textContent=summary||fallback;
 }
 
 // ══════════════════════════════════════════════════════════
 // RELIVE
 // ══════════════════════════════════════════════════════════
 function onRelHover(histIdx){
-    G.reliveTarget=histIdx;
-    const h=G.history[histIdx];
-    document.getElementById('rv-yr').textContent=`${h.year}  ·  ${h.eventType}`;
-    document.getElementById('rv-txt').textContent=h.situation.slice(0,150)+(h.situation.length>150?'…':'');
-    document.getElementById('rv-info').classList.add('show');
-    document.getElementById('btn-rv').classList.add('show');
-    renderFC(document.getElementById('rv-svg'),G.history,null,-1,'relive');
+  G.reliveTarget=histIdx;
+  const h=G.history[histIdx];
+  document.getElementById('rv-yr').textContent=`${h.year}  ·  ${h.eventType}`;
+  document.getElementById('rv-txt').textContent=h.situation.slice(0,150)+(h.situation.length>150?'…':'');
+  document.getElementById('rv-info').classList.add('show');
+  document.getElementById('btn-rv').classList.add('show');
+  renderFC(document.getElementById('rv-svg'),G.history,null,-1,'relive');
 }
-
 function onRelClick(histIdx){G.reliveTarget=histIdx;onRelHover(histIdx);}
 
 function showRelive(){
-    G.reliveTarget=-1;
-    document.getElementById('rv-info').classList.remove('show');
-    document.getElementById('btn-rv').classList.remove('show');
-    renderFC(document.getElementById('rv-svg'),G.history,null,-1,'relive');
-    document.getElementById('rv-fc-wrap').scrollTop=0;
-    showScreen('screen-relive');
+  const i18n=G.C.i18n;
+  document.getElementById('rv-jp').textContent=i18n.reliveQ;
+  document.getElementById('rv-hint').textContent=i18n.moveHint;
+  document.getElementById('btn-rv').textContent='↩ '+i18n.reliveBtn.split('/')[0].trim().toLowerCase();
+  G.reliveTarget=-1;
+  document.getElementById('rv-info').classList.remove('show');
+  document.getElementById('btn-rv').classList.remove('show');
+  renderFC(document.getElementById('rv-svg'),G.history,null,-1,'relive');
+  document.getElementById('rv-fc-wrap').scrollTop=0;
+  showScreen('screen-relive');
 }
 
 async function confirmRelive(){
-    if(G.reliveTarget<0)return;
-    const idx=G.reliveTarget;
-    [...G.history.slice(idx)].reverse().forEach(h=>{
-        G.char.money=clamp(G.char.money-(h.outcome.money_delta||0));
-        G.char.health=clamp(G.char.health-(h.outcome.health_delta||0));
-        G.char.age-=(h.outcome.years_passed||3);
-    });
-    G.history=G.history.slice(0,idx);
-    G.eventIdx=idx; G.selIdx=0; G.current=null; G.busy=false;
-    showScreen('screen-game');
-    updateCard();
-    await loadEvent();
+  if(G.reliveTarget<0)return;
+  const idx=G.reliveTarget;
+  [...G.history.slice(idx)].reverse().forEach(h=>{
+    G.char.money=clamp(G.char.money-(h.outcome.money_delta||0));
+    G.char.health=clamp(G.char.health-(h.outcome.health_delta||0));
+    G.char.age-=(h.outcome.years_passed||3);
+  });
+  G.eventLog=G.eventLog.slice(0,idx);
+  G.history=G.history.slice(0,idx);
+  G.eventIdx=idx; G.selIdx=0; G.current=null; G.busy=false;
+  showScreen('screen-game');
+  updateCard();
+  await loadEvent();
 }
 
-function newLife(){generateAndShow();showScreen('screen-chargen');}
+function newLife(){
+  G.country=G.country; // keep country
+  generateAndShow();
+  showScreen('screen-chargen');
+}
 
 // ══════════════════════════════════════════════════════════
-// KEYBOARD
+// KEYBOARD + EVENTS
 // ══════════════════════════════════════════════════════════
+document.getElementById('narrative').addEventListener('click',skipTypewrite);
+
 document.addEventListener('keydown',e=>{
-    if(!document.getElementById('screen-game').classList.contains('active'))return;
+  if(document.getElementById('log-modal').classList.contains('open')){
+    if(e.key==='Escape')toggleLog(); return;
+  }
+  if(document.getElementById('screen-game').classList.contains('active')){
+    if(e.key==='Tab'){e.preventDefault();skipTypewrite();return;}
     if(!G.current||G.busy)return;
     const n=G.current.choices.length;
     if(e.key==='ArrowLeft'){G.selIdx=(G.selIdx-1+n)%n;renderFC(document.getElementById('fc-svg'),G.history,G.current,G.selIdx,'game');}
     else if(e.key==='ArrowRight'){G.selIdx=(G.selIdx+1)%n;renderFC(document.getElementById('fc-svg'),G.history,G.current,G.selIdx,'game');}
     else if(e.key==='Enter'||e.key===' '){e.preventDefault();onChoiceClick(G.selIdx);}
+  }
 });
 
 window.addEventListener('resize',()=>{
-    const gs=document.getElementById('screen-game');
-    if(gs.classList.contains('active')){
-        if(G.current)renderFC(document.getElementById('fc-svg'),G.history,G.current,G.selIdx,'game');
-        else renderFC(document.getElementById('fc-svg'),G.history,null,-1,'game');
-    }
+  const gs=document.getElementById('screen-game');
+  if(gs.classList.contains('active')){
+    if(G.current)renderFC(document.getElementById('fc-svg'),G.history,G.current,G.selIdx,'game');
+    else renderFC(document.getElementById('fc-svg'),G.history,null,-1,'game');
+  }
 });
 </script>
 </body>

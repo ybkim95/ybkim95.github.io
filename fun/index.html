@@ -411,7 +411,7 @@ let G={
 // ══════════════════════════════════════════════════════════
 function weighted(a){let t=a.reduce((s,i)=>s+(i.w||1),0),r=Math.random()*t;for(const x of a){r-=(x.w||1);if(r<=0)return x;}return a[a.length-1];}
 function clamp(v,a=0,b=100){return Math.max(a,Math.min(b,v));}
-function mStr(v){const n=Math.round(clamp(v)/20);return`<span style="color:#fff">${'█'.repeat(n)}</span><span style="color:#252525">${'░'.repeat(5-n)}</span>`;}
+function mStr(v){const n=Math.max(1,Math.round(clamp(v)/20));const sym=(G&&G.C)?G.C.currency:'$';return`<span style="color:#fff">${sym.repeat(n)}</span><span style="color:#252525">${sym.repeat(5-n)}</span>`;}
 function hStr(v){const n=Math.round(clamp(v)/20);return`<span style="color:#fff">${'♥'.repeat(n)}</span><span style="color:#1a1a1a">${'♡'.repeat(5-n)}</span>`;}
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function pause(ms){return new Promise(r=>setTimeout(r,ms));}
@@ -667,14 +667,13 @@ function renderFC(svgEl,history,current,selIdx,mode){
   const CX=panelW/2;
   const nEv=history.length+(current?1:0)+(mode==='gameover'?1:0);
 
-  // Scale layout to fit panel height in non-game modes exactly (no minimum — Life Over is an overview)
   const naturalH=B.topPad+Math.max(nEv,1)*B.rowH+80;
   const sc=(mode==='game')?1:Math.min(1,(panelH-20)/naturalH);
   const _B={
     rowH:Math.round(B.rowH*sc), topPad:Math.round(B.topPad*sc),
     yearR:Math.round(B.yearR*sc), diaRX:Math.round(B.diaRX*sc), diaRY:Math.round(B.diaRY*sc),
     cW:Math.round(B.cW*sc), cH:Math.max(24,Math.round(B.cH*sc)),
-    spread:Math.round(B.spread*sc), termR:Math.round(B.termR*sc)
+    termR:Math.round(B.termR*sc)
   };
   const contentH=_B.topPad+Math.max(nEv,1)*_B.rowH+80;
   svgEl.innerHTML='';
@@ -687,28 +686,47 @@ function renderFC(svgEl,history,current,selIdx,mode){
   const diaY=(i)=>yearY(i)+_B.yearR+dG;
   const choY=(i)=>diaY(i)+_B.diaRY+cG;
   const termY=(i)=>choY(i)+_B.cH/2+tG;
-  const offsets=(n)=>n===3?[-_B.spread,0,_B.spread]:n===2?[-_B.spread*.65,_B.spread*.65]:[0];
   const fs=(base)=>Math.max(6,Math.round(base*sc));
 
-  function drawYear(i,label){
-    const cy=yearY(i),sw=(mode==='game'&&i===history.length)?2.5:1.8;
-    svgEl.appendChild(ns('polygon',{points:octPts(CX,cy,_B.yearR),fill:'#000',stroke:'#fff','stroke-width':sw}));
-    svgTxt(svgEl,CX,cy+Math.round(5*sc),label.split('').join(' '),fs(11),'middle','#fff',2);
+  // Dynamic tree X: in gameover/relive the trunk drifts based on chosen paths,
+  // creating the spreading tree from the original. In game mode all events stay
+  // centred so the interactive layout is predictable.
+  const sp=mode==='game'?Math.round(B.spread*sc):Math.round(panelW*0.17);
+  const xMin=Math.round(_B.cW/2)+sp+6, xMax=panelW-xMin;
+  const evXs=[CX];
+  if(mode!=='game'){
+    history.forEach(h=>{
+      const prev=evXs[evXs.length-1];
+      const n=h.choices.length;
+      const dxArr=n===3?[-sp,0,sp]:n===2?[-Math.round(sp*.65),Math.round(sp*.65)]:[0];
+      const shift=dxArr[Math.min(h.chosenIdx,dxArr.length-1)]||0;
+      evXs.push(Math.max(xMin,Math.min(xMax,prev+shift)));
+    });
   }
-  function connYD(i){svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)+_B.yearR,x2:CX,y2:diaY(i)-_B.diaRY,stroke:'#fff','stroke-width':1.8}));}
-  function drawDia(i,label,active){
+  const evX=(i)=>(mode==='game')?CX:(evXs[Math.min(i,evXs.length-1)]||CX);
+
+  // Per-event choice absolute X positions
+  const choiceXs=(n,cx)=>n===3?[cx-sp,cx,cx+sp]:n===2?[cx-Math.round(sp*.65),cx+Math.round(sp*.65)]:[cx];
+
+  function drawYear(i,label,cx){
+    const cy=yearY(i),sw=(mode==='game'&&i===history.length)?2.5:1.8;
+    svgEl.appendChild(ns('polygon',{points:octPts(cx,cy,_B.yearR),fill:'#000',stroke:'#fff','stroke-width':sw}));
+    svgTxt(svgEl,cx,cy+Math.round(5*sc),label.split('').join(' '),fs(11),'middle','#fff',2);
+  }
+  function connYD(i,cx){svgEl.appendChild(ns('line',{x1:cx,y1:yearY(i)+_B.yearR,x2:cx,y2:diaY(i)-_B.diaRY,stroke:'#fff','stroke-width':1.8}));}
+  function drawDia(i,label,active,cx){
     const cy=diaY(i),sw=active?2.5:1.8;
-    svgEl.appendChild(ns('polygon',{points:diaPts(CX,cy,_B.diaRX,_B.diaRY),fill:'#000',stroke:'#fff','stroke-width':sw}));
+    svgEl.appendChild(ns('polygon',{points:diaPts(cx,cy,_B.diaRX,_B.diaRY),fill:'#000',stroke:'#fff','stroke-width':sw}));
     const words=label.split(' '),mid=Math.ceil(words.length/2);
     const l1=words.slice(0,mid).join(' '),l2=words.slice(mid).join(' ');
-    if(l2){svgTxt(svgEl,CX,cy-Math.round(4*sc),l1,fs(8));svgTxt(svgEl,CX,cy+Math.round(9*sc),l2,fs(8));}
-    else svgTxt(svgEl,CX,cy+Math.round(4*sc),l1,fs(8));
+    if(l2){svgTxt(svgEl,cx,cy-Math.round(4*sc),l1,fs(8));svgTxt(svgEl,cx,cy+Math.round(9*sc),l2,fs(8));}
+    else svgTxt(svgEl,cx,cy+Math.round(4*sc),l1,fs(8));
   }
 
-  function drawChoices(i,choices,chosenIdx,isActive,pcts){
-    const dBottomY=diaY(i)+_B.diaRY,cy=choY(i),offs=offsets(choices.length);
-    offs.forEach((dx,ci)=>{
-      const cx=CX+dx;
+  function drawChoices(i,choices,chosenIdx,isActive,pcts,cx){
+    const dBottomY=diaY(i)+_B.diaRY,cy=choY(i);
+    const cxArr=choiceXs(choices.length,cx);
+    cxArr.forEach((ccx,ci)=>{
       const isChosen=!isActive&&ci===chosenIdx;
       const isSel=isActive&&ci===selIdx;
       const isRvSel=mode==='relive'&&i===G.reliveTarget&&ci===chosenIdx;
@@ -718,67 +736,144 @@ function renderFC(svgEl,history,current,selIdx,mode){
       const sw=chosen?2.2:1;
       const midY=dBottomY+Math.round(22*sc);
       const la={'stroke':lineCol,'stroke-width':sw,...(dashed?{'stroke-dasharray':'6 4'}:{})};
-      if(Math.abs(dx)>5){
-        svgEl.appendChild(ns('line',{x1:CX,y1:dBottomY,x2:CX,y2:midY,...la}));
-        svgEl.appendChild(ns('line',{x1:CX,y1:midY,x2:cx,y2:midY,...la}));
-        svgEl.appendChild(ns('line',{x1:cx,y1:midY,x2:cx,y2:cy-_B.cH/2,...la}));
-      }else{svgEl.appendChild(ns('line',{x1:CX,y1:dBottomY,x2:cx,y2:cy-_B.cH/2,...la}));}
+      // connector from diamond bottom to choice box
+      if(Math.abs(ccx-cx)>5){
+        svgEl.appendChild(ns('line',{x1:cx,y1:dBottomY,x2:cx,y2:midY,...la}));
+        svgEl.appendChild(ns('line',{x1:cx,y1:midY,x2:ccx,y2:midY,...la}));
+        svgEl.appendChild(ns('line',{x1:ccx,y1:midY,x2:ccx,y2:cy-_B.cH/2,...la}));
+      }else{svgEl.appendChild(ns('line',{x1:cx,y1:dBottomY,x2:ccx,y2:cy-_B.cH/2,...la}));}
 
-      if(isSel||isRvSel) svgEl.appendChild(ns('polygon',{points:starburst(cx,cy,_B.cH/2+12,_B.cH/2+40,20),fill:'none',stroke:'#fff','stroke-width':1.0,'pointer-events':'none'}));
+      if(isSel||isRvSel) svgEl.appendChild(ns('polygon',{points:starburst(ccx,cy,_B.cH/2+12,_B.cH/2+40,20),fill:'none',stroke:'#fff','stroke-width':1.0,'pointer-events':'none'}));
 
       const fillCol=chosen?'#fff':'#000',strCol=chosen?'#fff':(isActive?'#fff':'#333');
-      const rect=ns('rect',{x:cx-_B.cW/2,y:cy-_B.cH/2,width:_B.cW,height:_B.cH,fill:fillCol,stroke:strCol,'stroke-width':chosen?2.5:sw,...(dashed?{'stroke-dasharray':'6 4'}:{})});
+      const rect=ns('rect',{x:ccx-_B.cW/2,y:cy-_B.cH/2,width:_B.cW,height:_B.cH,fill:fillCol,stroke:strCol,'stroke-width':chosen?2.5:sw,...(dashed?{'stroke-dasharray':'6 4'}:{})});
       if(isActive){rect.style.cursor='pointer';rect.addEventListener('click',()=>onChoiceClick(ci));rect.addEventListener('mouseenter',()=>onHover(ci));}
       if(mode==='relive'&&!isActive){rect.style.cursor='pointer';rect.addEventListener('click',()=>onRelClick(i));rect.addEventListener('mouseenter',()=>onRelHover(i));}
       svgEl.appendChild(rect);
 
-      svgTxt(svgEl,cx,cy+Math.round(5*sc),(choices[ci]?.text||'?').substring(0,20),fs(8.5),'middle',chosen?'#000':'#999');
+      // Large transparent hit area so hover/click works even outside the box border
+      if(isActive){
+        const hit=ns('rect',{x:ccx-_B.cW/2-12,y:cy-_B.cH/2-22,width:_B.cW+24,height:_B.cH+44,fill:'transparent',stroke:'none','pointer-events':'all'});
+        hit.style.cursor='pointer';
+        hit.addEventListener('click',()=>onChoiceClick(ci));
+        hit.addEventListener('mouseenter',()=>onHover(ci));
+        svgEl.appendChild(hit);
+      }
 
-      // % stat — visible colors against black background
+      svgTxt(svgEl,ccx,cy+Math.round(5*sc),(choices[ci]?.text||'?').substring(0,20),fs(8.5),'middle',chosen?'#000':'#999');
+
       if(pcts&&pcts[ci]!==undefined){
         const pCol=isActive?'#888':(chosen?'#777':'#444');
-        svgTxt(svgEl,cx,cy+_B.cH/2+Math.round(16*sc),`~${pcts[ci]}%`,fs(7),'middle',pCol);
+        svgTxt(svgEl,ccx,cy+_B.cH/2+Math.round(16*sc),`~${pcts[ci]}%`,fs(7),'middle',pCol);
       }
 
       if(!isActive&&isChosen){
+        // Chosen path: ccx IS evX(i+1) by construction — straight vertical down
+        const nextX=evX(i+1);
         const cY2=cy+_B.cH/2,mb=cY2+Math.round(22*sc);
-        svgEl.appendChild(ns('line',{x1:cx,y1:cY2,x2:cx,y2:mb,stroke:'#fff','stroke-width':1.8}));
-        if(Math.abs(dx)>5){
-          svgEl.appendChild(ns('line',{x1:cx,y1:mb,x2:CX,y2:mb,stroke:'#fff','stroke-width':1.8}));
-          svgEl.appendChild(ns('line',{x1:CX,y1:mb,x2:CX,y2:yearY(i+1)-_B.yearR,stroke:'#fff','stroke-width':1.8}));
-        }else{svgEl.appendChild(ns('line',{x1:CX,y1:mb,x2:CX,y2:yearY(i+1)-_B.yearR,stroke:'#fff','stroke-width':1.8}));}
+        svgEl.appendChild(ns('line',{x1:ccx,y1:cY2,x2:ccx,y2:mb,stroke:'#fff','stroke-width':1.8}));
+        if(Math.abs(ccx-nextX)>2){
+          svgEl.appendChild(ns('line',{x1:ccx,y1:mb,x2:nextX,y2:mb,stroke:'#fff','stroke-width':1.8}));
+        }
+        svgEl.appendChild(ns('line',{x1:nextX,y1:mb,x2:nextX,y2:yearY(i+1)-_B.yearR,stroke:'#fff','stroke-width':1.8}));
       }else if(!isActive&&!isChosen){
-        svgEl.appendChild(ns('line',{x1:cx,y1:cy+_B.cH/2,x2:cx,y2:termY(i),stroke:'#222','stroke-width':.8,'stroke-dasharray':'5 4'}));
-        svgEl.appendChild(ns('circle',{cx,cy:termY(i),r:_B.termR,fill:'#fff',stroke:'#fff','stroke-width':1}));
+        svgEl.appendChild(ns('line',{x1:ccx,y1:cy+_B.cH/2,x2:ccx,y2:termY(i),stroke:'#222','stroke-width':.8,'stroke-dasharray':'5 4'}));
+        svgEl.appendChild(ns('circle',{cx:ccx,cy:termY(i),r:_B.termR,fill:'#fff',stroke:'#fff','stroke-width':1}));
       }
     });
   }
 
   history.forEach((h,i)=>{
-    if(i>0) svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)-_B.yearR-8,x2:CX,y2:yearY(i)-_B.yearR,stroke:'#fff','stroke-width':1.8}));
-    drawYear(i,String(h.year)); connYD(i); drawDia(i,h.eventType,false);
-    drawChoices(i,h.choices,h.chosenIdx,false,h.pcts);
+    const cx=evX(i);
+    if(i>0) svgEl.appendChild(ns('line',{x1:cx,y1:yearY(i)-_B.yearR-8,x2:cx,y2:yearY(i)-_B.yearR,stroke:'#fff','stroke-width':1.8}));
+    drawYear(i,String(h.year),cx); connYD(i,cx); drawDia(i,h.eventType,false,cx);
+    drawChoices(i,h.choices,h.chosenIdx,false,h.pcts,cx);
   });
 
   if(current){
-    const i=history.length;
-    if(i>0) svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)-_B.yearR-8,x2:CX,y2:yearY(i)-_B.yearR,stroke:'#fff','stroke-width':1.8}));
-    drawYear(i,String(current.year)); connYD(i); drawDia(i,current.eventType,true);
-    drawChoices(i,current.choices,-1,true,current.pcts);
+    const i=history.length, cx=evX(i);
+    if(i>0) svgEl.appendChild(ns('line',{x1:cx,y1:yearY(i)-_B.yearR-8,x2:cx,y2:yearY(i)-_B.yearR,stroke:'#fff','stroke-width':1.8}));
+    drawYear(i,String(current.year),cx); connYD(i,cx); drawDia(i,current.eventType,true,cx);
+    drawChoices(i,current.choices,-1,true,current.pcts,cx);
     if(mode==='game') setTimeout(()=>{const el=svgEl.parentElement;el.scrollTo({top:Math.max(0,yearY(i)-80),behavior:'smooth'});},200);
   }
 
   if(mode==='gameover'&&history.length>0){
-    const i=history.length,cy=yearY(i);
-    svgEl.appendChild(ns('polygon',{points:octPts(CX,cy,_B.yearR),fill:'#000',stroke:'#fff','stroke-width':1.8}));
-    svgTxt(svgEl,CX,cy+Math.round(5*sc),'≡',fs(16));
+    const i=history.length, cx=evX(i), cy=yearY(i);
+    svgEl.appendChild(ns('polygon',{points:octPts(cx,cy,_B.yearR),fill:'#000',stroke:'#fff','stroke-width':1.8}));
+    svgTxt(svgEl,cx,cy+Math.round(5*sc),'≡',fs(16));
   }
 }
+
+// ══════════════════════════════════════════════════════════
+// ANASTASIA — US easter egg (gift for gf)
+// ══════════════════════════════════════════════════════════
+const ANASTASIA_CHAR={
+  name:'Anastasia Wilson',gender:'Female',age:24,pref:'Massachusetts',
+  job:'Unemployed',edu:"Bachelor's Degree",income:18000,marital:'Single',
+  children:false,nat:'US-born',money:15,health:88,
+  startYear:2022,isUrban:true,_isAnastasia:true
+};
+
+const ANASTASIA_EVENTS=[
+  {eventType:'Career Crossroads',
+   situation:"Anastasia just landed in Boston from Killeen, Texas, with a suitcase and $340 in her account. Northeastern accepted her as a transfer student at 24 — three years older than most freshmen. Her scholarship covers tuition. Everything else is up to her.",
+   choices:[{text:"Go all-in on school",description:"The debt will be worth it. Do this properly."},{text:"Waitress nights, study days",description:"Pay as you go. Keep your options."},{text:"Defer a semester",description:"Get established first. School isn't going anywhere."}],choice_pcts:[38,44,18]},
+  {eventType:'Matters of the Heart',
+   situation:"She crashed a Newbury Street gallery opening with a classmate and met Derek Whitmore — 41, tech investor, insufferably confident. He's been texting her for a week. He mentioned dinner at Menton. She's been eating dining hall pasta.",
+   choices:[{text:"Accept the dinner",description:"It's just food. You can handle yourself."},{text:"Keep it casual, no strings",description:"One coffee. No expectations."},{text:"Hard pass",description:"This has 'complicated' written all over it."}],choice_pcts:[42,35,23]},
+  {eventType:'A Place to Live',
+   situation:"Derek is charming and attentive and has offered to cover rent on a furnished Beacon Hill apartment. 'Just to help.' He'd have a key. Her current roommates blast reggaeton at 2am.",
+   choices:[{text:"Take the apartment",description:"Practical. Not a moral statement."},{text:"Take it, reset the terms",description:"Apartment yes, key absolutely not."},{text:"Find better roommates instead",description:"Keep your independence, even if messy."}],choice_pcts:[35,45,20]},
+  {eventType:'Professional Turning Point',
+   situation:"A photographer slid into Anastasia's DMs: 'You photograph beautifully — $3K a month easy.' Meanwhile Derek is hinting at her 'long-term security' with unmistakable clarity. The scholarship covers tuition, not ambition.",
+   choices:[{text:"Do the modeling",description:"Your face, your money, your call."},{text:"Double down on Derek",description:"This is real. Let it be enough."},{text:"Neither — finish the degree",description:"Build something that can't be taken away."}],choice_pcts:[36,30,34]},
+  {eventType:'Financial Decision',
+   situation:"The modeling opened doors she didn't know existed. Now there's a subscription platform offer: full creative control, direct audience, $12–18K/month ceiling. Derek is issuing ultimatums. The numbers don't lie.",
+   choices:[{text:"Launch the platform",description:"This is yours. Build it."},{text:"Walk away from all of it",description:"Reset. Neither path feels right."},{text:"Stay with Derek, close that door",description:"Security and stability. He's offering a life."}],choice_pcts:[45,22,33]},
+  {eventType:'Social Belonging',
+   situation:"She's financially independent for the first time in her life. But her academic advisor gives pointed looks, classmates have found her accounts, and her Texas friends have gone quiet. The attention from strangers has replaced the silence from people who knew her.",
+   choices:[{text:"Own it fully, publicly",description:"You're building something. Let people adjust."},{text:"Manage the two worlds",description:"Keep them separate. It's possible."},{text:"Step back quietly for now",description:"The attention is heavier than it looked."}],choice_pcts:[40,38,22]},
+  {eventType:'Later Chapter',
+   situation:"Two years in: 180K subscribers, a podcast offer, and Derek's lawyers sent papers for 'emotional damages.' A documentary filmmaker named Isabel has been in contact. Three paths forward are visible from here.",
+   choices:[{text:"Do the documentary",description:"Tell the whole story on your terms."},{text:"Take the settlement, disappear",description:"Ibiza. Reset. Start completely fresh."},{text:"Build the media company",description:"Staff, structure, something real."}],choice_pcts:[32,28,40]},
+  {eventType:'Final Crossroads',
+   situation:"At 28, Anastasia looks at her phone screen and sees someone she doesn't quite recognize — not who Texas expected, not what Derek wanted, not even what she imagined at 24. The question now is who she's still becoming.",
+   choices:[{text:"Build the media company",description:"Scale it. Make it legitimate. Make it last."},{text:"Go back to school, finish",description:"The original plan — from a position of power."},{text:"Disappear somewhere beautiful",description:"A year abroad. Figure out the rest later."}],choice_pcts:[38,30,32]}
+];
+
+const ANASTASIA_OUTCOMES=[
+  [{narrative:"Anastasia threw herself into coursework and surprised herself — and her professors. Three months in she was pulling a 3.4 GPA and had stopped counting the days until summer.",years_passed:1,money_delta:-2,health_delta:4,life_insight:"Showing up when you're scared is most of the work."},
+   {narrative:"Waitressing at a Back Bay spot introduced her to people she wouldn't have found in a classroom. Grades were okay. Tips were better. The schedule was brutal and she handled it.",years_passed:1,money_delta:5,health_delta:-2,life_insight:"Some educations happen outside classrooms."},
+   {narrative:"The deferral bought time but not direction. Boston was expensive. She spent three months learning exactly how expensive.",years_passed:1,money_delta:-8,health_delta:-3,life_insight:"Postponing decisions is its own kind of decision."}],
+  [{narrative:"Dinner at Menton was extraordinary. Derek was attentive and interesting and a little too sure of himself, which she found interesting too. She came home at midnight and didn't feel bad about it.",years_passed:1,money_delta:3,health_delta:3,life_insight:"Accepting kindness doesn't mean you owe anything."},
+   {narrative:"Coffee at Thinking Cup. He brought flowers — slightly too much. She appreciated it anyway. They texted for two weeks. She kept her options open.",years_passed:1,money_delta:0,health_delta:2,life_insight:"You can enjoy something without committing to it."},
+   {narrative:"She blocked him after his second message explaining why her answer was wrong. She'd made the right call and she knew it instantly.",years_passed:1,money_delta:0,health_delta:5,life_insight:"Clarity comes fast when your gut is right."}],
+  [{narrative:"The Beacon Hill apartment was everything the roommate situation wasn't. She slept through the night for the first time in months. The key situation remained diplomatically unresolved.",years_passed:1,money_delta:6,health_delta:5,life_insight:"Comfort is not the same as compromise."},
+   {narrative:"She negotiated hard. No key. Monthly transparency. Derek agreed with visible effort. The apartment was hers in every way that counted.",years_passed:1,money_delta:5,health_delta:4,life_insight:"The terms you set early define everything later."},
+   {narrative:"She found a new roommate through a Northeastern group — a quiet PhD student from Seoul who was almost never home. Better than expected. She kept her independence.",years_passed:1,money_delta:-2,health_delta:3,life_insight:"The low-drama option is often the right one."}],
+  [{narrative:"The modeling work was stranger and easier than she'd expected. The money was real. She started thinking about what else was possible.",years_passed:2,money_delta:12,health_delta:0,life_insight:"Money earned on your own terms feels different."},
+   {narrative:"She told Derek she was serious. He booked Newport for the weekend. She spent it feeling comfortable and slightly unfulfilled and wasn't sure which feeling to trust.",years_passed:2,money_delta:4,health_delta:2,life_insight:"Security and satisfaction are not always the same thing."},
+   {narrative:"She doubled down on coursework and graduated on time. The degree was hers completely. It didn't change everything immediately — and then slowly it did.",years_passed:2,money_delta:-3,health_delta:3,life_insight:"Finishing what you start has its own compounding interest."}],
+  [{narrative:"The platform launched quietly and grew loudly. First month paid rent. Third month paid it three times over. She hired an accountant in month six. Derek's texts stopped around then.",years_passed:2,money_delta:22,health_delta:-3,life_insight:"Building something real requires burning some bridges."},
+   {narrative:"She deleted everything in a single afternoon, sat with the silence for a week, then started over from scratch in a different direction. Without a roadmap.",years_passed:2,money_delta:-5,health_delta:5,life_insight:"Knowing when to stop is its own kind of intelligence."},
+   {narrative:"She stayed with Derek. The relationship had real warmth when the business pressures were quiet. She graduated. She didn't look at the platform offer again.",years_passed:2,money_delta:3,health_delta:4,life_insight:"Some doors you close don't disappear — they just stop mattering."}],
+  [{narrative:"Owning it publicly was uncomfortable for about three weeks and then became her brand. She gave one interview that went viral for all the right reasons.",years_passed:2,money_delta:9,health_delta:0,life_insight:"Other people's discomfort with your choices is their problem to solve."},
+   {narrative:"Managing two worlds was exhausting and sustainable in roughly equal measure. Some days worked perfectly. Others didn't. She kept going anyway.",years_passed:2,money_delta:5,health_delta:-4,life_insight:"Compartmentalization is a skill, not a sin."},
+   {narrative:"She stepped back quietly. The audience shrank a little. The noise shrank more. She started sleeping through the night again.",years_passed:2,money_delta:-3,health_delta:7,life_insight:"Sometimes the most powerful choice is the quietest one."}],
+  [{narrative:"The documentary aired at SXSW. It was difficult to watch and important, according to most people who saw it. Anastasia thought it was both.",years_passed:2,money_delta:6,health_delta:-3,life_insight:"Telling your story before someone else does is the only version worth having."},
+   {narrative:"She took the settlement, rented a place in Ibiza for three months, read more novels than she had since high school. Came back knowing who she was.",years_passed:2,money_delta:11,health_delta:8,life_insight:"Distance from your life is sometimes the only way to see it clearly."},
+   {narrative:"The media company launched with a team of four. Two quit in the first year. The two who stayed were worth ten of the ones who left.",years_passed:2,money_delta:8,health_delta:-4,life_insight:"The people who stay when it's hard are the ones worth keeping."}],
+  [{narrative:"The media company grew steadily. She hired people smarter than her in categories she couldn't cover. At 32 she was described as 'one to watch' in a trade pub — which she found both gratifying and hilarious.",years_passed:3,money_delta:16,health_delta:-2,life_insight:"The best version of your life is usually unrecognizable from where you started."},
+   {narrative:"She finished the degree at 30 with a 3.8 GPA and a different kind of confidence — the kind that comes from finishing what you started. She framed it. Hung it in her office.",years_passed:3,money_delta:-2,health_delta:5,life_insight:"The things you finish for yourself matter more than the ones you do for anyone else."},
+   {narrative:"She found a town on the Algarve coast and stayed a year. Swam every morning. Wrote in notebooks she didn't show anyone. Came back knowing exactly what she wanted — and more importantly, what she didn't.",years_passed:3,money_delta:-4,health_delta:10,life_insight:"You can't find out who you are until you stop performing who you think you should be."}]
+];
 
 // ══════════════════════════════════════════════════════════
 // CHARACTER GENERATION
 // ══════════════════════════════════════════════════════════
 function genChar(){
+  if(G.country==='us'&&Math.random()<0.33) return ANASTASIA_CHAR;
   const C=G.C;
   const g=Math.random()<.5?'Male':'Female';
   const sur=C.sN[~~(Math.random()*C.sN.length)];
@@ -1023,7 +1118,11 @@ async function loadEvent(){
 
   const et=selectEventType(G.eventIdx); // decide type ONCE, pass to both prompt and G.current
   let ev;
-  try{ev=await fetchEvent(et);}catch(e){console.warn(e);ev=FB_EV[Math.min(G.eventIdx,FB_EV.length-1)];}
+  if(G.char._isAnastasia&&ANASTASIA_EVENTS[G.eventIdx]){
+    ev=ANASTASIA_EVENTS[G.eventIdx];
+  }else{
+    try{ev=await fetchEvent(et);}catch(e){console.warn(e);ev=FB_EV[Math.min(G.eventIdx,FB_EV.length-1)];}
+  }
 
   const pcts=Array.isArray(ev.choice_pcts)&&ev.choice_pcts.length===ev.choices.length
     ? ev.choice_pcts : makePcts(ev.choices.length, et+G.eventIdx);
@@ -1063,7 +1162,11 @@ async function onChoiceClick(idx){
   narEl.innerHTML=''; narEl.classList.add('loading-d');
 
   let out;
-  try{out=await fetchOutcome(choice);}catch(e){console.warn(e);out=FB_OUT[Math.min(G.eventIdx,FB_OUT.length-1)];}
+  if(G.char._isAnastasia&&ANASTASIA_OUTCOMES[G.eventIdx]){
+    out=ANASTASIA_OUTCOMES[G.eventIdx][Math.min(idx,ANASTASIA_OUTCOMES[G.eventIdx].length-1)];
+  }else{
+    try{out=await fetchOutcome(choice);}catch(e){console.warn(e);out=FB_OUT[Math.min(G.eventIdx,FB_OUT.length-1)];}
+  }
 
   const c=G.char;
   c.money=clamp(c.money+(out.money_delta||0));

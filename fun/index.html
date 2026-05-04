@@ -493,32 +493,39 @@ function drawScene(canvas,eventType,situation,char,eventIdx){
   const bayer=[[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(r=>r.map(v=>(v+.5)/16));
   const buf=new Float32Array(W*H);
   const lifePct=eventIdx/TOTAL;
-  const skyBase=0.03+lifePct*0.02;
-  for(let y=0;y<H;y++) for(let x=0;x<W;x++) buf[y*W+x]=skyBase+(H-y)/H*0.05;
+  // Very dark sky → near-black pixels
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++) buf[y*W+x]=0.02;
   const gY=~~(H*(0.62+lifePct*0.06));
-  for(let y=gY;y<H;y++){const br=0.20+(y-gY)/(H-gY)*0.50-lifePct*0.05;for(let x=0;x<W;x++) buf[y*W+x]=Math.max(buf[y*W+x],br);}
-  for(let x=0;x<W;x++) buf[gY*W+x]=0.92;
+  // Bright ground → near-white pixels
+  for(let y=gY;y<H;y++){const br=0.88+(y-gY)/(H-gY)*0.10;for(let x=0;x<W;x++) buf[y*W+x]=br;}
+  for(let x=0;x<W;x++) buf[gY*W+x]=0.99;
 
-  const setR=(x,y,w,h,v,clp=true)=>{for(let dy=0;dy<h;dy++) for(let dx=0;dx<w;dx++){const px=~~(x+dx),py=~~(y+dy);if(px>=0&&px<W&&py>=0&&py<H) buf[py*W+px]=clp?Math.max(buf[py*W+px],v):v;}};
+  // max-merge helpers (can't go darker than existing)
+  const setR=(x,y,w,h,v)=>{for(let dy=0;dy<h;dy++) for(let dx=0;dx<w;dx++){const px=~~(x+dx),py=~~(y+dy);if(px>=0&&px<W&&py>=0&&py<H) buf[py*W+px]=Math.max(buf[py*W+px],v);}};
   const setC=(cx,cy,r,v)=>{for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++){if(dx*dx+dy*dy<=r*r){const px=~~(cx+dx),py=~~(cy+dy);if(px>=0&&px<W&&py>=0&&py<H) buf[py*W+px]=Math.max(buf[py*W+px],v);}}};
-  const line=(x1,y1,x2,y2,v,tk=1)=>{const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy)||1;for(let i=0;i<=len;i++){const px=~~(x1+dx*i/len),py=~~(y1+dy*i/len);setC(px,py,tk,v);}};
+  // override helpers — force exact value regardless of background
+  const setRO=(x,y,w,h,v)=>{for(let dy=0;dy<h;dy++) for(let dx=0;dx<w;dx++){const px=~~(x+dx),py=~~(y+dy);if(px>=0&&px<W&&py>=0&&py<H) buf[py*W+px]=v;}};
+  const setCO=(cx,cy,r,v)=>{for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++){if(dx*dx+dy*dy<=r*r){const px=~~(cx+dx),py=~~(cy+dy);if(px>=0&&px<W&&py>=0&&py<H) buf[py*W+px]=v;}}};
+  const line=(x1,y1,x2,y2,v,tk=1)=>{const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy)||1;for(let i=0;i<=len;i++){const px=~~(x1+dx*i/len),py=~~(y1+dy*i/len);setCO(px,py,tk,v);}};
 
-  function person(cx,sc=1.0,bri=0.95){
+  // solid black silhouette — always below Bayer threshold → always black pixels
+  function person(cx,sc=1.0){
     const ao=char.age>50?-0.05:0;
     const hr=~~(7*sc),torW=~~(10*sc),torH=~~(20*sc),legH=~~(18*sc),armH=~~(13*sc),armW=~~(4*sc);
-    setC(cx,gY-legH-torH-hr+~~(ao*10),hr,bri);
-    setR(cx-torW/2,gY-legH-torH,torW,torH,bri);
-    setR(cx-torW/2-armW,gY-legH-torH+3*sc,armW,armH,bri);
-    setR(cx+torW/2,gY-legH-torH+3*sc,armW,armH,bri);
-    setR(cx-torW/4-armW/2,gY-legH,armW+1,legH,bri);
-    setR(cx+torW/4+1,gY-legH,armW+1,legH,bri);
+    setCO(cx,gY-legH-torH-hr+~~(ao*10),hr,0.0);
+    setRO(cx-torW/2,gY-legH-torH,torW,torH,0.0);
+    setRO(cx-torW/2-armW,gY-legH-torH+3*sc,armW,armH,0.0);
+    setRO(cx+torW/2,gY-legH-torH+3*sc,armW,armH,0.0);
+    setRO(cx-torW/4-armW/2,gY-legH,armW+1,legH,0.0);
+    setRO(cx+torW/4+1,gY-legH,armW+1,legH,0.0);
   }
-  function building(x,w,h,bri=0.82){
+  function building(x,w,h,bri=0.90){
     setR(x,gY-h,w,h,bri);
     const wd=char.isUrban?0.6:0.4;
-    for(let wy=gY-h+5;wy<gY-3;wy+=7) for(let wx=x+3;wx<x+w-3;wx+=6) if(rng()<wd) setR(wx,wy,4,4,rng()<0.5?0.06:0.97);
+    for(let wy=gY-h+5;wy<gY-3;wy+=7) for(let wx=x+3;wx<x+w-3;wx+=6) if(rng()<wd) setRO(wx,wy,4,4,rng()<0.5?0.04:0.98);
   }
-  function tree(cx,h,bri=0.83){setR(cx-2,gY-~~(h*.42),4,~~(h*.42),bri);setC(cx,gY-~~(h*.58),~~(h*.36),bri);}
+  // solid black tree silhouette
+  function tree(cx,h){setRO(cx-2,gY-~~(h*.42),4,~~(h*.42),0.0);setCO(cx,gY-~~(h*.58),~~(h*.36),0.0);}
   function bench(cx){setR(cx-10,gY-8,20,3,0.8);setR(cx-12,gY-5,3,5,0.75);setR(cx+9,gY-5,3,5,0.75);}
   function desk(cx){setR(cx-14,gY-16,28,4,0.85);setR(cx-12,gY-12,4,12,0.75);setR(cx+8,gY-12,4,12,0.75);setR(cx-4,gY-22,12,8,0.7);}
 
@@ -529,46 +536,45 @@ function drawScene(canvas,eventType,situation,char,eventIdx){
 
   if(et.includes('career')||et.includes('professional')){
     if(variant===0){let x=0;for(let i=0;i<numB+2;i++){const w=bldW();building(x,w,bldH());x+=w+3;}person(W/2,1.0+lifePct*(-.12));}
-    else if(variant===1){setR(0,~~(gY*.3),W,gY*.7,.06);desk(W/2);person(W/2-18,.9);setR(W-60,20,45,gY-25,.85);setR(W-57,23,39,gY-31,.04);}
-    else{setR(0,gY-4,W,4,.88);setR(0,gY-30,W,2,.7);for(let i=0;i<4;i++) building(i*(W/4),W/4-3,bldH());const n=2+~~(rng()*3);for(let i=0;i<n;i++) person(60+i*(W-120)/n+rng()*20-10,.9,.8+rng()*.15);}
+    else if(variant===1){setR(0,~~(gY*.3),W,gY*.7,.90);desk(W/2);person(W/2-18,.9);setR(W-60,20,45,gY-25,.92);setRO(W-57,23,39,gY-31,0.04);}
+    else{setR(0,gY-4,W,4,.95);for(let i=0;i<4;i++) building(i*(W/4),W/4-3,bldH());const n=2+~~(rng()*3);for(let i=0;i<n;i++) person(60+i*(W-120)/n+rng()*20-10,.9);}
   }else if(et.includes('heart')||et.includes('relation')){
     const dist=12+~~(rng()*40);
-    if(variant===0){building(0,32,40+~~(rng()*30));building(W-35,30,45+~~(rng()*25));person(W/2-dist/2,1.0);person(W/2+dist/2,1.0);if(rng()<.4)line(W/2-dist/2+5,gY-35,W/2+dist/2-5,gY-35,.6,1);}
+    if(variant===0){building(0,32,40+~~(rng()*30));building(W-35,30,45+~~(rng()*25));person(W/2-dist/2,1.0);person(W/2+dist/2,1.0);if(rng()<.4)line(W/2-dist/2+5,gY-35,W/2+dist/2-5,gY-35,0.0,1);}
     else if(variant===1){bench(W/2);person(W/2-16,.9);person(W/2+16,.9);tree(W/5,50);tree(4*W/5,45);}
-    else{for(let i=0;i<5;i++) building(i*(W/5),W/5-2,bldH());person(W/2,1.0,.75);}
+    else{for(let i=0;i<5;i++) building(i*(W/5),W/5-2,bldH());person(W/2,1.0);}
   }else if(et.includes('family')||et.includes('oblig')){
     const hx=~~(W/2)-38,hw=76,hh=58+~~(rng()*20);
-    setR(hx,gY-hh,hw,hh,.80);
-    for(let i=0;i<=hw/2+12;i++){const rw=hw+24-i*2;if(rw>0)setR(hx-12+i,gY-hh-i,rw,2,.90);}
-    setR(hx+hw/2-5,gY-20,10,20,.15);tree(hx-30,55+~~(rng()*15));
+    setR(hx,gY-hh,hw,hh,.88);
+    for(let i=0;i<=hw/2+12;i++){const rw=hw+24-i*2;if(rw>0)setR(hx-12+i,gY-hh-i,rw,2,.95);}
+    setRO(hx+hw/2-5,gY-20,10,20,0.04);tree(hx-30,55+~~(rng()*15));
     if(variant===0){person(W/2-34,1.0);person(W/2,1.0);if(char.children||rng()<.5) person(W/2+32,.70);}
     else if(variant===1){person(W/2-20,1.0);person(W/2+20,1.0);person(W/2-48,.68);person(W/2+46,.65);}
-    else{person(W/2,1.0);if(char.children) person(W/2+24,.72,.9);}
+    else{person(W/2,1.0);if(char.children) person(W/2+24,.72);}
   }else if(et.includes('health')){
-    if(variant===0){tree(45,70+~~(rng()*20));tree(105,55+~~(rng()*25));tree(200,65+~~(rng()*20));tree(270,50+~~(rng()*20));line(W*.1,gY,W*.9,gY-5,.7,1);person(W/2,1.0,char.health<40?.55:.82);}
-    else if(variant===1){setR(0,0,W,H,.02);setR(20,30,W-40,gY-35,.06);setR(W/2-25,20,50,gY-35,.85);setR(W/2-22,23,44,gY-41,.04);person(W/2-20,.9,.6);setR(W/2-5,gY-22,38,12,.75);}
-    else{for(let i=0;i<18;i++){const px=rng()*W,py=rng()*(gY-20);setC(px,py,1.5,.4+rng()*.3);}tree(30,45);tree(W-40,52);person(W/2+~~(rng()*60-30),1.0,.65);}
+    if(variant===0){tree(45,70+~~(rng()*20));tree(105,55+~~(rng()*25));tree(200,65+~~(rng()*20));tree(270,50+~~(rng()*20));person(W/2,1.0);}
+    else if(variant===1){setR(0,~~(gY*.2),W,gY*.8,.90);setR(W/2-25,20,50,gY-35,.92);setRO(W/2-22,23,44,gY-41,0.04);person(W/2-20,.9);setR(W/2-5,gY-22,38,12,.88);}
+    else{tree(30,45);tree(W-40,52);person(W/2+~~(rng()*60-30),1.0);}
   }else if(et.includes('financial')){
     let x=0; while(x<W){const w=bldW()+5;building(x,w,bldH()+20);x+=w+1;}
-    for(let i=0;i<3;i++) setR(20+i*80+~~(rng()*30),gY-30-~~(rng()*60),25,8,.96);
-    person(W/2,.95,.8);
+    for(let i=0;i<3;i++) setR(20+i*80+~~(rng()*30),gY-30-~~(rng()*60),25,8,.98);
+    person(W/2,.95);
   }else if(et.includes('social')||et.includes('belonging')){
     const n=3+~~(rng()*4),spacing=(W-100)/Math.max(n,1);
-    for(let i=0;i<n;i++) person(55+i*spacing+rng()*15-7,.80+rng()*.25,.75+rng()*.2);
+    for(let i=0;i<n;i++) person(55+i*spacing+rng()*15-7,.80+rng()*.25);
     if(variant===0){building(0,22,35+~~(rng()*20));building(W-25,20,40+~~(rng()*20));tree(W/2,30);}
-    else if(variant===1){setR(0,0,W,H,.02);setR(0,gY-60,W,60,.05);}
-    else{bench(W/4);bench(3*W/4);}
+    else if(variant===2){bench(W/4);bench(3*W/4);}
   }else if(et.includes('live')||et.includes('place')){
     const hx=~~(W/2)-40+~~(rng()*20-10),hw=75+~~(rng()*15),hh=55+~~(rng()*20);
-    setR(hx,gY-hh,hw,hh,.80);
-    for(let i=0;i<=hw/2+12;i++){const rw=hw+22-i*2;if(rw>0)setR(hx-11+i,gY-hh-i,rw,2,.92);}
-    setR(hx+hw/2-5,gY-22,10,22,.1);setR(hx+10,gY-hh+10,18,12,.85);
+    setR(hx,gY-hh,hw,hh,.88);
+    for(let i=0;i<=hw/2+12;i++){const rw=hw+22-i*2;if(rw>0)setR(hx-11+i,gY-hh-i,rw,2,.95);}
+    setRO(hx+hw/2-5,gY-22,10,22,0.04);setR(hx+10,gY-hh+10,18,12,.92);
     tree(hx-35,60+~~(rng()*15));tree(hx+hw+20,50+~~(rng()*15));
-    person(hx-15-~~(rng()*10),.95,.85);
+    person(hx-15-~~(rng()*10),.95);
   }else if(et.includes('later')||et.includes('final')){
-    if(variant===0){setR(0,0,W,~~(gY*.6),.06);tree(W/4,50+~~(rng()*20));tree(3*W/4,45+~~(rng()*20));bench(W/2);person(W/2-5,.88,.70);}
-    else if(variant===1){setR(0,0,W,H,.03);setR(W/2-40,10,80,gY-15,.88);setR(W/2-36,14,72,gY-23,.02);person(W/2-14,.92,.6);}
-    else{building(0,30,35+~~(rng()*25));building(W-32,28,40+~~(rng()*20));person(W/2,.90,.65);}
+    if(variant===0){tree(W/4,50+~~(rng()*20));tree(3*W/4,45+~~(rng()*20));bench(W/2);person(W/2-5,.88);}
+    else if(variant===1){setR(W/2-40,10,80,gY-15,.92);setRO(W/2-36,14,72,gY-23,0.04);person(W/2-14,.92);}
+    else{building(0,30,35+~~(rng()*25));building(W-32,28,40+~~(rng()*20));person(W/2,.90);}
   }else{
     let x=0; while(x<W){const w=bldW();building(x,w,bldH());x+=w+2;}
     person(W/2,1.0);
@@ -585,7 +591,7 @@ function drawScene(canvas,eventType,situation,char,eventIdx){
 // ══════════════════════════════════════════════════════════
 // FLOWCHART SVG
 // ══════════════════════════════════════════════════════════
-const B={rowH:255,topPad:55,yearR:30,diaRX:62,diaRY:34,cW:148,cH:40,spread:150,termR:13};
+const B={rowH:160,topPad:55,yearR:30,diaRX:62,diaRY:34,cW:148,cH:40,spread:150,termR:13};
 
 function ns(tag,a){const e=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const[k,v]of Object.entries(a))e.setAttribute(k,String(v));return e;}
 function octPts(cx,cy,r){const s=r*.414,m=r-s;return`${cx-s},${cy-r} ${cx+s},${cy-r} ${cx+r},${cy-m} ${cx+r},${cy+m} ${cx+s},${cy+r} ${cx-s},${cy+r} ${cx-r},${cy+m} ${cx-r},${cy-m}`;}
@@ -593,47 +599,53 @@ function diaPts(cx,cy,rx,ry){return`${cx},${cy-ry} ${cx+rx},${cy} ${cx},${cy+ry}
 function starburst(cx,cy,r1,r2,rays=20){const p=[];for(let i=0;i<rays*2;i++){const a=(i*Math.PI)/rays-Math.PI/2,r=i%2===0?r2:r1;p.push(`${(cx+r*Math.cos(a)).toFixed(1)},${(cy+r*Math.sin(a)).toFixed(1)}`);}return p.join(' ');}
 function svgTxt(svg,x,y,text,size,anchor='middle',col='#fff',lsp=0){const t=ns('text',{x,y,'text-anchor':anchor,fill:col,'font-family':"'Share Tech Mono','Courier New',monospace",'font-size':size,'letter-spacing':lsp});t.textContent=text;svg.appendChild(t);return t;}
 
-function yearY(i){return B.topPad+i*B.rowH+B.yearR;}
-function diaY(i){return yearY(i)+B.yearR+36;}
-function choY(i){return diaY(i)+B.diaRY+44;}
-function termY(i){return choY(i)+B.cH/2+50;}
-function offsets(n){return n===3?[-B.spread,0,B.spread]:n===2?[-B.spread*.65,B.spread*.65]:[0];}
-
 function renderFC(svgEl,history,current,selIdx,mode){
   const wrap=svgEl.parentElement;
   const panelW=wrap.clientWidth||500;
   const panelH=wrap.clientHeight||800;
   const CX=panelW/2;
   const nEv=history.length+(current?1:0)+(mode==='gameover'?1:0);
-  const contentH=B.topPad+Math.max(nEv,1)*B.rowH+80;
-  svgEl.innerHTML='';
 
-  if(mode==='game'){
-    svgEl.setAttribute('width',panelW); svgEl.setAttribute('height',contentH);
-    svgEl.removeAttribute('viewBox'); svgEl.removeAttribute('preserveAspectRatio');
-  }else{
-    svgEl.setAttribute('width',panelW); svgEl.setAttribute('height',panelH);
-    svgEl.setAttribute('viewBox',`0 0 ${panelW} ${contentH}`);
-    svgEl.setAttribute('preserveAspectRatio','xMidYMin meet');
-  }
+  // Scale layout to fit panel height in non-game modes (min 0.68 to keep text legible)
+  const naturalH=B.topPad+Math.max(nEv,1)*B.rowH+80;
+  const sc=(mode==='game')?1:Math.max(0.68,Math.min(1,(panelH-40)/naturalH));
+  const _B={
+    rowH:Math.round(B.rowH*sc), topPad:Math.round(B.topPad*sc),
+    yearR:Math.round(B.yearR*sc), diaRX:Math.round(B.diaRX*sc), diaRY:Math.round(B.diaRY*sc),
+    cW:Math.round(B.cW*sc), cH:Math.max(24,Math.round(B.cH*sc)),
+    spread:Math.round(B.spread*sc), termR:Math.round(B.termR*sc)
+  };
+  const contentH=_B.topPad+Math.max(nEv,1)*_B.rowH+80;
+  svgEl.innerHTML='';
+  svgEl.setAttribute('width',panelW);
+  svgEl.setAttribute('height',(mode==='game')?contentH:Math.max(panelH,contentH));
+  svgEl.removeAttribute('viewBox'); svgEl.removeAttribute('preserveAspectRatio');
+
+  const dG=Math.round(36*sc),cG=Math.round(44*sc),tG=Math.round(50*sc);
+  const yearY=(i)=>_B.topPad+i*_B.rowH+_B.yearR;
+  const diaY=(i)=>yearY(i)+_B.yearR+dG;
+  const choY=(i)=>diaY(i)+_B.diaRY+cG;
+  const termY=(i)=>choY(i)+_B.cH/2+tG;
+  const offsets=(n)=>n===3?[-_B.spread,0,_B.spread]:n===2?[-_B.spread*.65,_B.spread*.65]:[0];
+  const fs=(base)=>Math.max(6,Math.round(base*sc));
 
   function drawYear(i,label){
     const cy=yearY(i),sw=(mode==='game'&&i===history.length)?2.5:1.8;
-    svgEl.appendChild(ns('polygon',{points:octPts(CX,cy,B.yearR),fill:'#000',stroke:'#fff','stroke-width':sw}));
-    svgTxt(svgEl,CX,cy+5,label.split('').join(' '),11,'middle','#fff',2);
+    svgEl.appendChild(ns('polygon',{points:octPts(CX,cy,_B.yearR),fill:'#000',stroke:'#fff','stroke-width':sw}));
+    svgTxt(svgEl,CX,cy+Math.round(5*sc),label.split('').join(' '),fs(11),'middle','#fff',2);
   }
-  function connYD(i){svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)+B.yearR,x2:CX,y2:diaY(i)-B.diaRY,stroke:'#fff','stroke-width':1.8}));}
+  function connYD(i){svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)+_B.yearR,x2:CX,y2:diaY(i)-_B.diaRY,stroke:'#fff','stroke-width':1.8}));}
   function drawDia(i,label,active){
     const cy=diaY(i),sw=active?2.5:1.8;
-    svgEl.appendChild(ns('polygon',{points:diaPts(CX,cy,B.diaRX,B.diaRY),fill:'#000',stroke:'#fff','stroke-width':sw}));
+    svgEl.appendChild(ns('polygon',{points:diaPts(CX,cy,_B.diaRX,_B.diaRY),fill:'#000',stroke:'#fff','stroke-width':sw}));
     const words=label.split(' '),mid=Math.ceil(words.length/2);
     const l1=words.slice(0,mid).join(' '),l2=words.slice(mid).join(' ');
-    if(l2){svgTxt(svgEl,CX,cy-4,l1,8);svgTxt(svgEl,CX,cy+9,l2,8);}
-    else svgTxt(svgEl,CX,cy+4,l1,8);
+    if(l2){svgTxt(svgEl,CX,cy-Math.round(4*sc),l1,fs(8));svgTxt(svgEl,CX,cy+Math.round(9*sc),l2,fs(8));}
+    else svgTxt(svgEl,CX,cy+Math.round(4*sc),l1,fs(8));
   }
 
   function drawChoices(i,choices,chosenIdx,isActive,pcts){
-    const dBottomY=diaY(i)+B.diaRY,cy=choY(i),offs=offsets(choices.length);
+    const dBottomY=diaY(i)+_B.diaRY,cy=choY(i),offs=offsets(choices.length);
     offs.forEach((dx,ci)=>{
       const cx=CX+dx;
       const isChosen=!isActive&&ci===chosenIdx;
@@ -643,53 +655,53 @@ function renderFC(svgEl,history,current,selIdx,mode){
       const lineCol=chosen?'#fff':(isActive?'#aaa':'#333');
       const dashed=!isActive&&!isChosen;
       const sw=chosen?2.2:1;
-      const midY=dBottomY+22;
+      const midY=dBottomY+Math.round(22*sc);
       const la={'stroke':lineCol,'stroke-width':sw,...(dashed?{'stroke-dasharray':'6 4'}:{})};
       if(Math.abs(dx)>5){
         svgEl.appendChild(ns('line',{x1:CX,y1:dBottomY,x2:CX,y2:midY,...la}));
         svgEl.appendChild(ns('line',{x1:CX,y1:midY,x2:cx,y2:midY,...la}));
-        svgEl.appendChild(ns('line',{x1:cx,y1:midY,x2:cx,y2:cy-B.cH/2,...la}));
-      }else{svgEl.appendChild(ns('line',{x1:CX,y1:dBottomY,x2:cx,y2:cy-B.cH/2,...la}));}
+        svgEl.appendChild(ns('line',{x1:cx,y1:midY,x2:cx,y2:cy-_B.cH/2,...la}));
+      }else{svgEl.appendChild(ns('line',{x1:CX,y1:dBottomY,x2:cx,y2:cy-_B.cH/2,...la}));}
 
-      if(isSel||isRvSel) svgEl.appendChild(ns('polygon',{points:starburst(cx,cy,B.cH/2+12,B.cH/2+40,20),fill:'none',stroke:'#fff','stroke-width':1.0,'pointer-events':'none'}));
+      if(isSel||isRvSel) svgEl.appendChild(ns('polygon',{points:starburst(cx,cy,_B.cH/2+12,_B.cH/2+40,20),fill:'none',stroke:'#fff','stroke-width':1.0,'pointer-events':'none'}));
 
       const fillCol=chosen?'#fff':'#000',strCol=chosen?'#fff':(isActive?'#fff':'#333');
-      const rect=ns('rect',{x:cx-B.cW/2,y:cy-B.cH/2,width:B.cW,height:B.cH,fill:fillCol,stroke:strCol,'stroke-width':chosen?2.5:sw,...(dashed?{'stroke-dasharray':'6 4'}:{})});
+      const rect=ns('rect',{x:cx-_B.cW/2,y:cy-_B.cH/2,width:_B.cW,height:_B.cH,fill:fillCol,stroke:strCol,'stroke-width':chosen?2.5:sw,...(dashed?{'stroke-dasharray':'6 4'}:{})});
       if(isActive){rect.style.cursor='pointer';rect.addEventListener('click',()=>onChoiceClick(ci));rect.addEventListener('mouseenter',()=>onHover(ci));}
       if(mode==='relive'&&!isActive){rect.style.cursor='pointer';rect.addEventListener('click',()=>onRelClick(i));rect.addEventListener('mouseenter',()=>onRelHover(i));}
       svgEl.appendChild(rect);
 
-      svgTxt(svgEl,cx,cy+5,(choices[ci]?.text||'?').substring(0,20),8.5,'middle',chosen?'#000':'#999');
+      svgTxt(svgEl,cx,cy+Math.round(5*sc),(choices[ci]?.text||'?').substring(0,20),fs(8.5),'middle',chosen?'#000':'#999');
 
-      // % stat label
+      // % stat — visible colors against black background
       if(pcts&&pcts[ci]!==undefined){
-        const pCol=chosen?(isActive?'#666':'#555'):'#282828';
-        svgTxt(svgEl,cx,cy+B.cH/2+16,`~${pcts[ci]}%`,7,'middle',pCol);
+        const pCol=isActive?'#888':(chosen?'#777':'#444');
+        svgTxt(svgEl,cx,cy+_B.cH/2+Math.round(16*sc),`~${pcts[ci]}%`,fs(7),'middle',pCol);
       }
 
       if(!isActive&&isChosen){
-        const cY2=cy+B.cH/2,mb=cY2+22;
+        const cY2=cy+_B.cH/2,mb=cY2+Math.round(22*sc);
         svgEl.appendChild(ns('line',{x1:cx,y1:cY2,x2:cx,y2:mb,stroke:'#fff','stroke-width':1.8}));
         if(Math.abs(dx)>5){
           svgEl.appendChild(ns('line',{x1:cx,y1:mb,x2:CX,y2:mb,stroke:'#fff','stroke-width':1.8}));
-          svgEl.appendChild(ns('line',{x1:CX,y1:mb,x2:CX,y2:yearY(i+1)-B.yearR,stroke:'#fff','stroke-width':1.8}));
-        }else{svgEl.appendChild(ns('line',{x1:CX,y1:mb,x2:CX,y2:yearY(i+1)-B.yearR,stroke:'#fff','stroke-width':1.8}));}
+          svgEl.appendChild(ns('line',{x1:CX,y1:mb,x2:CX,y2:yearY(i+1)-_B.yearR,stroke:'#fff','stroke-width':1.8}));
+        }else{svgEl.appendChild(ns('line',{x1:CX,y1:mb,x2:CX,y2:yearY(i+1)-_B.yearR,stroke:'#fff','stroke-width':1.8}));}
       }else if(!isActive&&!isChosen){
-        svgEl.appendChild(ns('line',{x1:cx,y1:cy+B.cH/2,x2:cx,y2:termY(i),stroke:'#222','stroke-width':.8,'stroke-dasharray':'5 4'}));
-        svgEl.appendChild(ns('circle',{cx,cy:termY(i),r:B.termR,fill:'#fff',stroke:'#fff','stroke-width':1}));
+        svgEl.appendChild(ns('line',{x1:cx,y1:cy+_B.cH/2,x2:cx,y2:termY(i),stroke:'#222','stroke-width':.8,'stroke-dasharray':'5 4'}));
+        svgEl.appendChild(ns('circle',{cx,cy:termY(i),r:_B.termR,fill:'#fff',stroke:'#fff','stroke-width':1}));
       }
     });
   }
 
   history.forEach((h,i)=>{
-    if(i>0) svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)-B.yearR-8,x2:CX,y2:yearY(i)-B.yearR,stroke:'#fff','stroke-width':1.8}));
+    if(i>0) svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)-_B.yearR-8,x2:CX,y2:yearY(i)-_B.yearR,stroke:'#fff','stroke-width':1.8}));
     drawYear(i,String(h.year)); connYD(i); drawDia(i,h.eventType,false);
     drawChoices(i,h.choices,h.chosenIdx,false,h.pcts);
   });
 
   if(current){
     const i=history.length;
-    if(i>0) svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)-B.yearR-8,x2:CX,y2:yearY(i)-B.yearR,stroke:'#fff','stroke-width':1.8}));
+    if(i>0) svgEl.appendChild(ns('line',{x1:CX,y1:yearY(i)-_B.yearR-8,x2:CX,y2:yearY(i)-_B.yearR,stroke:'#fff','stroke-width':1.8}));
     drawYear(i,String(current.year)); connYD(i); drawDia(i,current.eventType,true);
     drawChoices(i,current.choices,-1,true,current.pcts);
     if(mode==='game') setTimeout(()=>{const el=svgEl.parentElement;el.scrollTo({top:Math.max(0,yearY(i)-80),behavior:'smooth'});},200);
@@ -697,8 +709,8 @@ function renderFC(svgEl,history,current,selIdx,mode){
 
   if(mode==='gameover'&&history.length>0){
     const i=history.length,cy=yearY(i);
-    svgEl.appendChild(ns('polygon',{points:octPts(CX,cy,B.yearR),fill:'#000',stroke:'#fff','stroke-width':1.8}));
-    svgTxt(svgEl,CX,cy+5,'≡',16);
+    svgEl.appendChild(ns('polygon',{points:octPts(CX,cy,_B.yearR),fill:'#000',stroke:'#fff','stroke-width':1.8}));
+    svgTxt(svgEl,CX,cy+Math.round(5*sc),'≡',fs(16));
   }
 }
 
@@ -860,9 +872,22 @@ async function fetchLifeSummary(){
 }
 
 const FB_EV=[
-  {situation:"Your company offers a promotion requiring longer hours. Meanwhile, a close friend asks you to join their startup. Both feel impossible to refuse.",choices:[{text:"Accept the promotion",description:"Security and prestige."},{text:"Join the startup",description:"Risk, but building something real."},{text:"Stay where you are",description:"Neither, for now."}],choice_pcts:[42,33,25]},
-  {situation:"You've been in this relationship for two years. They've brought up marriage. You love them, but something makes you hesitate.",choices:[{text:"Say yes",description:"Commit to a shared future."},{text:"Ask for more time",description:"Honest about your uncertainty."},{text:"End it gently",description:"Painful, but honest."}],choice_pcts:[38,44,18]},
-  {situation:"Your aging parent can no longer live alone. Career, distance, and duty pull in different directions.",choices:[{text:"Move back home",description:"Be present, upend everything."},{text:"Compromise: transfer nearby",description:"Balance duty and career."},{text:"Manage from a distance",description:"Send money, keep your life."}],choice_pcts:[28,39,33]}
+  // 0 — early career
+  {situation:"A new job offer has arrived — better pay, but unfamiliar work. Your current role is safe but feels stagnant. You're young enough to risk it.",choices:[{text:"Take the new job",description:"Bet on growth over comfort."},{text:"Stay and negotiate a raise",description:"Try to grow where you are."},{text:"Keep searching for the right fit",description:"Neither option feels right yet."}],choice_pcts:[40,35,25]},
+  // 1 — relationship
+  {situation:"Someone you've been seeing for months wants to define what this is. They're patient, but they need an answer. You're not sure how you feel.",choices:[{text:"Commit fully",description:"Give this relationship a real chance."},{text:"Be honest about your doubts",description:"Ask for more time, be transparent."},{text:"Step back",description:"Better to be alone than half-present."}],choice_pcts:[38,42,20]},
+  // 2 — housing
+  {situation:"Your lease is up. You could stay in the city you know, move somewhere cheaper with more space, or move in with someone you trust.",choices:[{text:"Stay in the city",description:"Pay more, keep your network close."},{text:"Move somewhere more affordable",description:"More space, different pace."},{text:"Move in with someone",description:"Split costs, test the dynamic."}],choice_pcts:[35,38,27]},
+  // 3 — mid-career
+  {situation:"A management track has opened up after years in the same role. It means less of the hands-on work you love and more oversight responsibilities.",choices:[{text:"Take the management role",description:"More influence, more pressure."},{text:"Stay as an individual contributor",description:"Keep doing what you're best at."},{text:"Propose a lateral move",description:"Try something adjacent, stay fresh."}],choice_pcts:[42,33,25]},
+  // 4 — family obligations
+  {situation:"Your aging parent can no longer live alone. Career, distance, and duty pull in different directions and the window to decide is closing.",choices:[{text:"Move back to be with them",description:"Upend everything, be present."},{text:"Transfer to a nearby city",description:"Balance proximity and career."},{text:"Manage the situation remotely",description:"Send support, keep your life intact."}],choice_pcts:[28,39,33]},
+  // 5 — health
+  {situation:"Years of long hours have accumulated. A doctor's visit surfaces something you've been ignoring. You have real options, but they require real changes.",choices:[{text:"Take it seriously immediately",description:"Restructure routines, see specialists."},{text:"Try to self-manage first",description:"Adjust habits, monitor closely."},{text:"Push through for now",description:"Deal with it after the current project."}],choice_pcts:[45,35,20]},
+  // 6 — later chapter
+  {situation:"You can finally see the shape your life has taken. An old dream resurfaces — the thing you set aside years ago. Pursuing it would cost something real.",choices:[{text:"Pursue it seriously now",description:"Reorganize around what matters most."},{text:"Make space for it alongside everything",description:"A partial compromise between lives."},{text:"Let it go with gratitude",description:"Acknowledge it, move forward lighter."}],choice_pcts:[30,42,28]},
+  // 7 — final crossroads
+  {situation:"You stand at the end of a long chapter. What actually mattered has become clearer. How you spend what remains feels like the only question left.",choices:[{text:"Deepen what you've already built",description:"Go further into the life you chose."},{text:"Give something back",description:"Shift focus outward, toward others."},{text:"Begin one small reinvention",description:"One more attempt at something new."}],choice_pcts:[35,38,27]}
 ];
 const FB_OUT={narrative:"The years passed with a mixture of small victories and quiet regrets. Life carried you forward whether you were ready or not. You found ways to adapt.",years_passed:3,money_delta:4,health_delta:-2,occupation_update:null,marital_update:null,life_insight:"Every choice forecloses a thousand others, and we learn to live with that."};
 
@@ -928,7 +953,7 @@ async function loadEvent(){
 
   const et=selectEventType(G.eventIdx); // decide type ONCE, pass to both prompt and G.current
   let ev;
-  try{ev=await fetchEvent(et);}catch(e){console.warn(e);ev=FB_EV[G.eventIdx%FB_EV.length];}
+  try{ev=await fetchEvent(et);}catch(e){console.warn(e);ev=FB_EV[Math.min(G.eventIdx,FB_EV.length-1)];}
 
   const pcts=Array.isArray(ev.choice_pcts)&&ev.choice_pcts.length===ev.choices.length
     ? ev.choice_pcts : makePcts(ev.choices.length, et+G.eventIdx);

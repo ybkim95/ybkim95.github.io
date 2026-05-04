@@ -72,16 +72,19 @@ html, body { width:100%; height:100%; background:#000; color:#fff; font-family:'
 .card-img  { border:1px solid #fff; flex-shrink:0; margin-bottom:14px; overflow:hidden; background:#000; position:relative; }
 .card-img::before { content:''; display:block; padding-top:56.25%; }
 #scene-canvas { position:absolute; inset:0; width:100%; height:100%; display:block; image-rendering:pixelated; }
-#narrative { font-size:14px; line-height:1.85; letter-spacing:.02em; color:#e0e0e0; flex:1; overflow-y:auto; margin-bottom:8px; min-height:60px; scrollbar-width:thin; scrollbar-color:#222 #000; white-space:pre-wrap; cursor:pointer; user-select:none; }
-#narrative:hover { color:#eee; }
+#narrative { font-size:14px; line-height:1.85; letter-spacing:.02em; color:#e0e0e0; flex:1; overflow-y:auto; margin-bottom:4px; min-height:60px; scrollbar-width:thin; scrollbar-color:#222 #000; white-space:pre-wrap; cursor:pointer; user-select:none; }
 .tw-cursor::after { content:'█'; animation:blink .7s step-end infinite; }
 @keyframes blink { 50%{opacity:0;} }
 .loading-d::after { content:''; animation:ddd 1.4s steps(4,end) infinite; }
 @keyframes ddd { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
-.card-actions { display:flex; gap:16px; align-items:center; margin-bottom:10px; flex-shrink:0; height:18px; }
-.action-btn { font-family:inherit; font-size:10px; letter-spacing:.18em; color:#3a3a3a; background:transparent; border:none; cursor:pointer; padding:0; text-transform:uppercase; transition:color .15s; }
-.action-btn:hover { color:#888; }
-.action-btn.vis { color:#555; }
+#tw-hint { font-size:9px; color:#2d2d2d; letter-spacing:.12em; text-align:right; height:13px; margin-bottom:6px; flex-shrink:0; pointer-events:none; }
+.card-actions { display:flex; gap:14px; align-items:center; margin-bottom:10px; flex-shrink:0; min-height:26px; }
+.action-btn { display:none; font-family:inherit; font-size:10px; letter-spacing:.18em; color:#666; background:transparent; border:none; cursor:pointer; padding:0; text-transform:uppercase; }
+.action-btn:hover { color:#bbb; }
+.action-btn.show { display:inline; }
+#btn-cont { display:none; font-family:inherit; font-size:11px; letter-spacing:.22em; color:#fff; background:transparent; border:1px solid #444; cursor:pointer; padding:5px 14px; text-transform:uppercase; margin-left:auto; }
+#btn-cont:hover { border-color:#fff; }
+#btn-cont.show { display:inline-block; }
 .card-stats { border-top:1px solid #333; padding-top:12px; display:flex; justify-content:space-between; font-size:15px; letter-spacing:.04em; flex-shrink:0; }
 .s-lbl { color:#555; }
 
@@ -231,10 +234,12 @@ html, body { width:100%; height:100%; background:#000; color:#fff; font-family:'
         <div class="card-loc"  id="card-loc">—</div>
       </div>
       <div class="card-img"><canvas id="scene-canvas"></canvas></div>
-      <div id="narrative" title="Click to skip typing"></div>
+      <div id="narrative"></div>
+      <div id="tw-hint"></div>
       <div class="card-actions">
         <button class="action-btn" id="btn-replay" onclick="replayNarrative()">◀ replay</button>
         <button class="action-btn" id="btn-log" onclick="toggleLog()">≡ log</button>
+        <button id="btn-cont" onclick="continueToNext()">→ continue</button>
       </div>
       <div class="card-stats">
         <span><span class="s-lbl">money : </span><span id="s-money">—</span></span>
@@ -414,19 +419,23 @@ function srng(seed){let s=seed>>>0;return()=>{s+=0x6D2B79F5;let t=s;t=Math.imul(
 function hashStr(s){let h=0;for(let i=0;i<s.length;i++)h=Math.imul(31,h)+s.charCodeAt(i)|0;return h>>>0;}
 function toggleMute(){Audio.setMuted(!G.muted);}
 
-// Typewrite — click narrative to skip
-let _twTok=0,_twTarget='';
-async function typewrite(el,text,speed=24){
+// UI helpers
+function showBtn(id,on){const el=document.getElementById(id);if(el){if(on)el.classList.add('show');else el.classList.remove('show');}}
+function setHint(t){const el=document.getElementById('tw-hint');if(el)el.textContent=t;}
+
+// Typewrite — click narrative or Tab to skip
+let _twTok=0,_twTarget='',_lastClick=0;
+async function typewrite(el,text,speed=30){
   _twTarget=text;
   const tok=++_twTok;
   el.textContent=''; el.classList.add('tw-cursor');
   for(const c of text){
     if(_twTok!==tok)return;
     el.textContent+=c;
-    if(c!==' '&&c!=='\n')Audio.click();
+    if(c!==' '&&c!=='\n'){const now=Date.now();if(now-_lastClick>38){Audio.click();_lastClick=now;}}
     await pause(speed);
   }
-  if(_twTok===tok)el.classList.remove('tw-cursor');
+  if(_twTok===tok){el.classList.remove('tw-cursor');setHint('');}
 }
 function skipTypewrite(){
   const el=document.getElementById('narrative');
@@ -434,10 +443,14 @@ function skipTypewrite(){
   _twTok++;
   el.textContent=_twTarget;
   el.classList.remove('tw-cursor');
+  setHint('');
 }
 async function replayNarrative(){
   if(!G.lastText)return;
-  await typewrite(document.getElementById('narrative'),G.lastText,24);
+  showBtn('btn-replay',false);
+  setHint('click text to skip →');
+  await typewrite(document.getElementById('narrative'),G.lastText,28);
+  showBtn('btn-replay',true);
 }
 
 // Log modal
@@ -751,7 +764,40 @@ function updateCard(){
 // ══════════════════════════════════════════════════════════
 function cCtx(c){
   const C=G.C;
-  return`Name:${c.name},Age:${c.age},Gender:${c.gender},${C.regionLabel}:${c.pref},Job:${c.job},Education:${c.edu},Income:${C.fmtInc(c.income)}/yr,Status:${c.marital}${c.children?'+children':''},${C.natLabel}:${c.nat},Health:${c.health}/100,Money:${c.money}/100`;
+  return`Name:${c.name}, Age:${c.age}, Gender:${c.gender}, ${C.regionLabel}:${c.pref}, Job:${c.job}, Education:${c.edu}, Income:${C.fmtInc(c.income)}/yr, Status:${c.marital}${c.children?', has children':''}, ${C.natLabel}:${c.nat}, Health:${c.health}/100, Savings:${c.money}/100`;
+}
+
+// Choose event theme based on life stage + character state (not blind cycling)
+function selectEventType(idx){
+  const c=G.char;
+  if(idx===TOTAL-1) return 'Final Crossroads';
+  if(idx===TOTAL-2) return 'Later Chapter';
+  if(c.health<35&&idx>=3) return 'A Health Moment';
+  if(c.money<25&&idx>=3) return 'Financial Decision';
+  // Stage-appropriate pools
+  const pools=[
+    ['Career Crossroads','Matters of the Heart'],           // 0 — early
+    ['Matters of the Heart','A Place to Live'],             // 1
+    ['A Place to Live','Professional Turning Point'],       // 2
+    ['Professional Turning Point','Family & Obligations'],  // 3 — mid
+    ['Family & Obligations','Financial Decision'],          // 4
+    ['A Health Moment','Social Belonging'],                 // 5 — later
+  ];
+  const pool=pools[Math.min(idx,pools.length-1)];
+  if(G.country==='kr'&&c.gender==='Male'&&idx===0) return 'Career Crossroads'; // military context
+  return pool[~~(Math.random()*pool.length)];
+}
+
+// Full history context so LLM can maintain continuity
+function buildHistory(){
+  if(!G.history.length) return '';
+  return 'COMPLETE LIFE HISTORY SO FAR:\n'
+    +G.history.map((h,i)=>
+      `[${h.year} — Event ${i+1}: ${h.eventType}]\n`
+      +`Situation: ${h.situation}\n`
+      +`Chose: "${h.choice.text}" — ${h.choice.description}\n`
+      +`What happened: ${h.outcome.narrative}`
+    ).join('\n\n');
 }
 
 async function callLLM(prompt,sys){
@@ -762,20 +808,42 @@ async function callLLM(prompt,sys){
 }
 
 async function fetchEvent(){
-  const c=G.char,et=ETYPES[G.eventIdx%ETYPES.length];
-  const hist=G.history.map((h,i)=>`#${i+1}(${h.eventType}): chose "${h.choice.text}" → ${h.outcome.narrative.slice(0,60)}...`).join('\n');
-  return callLLM(
-    `Character: ${cCtx(c)}\nEvent #${G.eventIdx+1}/${TOTAL}, theme: ${et}\n${hist?'Life so far:\n'+hist:''}\n\nGenerate a life crossroads. Return JSON:\n{"situation":"2-3 vivid sentences describing the moment and exact decision.","choices":[{"text":"≤7 word label","description":"One sentence."},{"text":"≤7 word label","description":"One sentence."},{"text":"≤7 word label","description":"One sentence."}],"choice_pcts":[40,35,25]}`,
-    G.C.sysEv
-  );
+  const c=G.char, et=selectEventType(G.eventIdx);
+  const firstName=c.name.split(' ').pop();
+  const hist=buildHistory();
+  const prompt=
+    `CHARACTER:\n${cCtx(c)}\nCurrent year: ${currentYear()}\n\n`
+    +(hist?hist+'\n\n':'')
+    +`TASK: Generate Event #${G.eventIdx+1}/${TOTAL} for ${firstName}. Theme: "${et}".\n\n`
+    +`CRITICAL RULES:\n`
+    +`- The situation MUST reference ${firstName}'s actual life so far (their specific job "${c.job}", location "${c.pref}", `
+    +(G.history.length?`and what happened in the previous events — especially: "${G.history[G.history.length-1].outcome.narrative.slice(0,80)}..."`:'')+`)\n`
+    +`- Do NOT generate a generic scenario. It must feel like it's happening to THIS specific person.\n`
+    +`- The three choices must be realistic options for someone in ${firstName}'s exact situation.\n\n`
+    +`Return JSON only:\n`
+    +`{"situation":"2-3 vivid sentences. What is ${firstName} facing RIGHT NOW, given their history?",`
+    +`"choices":[{"text":"≤7 words","description":"One specific sentence for this person's context."},{"text":"≤7 words","description":"One specific sentence."},{"text":"≤7 words","description":"One specific sentence."}],`
+    +`"choice_pcts":[40,35,25]}`;
+  return callLLM(prompt, G.C.sysEv);
 }
 
 async function fetchOutcome(choice){
-  const c=G.char,et=ETYPES[G.eventIdx%ETYPES.length];
-  return callLLM(
-    `Character: ${cCtx(c)}\nSituation: ${G.current.situation}\nChoice: "${choice.text}" — ${choice.description}\nTheme: ${et}, Event ${G.eventIdx+1}/${TOTAL}\n\nGenerate outcome JSON:\n{"narrative":"3-4 sentences: what unfolded. Specific and emotionally honest.","years_passed":3,"money_delta":0,"health_delta":0,"occupation_update":null,"marital_update":null,"life_insight":"One reflective sentence."}`,
-    G.C.sysOut
-  );
+  const c=G.char, et=G.current.eventType;
+  const firstName=c.name.split(' ').pop();
+  const recentCtx=G.history.length
+    ? `Recent events: `+G.history.slice(-2).map(h=>`${h.eventType}: chose "${h.choice.text}" → ${h.outcome.narrative.slice(0,80)}`).join(' | ')
+    : '';
+  const prompt=
+    `CHARACTER: ${cCtx(c)}\n`
+    +(recentCtx?recentCtx+'\n\n':'')
+    +`CURRENT SITUATION: ${G.current.situation}\n`
+    +`${firstName} chose: "${choice.text}" — ${choice.description}\n`
+    +`Event ${G.eventIdx+1}/${TOTAL}, theme: ${et}\n\n`
+    +`Generate what actually happened to ${firstName} over the following years as a direct result of this choice.\n`
+    +`Be specific — reference their job, location, relationships. Consequences should feel earned by THIS choice.\n`
+    +`Return JSON only:\n`
+    +`{"narrative":"3-4 sentences. What specifically unfolded for ${firstName}? Be concrete, not generic.","years_passed":${G.eventIdx<2?2:3},"money_delta":0,"health_delta":0,"occupation_update":null,"marital_update":null,"life_insight":"One sentence unique to ${firstName}'s experience."}`;
+  return callLLM(prompt, G.C.sysOut);
 }
 
 async function fetchLifeSummary(){
@@ -823,12 +891,18 @@ function confirmCountry(){
 // ══════════════════════════════════════════════════════════
 function startGame(){Audio.init();generateAndShow();showScreen('screen-chargen');}
 
+function resetActionBtns(){
+  showBtn('btn-replay',false);
+  showBtn('btn-log',false);
+  showBtn('btn-cont',false);
+  setHint('');
+}
+
 async function beginLife(){
   G.eventIdx=0; G.history=[]; G.selIdx=0; G.current=null; G.busy=false;
-  G.lastText=''; G.eventLog=[];
+  G.lastText=''; G.eventLog=[]; G._pendingGameOver=false;
   document.getElementById('btn-begin').disabled=true;
-  document.getElementById('btn-replay').classList.remove('vis');
-  document.getElementById('btn-log').classList.remove('vis');
+  resetActionBtns();
   showScreen('screen-game');
   updateCard();
   await loadEvent();
@@ -843,9 +917,9 @@ function currentYear(){
 
 async function loadEvent(){
   if(G.busy)return; G.busy=true;
+  resetActionBtns();
   const narEl=document.getElementById('narrative');
   narEl.innerHTML=''; narEl.classList.add('loading-d');
-  document.getElementById('btn-replay').classList.remove('vis');
 
   const cv=document.getElementById('scene-canvas');
   cv.width=320;cv.height=180;cv.getContext('2d').fillStyle='#000';cv.getContext('2d').fillRect(0,0,320,180);
@@ -854,7 +928,7 @@ async function loadEvent(){
   let ev;
   try{ev=await fetchEvent();}catch(e){console.warn(e);ev=FB_EV[G.eventIdx%FB_EV.length];}
 
-  const et=ETYPES[G.eventIdx%ETYPES.length];
+  const et=selectEventType(G.eventIdx);
   const pcts=Array.isArray(ev.choice_pcts)&&ev.choice_pcts.length===ev.choices.length
     ? ev.choice_pcts : makePcts(ev.choices.length, et+G.eventIdx);
   G.current={...ev,eventType:et,year:currentYear(),pcts};
@@ -863,9 +937,11 @@ async function loadEvent(){
   drawScene(cv,et,ev.situation,G.char,G.eventIdx);
   narEl.classList.remove('loading-d');
   G.lastText=ev.situation;
-  await typewrite(narEl,ev.situation,24);
+  setHint('click text to skip →');
+  await typewrite(narEl,ev.situation,30);
   Audio.chime(330,.6);
-  document.getElementById('btn-replay').classList.add('vis');
+  showBtn('btn-replay',true);
+  if(G.eventLog.length) showBtn('btn-log',true);
 
   renderFC(document.getElementById('fc-svg'),G.history,G.current,G.selIdx,'game');
   G.busy=false;
@@ -882,12 +958,12 @@ async function onChoiceClick(idx){
   G.selIdx=idx;
   const choice=G.current.choices[idx];
   document.getElementById('fc-svg').style.pointerEvents='none';
-  document.getElementById('btn-replay').classList.remove('vis');
+  resetActionBtns();
 
   const narEl=document.getElementById('narrative');
   narEl.classList.remove('tw-cursor');
-  narEl.textContent='You chose: '+choice.text;
-  await pause(600);
+  narEl.textContent='→ '+choice.text;
+  await pause(500);
   narEl.innerHTML=''; narEl.classList.add('loading-d');
 
   let out;
@@ -902,29 +978,39 @@ async function onChoiceClick(idx){
 
   G.history.push({year:G.current.year,eventType:G.current.eventType,situation:G.current.situation,choices:G.current.choices,chosenIdx:idx,choice,outcome:out,pcts:G.current.pcts});
   G.eventLog.push({year:G.current.year,et:G.current.eventType,situation:G.current.situation,choiceText:choice.text,narrative:out.narrative,insight:out.life_insight||null});
-  document.getElementById('btn-log').classList.add('vis');
 
   narEl.classList.remove('loading-d');
   const fullText=out.narrative+(out.life_insight?`\n\n"${out.life_insight}"`:'');
   G.lastText=fullText;
-  await typewrite(narEl,fullText,22);
-  document.getElementById('btn-replay').classList.add('vis');
+  setHint('click text to skip →');
+  await typewrite(narEl,fullText,26);
 
   Audio.event((out.money_delta||0)+(out.health_delta||0)>0);
   updateCard();
   renderFC(document.getElementById('fc-svg'),G.history,null,-1,'game');
   document.getElementById('fc-svg').style.pointerEvents='';
   G.current=null; G.eventIdx++;
+  G._pendingGameOver=(G.eventIdx>=TOTAL||c.health<=0);
 
-  if(G.eventIdx>=TOTAL||c.health<=0){
-    await pause(2000);
+  // Show replay + log + continue — user controls when to proceed
+  showBtn('btn-replay',true);
+  showBtn('btn-log',true);
+  const isLast=G._pendingGameOver;
+  document.getElementById('btn-cont').textContent=isLast?'→ life over':'→ continue';
+  showBtn('btn-cont',true);
+  G.busy=false; // allow replay while waiting for continue
+}
+
+async function continueToNext(){
+  showBtn('btn-cont',false);
+  showBtn('btn-replay',false);
+  if(G._pendingGameOver){
+    G._pendingGameOver=false;
+    await pause(400);
     Audio.lifeOver();
     await showGameOver();
-    G.busy=false;
     return;
   }
-  await pause(1600);
-  G.busy=false;
   await loadEvent();
 }
 
@@ -988,7 +1074,8 @@ async function confirmRelive(){
   });
   G.eventLog=G.eventLog.slice(0,idx);
   G.history=G.history.slice(0,idx);
-  G.eventIdx=idx; G.selIdx=0; G.current=null; G.busy=false;
+  G.eventIdx=idx; G.selIdx=0; G.current=null; G.busy=false; G._pendingGameOver=false;
+  resetActionBtns();
   showScreen('screen-game');
   updateCard();
   await loadEvent();

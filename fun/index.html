@@ -807,22 +807,23 @@ async function callLLM(prompt,sys){
   try{return JSON.parse(d.response);}catch{const m=d.response.match(/\{[\s\S]*\}/);if(m)return JSON.parse(m[0]);throw new Error('parse');}
 }
 
-async function fetchEvent(){
-  const c=G.char, et=selectEventType(G.eventIdx);
+async function fetchEvent(et){
+  const c=G.char;
   const firstName=c.name.split(' ').pop();
   const hist=buildHistory();
+  const lastOutcome=G.history.length?`"${G.history[G.history.length-1].outcome.narrative.slice(0,100)}..."`:null;
   const prompt=
     `CHARACTER:\n${cCtx(c)}\nCurrent year: ${currentYear()}\n\n`
     +(hist?hist+'\n\n':'')
     +`TASK: Generate Event #${G.eventIdx+1}/${TOTAL} for ${firstName}. Theme: "${et}".\n\n`
     +`CRITICAL RULES:\n`
-    +`- The situation MUST reference ${firstName}'s actual life so far (their specific job "${c.job}", location "${c.pref}", `
-    +(G.history.length?`and what happened in the previous events — especially: "${G.history[G.history.length-1].outcome.narrative.slice(0,80)}..."`:'')+`)\n`
-    +`- Do NOT generate a generic scenario. It must feel like it's happening to THIS specific person.\n`
-    +`- The three choices must be realistic options for someone in ${firstName}'s exact situation.\n\n`
+    +`- The situation MUST reference ${firstName}'s actual life: their job "${c.job}", location "${c.pref}"`
+    +(lastOutcome?`, and the recent outcome: ${lastOutcome}`:'')+`.\n`
+    +`- Do NOT write a generic scenario. It must feel like it's happening to THIS specific person right now.\n`
+    +`- The three choices must be realistic for someone in ${firstName}'s exact situation.\n\n`
     +`Return JSON only:\n`
-    +`{"situation":"2-3 vivid sentences. What is ${firstName} facing RIGHT NOW, given their history?",`
-    +`"choices":[{"text":"≤7 words","description":"One specific sentence for this person's context."},{"text":"≤7 words","description":"One specific sentence."},{"text":"≤7 words","description":"One specific sentence."}],`
+    +`{"situation":"2-3 vivid sentences grounded in ${firstName}'s specific life. What crossroads do they face?",`
+    +`"choices":[{"text":"≤7 words","description":"One concrete sentence for this person."},{"text":"≤7 words","description":"One concrete sentence."},{"text":"≤7 words","description":"One concrete sentence."}],`
     +`"choice_pcts":[40,35,25]}`;
   return callLLM(prompt, G.C.sysEv);
 }
@@ -925,10 +926,10 @@ async function loadEvent(){
   cv.width=320;cv.height=180;cv.getContext('2d').fillStyle='#000';cv.getContext('2d').fillRect(0,0,320,180);
   renderFC(document.getElementById('fc-svg'),G.history,null,G.selIdx,'game');
 
+  const et=selectEventType(G.eventIdx); // decide type ONCE, pass to both prompt and G.current
   let ev;
-  try{ev=await fetchEvent();}catch(e){console.warn(e);ev=FB_EV[G.eventIdx%FB_EV.length];}
+  try{ev=await fetchEvent(et);}catch(e){console.warn(e);ev=FB_EV[G.eventIdx%FB_EV.length];}
 
-  const et=selectEventType(G.eventIdx);
   const pcts=Array.isArray(ev.choice_pcts)&&ev.choice_pcts.length===ev.choices.length
     ? ev.choice_pcts : makePcts(ev.choices.length, et+G.eventIdx);
   G.current={...ev,eventType:et,year:currentYear(),pcts};

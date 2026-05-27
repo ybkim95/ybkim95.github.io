@@ -160,7 +160,6 @@
         grid-template-columns: 1fr;
         grid-template-rows: auto;
         grid-gap: 20px;
-        overflow: visible;
         }
         @media only screen and (min-width: 700px) {
         .band {
@@ -199,11 +198,7 @@
         flex-direction: column;
         text-decoration: none;
         color: rgb(0, 0, 0);
-        position: relative;
-        top: 0;
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-        transform-origin: center center;
-        z-index: 1;
+        transition: box-shadow 0.35s ease;
         }
 
         .card_black {
@@ -214,23 +209,15 @@
         flex-direction: column;
         text-decoration: none;
         color: rgb(255, 255, 255);
-        position: relative;
-        top: 0;
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-        transform-origin: center center;
-        z-index: 1;
+        transition: box-shadow 0.35s ease;
         }
 
         .card:hover {
-        transform: scale(1.06);
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
-        z-index: 10;
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
         }
 
         .card_black:hover {
-        transform: scale(1.06);
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
-        z-index: 10;
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
         }
 
         .card article {
@@ -251,12 +238,19 @@
         .card .thumb {
         padding-bottom: 60%;
         background-size: cover;
-        background-position: center center;
+        background-position: center top;
+        transition: padding-bottom 0.4s ease;
         }
         .card_black .thumb {
         padding-bottom: 60%;
         background-size: cover;
-        background-position: center center;
+        background-position: center top;
+        transition: padding-bottom 0.4s ease;
+        }
+
+        .card:hover .thumb,
+        .card_black:hover .thumb {
+        padding-bottom: 100%;
         }
 
         .card p { 

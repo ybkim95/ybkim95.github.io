@@ -193,31 +193,25 @@
         .card {
         min-height: 100%;
         background: rgb(255, 255, 255);
-        box-shadow: 0 5px 5px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         display: flex;
         flex-direction: column;
         text-decoration: none;
         color: rgb(0, 0, 0);
-        transition: box-shadow 0.35s ease;
+        will-change: transform;
+        transform-style: preserve-3d;
         }
 
         .card_black {
         min-height: 100%;
         background: rgb(56, 55, 55);
-        box-shadow: 0 5px 5px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         display: flex;
         flex-direction: column;
         text-decoration: none;
         color: rgb(255, 255, 255);
-        transition: box-shadow 0.35s ease;
-        }
-
-        .card:hover {
-        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
-        }
-
-        .card_black:hover {
-        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
+        will-change: transform;
+        transform-style: preserve-3d;
         }
 
         .card article {
@@ -239,18 +233,17 @@
         padding-bottom: 60%;
         background-size: cover;
         background-position: center top;
-        transition: padding-bottom 0.4s ease;
         }
         .card_black .thumb {
         padding-bottom: 60%;
         background-size: cover;
         background-position: center top;
-        transition: padding-bottom 0.4s ease;
         }
 
-        .card:hover .thumb,
-        .card_black:hover .thumb {
-        padding-bottom: 100%;
+        /* grid item wrapper: enables z-index layering on hover */
+        .band > div {
+        position: relative;
+        z-index: 1;
         }
 
         .card p { 
@@ -832,7 +825,7 @@
                     <li><strong>May </strong> Our paper on <a href="https://arxiv.org/abs/2605.22759"><strong>"Towards a General Intelligence and Interface for Wearable Health Data"</strong></a> is released as a preprint paper <img src="assets/images/google_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
                     <li><strong>May </strong> Our paper on <a href="https://arxiv.org/abs/2605.07073"><strong>"TeamBench: Evaluating Agent Coordination under Enforced Role Separation"</strong></a> is released as a preprint paper <img src="assets/images/google_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
                     <li><strong>May </strong> I've started a student researcher position at <strong>Google DeepMind</strong> <img src="assets/images/deepmind_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
-                    <li><strong>Apr </strong> Our paper on <a href="https://arxiv.org/abs/2504.13898"><strong>"Social Human Robot Embodied Conversation (SHREC) Dataset: Benchmarking Foundational Models' Social Reasoning"</strong></a> is accepted at <strong>RSS 2026</strong> <img src="assets/images/mit_logo2.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
+                    <li><strong>Apr </strong> Our paper on <a href="https://arxiv.org/abs/2504.13898"><strong>"Social Human Robot Embodied Conversation (SHREC) Dataset: Benchmarking Foundational Models' Social Reasoning"</strong></a> is accepted at <strong>RSS 2026</strong></li>
                     <li><strong>Apr </strong> Our paper on <a href="https://arxiv.org/abs/2604.14615"><strong>"CoDaS: AI Co-Data-Scientist for Biomarker Discovery via Wearable Sensors"</strong></a> is released as a preprint paper <img src="assets/images/google_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
                     <li><strong>Mar </strong> Gave an invited talk on <strong>"Towards a science of scaling agent systems"</strong> at <img id="updates-sr-logo" src="assets/images/sr_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"> 🎙️.</li>
                     <li><strong>Feb </strong> Gave an invited talk on <strong>"Towards a science of scaling agent systems: When and why agent systems work?"</strong> at the <a href="https://www.youtube.com/@theaitalks226"><strong>AI Talks with NTU &amp; NUS</strong></a>. I enjoyed the discussions that followed, especially on how we can coordinate agents with different capabilities and the trade-offs between capability and cost 🎙️.</li>
@@ -1129,6 +1122,72 @@
     <!-- Journey section hidden for compact layout -->
 
     {% include footer.html %}
+
+    <!-- Liquid card hover: 3-D tilt + spring scale -->
+    <script>
+    (function () {
+      function initCards() {
+        var cards = document.querySelectorAll('.band .card, .band .card_black');
+        cards.forEach(function (card) {
+          var wrapper   = card.parentElement;
+          var thumb     = card.querySelector('.thumb');
+          var leaveTimer;
+
+          /* ── enter: spring pop + image reveal ── */
+          card.addEventListener('mouseenter', function () {
+            clearTimeout(leaveTimer);
+            wrapper.style.zIndex = '50';
+            card.style.transition =
+              'transform 0.5s cubic-bezier(0.34,1.56,0.64,1),' +
+              'box-shadow 0.4s ease';
+            card.style.transform  = 'perspective(900px) scale(1.13)';
+            card.style.boxShadow  =
+              '0 28px 70px rgba(0,0,0,0.28), 0 6px 20px rgba(0,0,0,0.14)';
+            if (thumb) {
+              thumb.style.transition = 'padding-bottom 0.5s cubic-bezier(0.34,1.56,0.64,1)';
+              thumb.style.paddingBottom = '90%';
+            }
+          });
+
+          /* ── move: live 3-D tilt (fast, no spring) ── */
+          card.addEventListener('mousemove', function (e) {
+            var r    = card.getBoundingClientRect();
+            var x    = (e.clientX - r.left)  / r.width  - 0.5;
+            var y    = (e.clientY - r.top)   / r.height - 0.5;
+            var rotX = -y * 12;
+            var rotY =  x * 16;
+            card.style.transition = 'transform 0.07s ease';
+            card.style.transform  =
+              'perspective(900px) scale(1.13)' +
+              ' rotateX(' + rotX + 'deg)' +
+              ' rotateY(' + rotY + 'deg)';
+          });
+
+          /* ── leave: smooth spring return ── */
+          card.addEventListener('mouseleave', function () {
+            card.style.transition =
+              'transform 0.55s cubic-bezier(0.23,1,0.32,1),' +
+              'box-shadow 0.45s ease';
+            card.style.transform = '';
+            card.style.boxShadow = '';
+            if (thumb) {
+              thumb.style.transition = 'padding-bottom 0.4s ease';
+              thumb.style.paddingBottom = '';
+            }
+            leaveTimer = setTimeout(function () {
+              wrapper.style.zIndex = '';
+            }, 560);
+          });
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCards);
+      } else {
+        initCards();
+      }
+    })();
+    </script>
 
 </body>
 </html>

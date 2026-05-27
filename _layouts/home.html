@@ -150,7 +150,7 @@
         -webkit-font-smoothing: antialiased;
         padding: 20px 0;
         }
-        /* ── Project grid: dock-style flex magnification ── */
+        /* ── Project grid: spring-physics dock magnification ── */
         .project-grid {
             display: flex;
             flex-direction: column;
@@ -162,24 +162,34 @@
             display: flex;
             gap: 14px;
             align-items: stretch;
+            min-height: 270px;
+            transition: min-height 0.7s cubic-bezier(0.34, 1.4, 0.64, 1);
+        }
+        /* Row grows taller when any cell is hovered */
+        .project-row:has(.project-cell:hover) {
+            min-height: 390px;
         }
         .project-cell {
             flex: 1 1 0;
             min-width: 0;
-            transition: flex-grow 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
+            /* flex-grow driven by JS spring — no CSS transition here */
         }
-        .project-cell.wide {
-            flex-grow: 2;
+        .project-cell.wide { flex-grow: 2; }
+
+        /* Focus: dim siblings, lift hovered card */
+        .project-row:has(.project-cell:hover) .card,
+        .project-row:has(.project-cell:hover) .card_black {
+            filter: brightness(0.72) saturate(0.85);
+            transition: filter 0.4s ease, box-shadow 0.4s ease;
         }
-        /* Dock effect: hover expands one cell, siblings contract */
-        .project-row:has(.project-cell:hover) .project-cell       { flex-grow: 0.55; }
-        .project-row:has(.project-cell:hover) .project-cell.wide  { flex-grow: 1.1;  }
-        .project-cell:hover                                        { flex-grow: 2.6  !important; }
-        .project-cell.wide:hover                                   { flex-grow: 4.5  !important; }
+        .project-cell:hover .card,
+        .project-cell:hover .card_black {
+            filter: brightness(1.0) saturate(1.0) !important;
+        }
 
         /* Mobile: stack */
         @media only screen and (max-width: 699px) {
-            .project-row { flex-direction: column; }
+            .project-row { flex-direction: column; min-height: unset !important; }
             .project-cell, .project-cell.wide { flex: 1 1 auto !important; }
         }
         /* Tablet: 2-up */
@@ -202,25 +212,25 @@
         .card {
         height: 100%;
         background: rgb(255, 255, 255);
-        box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.07);
         display: flex;
         flex-direction: column;
         text-decoration: none;
         color: rgb(0, 0, 0);
-        transition: box-shadow 0.4s ease;
+        transition: box-shadow 0.5s ease, filter 0.4s ease;
         }
         .card_black {
         height: 100%;
-        background: rgb(46, 45, 45);
-        box-shadow: 0 4px 14px rgba(0,0,0,0.14);
+        background: rgb(38, 37, 37);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.18);
         display: flex;
         flex-direction: column;
         text-decoration: none;
         color: rgb(255, 255, 255);
-        transition: box-shadow 0.4s ease;
+        transition: box-shadow 0.5s ease, filter 0.4s ease;
         }
-        .project-cell:hover .card      { box-shadow: 0 20px 55px rgba(0,0,0,0.20); }
-        .project-cell:hover .card_black{ box-shadow: 0 20px 55px rgba(0,0,0,0.55); }
+        .project-cell:hover .card      { box-shadow: 0 24px 64px rgba(0,0,0,0.18), 0 6px 18px rgba(0,0,0,0.10); }
+        .project-cell:hover .card_black{ box-shadow: 0 24px 64px rgba(0,0,0,0.60), 0 6px 18px rgba(0,0,0,0.30); }
 
         .card article, .card_black article {
         padding: 20px;
@@ -1089,6 +1099,92 @@
 
             </div>
 
+
+    <!-- Spring-physics dock magnification -->
+    <script>
+    (function () {
+      /* Spring constants — tune for feel */
+      var STIFFNESS = 340;   /* higher = snappier response   */
+      var DAMPING   = 28;    /* lower  = more overshoot/bounce */
+
+      function initRow(row) {
+        var cells = Array.prototype.slice.call(
+          row.querySelectorAll('.project-cell')
+        );
+        if (cells.length < 2) return;          /* single-cell rows: skip */
+
+        /* Each cell gets a spring tracking its flex-grow */
+        var springs = cells.map(function (c) {
+          var base = c.classList.contains('wide') ? 2 : 1;
+          return { v: 0, x: base, target: base, base: base };
+        });
+
+        var raf, lastT, running = false;
+
+        function tick(now) {
+          if (!lastT) lastT = now;
+          var dt = Math.min((now - lastT) / 1000, 0.05);
+          lastT  = now;
+
+          var settled = true;
+          springs.forEach(function (s, i) {
+            var force = -STIFFNESS * (s.x - s.target)
+                        - DAMPING   *  s.v;
+            s.v += force * dt;
+            s.x += s.v   * dt;
+            cells[i].style.flexGrow = s.x;
+            if (Math.abs(s.x - s.target) > 0.004 ||
+                Math.abs(s.v)             > 0.004) settled = false;
+          });
+
+          if (settled) {
+            springs.forEach(function (s, i) {
+              s.x = s.target; s.v = 0;
+              cells[i].style.flexGrow = s.x;
+            });
+            running = false;
+          } else {
+            raf = requestAnimationFrame(tick);
+          }
+        }
+
+        function fire() {
+          if (running) cancelAnimationFrame(raf);
+          running = true; lastT = null;
+          raf = requestAnimationFrame(tick);
+        }
+
+        cells.forEach(function (cell, idx) {
+          var isWide = cell.classList.contains('wide');
+
+          cell.addEventListener('mouseenter', function () {
+            springs.forEach(function (s, i) {
+              var cWide = cells[i].classList.contains('wide');
+              if (i === idx) {
+                s.target = isWide ? 5.0 : 3.4;   /* expand hovered  */
+              } else {
+                s.target = cWide  ? 0.9 : 0.42;  /* compress others */
+              }
+            });
+            fire();
+          });
+
+          cell.addEventListener('mouseleave', function () {
+            springs.forEach(function (s) { s.target = s.base; });
+            fire();
+          });
+        });
+      }
+
+      function init() {
+        document.querySelectorAll('.project-row').forEach(initRow);
+      }
+
+      document.readyState === 'loading'
+        ? document.addEventListener('DOMContentLoaded', init)
+        : init();
+    })();
+    </script>
 
 </body>
 </html>

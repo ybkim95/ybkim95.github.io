@@ -154,12 +154,13 @@
         width: 100%;
         max-width: 1280px;
         margin: 0 auto;
-        
+
         display: grid;
-        
+
         grid-template-columns: 1fr;
         grid-template-rows: auto;
         grid-gap: 20px;
+        overflow: visible;
         }
         @media only screen and (min-width: 700px) {
         .band {
@@ -200,7 +201,9 @@
         color: rgb(0, 0, 0);
         position: relative;
         top: 0;
-        transition: all .1s ease-in;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        transform-origin: center center;
+        z-index: 1;
         }
 
         .card_black {
@@ -213,19 +216,21 @@
         color: rgb(255, 255, 255);
         position: relative;
         top: 0;
-        transition: all .1s ease-in;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        transform-origin: center center;
+        z-index: 1;
         }
 
         .card:hover {
-        top: -2px;
-        box-shadow: 0 4px 5px rgba(79, 87, 89, 0.6);
-        /* background-color: #cfcfcf9d; */
+        transform: scale(1.06);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+        z-index: 10;
         }
 
         .card_black:hover {
-        top: -2px;
-        box-shadow: 0 4px 5px rgba(79, 87, 89, 0.6);
-        /* background-color: #cfcfcf9d; */
+        transform: scale(1.06);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+        z-index: 10;
         }
 
         .card article {
@@ -830,6 +835,8 @@
             <div>
                 <h3 style="font-size: 24px; color: #2C7A7B; margin: 30px 0 15px 0; padding-bottom: 5px; border-bottom: 1px solid #f8f8f8;">2026</h3>
                 <ul class="news-list" style="font-size: 20px; margin-bottom: 10px;">
+                    <li><strong>May </strong> Our paper on <a href="https://arxiv.org/abs/2605.22759"><strong>"Towards a General Intelligence and Interface for Wearable Health Data"</strong></a> is released as a preprint paper <img src="assets/images/google_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
+                    <li><strong>May </strong> Our paper on <a href="https://arxiv.org/abs/2605.07073"><strong>"TeamBench: Evaluating Agent Coordination under Enforced Role Separation"</strong></a> is released as a preprint paper <img src="assets/images/google_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
                     <li><strong>May </strong> I've started a student researcher position at <strong>Google DeepMind</strong> <img src="assets/images/deepmind_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
                     <li><strong>Apr </strong> Our paper on <a href="https://arxiv.org/abs/2604.14615"><strong>"CoDaS: AI Co-Data-Scientist for Biomarker Discovery via Wearable Sensors"</strong></a> is released as a preprint paper <img src="assets/images/google_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"></li>
                     <li><strong>Mar </strong> Gave an invited talk on <strong>"Towards a science of scaling agent systems"</strong> at <img id="updates-sr-logo" src="assets/images/sr_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"> 🎙️.</li>
@@ -946,6 +953,24 @@
                     </a>
                 </div>
                 <div class="item-1b">
+                    <a href="https://teambench.github.io/" class="card">
+                        <div class="thumb" style="background-image: url(/assets/images/teambench_teaser.png);"></div>
+                        <article>
+                        TeamBench: Evaluating Agent Coordination under Enforced Role Separation<br>
+                        <span>Benchmark for multi-agent coordination with OS-enforced Planner / Executor / Verifier roles</span>
+                        </article>
+                    </a>
+                </div>
+                <div class="item-1c">
+                    <a href="https://arxiv.org/abs/2605.22759" class="card_black">
+                        <div class="thumb" style="background-image: url(/assets/images/wearable_health_teaser.png);"></div>
+                        <article>
+                        Towards a General Intelligence and Interface for Wearable Health Data<br>
+                        <span>Foundation model pretrained on 1T+ minutes of sensor data from 5M participants across 35 health tasks</span>
+                        </article>
+                    </a>
+                </div>
+                <div class="item-1d">
                     <a href="https://tiered-agentic-oversight.github.io/" class="card">
                         <div class="thumb" style="background-image: url(/assets/images/tao_main5.png);"></div>
                         <article>

@@ -1112,21 +1112,23 @@
     <!-- Spring-physics dock magnification: continuous cursor-distance falloff -->
     <script>
     (function () {
-      /* Spring constants: lower stiffness = slower, more deliberate & luxurious */
-      var STIFFNESS = 110;
-      var DAMPING   = 18;
+      /* ζ = D / (2√K).  Target: ζ ≈ 0.65 → underdamped, slight overshoot, feels alive */
+      var STIFFNESS = 380;   /* fast enough to track cursor; feels snappy not sluggish */
+      var DAMPING   = 26;    /* ζ = 26/(2*√380) ≈ 0.67 — light bounce on settle        */
 
       function initRow(row) {
         var cells = Array.prototype.slice.call(row.querySelectorAll('.project-cell'));
-        if (cells.length < 2) return;   /* solo rows: skip spring, keep solo CSS */
+        if (cells.length < 2) return;
 
-        /* Each cell tracks its own spring state for flex-grow */
         var springs = cells.map(function (c) {
           var base = c.classList.contains('wide') ? 2 : 1;
           return { v: 0, x: base, target: base, base: base };
         });
 
         var raf, lastT, running = false;
+        /* Cache resting-state centers at mouseenter so expanding cells don't
+           create a feedback loop by shifting their own BoundingClientRect mid-animation */
+        var restCenters = null;
 
         function tick(now) {
           if (!lastT) lastT = now;
@@ -1154,29 +1156,34 @@
           raf = requestAnimationFrame(tick);
         }
 
+        row.addEventListener('mouseenter', function () {
+          /* Snapshot resting positions once — used for all distance math while in row */
+          restCenters = cells.map(function (c) {
+            var r = c.getBoundingClientRect();
+            return r.left + r.width * 0.5;
+          });
+        });
+
         /* Continuous cursor tracking — like macOS Dock magnification */
         row.addEventListener('mousemove', function (e) {
           var rowRect = row.getBoundingClientRect();
           var mx      = e.clientX;
-          /* Influence radius = 28% of row width — scales with viewport */
-          var RADIUS  = rowRect.width * 0.28;
+          /* Radius = 45% of row width → genuine neighbor falloff even in 4-cell rows */
+          var RADIUS  = rowRect.width * 0.45;
+          var centers = restCenters;
 
           var maxTarget = -Infinity, maxIdx = -1;
 
           springs.forEach(function (s, i) {
-            var r      = cells[i].getBoundingClientRect();
-            var center = r.left + r.width * 0.5;
-            var dist   = Math.abs(mx - center);
-            /* smoothstep: eases from 0→1 with zero derivative at endpoints */
+            var dist = Math.abs(mx - centers[i]);
+            /* smoothstep: zero-derivative S-curve, feels more organic than linear */
             var t = Math.max(0, 1 - dist / RADIUS);
             t = t * t * (3 - 2 * t);
-            /* wide cells have a slightly higher peak to respect their base size */
-            var peak = s.base === 2 ? 4.2 : 2.6;
+            var peak = s.base === 2 ? 4.5 : 2.8;
             s.target = s.base + (peak - s.base) * t;
             if (s.target > maxTarget) { maxTarget = s.target; maxIdx = i; }
           });
 
-          /* Tag the closest cell for CSS spotlight */
           cells.forEach(function (c, i) {
             c.classList.toggle('is-focused', i === maxIdx);
           });
@@ -1185,6 +1192,7 @@
         });
 
         row.addEventListener('mouseleave', function () {
+          restCenters = null;
           springs.forEach(function (s) { s.target = s.base; });
           cells.forEach(function (c) { c.classList.remove('is-focused'); });
           fire();

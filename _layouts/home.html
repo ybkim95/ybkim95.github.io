@@ -1109,12 +1109,11 @@
             </div>
 
 
-    <!-- Spring-physics dock magnification: continuous cursor-distance falloff -->
+    <!-- Spring-physics dock magnification -->
     <script>
     (function () {
-      /* ζ = D / (2√K).  Target: ζ ≈ 0.65 → underdamped, slight overshoot, feels alive */
-      var STIFFNESS = 380;   /* fast enough to track cursor; feels snappy not sluggish */
-      var DAMPING   = 26;    /* ζ = 26/(2*√380) ≈ 0.67 — light bounce on settle        */
+      var STIFFNESS = 300;
+      var DAMPING   = 22;   /* ζ = 22/(2√300) ≈ 0.64 — underdamped, slight bounce */
 
       function initRow(row) {
         var cells = Array.prototype.slice.call(row.querySelectorAll('.project-cell'));
@@ -1125,15 +1124,14 @@
           return { v: 0, x: base, target: base, base: base };
         });
 
-        var raf, lastT, running = false;
-        /* Cache resting-state centers at mouseenter so expanding cells don't
-           create a feedback loop by shifting their own BoundingClientRect mid-animation */
+        var raf = null, lastT = null, running = false, inRow = false;
         var restCenters = null;
 
         function tick(now) {
-          if (!lastT) lastT = now;
+          if (lastT === null) lastT = now;
           var dt = Math.min((now - lastT) / 1000, 0.05);
           lastT = now;
+
           var settled = true;
           springs.forEach(function (s, i) {
             var f = -STIFFNESS * (s.x - s.target) - DAMPING * s.v;
@@ -1142,70 +1140,61 @@
             cells[i].style.flexGrow = s.x;
             if (Math.abs(s.x - s.target) > 0.003 || Math.abs(s.v) > 0.003) settled = false;
           });
-          if (settled) {
+
+          if (settled && !inRow) {
+            /* cursor has left; snap to rest and stop */
             springs.forEach(function (s, i) { s.x = s.target; s.v = 0; cells[i].style.flexGrow = s.x; });
             running = false;
           } else {
+            /* keep loop alive — cursor is still here OR springs still moving */
             raf = requestAnimationFrame(tick);
           }
         }
 
-        function fire() {
-          if (running) cancelAnimationFrame(raf);
-          running = true; lastT = null;
-          raf = requestAnimationFrame(tick);
-        }
-
+        /* Start the loop ONCE at mouseenter — never cancel it mid-gesture */
         row.addEventListener('mouseenter', function () {
-          /* Snapshot resting positions once — used for all distance math while in row */
+          inRow = true;
           restCenters = cells.map(function (c) {
             var r = c.getBoundingClientRect();
             return r.left + r.width * 0.5;
           });
+          if (!running) {
+            running = true; lastT = null;
+            raf = requestAnimationFrame(tick);
+          }
         });
 
-        /* Continuous cursor tracking — like macOS Dock magnification */
+        /* mousemove ONLY updates targets — never touches the RAF loop */
         row.addEventListener('mousemove', function (e) {
-          var rowRect = row.getBoundingClientRect();
-          var mx      = e.clientX;
-          /* Radius = 45% of row width → genuine neighbor falloff even in 4-cell rows */
-          var RADIUS  = rowRect.width * 0.45;
-          var centers = restCenters;
+          if (!restCenters) return;
+          var rowW   = row.getBoundingClientRect().width;
+          var mx     = e.clientX;
+          var RADIUS = rowW * 0.45;
 
-          var maxTarget = -Infinity, maxIdx = -1;
-
+          var maxT = -Infinity, maxI = -1;
           springs.forEach(function (s, i) {
-            var dist = Math.abs(mx - centers[i]);
-            /* smoothstep: zero-derivative S-curve, feels more organic than linear */
-            var t = Math.max(0, 1 - dist / RADIUS);
-            t = t * t * (3 - 2 * t);
+            var d = Math.abs(mx - restCenters[i]);
+            var t = Math.max(0, 1 - d / RADIUS);
+            t = t * t * (3 - 2 * t);              /* smoothstep */
             var peak = s.base === 2 ? 4.5 : 2.8;
             s.target = s.base + (peak - s.base) * t;
-            if (s.target > maxTarget) { maxTarget = s.target; maxIdx = i; }
+            if (s.target > maxT) { maxT = s.target; maxI = i; }
           });
-
-          cells.forEach(function (c, i) {
-            c.classList.toggle('is-focused', i === maxIdx);
-          });
-
-          fire();
+          cells.forEach(function (c, i) { c.classList.toggle('is-focused', i === maxI); });
         });
 
         row.addEventListener('mouseleave', function () {
+          inRow = false;
           restCenters = null;
           springs.forEach(function (s) { s.target = s.base; });
           cells.forEach(function (c) { c.classList.remove('is-focused'); });
-          fire();
+          /* RAF keeps running, spring flows back to rest, then auto-stops */
         });
       }
 
-      function init() {
-        document.querySelectorAll('.project-row').forEach(initRow);
-      }
-
+      function init() { document.querySelectorAll('.project-row').forEach(initRow); }
       document.readyState === 'loading'
-        ? document.addEventListener('DOMContentLoaded', init)
-        : init();
+        ? document.addEventListener('DOMContentLoaded', init) : init();
     })();
     </script>
 

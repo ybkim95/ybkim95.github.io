@@ -174,7 +174,7 @@
         }
         .project-cell.wide { flex-grow: 2; }
 
-        /* Talks */
+        /* Media & Talks */
         .talks-section {
             clear: both;
             margin: 72px 0 88px;
@@ -188,7 +188,7 @@
         }
         .talks-track {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 16px;
             max-width: 1180px;
             padding-bottom: 10px;
@@ -248,14 +248,14 @@
             display: block;
             margin-bottom: 6px;
             color: rgba(255, 255, 255, 0.82) !important;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             line-height: 1.25;
         }
         .talk-copy h2 {
             margin: 0;
             color: #ffffff !important;
-            font-size: 22px;
+            font-size: 19px;
             line-height: 1.12;
         }
         .talk-play {
@@ -320,8 +320,11 @@
             nav li {
                 padding: 12px 8px 0;
             }
+            nav a {
+                white-space: nowrap;
+            }
             .profile {
-                width: 112px !important;
+                width: 144px !important;
                 margin: 26px 20px 18px 14px !important;
             }
             .profile .social-icons {
@@ -354,7 +357,7 @@
             }
             .talk-card { aspect-ratio: 16 / 10; }
             .talk-copy { left: 15px; right: 46px; bottom: 14px; }
-            .talk-copy h2 { font-size: 20px; }
+            .talk-copy h2 { font-size: 18px; }
             .talk-play { right: 13px; bottom: 13px; }
             [block="recent_news"] .news-list { font-size: 18px !important; }
         }
@@ -389,7 +392,7 @@
         .profile-video {
             display: block;
             width: 100%;
-            aspect-ratio: 4 / 5;
+            aspect-ratio: 16 / 9;
             object-fit: cover;
             object-position: center;
             border-radius: 10px;
@@ -960,7 +963,7 @@
                       </svg>
                     </button>
                   </li>
-                  <li><a href="#sec_talks">Talks</a></li>
+                  <li><a href="#sec_talks">Media &amp; Talks</a></li>
                   <li><a href="#sec_project">Projects</a></li>
                 </ul>
               </nav>
@@ -968,7 +971,7 @@
     
     <br>
     <br>
-    <div class="profile" style="float: right; margin: 5% 10% 15px 15px; width: 14%;">
+    <div class="profile" style="float: right; margin: 5% 10% 15px 15px; width: 20%;">
         <video class="profile-video" autoplay muted loop playsinline preload="metadata" poster="/assets/images/profile-neurips-2024.jpg" role="img" aria-label="Yubin Kim presenting at NeurIPS 2024">
             <source src="/assets/images/profile-neurips-2024.mp4" type="video/mp4" media="(prefers-reduced-motion: no-preference)">
         </video>
@@ -1011,8 +1014,17 @@
     </div>
     <section class="block talks-section" id="sec_talks">
         <div class="page_inner">
-            <h1 class="talks-title">Talks</h1>
+            <h1 class="talks-title">Media &amp; Talks</h1>
             <div class="talks-track">
+                <a class="talk-card" href="https://techxplore.com/news/2026-08-adding-ai-agents.html" target="_blank" rel="noopener" aria-label="Read Why adding AI agents to a system sometimes reduces its performance on TechXplore">
+                    <img src="assets/images/media-techxplore-agents.jpg" alt="AI apps displayed on a smartphone" loading="lazy">
+                    <div class="talk-copy">
+                        <span class="talk-venue">TechXplore &middot; Sep 2026</span>
+                        <h2>Why Adding AI Agents Sometimes Reduces Performance</h2>
+                    </div>
+                    <span class="talk-play" aria-hidden="true">&#8599;</span>
+                </a>
+
                 <a class="talk-card" href="https://theaitalks.org/talks/2026/0224/" target="_blank" rel="noopener" aria-label="Watch Towards a Science of Scaling Agent Systems at AI Talks">
                     <img src="assets/images/talk-ai-talks-slide.jpg" alt="" loading="lazy">
                     <div class="talk-copy">
@@ -1032,9 +1044,7 @@
                 </a>
 
                 <a class="talk-card" href="https://neurips.cc/virtual/2024/oral/97988" target="_blank" rel="noopener" aria-label="Watch the MDAgents oral presentation at NeurIPS 2024">
-                    <video autoplay muted loop playsinline preload="metadata" poster="assets/images/talk-neurips-2024.jpg" aria-hidden="true">
-                        <source src="assets/images/talk-neurips-2024.mp4" type="video/mp4" media="(prefers-reduced-motion: no-preference)">
-                    </video>
+                    <img src="assets/images/talk-neurips-2024-slide.jpg" alt="MDAgents NeurIPS 2024 title slide" loading="lazy">
                     <div class="talk-copy">
                         <span class="talk-venue">NeurIPS 2024 Oral &middot; Dec 2024</span>
                         <h2>MDAgents: Adaptive Collaboration of LLMs for Medical Decision-Making</h2>

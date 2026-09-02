@@ -177,7 +177,7 @@
         /* Talks */
         .talks-section {
             clear: both;
-            margin: 80px 0 96px;
+            margin: 72px 0 88px;
         }
         .talks-section .page_inner {
             padding-right: 4%;
@@ -189,7 +189,8 @@
         .talks-track {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 18px;
+            gap: 16px;
+            max-width: 1180px;
             padding-bottom: 10px;
             overflow-x: auto;
             scroll-snap-type: x proximity;
@@ -199,7 +200,7 @@
             position: relative;
             display: block;
             min-width: 0;
-            aspect-ratio: 16 / 10;
+            aspect-ratio: 16 / 9;
             overflow: hidden;
             border-radius: 6px;
             background: #171717;
@@ -238,39 +239,50 @@
         }
         .talk-copy {
             position: absolute;
-            left: 22px;
-            right: 58px;
-            bottom: 20px;
+            left: 18px;
+            right: 52px;
+            bottom: 16px;
             z-index: 2;
         }
         .talk-venue {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: rgba(255, 255, 255, 0.82) !important;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             line-height: 1.25;
         }
         .talk-copy h2 {
             margin: 0;
             color: #ffffff !important;
-            font-size: 26px;
+            font-size: 22px;
             line-height: 1.12;
         }
         .talk-play {
             position: absolute;
-            right: 20px;
-            bottom: 20px;
+            right: 16px;
+            bottom: 16px;
             z-index: 2;
             display: grid;
             place-items: center;
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             border: 1px solid rgba(255, 255, 255, 0.7);
             border-radius: 50%;
             color: #ffffff !important;
             font-size: 11px;
             line-height: 1;
+        }
+        .intro-focus {
+            margin: 4px 0 8px !important;
+            line-height: 1.15;
+        }
+        .intro-copy {
+            margin-top: 0 !important;
+            line-height: 1.65;
+        }
+        [block="recent_news"] .news-list {
+            font-size: 19px !important;
         }
 
         /* Solo row: single card constrained to ~1/3 width */
@@ -332,18 +344,19 @@
             }
             .project-row { flex-direction: column; min-height: unset !important; }
             .project-cell, .project-cell.wide { flex: 1 1 auto !important; }
-            .talks-section { margin: 60px 0 72px; }
+            .talks-section { margin: 54px 0 68px; }
             .talks-section .page_inner { padding-right: 0; }
             .talks-track {
                 grid-template-columns: none;
                 grid-auto-flow: column;
-                grid-auto-columns: min(84vw, 380px);
+                grid-auto-columns: min(78vw, 340px);
                 padding-right: 8vw;
             }
-            .talk-card { aspect-ratio: 4 / 3; }
-            .talk-copy { left: 18px; right: 52px; bottom: 17px; }
-            .talk-copy h2 { font-size: 21px; }
-            .talk-play { right: 16px; bottom: 16px; }
+            .talk-card { aspect-ratio: 16 / 10; }
+            .talk-copy { left: 15px; right: 46px; bottom: 14px; }
+            .talk-copy h2 { font-size: 20px; }
+            .talk-play { right: 13px; bottom: 13px; }
+            [block="recent_news"] .news-list { font-size: 18px !important; }
         }
         /* Tablet: 2-up */
         @media only screen and (min-width: 700px) and (max-width: 949px) {
@@ -352,7 +365,7 @@
             .talks-track {
                 grid-template-columns: none;
                 grid-auto-flow: column;
-                grid-auto-columns: min(62vw, 460px);
+                grid-auto-columns: min(56vw, 400px);
                 padding-right: 5vw;
             }
         }
@@ -977,8 +990,8 @@
                 </a>
             </h1>
             <br>
-            <h2 style="font-size:32px; margin: 4px 0 16px 0;">AI Agents + Safety + Health</h2>
-            <p style="font-size:24px; width:78%">
+            <h2 class="intro-focus" style="font-size:32px;">AI Agents + Safety + Health</h2>
+            <p class="intro-copy" style="font-size:24px; width:78%">
                 I'm Yubin, a research scientist at Google DeepMind <img src="assets/images/deepmind_logo.png" style="height: 1em; vertical-align: middle; margin: 0 4px;"> and a PhD candidate at the MIT Media Lab <img id="medialab-logo" src="assets/images/medialab_logo_white.png" style="height: 1em; vertical-align: middle; margin: 0 4px;">. <br>
                 I'm interested in bridging the gap between the Agent/Robot and Humans in real-world tasks, delivering Personalized and Long-term interactions. <br>
             </p>
@@ -990,7 +1003,7 @@
             <h1 class="talks-title">Talks</h1>
             <div class="talks-track">
                 <a class="talk-card" href="https://theaitalks.org/talks/2026/0224/" target="_blank" rel="noopener" aria-label="Watch Towards a Science of Scaling Agent Systems at AI Talks">
-                    <img src="assets/images/talk-ai-talks.jpg" alt="" loading="lazy">
+                    <img src="assets/images/talk-ai-talks-slide.jpg" alt="" loading="lazy">
                     <div class="talk-copy">
                         <span class="talk-venue">AI Talks with NTU &amp; NUS &middot; Feb 2026</span>
                         <h2>Towards a Science of Scaling Agent Systems</h2>
@@ -999,7 +1012,7 @@
                 </a>
 
                 <a class="talk-card" href="https://ai-nexus.mbzuai.ac.ae/previous-ai-talks/" target="_blank" rel="noopener" aria-label="Watch Healthcare Agents at MBZUAI AI Nexus">
-                    <img src="assets/images/talk-mbzuai.png" alt="" loading="lazy">
+                    <img src="assets/images/talk-mbzuai-slide.jpg" alt="" loading="lazy">
                     <div class="talk-copy">
                         <span class="talk-venue">MBZUAI AI Nexus &middot; Dec 2025</span>
                         <h2>Healthcare Agents: Language Models in Health Prediction and Decision-Making</h2>

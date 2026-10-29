@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Health-CUA: Computer-use agents for healthcare workflows. Project website under development.">
+  <meta name="theme-color" content="#f5f6f2">
+  <title>Health-CUA</title>
+  <link rel="canonical" href="https://ybkim95.github.io/health-cua/">
+  <style>
+    :root { color-scheme: light; --paper: #f5f6f2; --ink: #172b2b; --muted: #536662; --accent: #216c59; --line: #d6dfd7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+    .page { width: min(1280px, 100%); min-height: 100vh; min-height: 100svh; margin: auto; padding: 0 64px; display: flex; flex-direction: column; }
+    header { display: flex; align-items: center; gap: 12px; padding: 34px 0; border-bottom: 1px solid var(--line); font-size: 15px; font-weight: 650; letter-spacing: -.02em; }
+    .mark { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--accent); border-radius: 10px; color: var(--accent); }
+    main { flex: 1; display: grid; grid-template-columns: 1.35fr 1fr; gap: 64px; align-items: center; padding: 100px 0 112px; }
+    .eyebrow { color: var(--accent); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .16em; text-transform: uppercase; margin: 0 0 28px; }
+    h1 { margin: 0; font-size: clamp(48px, 7.2vw, 92px); font-weight: 550; letter-spacing: -.065em; line-height: 1.08; }
+    .description { max-width: 450px; margin: 27px 0 0; color: var(--muted); font-size: clamp(22px, 2.5vw, 30px); line-height: 1.45; letter-spacing: -.025em; text-wrap: balance; }
+    .status { display: flex; align-items: center; gap: 10px; margin-top: 44px; font-size: 14px; line-height: 1.6; color: var(--muted); }
+    .status::before { content: ""; width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: var(--accent); }
+    .visual { position: relative; width: 100%; aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle, #e2ebe1 0%, #e9eee5 50%, transparent 71%); }
+    .orbit { position: absolute; inset: 5%; border: 1px solid #d0ddd2; border-radius: 50%; }
+    .orbit::after { content: ""; position: absolute; top: 14%; right: 14%; height: 8px; width: 8px; border-radius: 50%; background: #749986; box-shadow: 0 0 0 6px var(--paper); }
+    .window { position: relative; width: 76%; aspect-ratio: 1.2; background: #fafbf8; border: 1px solid #becfc2; border-radius: 18px; box-shadow: 0 22px 55px #173b2b0c; transform: rotate(-5deg); }
+    .window-bar { height: 38px; display: flex; align-items: center; gap: 5px; padding: 0 16px; border-bottom: 1px solid var(--line); }
+    .window-bar i { width: 5px; height: 5px; border-radius: 50%; background: #98afa0; }
+    .window-body { padding: 24px; }
+    .tile { width: 46px; height: 46px; border: 1px solid #b7cabe; border-radius: 13px; display: grid; place-items: center; color: var(--accent); background: #eaf0e8; }
+    .lines { margin-top: 23px; display: grid; gap: 10px; }
+    .lines span { height: 6px; width: 73%; background: #d7e2d8; border-radius: 4px; }
+    .lines span:nth-child(2) { width: 52%; }
+    .cursor { position: absolute; right: -17px; bottom: 18px; width: 74px; height: 86px; transform: rotate(5deg); filter: drop-shadow(0 7px 7px #173b2b14); }
+    footer { padding: 25px 0 30px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 16px; color: var(--muted); font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; }
+    @media (max-width: 760px) {
+      .page { padding: 0 28px; }
+      header { padding: 24px 0; }
+      main { grid-template-columns: 1fr; gap: 30px; padding: 58px 0 44px; }
+      h1 { font-size: clamp(46px, 11vw, 76px); }
+      .description { max-width: 410px; }
+      .status { margin-top: 28px; }
+      .visual { width: min(300px, 85%); justify-self: center; }
+      .window-body { padding: 19px; }
+      .window-bar { height: 30px; }
+      .tile { width: 38px; height: 38px; border-radius: 10px; }
+      .lines { margin-top: 17px; gap: 8px; }
+      .cursor { width: 59px; height: 69px; bottom: 10px; }
+      footer { font-size: 10px; flex-wrap: wrap; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <span class="mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4v12M16 4v12M4 10h12" stroke="currentColor" stroke-width="1.5"/></svg></span>
+      <span>Health-CUA</span>
+    </header>
+    <main>
+      <section aria-labelledby="project-title">
+        <p class="eyebrow">Project website</p>
+        <h1 id="project-title">Health-CUA</h1>
+        <p class="description">Computer-use agents for healthcare workflows</p>
+        <p class="status">Project website under development</p>
+      </section>
+      <div class="visual" aria-hidden="true">
+        <div class="orbit"></div>
+        <div class="window">
+          <div class="window-bar"><i></i><i></i><i></i></div>
+          <div class="window-body">
+            <div class="tile"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 5v14M19 5v14M5 12h14" stroke="currentColor" stroke-width="1.5"/></svg></div>
+            <div class="lines"><span></span><span></span><span></span></div>
+          </div>
+          <svg class="cursor" viewBox="0 0 74 86" fill="none"><path d="M10 5L64 48L39 52L26 75L10 5Z" fill="#216c59" stroke="#fafbf8" stroke-width="5" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </main>
+    <footer><span>HEALTH-CUA</span><span>COMPUTER USE / HEALTHCARE</span></footer>
+  </div>
+</body>
+</html>

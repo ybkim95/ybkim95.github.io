@@ -1,6 +1,6 @@
 // The work panel of a case: the agent's handoff (with the agent's draft only), orders and medication stops, the note, the questions.
 // Order fields are those of the study EHR's composer (surface v8), so a clinician's signed orders can be graded like the agent's.
-import { h, md, radios, toast, confirmBox } from './ui.js?v=4d1c651a8e';
+import { h, md, radios, toast, confirmBox } from './ui.js?v=a344b63fee';
 
 const CATALOG = {
   referral: ['Cardiology', 'Endocrinology', 'Neurology', 'Nephrology', 'Ophthalmology', 'Dermatology', 'Pulmonology', 'Allergy and immunology', 'Physical therapy', 'Gastroenterology', 'Urology'],

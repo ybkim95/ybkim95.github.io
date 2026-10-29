@@ -1,7 +1,7 @@
-import { createStore } from './store.js?v=4d1c651a8e';
-import { h, md, toast, confirmBox, debounce, radios, fmtTime, emailKey, EMAIL_RE, GOOGLE_ICON } from './ui.js?v=4d1c651a8e';
-import { renderChart, renderTask } from './chart.js?v=4d1c651a8e';
-import { renderWork, initialResponse } from './orders.js?v=4d1c651a8e';
+import { createStore } from './store.js?v=a344b63fee';
+import { h, md, toast, confirmBox, debounce, radios, fmtTime, emailKey, EMAIL_RE, GOOGLE_ICON } from './ui.js?v=a344b63fee';
+import { renderChart, renderTask } from './chart.js?v=a344b63fee';
+import { renderWork, initialResponse } from './orders.js?v=a344b63fee';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null }; let SLOT = null; let CONFIG = {};
@@ -294,7 +294,7 @@ async function adminView() {
   });
   const email = h('input', { type: 'email', placeholder: 'physician@hospital.org' });
   const slotSel = h('select', {}, slotIds.map((s) => h('option', { value: s, disabled: used.has(s) }, `${s} · ${d.slots[s].sequence}${used.has(s) ? ' (taken)' : ''}`)));
-  const free = slotIds.find((s) => !used.has(s)); if (free) slotSel.value = free;
+  const free = slotIds.find((s) => !used.has(s) && !d.slots[s].test); if (free) slotSel.value = free;
   const add = h('button', { class: 'primary', onclick: async () => {
     const e = email.value.trim().toLowerCase();
     if (!EMAIL_RE.test(e)) { toast('Enter a valid email address.', 'bad'); return; }
@@ -307,10 +307,11 @@ async function adminView() {
     const a = h('a', { href: URL.createObjectURL(blob), download: `hcua-supervision-export-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '')}.json` });
     document.body.append(a); a.click(); a.remove();
   } }, 'Download all responses (JSON)');
-  const nResp = Object.values(d.responses).reduce((n, r) => n + Object.values(r).filter((x) => x.submittedAt && !x.practice).length, 0);
+  const testUids = new Set(Object.values(d.invites).filter((i) => d.slots[i.slot]?.test && i.claimedBy).map((i) => i.claimedBy));
+  const nResp = Object.entries(d.responses).filter(([u]) => !testUids.has(u)).reduce((n, [, r]) => n + Object.values(r).filter((x) => x.submittedAt && !x.practice).length, 0);
   page(h('div', { class: 'stack' }, h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', {}, h('div', { class: 'eyebrow' }, 'Study team'), h('h1', { style: { margin: 0 } }, 'Participants')), exp),
     h('dl', { class: 'kv' }, h('dt', {}, 'Invitations'), h('dd', {}, String(Object.keys(d.invites).length)), h('dt', {}, 'Signed in'), h('dd', {}, String(Object.keys(emails).length)),
-      h('dt', {}, 'Study cases submitted'), h('dd', {}, String(nResp)), h('dt', {}, 'Reader slots free'), h('dd', {}, String(slotIds.length - used.size)))),
+      h('dt', {}, 'Study cases submitted'), h('dd', {}, String(nResp)), h('dt', {}, 'Reader slots free'), h('dd', {}, String(slotIds.filter((x) => !d.slots[x].test && !used.has(x)).length)))),
   h('div', { class: 'card stack' }, h('h2', {}, 'Invite a physician'), h('p', { class: 'muted small', style: { margin: 0 } }, 'The invitation is claimed the first time that Google account signs in. Each slot fixes which half of the cases is seen with the agent\'s draft and which block comes first. Fill slots in order to keep the four sequences balanced.'),
     h('div', { class: 'grid2' }, h('div', {}, h('label', {}, 'Email address'), email), h('div', {}, h('label', {}, 'Reader slot'), slotSel)), h('div', { class: 'row' }, add)),
   h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Email', 'Slot', 'Sequence', 'Status', 'Specialty', 'Cases', 'Last activity', ''].map((x) => h('th', {}, x)))),

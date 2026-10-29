@@ -9,9 +9,9 @@
 //   profiles/{uid}              consent and background (own)
 //   responses/{uid}/{caseId}    orders, note, answers, timing (own; locked once submitted)
 //   surveys/{uid}/{surveyId}    workload and trust questionnaires (own; locked once submitted)
-import { FIREBASE_CONFIG, ROOT } from './config.js?v=4d1c651a8e';
-import { emailKey } from './ui.js?v=4d1c651a8e';
-import { DEMO } from './demo-data.js?v=4d1c651a8e';
+import { FIREBASE_CONFIG, ROOT } from './config.js?v=a344b63fee';
+import { emailKey } from './ui.js?v=a344b63fee';
+import { DEMO } from './demo-data.js?v=a344b63fee';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 

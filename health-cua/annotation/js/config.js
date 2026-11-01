@@ -9,3 +9,5 @@ export const FIREBASE_CONFIG = {
   appId: '1:360125182471:web:52f8e72c2c4994686530a2',
 };
 export const ROOT = 'hcua_supervision';
+// Study B (blinded episode review, validity.html) keeps its own root; the two studies never read each other's paths.
+export const VALIDITY_ROOT = 'hcua_validity';

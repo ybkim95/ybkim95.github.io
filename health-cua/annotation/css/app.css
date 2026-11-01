@@ -173,3 +173,13 @@ td.flag-high, td.flag-low { color: var(--bad); font-weight: 600; }
 .google { display: inline-flex; gap: 10px; align-items: center; padding: 9px 16px; font-weight: 600; }
 .google svg { width: 18px; height: 18px; }
 .demo-banner { background: var(--ai-soft); color: var(--ai); border-bottom: 1px solid var(--ai-line); padding: 6px 18px; font-size: 12.5px; font-weight: 550; }
+
+/* episode review (Study B): the record panel and the adjudicator's side-by-side ratings */
+.record { border: 1px solid var(--line); border-radius: 9px; background: var(--surface); padding: 12px 14px; }
+.record h3 { margin: 12px 0 6px; } .record .panel-h + h3 { margin-top: 4px; }
+.record ul.plain { margin: 0; padding-left: 20px; } .record ul.plain li { margin: 3px 0; }
+.record-note { white-space: pre-wrap; word-wrap: break-word; font: 13px/1.5 var(--sans); margin: 0; padding: 10px 12px; border: 1px solid var(--line-2); border-radius: 7px; background: var(--surface-2); max-height: 420px; overflow: auto; }
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 1240px) { .compare { grid-template-columns: 1fr; } }
+.compare-card { padding: 12px 14px; } .compare-card .kv { grid-template-columns: minmax(120px, 1fr) 1.2fr; }
+.compare-card dd.diff { background: var(--ai-soft); color: var(--ai); border-radius: 5px; padding: 0 6px; font-weight: 600; }

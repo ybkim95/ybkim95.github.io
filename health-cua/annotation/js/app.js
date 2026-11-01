@@ -1,7 +1,7 @@
-import { createStore } from './store.js?v=a344b63fee';
-import { h, md, toast, confirmBox, debounce, radios, fmtTime, emailKey, EMAIL_RE, GOOGLE_ICON } from './ui.js?v=a344b63fee';
-import { renderChart, renderTask } from './chart.js?v=a344b63fee';
-import { renderWork, initialResponse } from './orders.js?v=a344b63fee';
+import { createStore } from './store.js?v=d2e5e8b20c';
+import { h, md, toast, confirmBox, debounce, radios, fmtTime, emailKey, EMAIL_RE, GOOGLE_ICON } from './ui.js?v=d2e5e8b20c';
+import { renderChart, renderTask } from './chart.js?v=d2e5e8b20c';
+import { renderWork, initialResponse } from './orders.js?v=d2e5e8b20c';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null }; let SLOT = null; let CONFIG = {};

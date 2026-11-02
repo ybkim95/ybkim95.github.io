@@ -35,7 +35,7 @@ export function md(text) {
     let m;
     if (!line.trim()) { flush(); close(); continue; }
     if ((m = line.match(/^(#{1,4})\s+(.*)$/))) { flush(); close(); const n = Math.min(m[1].length + 1, 4); out.push(`<h${n}>${inline(m[2])}</h${n}>`); continue; }
-    if ((m = line.match(/^\s*(\d+)[.)]\s+(.*)$/))) { flush(); if (list !== 'ol') { close(); out.push(`<ol start="${Number(m[1])}">`); list = 'ol'; } out.push(`<li>${inline(m[2])}</li>`); continue; }
+    if ((m = line.match(/^\s*(\d+)[.)]\s+(.*)$/))) { flush(); if (list !== 'ol') { close(); out.push(`<ol start="${Number(m[1])}">`); list = 'ol'; } out.push(`<li value="${Number(m[1])}">${inline(m[2])}</li>`); continue; }  // the value keeps nested bullets from taking a number
     if ((m = line.match(/^\s*[-*•]\s+(.*)$/))) {
       flush();
       const nested = /^\s{2,}/.test(line) && list;

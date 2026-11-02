@@ -183,3 +183,11 @@ td.flag-high, td.flag-low { color: var(--bad); font-weight: 600; }
 @media (max-width: 1240px) { .compare { grid-template-columns: 1fr; } }
 .compare-card { padding: 12px 14px; } .compare-card .kv { grid-template-columns: minmax(120px, 1fr) 1.2fr; }
 .compare-card dd.diff { background: var(--ai-soft); color: var(--ai); border-radius: 5px; padding: 0 6px; font-weight: 600; }
+
+/* Study B, packet B-3: per-order judgments, rating anchors and training feedback */
+.judge-list { display: grid; gap: 10px; margin-top: 6px; }
+.judge { border: 1px solid var(--line-2); border-radius: 8px; padding: 8px 10px; background: var(--surface-2); display: grid; gap: 6px; }
+.judge .choice label { font-size: 12.5px; }
+ul.anchors { margin: 6px 0 0; padding-left: 18px; }
+ul.anchors li { margin: 2px 0; }
+tr.diff td, li.diff { background: var(--ai-soft); }

@@ -11,9 +11,9 @@
 //   ratings/{uid}/{itemId}      one rating per item (own; a submitted rating is readable by the adjudicator; locked once submitted)
 //   adjudications/{itemId}      the adjudicator's final rating (locked once submitted)
 // The model, interface and grader verdict of an item are never uploaded, so no call here can return them.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=d2e5e8b20c';
-import { emailKey } from './ui.js?v=d2e5e8b20c';
-import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=d2e5e8b20c';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=e838f43f73';
+import { emailKey } from './ui.js?v=e838f43f73';
+import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=e838f43f73';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 
@@ -99,7 +99,7 @@ async function firebaseStore(emulator) {
 
 // Demo: invented items, no sign-in, everything in this browser's local storage. The adjudicator demo reads invented ratings.
 function demoStore(adjudicator) {
-  const KEY = adjudicator ? 'hcua-validity-demo-adj-v1' : 'hcua-validity-demo-v1';
+  const KEY = adjudicator ? 'hcua-validity-demo-adj-b3' : 'hcua-validity-demo-b3';
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
   const save = (s) => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* private window: the demo still runs */ } };
   let state = load();

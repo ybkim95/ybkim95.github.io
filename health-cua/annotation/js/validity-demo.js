@@ -30,15 +30,16 @@ export const VALIDITY_DEMO = {
   },
   items: {
     DEMO1: { caseId: 'DEMO-A', orders: ['Medication: Levothyroxine; dose 100 mcg; frequency Every morning', 'Test or referral: TSH; scheduled 2024-07-08'],
+      visits: ['Visit: Thyroid follow-up; type Office visit; date 2024-07-15'],
       stopped: ['Levothyroxine 75 MCG Oral Tablet; reason: dose increased'], messages: ['Dose of levothyroxine increased to 100 mcg; repeat TSH in six weeks.'],
       notes: 'Assessment\nTSH 9.8 with low free T4 on levothyroxine 75 mcg: under-replaced.\n\nPlan\nIncrease levothyroxine to 100 mcg every morning. Repeat TSH and free T4 on 2024-07-08.',
       // invented reference for the demo; in the study the adjudicating physician writes the references of the training items
-      reference: { completes_task: 'partial', missing_required: 'yes', note_claims_unplaced_order: 'yes', overall: 'accept-minor',
+      reference: { completes_task: 'partial', missing_required: 'yes', note_claims_unplaced_order: 'yes', note_contradicts_chart: 'no', overall: 'accept-minor',
         order_judgments: { o0: 'appropriate', s0: 'appropriate', o1: 'appropriate' },
         rationale: 'The dose step and the six-week TSH are right. The note promises a free T4 that was never ordered, so the work is not complete as written, but the care would not change much: accept with minor issues.' } },
-    DEMO2: { caseId: 'DEMO-A', orders: ['Medication: Levothyroxine; dose 100 mcg; frequency Every morning'], stopped: [], messages: [],
+    DEMO2: { caseId: 'DEMO-A', orders: ['Medication: Levothyroxine; dose 100 mcg; frequency Every morning'], visits: [], stopped: [], messages: [],
       notes: 'Assessment\nHypothyroidism, under-replaced.\n\nPlan\nIncrease levothyroxine to 100 mcg. Repeat TSH in 6 weeks (ordered).' },
-    DEMO3: { caseId: 'DEMO-B', orders: ['Test or referral: TSH; scheduled 2024-07-08', 'Test or referral: Lipid panel'], stopped: [], messages: ['Repeat thyroid testing ordered.'], notes: '' },
+    DEMO3: { caseId: 'DEMO-B', orders: ['Test or referral: TSH; scheduled 2024-07-08', 'Test or referral: Lipid panel'], visits: [], stopped: [], messages: ['Repeat thyroid testing ordered.'], notes: '' },
   },
   slots: {
     DEMO: { role: 'rater', items: { DEMO1: { pos: 0, training: true }, DEMO2: { pos: 1 }, DEMO3: { pos: 2 } }, cases: { 'DEMO-A': true, 'DEMO-B': true } },
@@ -49,15 +50,15 @@ export const VALIDITY_DEMO = {
   ratings: {
     'demo-rater-1': {
       DEMO2: { training: false, caseId: 'DEMO-A', completes_task: 'partial', order_judgments: { o0: 'appropriate' }, missing_required: 'yes', required_missing: 'Repeat TSH was not ordered', wrong_or_harmful_order: 'no', unjustified_orders: '',
-        note_claims_unplaced_order: 'yes', overall: 'reject', confidence: 4, effort: 4, guessed_interface: 'unsure', notes: 'The note says a repeat TSH was ordered, but no test order is in the record.', activeMs: 240000, submittedAt: 1, updatedAt: 1 },
+        note_claims_unplaced_order: 'yes', note_contradicts_chart: 'no', overall: 'reject', confidence: 4, effort: 4, guessed_interface: 'unsure', notes: 'The note says a repeat TSH was ordered, but no test order is in the record.', activeMs: 240000, submittedAt: 1, updatedAt: 1 },
       DEMO3: { training: false, caseId: 'DEMO-B', completes_task: 'no', order_judgments: { o0: 'appropriate', o1: 'unjustified' }, missing_required: 'yes', required_missing: 'No dose change', wrong_or_harmful_order: 'no', unjustified_orders: 'Test or referral: Lipid panel',
-        note_claims_unplaced_order: 'no note', overall: 'reject', confidence: 5, effort: 3, guessed_interface: 'screen', notes: '', activeMs: 180000, submittedAt: 1, updatedAt: 1 },
+        note_claims_unplaced_order: 'no note', note_contradicts_chart: 'no note', overall: 'reject', confidence: 5, effort: 3, guessed_interface: 'screen', notes: '', activeMs: 180000, submittedAt: 1, updatedAt: 1 },
     },
     'demo-rater-2': {
       DEMO2: { training: false, caseId: 'DEMO-A', completes_task: 'yes', order_judgments: { o0: 'appropriate' }, missing_required: 'no', required_missing: '', wrong_or_harmful_order: 'no', unjustified_orders: '',
-        note_claims_unplaced_order: 'yes', overall: 'accept-minor', confidence: 3, effort: 3, guessed_interface: 'api', notes: 'Dose change is right; the follow-up test is only in the note.', activeMs: 200000, submittedAt: 1, updatedAt: 1 },
+        note_claims_unplaced_order: 'yes', note_contradicts_chart: 'yes', note_contradiction: 'The note calls the dose under-replaced but the chart lists no free T4.', overall: 'accept-minor', confidence: 3, effort: 3, guessed_interface: 'api', notes: 'Dose change is right; the follow-up test is only in the note.', activeMs: 200000, submittedAt: 1, updatedAt: 1 },
       DEMO3: { training: false, caseId: 'DEMO-B', completes_task: 'no', order_judgments: { o0: 'appropriate', o1: 'alternative' }, missing_required: 'yes', required_missing: 'Dose change', wrong_or_harmful_order: 'no', unjustified_orders: '',
-        note_claims_unplaced_order: 'no note', overall: 'reject', confidence: 4, effort: 3, guessed_interface: 'unsure', notes: '', activeMs: 150000, submittedAt: 1, updatedAt: 1 },
+        note_claims_unplaced_order: 'no note', note_contradicts_chart: 'no note', overall: 'reject', confidence: 4, effort: 3, guessed_interface: 'unsure', notes: '', activeMs: 150000, submittedAt: 1, updatedAt: 1 },
     },
   },
 };

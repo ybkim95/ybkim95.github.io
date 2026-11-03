@@ -11,3 +11,5 @@ export const FIREBASE_CONFIG = {
 export const ROOT = 'hcua_supervision';
 // Study B (blinded episode review, validity.html) keeps its own root; the two studies never read each other's paths.
 export const VALIDITY_ROOT = 'hcua_validity';
+// Study A' (task review, review.html) keeps its own root too.
+export const REVIEW_ROOT = 'hcua_task_review';

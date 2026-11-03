@@ -1,7 +1,7 @@
-import { createStore } from './store.js?v=d02cf1d4d6';
-import { h, md, toast, confirmBox, debounce, radios, fmtTime, emailKey, EMAIL_RE, GOOGLE_ICON } from './ui.js?v=d02cf1d4d6';
-import { renderChart, renderTask } from './chart.js?v=d02cf1d4d6';
-import { renderWork, initialResponse } from './orders.js?v=d02cf1d4d6';
+import { createStore } from './store.js?v=7b633b620f';
+import { h, md, toast, confirmBox, debounce, radios, fmtTime, emailKey, EMAIL_RE, GOOGLE_ICON } from './ui.js?v=7b633b620f';
+import { renderChart, renderTask } from './chart.js?v=7b633b620f';
+import { renderWork, initialResponse } from './orders.js?v=7b633b620f';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null }; let SLOT = null; let CONFIG = {};
@@ -13,7 +13,7 @@ function topbar(extra = []) {
   const setStatus = (s) => { status.className = `saved ${s === 'saving' ? 'saving' : online ? '' : 'offline'}`; status.textContent = !online ? 'Offline: changes are kept and sync when you reconnect' : s === 'saving' ? 'Saving…' : 'All changes saved'; };
   savedListeners.clear(); savedListeners.add(setStatus); setStatus('saved');
   return h('div', {}, S.mode === 'demo' ? h('div', { class: 'demo-banner' }, 'Demo: invented cases, stored only in this browser. Nothing here is part of the study.') : null,
-    h('header', { class: 'topbar' }, h('a', { class: 'brand', href: '#/', style: { color: 'inherit', textDecoration: 'none' } }, h('span', { class: 'mark' }), 'Health-CUA clinician study'),
+    h('header', { class: 'topbar' }, h('a', { class: 'brand', href: '#/', style: { color: 'inherit', textDecoration: 'none' } }, h('img', { class: 'mark', src: 'img/logo-64.png', alt: '' }), 'Health-CUA clinician study'),
       h('span', { class: 'grow' }), ...extra, ME.user ? status : null,
       ME.admin ? h('a', { class: 'btn small', href: '#/admin' }, 'Study team') : null,
       ME.user && S.mode !== 'demo' ? h('button', { class: 'ghost small', onclick: async () => { await S.signOut(); location.hash = '#/'; } }, 'Sign out') : null));
@@ -30,7 +30,7 @@ function tracked(fn) {
 // ---------- sign in and onboarding
 function signinView(msg) {
   app.replaceChildren(h('main', { class: 'page' }, h('div', { class: 'card signin stack' },
-    h('div', { class: 'brand' }, h('span', { class: 'mark' }), 'Health-CUA clinician study'),
+    h('div', { class: 'brand' }, h('img', { class: 'mark', src: 'img/logo-64.png', alt: '' }), 'Health-CUA clinician study'),
     h('h1', {}, 'Physician study of an AI agent in the electronic health record'),
     h('p', { class: 'muted' }, 'You will complete inbox tasks in a simulated patient chart, some on your own and some by reviewing orders that an AI agent drafted. All patients are synthetic.'),
     msg ? h('p', { class: 'problems' }, msg) : null,

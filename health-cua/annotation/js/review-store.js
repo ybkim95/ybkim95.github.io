@@ -5,9 +5,9 @@
 //   tasks/{taskId}            {case: task and chart, review: instruction, gold, forbidden orders, open questions} (readable within the slot)
 //   profiles/{uid}            instructions read (own)
 //   ratings/{uid}/{taskId}    one rating per task (own; locked once submitted)
-import { FIREBASE_CONFIG, REVIEW_ROOT as ROOT } from './config.js?v=d02cf1d4d6';
-import { emailKey } from './ui.js?v=d02cf1d4d6';
-import { VALIDITY_DEMO } from './validity-demo.js?v=d02cf1d4d6';
+import { FIREBASE_CONFIG, REVIEW_ROOT as ROOT } from './config.js?v=7b633b620f';
+import { emailKey } from './ui.js?v=7b633b620f';
+import { VALIDITY_DEMO } from './validity-demo.js?v=7b633b620f';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 
@@ -74,14 +74,14 @@ async function firebaseStore(emulator) {
 // Demo: one invented task, no sign-in, everything in this browser's local storage.
 const DEMO_TASK = {
   case: VALIDITY_DEMO.cases['DEMO-A'],  // the invented chart of the episode review demo
-  review: { taskId: 'DEMO-T1', tier: 'standard', twinOf: null, instruction: 'Review the thyroid results and complete the follow-up.',
-    required: [{ id: 'cp1_levothyroxine_increase', kind: 'MedicationRequest', alternatives: ['levothyroxine at 88 to 112 mcg'], window_days: null, rationale: 'Under-replaced on 75 mcg.' },
-      { id: 'cp2_repeat_tsh', kind: 'ServiceRequest', alternatives: ['TSH'], window_days: [35, 56], rationale: 'Recheck 6 to 8 weeks after a dose change.' }],
-    acceptable: ['free T4'], forbidden: [{ id: 'f1', orders: 'liothyronine', reason: 'Not first line.' }],
-    questions: ['Is a step of 25 mcg acceptable for a 54-year-old without heart disease?'], visitQuestions: [{ check: 'cp2_repeat_tsh', days: [35, 56] }] },
+  review: { twinOf: null, visit: true,
+    required: [{ kind: 'medication', headline: 'Levothyroxine 100 mcg oral tablet, once daily', accepted: ['levothyroxine (Synthroid) 88–112 mcg'], not: [], window: null, why: 'Under-replaced on 75 mcg.',
+      prompts: [{ text: 'Is a step of 25 mcg acceptable for a 54-year-old without heart disease?', full: 'Is a step of 25 mcg acceptable for a 54-year-old without heart disease?' }] },
+    { kind: 'test', headline: 'TSH, between Jul 8, 2024 and Jul 29, 2024', accepted: ['TSH (thyroid stimulating hormone)'], not: [], window: 'between Jul 8, 2024 and Jul 29, 2024', why: 'Recheck 6 to 8 weeks after a dose change.', prompts: [] }],
+    extras: [{ names: 'free T4', why: '' }], wrong: { orders: [{ names: ['liothyronine'], why: 'Not first line.' }], prompts: [] }, chart: { prompts: [] } },
 };
 function demoStore() {
-  const KEY = 'hcua-review-demo-a1';
+  const KEY = 'hcua-review-demo-a3';
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
   const save = (s) => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* private window */ } };
   let state = load();

@@ -36,9 +36,7 @@ p { margin: 0 0 .75em; }
 .spread { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 .eyebrow { font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; }
-.brand .mark { width: 26px; height: 26px; border-radius: 7px; background: var(--accent); display: grid; place-items: center; }
-.brand .mark::before { content: ''; width: 12px; height: 12px; background:
-  linear-gradient(var(--accent-ink), var(--accent-ink)) center/12px 3px no-repeat, linear-gradient(var(--accent-ink), var(--accent-ink)) center/3px 12px no-repeat; }
+.brand .mark { width: 24px; height: 24px; flex: none; }  /* the manuscript's Health-CUA logo */
 
 /* buttons and inputs */
 button, .btn { font: inherit; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
@@ -191,3 +189,25 @@ td.flag-high, td.flag-low { color: var(--bad); font-weight: 600; }
 ul.anchors { margin: 6px 0 0; padding-left: 18px; }
 ul.anchors li { margin: 2px 0; }
 tr.diff td, li.diff { background: var(--ai-soft); }
+
+/* task review A2: the answer key with a judgment beside each part */
+fieldset.review-form { border: 0; padding: 0; margin: 0; min-width: 0; }
+.review-form h3 { margin: 18px 0 8px; }
+.key-item { border: 1px solid var(--line-2); border-radius: 8px; padding: 10px 12px; background: var(--surface); display: grid; gap: 6px; margin-bottom: 8px; }
+.key-head { font-weight: 600; }
+.key-item .choice label, .sub-q .choice label { font-size: 12.5px; padding: 3px 10px; }
+.sub-q { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.key-item textarea { min-height: 52px; }
+details.why > summary, details.inline > summary, details.extras > summary { cursor: pointer; color: var(--accent); font-size: 12.5px; list-style: none; display: inline; }
+details.why > summary::-webkit-details-marker, details.inline > summary::-webkit-details-marker, details.extras > summary::-webkit-details-marker { display: none; }
+details.why[open] > div { margin-top: 4px; color: var(--ink-2); }
+details.inline { display: inline; }
+details.extras { margin: 12px 0 0; }
+/* one line per overall rating, under its option */
+.choice.anchored { display: grid; gap: 6px; }
+.choice.anchored label { border-radius: 8px; }
+.choice.anchored .anchor { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+.qitem.nonum { grid-template-columns: 1fr auto; }
+.asks { color: var(--ink-2); border-left: 2px solid var(--accent); padding-left: 8px; }
+.asks-label { font-weight: 600; color: var(--accent); }
+ul.wrong-list { display: grid; gap: 6px; margin: 0; }

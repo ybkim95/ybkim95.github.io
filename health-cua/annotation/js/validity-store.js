@@ -11,9 +11,9 @@
 //   ratings/{uid}/{itemId}      one rating per item (own; a submitted rating is readable by the adjudicator; locked once submitted)
 //   adjudications/{itemId}      the adjudicator's final rating (locked once submitted)
 // The model, interface and grader verdict of an item are never uploaded, so no call here can return them.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=d02cf1d4d6';
-import { emailKey } from './ui.js?v=d02cf1d4d6';
-import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=d02cf1d4d6';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=7b633b620f';
+import { emailKey } from './ui.js?v=7b633b620f';
+import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=7b633b620f';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 

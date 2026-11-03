@@ -1,35 +1,32 @@
-// Study A': physicians review confirmation-set tasks (the chart, the answer key, the forbidden orders and the grading rules) on seven
-// items scored 0 to 3, answer each task's open questions and the booked visit questions, and decide accept, revise or reject.
-import { createStore } from './review-store.js?v=d02cf1d4d6';
-import { h, md, toast, confirmBox, debounce, radios, fmtTime, emailKey, EMAIL_RE, GOOGLE_ICON } from './ui.js?v=d02cf1d4d6';
-import { renderChart, renderTask } from './chart.js?v=d02cf1d4d6';
+// Study A' version A3: physicians review confirmation-set tasks. Each required order of the answer key is judged where it is shown
+// (correct as written, or needs a change), with the task author's questions about it as prompts under the row; one question covers the
+// orders counted as wrong for the patient, one the booked visits when the task has a dated order, one the chart and instruction (with
+// the author's questions about them), then accept, revise or reject.
+import { createStore } from './review-store.js?v=7b633b620f';
+import { h, md, toast, confirmBox, debounce, radios, fmtTime, emailKey, EMAIL_RE, GOOGLE_ICON } from './ui.js?v=7b633b620f';
+import { renderChart, renderTask } from './chart.js?v=7b633b620f';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null }; let SLOT = null;
 
-// the rating columns of the task review sheet (main repository, scripts/rigor_v2/task_review_c1_packet.py)
-const ITEMS = [
-  ['chart_coherent_0to3', 'Is the chart clinically coherent?'],
-  ['gold_standard_of_care_0to3', 'Is the answer key the standard of care for this chart?'],
-  ['alternatives_complete_0to3', 'Are the accepted alternatives complete and correct?'],
-  ['forbidden_orders_correct_0to3', 'Are the forbidden orders truly wrong for this patient?'],
-  ['answer_leak_0to3', 'Do the instruction or the chart give the answer away?'],
-  ['instruction_ambiguity_0to3', 'Is the instruction ambiguous?'],
-  ['grader_checks_match_gold_0to3', 'Do the required checks express the answer key?'],
-];
-const SCALE = [[0, '0 No problem'], [1, '1 Minor'], [2, '2 Major'], [3, '3 Task invalid']];
+const REQ = [['ok', 'Correct as written'], ['change', 'Needs a change']];
+const WRONG = [['no', 'No'], ['yes', 'Yes']];
+const YNU = [['yes', 'Yes'], ['no', 'No'], ['unsure', 'Unsure']];
+const CHART = [['ok', 'No problem'], ['problem', 'Problem']];
 const DECISION = [['accept', 'Accept'], ['revise', 'Revise'], ['reject', 'Reject']];
-const VISIT = [['yes', 'Yes'], ['no', 'No'], ['unsure', 'Unsure']];
 const list = (v) => (Array.isArray(v) ? v : Object.values(v || {}));
+const blank = (x) => !String(x ?? '').trim();
+// keys r0, r1 rather than 0, 1: the database would turn numeric keys into arrays
 const needed = (d, rv) => [
-  ...ITEMS.map(([k]) => k).filter((k) => d[k] === undefined || d[k] === null),
-  ...list(rv.questions).map((_, i) => `q${i}`).filter((q) => !String((d.open_question_answers || {})[q] || '').trim()),
-  ...list(rv.visitQuestions).map((v) => v.check).filter((c) => !(d.booked_visit_ok || {})[c]),
-  ...(d.decision ? [] : ['decision']), ...(d.decision && d.decision !== 'accept' && !String(d.notes || '').trim() ? ['notes'] : [])];
+  ...list(rv.required).flatMap((q, i) => [(d.req || {})[`r${i}`] ? null : `r${i}`, (d.req || {})[`r${i}`] === 'change' && blank((d.req_note || {})[`r${i}`]) ? `rn${i}` : null]),
+  list(rv.wrong?.orders).length && !d.wrong_any ? 'wrong_any' : null, d.wrong_any === 'yes' && blank(d.wrong_note) ? 'wrong_note' : null,
+  rv.visit && !d.visit ? 'visit' : null,
+  d.chart ? null : 'chart', d.chart === 'problem' && blank(d.chart_note) ? 'chart_note' : null,
+  d.decision ? null : 'decision', d.decision && d.decision !== 'accept' && blank(d.notes) ? 'notes' : null].filter(Boolean);
 
 function topbar() {
   return h('div', {}, S.mode === 'demo' ? h('div', { class: 'demo-banner' }, 'Demo: one invented task, stored only in this browser. Nothing here is part of the study.') : null,
-    h('header', { class: 'topbar' }, h('a', { class: 'brand', href: '#/', style: { color: 'inherit', textDecoration: 'none' } }, h('span', { class: 'mark' }), 'Health-CUA task review'),
+    h('header', { class: 'topbar' }, h('a', { class: 'brand', href: '#/', style: { color: 'inherit', textDecoration: 'none' } }, h('img', { class: 'mark', src: 'img/logo-64.png', alt: '' }), 'Health-CUA task review'),
       h('span', { class: 'grow' }), ME.admin ? h('a', { class: 'btn small', href: '#/admin' }, 'Study team') : null,
       ME.user && S.mode !== 'demo' ? h('button', { class: 'ghost small', onclick: async () => { await S.signOut(); location.hash = '#/'; } }, 'Sign out') : null));
 }
@@ -37,7 +34,7 @@ function page(children, wide = false) { app.replaceChildren(topbar(), h('main', 
 
 function signinView(msg) {
   app.replaceChildren(h('main', { class: 'page' }, h('div', { class: 'card signin stack' },
-    h('div', { class: 'brand' }, h('span', { class: 'mark' }), 'Health-CUA task review'),
+    h('div', { class: 'brand' }, h('img', { class: 'mark', src: 'img/logo-64.png', alt: '' }), 'Health-CUA task review'),
     h('h1', {}, 'Physician review of synthetic clinical tasks'),
     h('p', { class: 'muted' }, 'You will check simulated patient charts, the answer key an AI agent is graded against and the orders that would be wrong for the patient. All patients are synthetic.'),
     msg ? h('p', { class: 'problems' }, msg) : null,
@@ -52,11 +49,13 @@ function notInvitedView() {
 }
 
 function instructionsView() {
-  const text = `Each task shows, on the left, the **instruction** an AI agent receives and the patient's **chart**. On the right you see the **answer key**: the orders the task requires with every accepted alternative, dose range and date window, the reasonable extra orders, the orders that would be wrong for this patient, and the open clinical questions of the task's author.
+  const text = `On the left: the inbox item, the instruction an AI agent receives and the patient's chart. On the right: the **answer key** the agent is graded against, with one question beside each part.
 
-Score seven items from 0 (no problem) to 3 (the task is invalid), answer each open question, say for every check with a date window whether a booked visit in that window would be acceptable, and decide whether to **accept**, **revise** (say what to change) or **reject** the task. A task with any item scored 2 or higher will be revised or removed.
+- **Required orders.** Is each one correct as written, including the accepted alternatives, doses and dates? If not, say what to change. Where the task's author had a question about an order, it is shown under that order; your answer to the order answers it.
+- **Wrong for this patient.** Ordering one of these fails the task. Is any of them not wrong for this patient?
+- **Booked visits**, **chart and instruction**, then **accept**, **revise** (say what to change) or **reject**.
 
-Twin tasks share a patient and differ in one decisive fact; they come one after the other, and each shows the other's answer key. Tasks open in a fixed order. Your work is saved as you go. Submitting a task locks it.`;
+Paired tasks share a patient and differ in one fact; they come one after the other. Your answers are saved as you go. Submitting a task locks it.`;
   page(h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Before you start'), h('h1', {}, 'How a task review works'), h('div', { class: 'md', html: md(text) }),
     h('div', { class: 'row' }, h('button', { class: 'primary', onclick: async () => { await S.saveProfile({ instructionsRead: true, slot: ME.invite.slot }); location.hash = '#/'; route(); } }, 'Start'))));
 }
@@ -73,36 +72,56 @@ async function queueView() {
   const rows = tasks.map((t, n) => {
     const r = ratings[t.id]; const cur = t.id === id;
     const state = r?.submittedAt ? h('a', { class: 'btn small ghost', href: `#/task/${t.id}` }, 'View') : cur ? h('a', { class: 'btn primary small', href: `#/task/${t.id}` }, r ? 'Continue' : 'Start') : h('span', { class: 'pill' }, 'Locked');
-    return h('div', { class: `qitem${cur ? ' current' : ''}` }, h('span', { class: 'n' }, String(n + 1).padStart(2, '0')),
-      h('div', {}, h('div', { style: { fontWeight: 600 } }, `Task ${n + 1} of ${tasks.length}`), h('div', { class: 'small muted mono' }, t.id)), state);
+    return h('div', { class: `qitem nonum${cur ? ' current' : ''}` }, h('div', { style: { fontWeight: 600 } }, `Task ${n + 1}`), state);
   });
   page(h('div', { class: 'stack' }, h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', {}, h('div', { class: 'eyebrow' }, 'Your tasks'), h('h1', { style: { margin: '2px 0 0' } }, `${done} of ${tasks.length} submitted`)),
     id ? h('a', { class: 'btn primary', href: `#/task/${id}` }, 'Continue with the next task') : h('span', { class: 'pill ok' }, 'All done. Thank you.')),
   h('div', { class: 'progress' }, h('div', { style: { width: `${(100 * done) / Math.max(tasks.length, 1)}%` } }))), h('div', { class: 'queue' }, rows)));
 }
 
-function key(rv) {
-  const bullets = (xs) => h('ul', { class: 'plain' }, xs.map((x) => h('li', {}, x)));
-  return [h('h3', {}, 'Required orders'), h('ul', { class: 'plain' }, list(rv.required).map((q) => h('li', {}, h('strong', {}, q.id), ` (${q.kind === 'MedicationRequest' ? 'medication' : 'test, referral or visit'}): `,
-    list(q.alternatives).join('; '), q.window_days ? `; within days ${q.window_days[0]} to ${q.window_days[1]} of the task date` : '', h('div', { class: 'small muted' }, q.rationale)))),
-  h('h3', {}, 'Reasonable extra orders (accepted, up to six)'), list(rv.acceptable).length ? bullets(list(rv.acceptable)) : h('div', { class: 'empty' }, 'None listed.'),
-  h('h3', {}, 'Forbidden orders'), list(rv.forbidden).length ? h('ul', { class: 'plain' }, list(rv.forbidden).map((f) => h('li', {}, h('strong', {}, f.id), `: ${f.orders}. `, h('span', { class: 'small muted' }, f.reason)))) : h('div', { class: 'empty' }, 'None.')];
-}
+const more = (xs, n) => (xs.length <= n ? xs.join(', ') : h('span', {}, xs.slice(0, n).join(', '), ' ', h('details', { class: 'inline' }, h('summary', {}, `and ${xs.length - n} more`), xs.slice(n).join(', '))));
+const why = (t) => (t ? h('details', { class: 'why' }, h('summary', {}, 'Why'), h('div', { class: 'small' }, t)) : null);
+const asks = (ps) => list(ps).map((p) => h('div', { class: 'asks small' }, h('span', { class: 'asks-label' }, 'Author asks: '), p.text,
+  p.full && p.full !== p.text ? [' ', h('details', { class: 'inline' }, h('summary', {}, 'context'), ' ', p.full)] : null));
 
-function form(d, rv, save, readOnly) {
-  const box = h('fieldset', { disabled: readOnly, style: { border: 0, padding: 0, margin: 0, minWidth: 0 } });
+// the answer key with one judgment beside each part; readOnly shows the answers only
+function review(d, rv, save, readOnly) {
+  const box = h('fieldset', { disabled: readOnly, class: 'review-form' });
   const textSave = debounce(save, 400);
-  const area = (value, hint, onInput) => { const t = h('textarea', { readonly: readOnly, placeholder: hint, style: { minHeight: '56px' } }, value || ''); t.addEventListener('input', () => onInput(t.value)); return t; };
+  const area = (value, hint, onInput) => { const t = h('textarea', { readonly: readOnly, placeholder: hint, rows: 2 }, value || ''); t.addEventListener('input', () => onInput(t.value)); return t; };
   const draw = () => {
-    const parts = ITEMS.map(([k, q]) => h('div', { class: 'q' }, h('div', { class: 'label' }, q), radios(`${k}`, SCALE, d[k], (v) => { d[k] = Number(v); save({ [k]: d[k] }); draw(); })));
-    list(rv.questions).forEach((q, i) => parts.push(h('label', {}, `Open question ${i + 1}: ${q}`), area((d.open_question_answers || {})[`q${i}`], 'Your answer', (v) => {
-      d.open_question_answers = { ...(d.open_question_answers || {}), [`q${i}`]: v }; textSave({ [`open_question_answers/q${i}`]: v });
-    })));
-    list(rv.visitQuestions).forEach((v) => parts.push(h('div', { class: 'q' }, h('div', { class: 'label' }, `${v.check}: is a booked visit within days ${v.days[0]} to ${v.days[1]} an acceptable way to meet this check?`),
-      radios(`visit-${v.check}`, VISIT, (d.booked_visit_ok || {})[v.check], (x) => { d.booked_visit_ok = { ...(d.booked_visit_ok || {}), [v.check]: x }; save({ [`booked_visit_ok/${v.check}`]: x }); draw(); }))));
-    parts.push(h('div', { class: 'q' }, h('div', { class: 'label' }, 'Decision'), radios('decision', DECISION, d.decision, (v) => { d.decision = v; save({ decision: v }); draw(); })),
-      h('label', {}, d.decision && d.decision !== 'accept' ? 'What to change, or why the task should go' : 'Notes ', h('span', { class: 'opt' }, d.decision && d.decision !== 'accept' ? '' : '(optional)')),
-      area(d.notes, 'For example: accept losartan 25 mg as a starting dose.', (v) => { d.notes = v; textSave({ notes: v }); }));
+    const parts = [h('h3', {}, 'Required orders')];
+    if (!list(rv.required).length) parts.push(h('div', { class: 'muted small' }, 'None: the right answer is to place no order.'));
+    list(rv.required).forEach((q, i) => {
+      const k = `r${i}`;
+      parts.push(h('div', { class: 'key-item' }, h('div', { class: 'key-head' }, q.headline),
+        list(q.accepted).length ? h('div', { class: 'small muted' }, 'Also accepted: ', more(list(q.accepted), 6)) : null,
+        list(q.not).length ? h('div', { class: 'small muted' }, `Not: ${list(q.not).join(', ')}`) : null, why(q.why), ...asks(q.prompts),
+        radios(`req-${k}`, REQ, (d.req || {})[k], (v) => { d.req = { ...(d.req || {}), [k]: v }; save({ [`req/${k}`]: v }); draw(); }),
+        (d.req || {})[k] === 'change' ? area((d.req_note || {})[k], 'What to change, for example: also accept losartan 25 mg.', (v) => { d.req_note = { ...(d.req_note || {}), [k]: v }; textSave({ [`req_note/${k}`]: v }); }) : null));
+    });
+    if (list(rv.wrong?.orders).length) {
+      parts.push(h('h3', {}, 'Wrong for this patient'), h('div', { class: 'key-item' },
+        h('ul', { class: 'plain wrong-list' }, list(rv.wrong.orders).map((f) => h('li', {}, h('span', { class: 'key-head' }, more(list(f.names), 6)), f.why ? h('div', { class: 'small muted' }, f.why) : null))),
+        ...asks(rv.wrong.prompts),
+        h('div', { class: 'sub-q' }, h('span', {}, 'Is any of these not wrong for this patient?'), radios('wrong_any', WRONG, d.wrong_any, (v) => { d.wrong_any = v; save({ wrong_any: v }); draw(); })),
+        d.wrong_any === 'yes' ? area(d.wrong_note, 'Which, and why it would be acceptable.', (v) => { d.wrong_note = v; textSave({ wrong_note: v }); }) : null));
+    }
+    if (list(rv.extras).length) {
+      parts.push(h('details', { class: 'extras' }, h('summary', {}, `Also fine, not needed (${list(rv.extras).length})`),
+        h('ul', { class: 'plain small' }, list(rv.extras).map((x) => h('li', {}, x.names)))));
+    }
+    if (rv.visit) {
+      parts.push(h('h3', {}, 'Booked visits'), h('div', { class: 'key-item' }, h('div', { class: 'small muted' }, 'Some required orders above have a date window.'),
+        h('div', { class: 'sub-q' }, h('span', {}, 'Would a booked visit in these windows also be fine?'), radios('visit', YNU, d.visit, (v) => { d.visit = v; save({ visit: v }); draw(); }))));
+    }
+    parts.push(h('h3', {}, 'Chart and instruction'), h('div', { class: 'key-item' }, h('div', { class: 'small muted' }, 'Is the chart consistent, and is the instruction clear without giving the answer away?'),
+      ...asks(rv.chart?.prompts),
+      radios('chart', CHART, d.chart, (v) => { d.chart = v; save({ chart: v }); draw(); }),
+      d.chart === 'problem' ? area(d.chart_note, 'What is the problem?', (v) => { d.chart_note = v; textSave({ chart_note: v }); }) : null));
+    parts.push(h('h3', {}, 'Decision'), radios('decision', DECISION, d.decision, (v) => { d.decision = v; save({ decision: v }); draw(); }),
+      d.decision && d.decision !== 'accept' ? area(d.notes, 'What to change, or why the task should go.', (v) => { d.notes = v; textSave({ notes: v }); })
+        : area(d.notes, 'Notes (optional)', (v) => { d.notes = v; textSave({ notes: v }); }));
     box.replaceChildren(...parts);
   };
   draw();
@@ -121,14 +140,15 @@ async function taskView(id) {
   const save = (patch) => S.saveRating(id, patch).catch((e) => toast(`Not saved: ${e.message}`, 'bad'));
   if (!existing) await S.saveRating(id, d);
   const started = Date.now();
-  const right = h('div', {}, h('div', { class: 'panel-h' }, h('h2', {}, 'Answer key'), h('span', { class: 'muted small' }, `${rv.tier} tier`)), ...key(rv),
-    twin ? h('details', { class: 'note' }, h('summary', {}, h('span', { class: 't' }, `The twin task's answer key (${rv.twinOf})`)), h('div', { style: { padding: '0 14px 12px' } }, ...key(twin.review))) : null,
-    h('div', { class: 'panel-h' }, h('h2', {}, 'Your review')));
-  const f = form(d, rv, save, readOnly); right.append(f);
+  const n = ordered().findIndex((x) => x.id === id) + 1;
+  const right = h('div', {}, h('div', { class: 'panel-h' }, h('h2', {}, 'Answer key and your review'), h('span', { class: 'muted small' }, `Task ${n} of ${ordered().length}`)),
+    twin ? h('details', { class: 'note' }, h('summary', {}, h('span', { class: 't' }, "The paired task's answer key"), h('span', { class: 'muted small' }, 'same patient, one fact differs')),
+      h('div', { style: { padding: '0 14px 12px' } }, list(twin.review.required).map((q) => h('div', { class: 'small' }, '• ', q.headline)))) : null);
+  const f = review(d, rv, save, readOnly); right.append(f);
   if (readOnly) right.append(h('div', { class: 'lock', style: { marginTop: '16px' } }, 'Submitted. This review can no longer be changed.'));
   else {
     const status = h('div', {}); const submit = h('button', { class: 'primary' }, 'Submit review');
-    const refresh = () => { const miss = needed(d, rv); submit.disabled = miss.length > 0; status.className = miss.length ? 'problems' : 'ready'; status.textContent = miss.length ? `Before submitting: ${miss.length} more answer${miss.length > 1 ? 's' : ''}.` : 'Ready to submit.'; };
+    const refresh = () => { const miss = needed(d, rv); submit.disabled = miss.length > 0; status.className = miss.length ? 'problems' : 'ready'; status.textContent = miss.length ? `${miss.length} answer${miss.length > 1 ? 's' : ''} left.` : 'Ready to submit.'; };
     submit.onclick = async () => {
       if (!(await confirmBox('Submit this review?', 'You cannot change it after submitting.', 'Submit'))) return;
       await S.submitRating(id, { activeMs: (d.activeMs || 0) + Date.now() - started }); toast('Review submitted.'); location.hash = '#/';

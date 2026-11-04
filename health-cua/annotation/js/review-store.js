@@ -5,9 +5,11 @@
 //   tasks/{taskId}            {case: task and chart, review: instruction, gold, forbidden orders, open questions} (readable within the slot)
 //   profiles/{uid}            instructions read (own)
 //   ratings/{uid}/{taskId}    one rating per task (own; locked once submitted)
-import { FIREBASE_CONFIG, REVIEW_ROOT as ROOT } from './config.js?v=31920bc768';
-import { emailKey, withTimeout } from './ui.js?v=31920bc768';
-import { VALIDITY_DEMO } from './validity-demo.js?v=31920bc768';
+// Open recruitment (A4 in blocks): the application and the study team's decision live under the episode review root
+// (hcua_validity/applicants, hcua_validity/decisions; decision.A opens this study); blocks/{K01}, claims/{block}/{uid} and current/{uid} as there.
+import { FIREBASE_CONFIG, REVIEW_ROOT as ROOT, VALIDITY_ROOT } from './config.js?v=9fe0a3c57f';
+import { emailKey, withTimeout } from './ui.js?v=9fe0a3c57f';
+import { VALIDITY_DEMO } from './validity-demo.js?v=9fe0a3c57f';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 
@@ -58,6 +60,10 @@ async function firebaseStore(emulator) {
     saveRating: (t, patch) => D.update(r(`ratings/${user.uid}/${t}`), { ...patch, updatedAt: now() }),
     submitRating: (t, patch) => D.update(r(`ratings/${user.uid}/${t}`), { ...patch, updatedAt: now(), submittedAt: now() }),
     profile: () => val(`profiles/${user.uid}`),
+    decision: async () => { const s = await withTimeout(D.get(D.ref(db, `${VALIDITY_ROOT}/decisions/${user.uid}`))).catch(denied); return s?.exists() ? s.val() : null; },
+    current: () => val(`current/${user.uid}`).catch(denied),
+    blocksAndClaims: async () => ({ blocks: (await val('blocks')) || {}, claims: (await val('claims')) || {} }),
+    takeBlock: (b) => withTimeout(D.update(D.ref(db, ROOT), { [`claims/${b}/${user.uid}`]: now(), [`current/${user.uid}`]: b })),
     saveProfile: (patch) => D.update(r(`profiles/${user.uid}`), { ...patch, email: user.email, updatedAt: now() }),
     async adminData() {
       const [invites, slots, ratings] = await Promise.all(['invites', 'slots', 'ratings'].map((p) => val(p)));

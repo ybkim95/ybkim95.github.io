@@ -7,12 +7,12 @@
 // (correct as written, or needs a change), with the task author's questions about it as prompts under the row; one question covers the
 // orders counted as wrong for the patient, one the booked visits when the task has a dated order, one the chart and instruction (with
 // the author's questions about them), then accept, revise or reject.
-import { createStore } from './review-store.js?v=31920bc768';
-import { h, md, toast, confirmBox, radios, fmtTime, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView } from './ui.js?v=31920bc768';
-import { renderChart, renderTask } from './chart.js?v=31920bc768';
+import { createStore } from './review-store.js?v=9fe0a3c57f';
+import { h, md, toast, confirmBox, radios, fmtTime, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot } from './ui.js?v=9fe0a3c57f';
+import { renderChart, renderTask } from './chart.js?v=9fe0a3c57f';
 
 const app = document.getElementById('app');
-let S; let ME = { user: null, admin: false, invite: null }; let SLOT = null;
+let S; let ME = { user: null, admin: false, invite: null, decision: null, block: null }; let SLOT = null;  // block: the reviewer's current block
 
 const REQ = [['ok', 'Correct as written'], ['change', 'Needs a change']];
 const WRONG = [['no', 'No'], ['yes', 'Yes']];
@@ -37,7 +37,7 @@ const needed = (d, rv) => [
 function topbar() {
   return h('div', {}, S.mode === 'demo' ? h('div', { class: 'demo-banner' }, 'Demo: one invented task, stored only in this browser. Nothing here is part of the study.') : null,
     h('header', { class: 'topbar' }, h('a', { class: 'brand', href: '#/', style: { color: 'inherit', textDecoration: 'none' } }, h('img', { class: 'mark', src: 'img/logo-64.png', alt: '' }), 'Health-CUA task review'),
-      h('span', { class: 'grow' }), themeButton(), ME.admin ? h('a', { class: 'btn small', href: '#/admin' }, 'Study team') : null,
+      h('span', { class: 'grow' }), themeButton(), ME.admin ? h('a', { class: 'btn small', href: 'admin.html' }, 'Study team') : null,
       ME.user && S.mode !== 'demo' ? h('button', { class: 'ghost small', onclick: async () => { await S.signOut(); location.hash = '#/'; } }, 'Sign out') : null));
 }
 function page(children, wide = false) { app.replaceChildren(topbar(), h('main', { class: `page${wide ? ' wide' : ''}` }, children)); }
@@ -49,14 +49,32 @@ function signinView(msg) {
     h('p', { class: 'muted' }, 'You will check simulated patient charts, the answer key an AI agent is graded against and the orders that would be wrong for the patient. All patients are synthetic.'),
     msg ? h('p', { class: 'problems' }, msg) : null,
     h('div', {}, h('button', { class: 'google', onclick: async () => { try { await S.signIn(); } catch (e) { if (e.code !== 'auth/popup-closed-by-user') signinView(`Sign-in failed: ${e.message}`); } }, html: `${GOOGLE_ICON}<span>Sign in with Google</span>` })),
-    h('p', { class: 'small muted' }, 'Use the Google account at the address where you received your invitation.'))));
+    h('p', { class: 'small muted' }, 'Physicians apply on the episode review page; the study team approves each reviewer.'))));
 }
 
-function notInvitedView() {
-  page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('h1', {}, 'This account is not on the study list'),
-    h('p', {}, 'You are signed in as ', h('strong', {}, ME.user.email), '. The study team invites each reviewer by email address.'),
-    h('p', { class: 'muted' }, 'If you were invited at another address, sign out and sign in with that account. Otherwise, ask the study team to add this address.')));
+function notApprovedView() {
+  const d = ME.decision;
+  page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('h1', {}, d?.status === 'approved' ? 'You are approved for the episode review' : 'This account is not approved for the task review'),
+    h('p', {}, 'You are signed in as ', h('strong', {}, ME.user.email), '. ', d?.status === 'approved' ? 'The study team has asked you to review episodes.' : 'Physicians apply on the episode review page, and the study team approves each reviewer.'),
+    h('div', { class: 'row' }, h('a', { class: 'btn primary', href: 'validity.html' }, d?.status === 'approved' ? 'Go to the episode review' : 'Apply or check your application'))));
 }
+
+async function takeNextBlock() {
+  const { blocks, claims } = await S.blocksAndClaims();
+  const b = nextBlock(blocks, claims, ME.user.uid);
+  if (!b) return false;
+  await S.takeBlock(b); ME.block = b; SLOT = blockSlot(blocks[b], 'tasks');
+  return true;
+}
+
+function blockDoneView() {
+  const more = h('button', { class: 'primary', onclick: async () => { more.disabled = true; if (await takeNextBlock()) { location.hash = '#/'; route(); } else allDoneView(); } }, 'Take another block');
+  page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('div', { class: 'eyebrow' }, `Block ${Number(ME.block.slice(1))} finished`), h('h1', {}, 'Thank you'),
+    h('p', {}, 'Your reviews of this block are saved. Another block has about 5 new tasks. You can also stop here and close the page.'),
+    h('div', { class: 'row' }, more, h('a', { class: 'btn ghost', href: '#/tasks' }, 'See this block'))));
+}
+
+function allDoneView() { page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('h1', {}, 'Thank you'), h('p', {}, 'You have reviewed every block of the study.'))); }
 
 function instructionsView() {
   const text = `On the left: the inbox item, the instruction an AI agent receives and the patient's chart. On the right: the **answer key** the agent is graded against, with one question beside each part.
@@ -67,9 +85,9 @@ function instructionsView() {
 - **Wrong for this patient.** Ordering one of these fails the task. Is any of them not wrong for this patient?
 - **Booked visits** (when an order has a date window), **chart and instruction**, then **accept**, **revise** (say what to change) or **reject**.
 
-Paired tasks tell the same clinical story with one fact changed; they come one after the other. Your answers are saved as you go. Submitting a task locks it.`;
+Paired tasks tell the same clinical story with one fact changed; they come one after the other. ${ME.block ? 'Tasks come in **blocks of about 5**. When you finish a block you can take another one or stop. ' : ''}Your answers are saved as you go. Submitting a task locks it.`;
   page(h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Before you start'), h('h1', {}, 'How a task review works'), h('div', { class: 'md', html: md(text) }),
-    h('div', { class: 'row' }, h('button', { class: 'primary', onclick: async () => { await S.saveProfile({ instructionsRead: true, slot: ME.invite.slot }); location.hash = '#/'; route(); } }, 'Start'))));
+    h('div', { class: 'row' }, h('button', { class: 'primary', onclick: async () => { await S.saveProfile(ME.block ? { instructionsRead: true } : { instructionsRead: true, slot: ME.invite.slot }); location.hash = '#/'; route(); } }, 'Start'))));
 }
 
 // every answer of a review, written again at submit so that nothing typed is lost
@@ -88,7 +106,7 @@ async function queueView() {
     const state = r?.submittedAt ? h('a', { class: 'btn small ghost', href: `#/task/${t.id}` }, 'View') : cur ? h('a', { class: 'btn primary small', href: `#/task/${t.id}` }, r ? 'Continue' : 'Start') : h('span', { class: 'pill' }, 'Locked');
     return h('div', { class: `qitem nonum${cur ? ' current' : ''}` }, h('div', { style: { fontWeight: 600 } }, `Task ${n + 1}`), state);
   });
-  page(h('div', { class: 'stack' }, h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', {}, h('div', { class: 'eyebrow' }, 'Your tasks'), h('h1', { style: { margin: '2px 0 0' } }, `${done} of ${tasks.length} submitted`)),
+  page(h('div', { class: 'stack' }, h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', {}, h('div', { class: 'eyebrow' }, ME.block ? `Your block (block ${Number(ME.block.slice(1))})` : 'Your tasks'), h('h1', { style: { margin: '2px 0 0' } }, `${done} of ${tasks.length} submitted`)),
     id ? h('a', { class: 'btn primary', href: `#/task/${id}` }, 'Continue with the next task') : h('span', { class: 'pill ok' }, 'All done. Thank you.')),
   h('div', { class: 'progress' }, h('div', { style: { width: `${(100 * done) / Math.max(tasks.length, 1)}%` } }))), h('div', { class: 'queue' }, rows)));
 }
@@ -162,7 +180,7 @@ async function taskView(id) {
   if (!t) { page(h('div', { class: 'card' }, h('h1', {}, 'This task is not available'))); return; }
   const rv = t.review;
   const twin = rv.twinOf && SLOT.tasks[rv.twinOf] ? await S.task(rv.twinOf) : null;
-  const d = existing || { openedAt: Date.now(), activeMs: 0 };
+  const d = existing || { openedAt: Date.now(), activeMs: 0, ...(ME.block ? { block: ME.block } : {}) };
   const save = (patch) => S.saveRating(id, patch).catch((e) => toast(`Not saved: ${e.message}`, 'bad'));
   if (!existing) await S.saveRating(id, d);
   const timer = readOnly ? null : activeTimer(d.activeMs, (ms) => S.saveRating(id, { activeMs: ms }));
@@ -225,12 +243,19 @@ async function route() {
   try {
     if (!ME.user) return signinView();
     if (location.hash === '#/admin') return adminView();
-    if (!ME.invite || (ME.invite.claimedBy && ME.invite.claimedBy !== ME.user.uid)) return ME.admin ? adminView() : notInvitedView();
+    const invited = ME.invite && (!ME.invite.claimedBy || ME.invite.claimedBy === ME.user.uid);
+    if (!invited && !ME.decision?.A) return ME.admin ? adminView() : notApprovedView();
+    if (!invited) {  // open recruitment: an approved reviewer works through blocks
+      if (!ME.block) ME.block = await S.current();
+      if (!ME.block && !(await takeNextBlock())) return allDoneView();
+      if (!SLOT) { const { blocks } = await S.blocksAndClaims(); SLOT = blockSlot(blocks[ME.block], 'tasks'); }
+    }
     if (!SLOT) SLOT = await S.slot(ME.invite.slot);
     if (!SLOT) { page(h('div', { class: 'card' }, h('h1', {}, 'Your task list is not ready'), h('p', {}, 'Please contact the study team.'))); return; }
     if (!(await S.profile())?.instructionsRead) return instructionsView();
     const [, kind, arg] = location.hash.split('/');
     if (kind === 'task' && arg) return taskView(arg);
+    if (ME.block && !kind && !(await next()).id) return blockDoneView();
     return queueView();
   } catch (e) {
     console.error(e);
@@ -241,10 +266,11 @@ async function route() {
 async function boot() {
   S = await createStore();
   S.onAuth(async (u) => {
-    ME = { user: u, admin: false, invite: null }; SLOT = null;
+    ME = { user: u, admin: false, invite: null, decision: null, block: null }; SLOT = null;
     try {
       if (u) {
         const me = await S.me(); ME.admin = me.admin; ME.invite = me.invite;
+        if (!ME.invite && S.decision) ME.decision = await S.decision();
         if (ME.invite && !ME.invite.claimedBy && u.emailVerified) { try { await withTimeout(S.claim()); ME.invite = (await S.me()).invite; } catch (e) { if (e.code === 'timeout') throw e; console.error(e); } }
       }
     } catch (e) { console.error(e); connectionView(app, e); return; }

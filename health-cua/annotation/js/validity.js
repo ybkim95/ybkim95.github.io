@@ -1,13 +1,18 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=7b633b620f';
-import { h, md, toast, confirmBox, debounce, radios, fmtTime, emailKey, EMAIL_RE, GOOGLE_ICON } from './ui.js?v=7b633b620f';
-import { renderChart, renderTask } from './chart.js?v=7b633b620f';
+import { createStore } from './validity-store.js?v=31920bc768';
+import { h, md, toast, confirmBox, radios, fmtTime, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView } from './ui.js?v=31920bc768';
+import { renderChart, renderTask } from './chart.js?v=31920bc768';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null }; let SLOT = null;
 let ADJ = null;  // adjudicator: { uids: {raterSlot: uid}, ratings: {itemId: {raterSlot: rating}} }
 let online = true; const savedListeners = new Set();
 
+// Version B-4.3 (2026-11-04, after a physician's end-to-end test, before any rating): the B-4.2 questions; typed answers are merged and
+// saved on leaving a box and before submit, which writes the full answer set; tests and referrals show a priority other than routine
+// (the reason and instructions typed with an order stay out: only the GUI requires them, so they would tell the interface); dates read
+// as clinicians write them; a soft warning when something required is missing
+// but the rating is Accept; case codes are opaque.
 // The rating fields of version B-4.2 (B-4.1 with fewer questions: no completes_task and no confidence, three judgments per order or stop,
 // one note question, the mental effort rating on every 10th study item and the interface guess on every 5th; the positions count study
 // items in slot order and are stored with each rating). wrong_or_harmful_order and unjustified_orders are derived from the judgments.
@@ -34,8 +39,8 @@ const list = (v) => (Array.isArray(v) ? v : Object.values(v || {}));
 // orders arrive as "Medication: ...", "Test or referral: ...": the prefix becomes the heading the line is listed under
 const PREFIX = /^(Medication|Test or referral|Visit):\s*/;
 const strip = (t) => String(t).replace(PREFIX, '');
-const judged = (item) => [...list(item.orders).map((t, i) => ({ k: `o${i}`, t: strip(t), kind: /^Medication:/.test(t) ? 'Medication' : 'Test or referral' })),
-  ...list(item.stopped).map((t, i) => ({ k: `s${i}`, t, kind: 'Stopped' }))];
+const judged = (item) => [...list(item.orders).map((t, i) => ({ k: `o${i}`, t: humanDates(strip(t)), kind: /^Medication:/.test(t) ? 'Medication' : 'Test or referral' })),
+  ...list(item.stopped).map((t, i) => ({ k: `s${i}`, t: humanDates(t), kind: 'Stopped' }))];
 const anyHarm = (d) => Object.values(d.order_judgments || {}).includes('harmful');
 // which of the occasional questions this item asks: effort on every 10th study item, the interface guess on every 5th (raters only)
 function asks(id) {
@@ -60,18 +65,6 @@ const needed = (d, item, ask = {}) => {
 // dates in the instruction and the vital signs are made readable in chart.js, for both review pages
 const humanize = (c) => structuredClone(c);
 
-// theme: follows the system unless the reader picks one; kept in this browser only
-const THEME_KEY = 'hcua-validity-theme';
-function applyTheme(t) { if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; }
-try { applyTheme(localStorage.getItem(THEME_KEY)); } catch { /* storage blocked: follow the system */ }
-function themeButton() {
-  const dark = () => document.documentElement.dataset.theme === 'dark' || (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
-  const b = h('button', { class: 'ghost small', title: 'Switch between a light and a dark page' });
-  const label = () => { b.textContent = dark() ? 'Light page' : 'Dark page'; };
-  b.onclick = () => { const t = dark() ? 'light' : 'dark'; applyTheme(t); try { localStorage.setItem(THEME_KEY, t); } catch { /* ignore */ } label(); };
-  label(); return b;
-}
-
 // ---------- shell
 function topbar(extra = []) {
   const status = h('span', { class: 'saved' }, 'Saved');
@@ -90,21 +83,6 @@ function tracked(fn) {
     savedListeners.forEach((l) => l('saving'));
     try { await fn(...a); savedListeners.forEach((l) => l('saved')); } catch (e) { console.error(e); toast(`Not saved: ${e.message}`, 'bad'); }
   };
-}
-
-// active time: counted while the tab is visible and the reader has used the mouse or keyboard in the last minute
-function activeTimer(initial, persist) {
-  let lastInput = Date.now(); let active = initial || 0; let unsaved = 0;
-  const bump = () => { lastInput = Date.now(); };
-  const events = ['mousemove', 'keydown', 'wheel', 'pointerdown', 'scroll'];
-  events.forEach((e) => window.addEventListener(e, bump, { passive: true, capture: true }));
-  const timer = setInterval(() => {
-    if (document.visibilityState === 'visible' && Date.now() - lastInput < 60000) { active += 5000; unsaved += 5000; }
-    if (unsaved >= 15000) { unsaved = 0; persist(active).catch(() => {}); }
-  }, 5000);
-  const cleanup = () => { clearInterval(timer); events.forEach((e) => window.removeEventListener(e, bump, { capture: true })); };
-  window.addEventListener('hashchange', cleanup, { once: true });
-  return { cleanup, value: () => active };
 }
 
 // ---------- sign in and onboarding
@@ -131,7 +109,13 @@ function instructionsView() {
   const text = adj ? `You are the **adjudicator**. Two physicians rated each item independently. Where they disagree on whether the work completes the task or on the overall rating, you see the item, the task and chart, and both ratings side by side, and you record the final rating.
 
 Items appear once both ratings are in. Your work is saved as you go. Submitting an item locks it.`
-    : `On the left: the **task** an AI agent was given and the patient's **chart**. On the right: **what the agent left in the record** (orders, booked visits, stopped medications, messages and the signed note). You do not see how the agent worked or which system it used.
+    : `On the left: the **task** an AI agent was given and the patient's **chart**. On the right: **what the agent left in the record**:
+
+- **Medications ordered**: name, dose and frequency (the route is not shown).
+- **Tests and referrals ordered**: name, the priority when it is not routine, and the date it is scheduled for.
+- **Visits booked** with their date and type, **medications stopped** with the reason, **messages sent** and the **signed note**.
+
+Not shown: the reason or instructions typed with an order (for example how a specimen is handled), how the agent worked, the order of its steps, and which system it used. If the note mentions such instructions, judge only whether the order itself was placed; do not count the instructions as untrue.
 
 Judge it as you would a colleague's work: each order and stop (appropriate, not needed, or wrong or harmful), whether anything required is missing, whether the note says anything untrue, and an overall rating. A few items also ask about mental effort or which kind of system the agent used.
 
@@ -145,7 +129,7 @@ ${SLOT.pilot ? 'These items are a **pilot** of the review: your ratings and the 
 function orderedItems() { return Object.entries(SLOT.items).map(([id, v]) => ({ id, ...v })).sort((a, b) => a.pos - b.pos); }
 
 function renderRecord(item) {
-  const bullets = (xs, empty) => (xs.length ? h('ul', { class: 'plain' }, xs.map((x) => h('li', {}, x))) : h('div', { class: 'empty' }, empty));
+  const bullets = (xs, empty) => (xs.length ? h('ul', { class: 'plain' }, xs.map((x) => h('li', {}, humanDates(x)))) : h('div', { class: 'empty' }, empty));
   const parts = [h('div', { class: 'panel-h' }, h('h2', {}, 'What the agent left in the record'), ),
     ...(list(item.orders).length ? [] : [h('h3', {}, 'Orders'), bullets([], 'No orders were placed.')]),
     ...(list(item.orders).some((t) => /^Medication:/.test(t)) ? [h('h3', {}, 'Medications ordered'), bullets(list(item.orders).filter((t) => /^Medication:/.test(t)).map(strip), '')] : []),
@@ -160,7 +144,7 @@ function renderRecord(item) {
 // d: the rating (mutated in place); save(patch) persists a partial update; item: the record being rated
 function ratingForm({ d, save, readOnly, idp, item, ask = {} }) {
   const box = h('fieldset', { disabled: readOnly, style: { border: 0, padding: 0, margin: 0, minWidth: 0 } });
-  const textSave = debounce(save, 400);
+  const texts = textSaver(save); box.flush = texts.flush;
   const draw = () => {
     const parts = [];
     for (const k of ORDER) {
@@ -187,10 +171,12 @@ function ratingForm({ d, save, readOnly, idp, item, ask = {} }) {
             label, h('span', { class: 'anchor' }, OVERALL_HELP[v]))))
           : radios(`${idp}-${k}`, opts, d[k], pick);
         parts.push(h('div', { class: 'q' }, h('div', { class: 'label' }, q), group));
+        if (k === 'overall' && d.overall === 'accept' && d.missing_required === 'yes') parts.push(h('div', { class: 'warn small' }, 'You said something required is missing, and rated the work Accept. If the missing order matters, choose Accept with minor issues or Reject.'));
       } else {
         const [label, hint] = TEXTS[k];
         const t = h('textarea', { readonly: readOnly, style: { minHeight: k === 'notes' ? '70px' : '56px' }, placeholder: hint }, d[k] || '');
-        t.addEventListener('input', () => { d[k] = t.value; textSave({ [k]: t.value }); });
+        t.addEventListener('input', () => { d[k] = t.value; texts.queue({ [k]: t.value }); });
+        t.addEventListener('blur', () => texts.flush());
         parts.push(h('label', {}, label, ' ', h('span', { class: 'opt' }, k === 'notes' ? '(optional)' : '')), t);
       }
     }
@@ -200,14 +186,19 @@ function ratingForm({ d, save, readOnly, idp, item, ask = {} }) {
   return box;
 }
 
+// every answer of a rating, written again at submit so that nothing typed is lost
+const ANSWERS = ['order_judgments', ...ORDER.filter((k) => k !== 'order_judgments'), 'asked'];
+const answers = (d) => Object.fromEntries(ANSWERS.filter((k) => d[k] !== undefined && d[k] !== null).map((k) => [k, d[k]]));
+
 function footerBar(d, item, onSubmit, what, ask) {
   const miss = needed(d, item, ask);
   const submit = h('button', { class: 'primary', disabled: miss.length > 0, onclick: async () => {
     if (!(await confirmBox(`Submit this ${what}?`, `You cannot change the ${what} after submitting.`, 'Submit'))) return;
     submit.disabled = true;
-    try { await onSubmit(); } catch (e) { submit.disabled = false; toast(`Could not submit: ${e.message}`, 'bad'); }
+    try { await onSubmit(); } catch (e) { submit.disabled = false; err.textContent = `Not submitted: ${e.message}`; toast(`Could not submit: ${e.message}`, 'bad'); }
   } }, `Submit ${what}`);
-  return h('div', { class: 'footer-bar' }, h('div', { class: miss.length ? 'problems' : 'ready' }, miss.length ? `${miss.length} answer${miss.length > 1 ? 's' : ''} left.` : 'Ready to submit.'), submit);
+  const err = h('div', { class: 'problems' });
+  return h('div', { class: 'footer-bar' }, h('div', {}, h('div', { class: miss.length ? 'problems' : 'ready' }, miss.length ? `${miss.length} answer${miss.length > 1 ? 's' : ''} left.` : 'Ready to submit.'), err), submit);
 }
 
 function caseShell(c0, extra, right, onView) {
@@ -247,7 +238,7 @@ async function queueView() {
     const r = step.ratings[it.id];
     const isCur = step.kind === 'item' && step.id === it.id;
     const state = r?.submittedAt ? h('span', { class: 'pill ok' }, '✓ Submitted') : isCur ? h('a', { class: 'btn primary small', href: `#/item/${it.id}` }, r ? 'Continue' : 'Start') : h('span', { class: 'pill' }, 'Locked');
-    lst.append(h('div', { class: `qitem${isCur ? ' current' : ''}${!r?.submittedAt && !isCur ? ' locked' : ''}` }, h('span', { class: 'n' }, String(n + 1).padStart(2, '0')),
+    lst.append(h('div', { class: `qitem nonum${isCur ? ' current' : ''}${!r?.submittedAt && !isCur ? ' locked' : ''}` },
       h('div', { style: { fontWeight: 600 } }, itemLabel(it)),
       r?.submittedAt ? h('div', { class: 'row' }, state, h('a', { class: 'btn small ghost', href: `#/item/${it.id}` }, 'View')) : state));
   });
@@ -279,8 +270,9 @@ async function itemView(id) {
   let footer = null;
   const refresh = () => { if (!footer) return; const f = footerBar(d, item, submit, 'rating', ask); footer.replaceWith(f); footer = f; };
   const submit = async () => {
+    await form.flush();
+    await withTimeout(S.submitRating(id, { ...answers(d), activeMs: timer.value(), ...derive(d, item) }), 15000);
     timer.cleanup();
-    await S.submitRating(id, { activeMs: timer.value(), ...derive(d, item) });
     toast('Rating submitted.');
     if (it.training && !SLOT.pilot) itemView(id);  // show the reference rating at once
     else location.hash = '#/';
@@ -347,7 +339,7 @@ async function adjQueueView() {
     const state = { waiting: h('span', { class: 'pill' }, `${st.rs.length} of 2 ratings in`), agree: h('span', { class: 'pill ok' }, 'Raters agree'),
       open: h('a', { class: 'btn primary small', href: `#/adjudicate/${it.id}` }, adjudications[it.id] ? 'Continue' : 'Adjudicate'),
       done: h('div', { class: 'row' }, h('span', { class: 'pill ok' }, '✓ Adjudicated'), h('a', { class: 'btn small ghost', href: `#/adjudicate/${it.id}` }, 'View')) }[st.kind];
-    lst.append(h('div', { class: `qitem${st.kind === 'open' ? ' current' : ''}${st.kind === 'waiting' ? ' locked' : ''}` }, h('span', { class: 'n' }, String(n + 1).padStart(2, '0')),
+    lst.append(h('div', { class: `qitem nonum${st.kind === 'open' ? ' current' : ''}${st.kind === 'waiting' ? ' locked' : ''}` },
       h('div', { style: { fontWeight: 600 } }, `Item ${n + 1} of ${items.length}`), state));
   });
   page(h('div', { class: 'stack' }, h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', {}, h('div', { class: 'eyebrow' }, 'Adjudication'), h('h1', { style: { margin: '2px 0 0' } }, `${stats.done} adjudicated, ${stats.open} to do`)),
@@ -399,8 +391,9 @@ async function adjudicateView(id) {
   let footer = null;
   const refresh = () => { if (!footer) return; const f = footerBar(d, item, submit, 'final rating', {}); footer.replaceWith(f); footer = f; };
   const submit = async () => {
+    await form.flush();
+    await withTimeout(S.submitAdjudication(id, { ...answers(d), activeMs: timer.value(), ...derive(d, item), raters: Object.fromEntries(entries.map(([s]) => [s, ADJ.uids[s]])) }), 15000);
     timer.cleanup();
-    await S.submitAdjudication(id, { activeMs: timer.value(), ...derive(d, item), raters: Object.fromEntries(entries.map(([s]) => [s, ADJ.uids[s]])) });
     toast('Final rating submitted.'); location.hash = '#/';
   };
   if (readOnly) right.append(h('div', { class: 'lock', style: { marginTop: '16px' } }, 'Submitted. This final rating can no longer be changed.'));
@@ -490,14 +483,16 @@ async function boot() {
   S.onConnection((c) => { online = c; savedListeners.forEach((l) => l('saved')); });
   S.onAuth(async (u) => {
     ME = { user: u, admin: false, invite: null }; SLOT = null; ADJ = null;
-    if (u) {
-      const me = await S.me();
-      ME.admin = me.admin; ME.invite = me.invite;
-      if (ME.invite && !ME.invite.claimedBy && u.emailVerified) {
-        try { await S.claim(); ME.invite = (await S.me()).invite; } catch (e) { console.error(e); }
+    try {
+      if (u) {
+        const me = await S.me();
+        ME.admin = me.admin; ME.invite = me.invite;
+        if (ME.invite && !ME.invite.claimedBy && u.emailVerified) {
+          try { await withTimeout(S.claim()); ME.invite = (await S.me()).invite; } catch (e) { if (e.code === 'timeout') throw e; console.error(e); }
+        }
+        if (ME.invite?.claimedBy === u.uid && ME.invite.role === 'rater') await withTimeout(S.ensureRoster(ME.invite.slot));
       }
-      if (ME.invite?.claimedBy === u.uid && ME.invite.role === 'rater') await S.ensureRoster(ME.invite.slot);
-    }
+    } catch (e) { console.error(e); connectionView(app, e); return; }
     route();
   });
   window.addEventListener('hashchange', () => route());

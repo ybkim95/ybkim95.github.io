@@ -5,9 +5,9 @@
 //   tasks/{taskId}            {case: task and chart, review: instruction, gold, forbidden orders, open questions} (readable within the slot)
 //   profiles/{uid}            instructions read (own)
 //   ratings/{uid}/{taskId}    one rating per task (own; locked once submitted)
-import { FIREBASE_CONFIG, REVIEW_ROOT as ROOT } from './config.js?v=7b633b620f';
-import { emailKey } from './ui.js?v=7b633b620f';
-import { VALIDITY_DEMO } from './validity-demo.js?v=7b633b620f';
+import { FIREBASE_CONFIG, REVIEW_ROOT as ROOT } from './config.js?v=31920bc768';
+import { emailKey, withTimeout } from './ui.js?v=31920bc768';
+import { VALIDITY_DEMO } from './validity-demo.js?v=31920bc768';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 
@@ -29,8 +29,9 @@ async function firebaseStore(emulator) {
   await A.setPersistence(auth, A.browserLocalPersistence);
   await A.getRedirectResult(auth).catch((e) => { console.error('sign-in redirect', e); });
   const r = (p) => D.ref(db, `${ROOT}/${p}`);
-  const val = async (p) => { const s = await D.get(r(p)); return s.exists() ? s.val() : null; };
+  const val = async (p) => { const s = await withTimeout(D.get(r(p))); return s.exists() ? s.val() : null; };  // a stuck connection rejects after 10 s
   const now = D.serverTimestamp;
+  const denied = (e) => { if (e.code === 'timeout') throw e; return null; };
   let user = null;
   const ek = () => emailKey(user?.email);
   return {
@@ -47,8 +48,8 @@ async function firebaseStore(emulator) {
     signOut() { return A.signOut(auth); },
     onConnection(cb) { return D.onValue(D.ref(db, '.info/connected'), (s) => cb(!!s.val())); },
     async me() {
-      const admin = (await val(`admins/${ek()}`).catch(() => null)) === true;
-      return { admin, invite: await val(`invites/${ek()}`).catch(() => null) };
+      const admin = (await val(`admins/${ek()}`).catch(denied)) === true;
+      return { admin, invite: await val(`invites/${ek()}`).catch(denied) };
     },
     claim: () => D.update(r(`invites/${ek()}`), { claimedBy: user.uid, claimedAt: now() }),
     slot: (s) => val(`slots/${s}`),
@@ -76,12 +77,12 @@ const DEMO_TASK = {
   case: VALIDITY_DEMO.cases['DEMO-A'],  // the invented chart of the episode review demo
   review: { twinOf: null, visit: true,
     required: [{ kind: 'medication', headline: 'Levothyroxine 100 mcg oral tablet, once daily', accepted: ['levothyroxine (Synthroid) 88–112 mcg'], not: [], window: null, why: 'Under-replaced on 75 mcg.',
-      prompts: [{ text: 'Is a step of 25 mcg acceptable for a 54-year-old without heart disease?', full: 'Is a step of 25 mcg acceptable for a 54-year-old without heart disease?' }] },
+      prompts: [{ id: 'p0', text: 'Is a step of 25 mcg acceptable for a 54-year-old without heart disease?', full: 'Is a step of 25 mcg acceptable for a 54-year-old without heart disease?' }] },
     { kind: 'test', headline: 'TSH, between Jul 8, 2024 and Jul 29, 2024', accepted: ['TSH (thyroid stimulating hormone)'], not: [], window: 'between Jul 8, 2024 and Jul 29, 2024', why: 'Recheck 6 to 8 weeks after a dose change.', prompts: [] }],
     extras: [{ names: 'free T4', why: '' }], wrong: { orders: [{ names: ['liothyronine'], why: 'Not first line.' }], prompts: [] }, chart: { prompts: [] } },
 };
 function demoStore() {
-  const KEY = 'hcua-review-demo-a3';
+  const KEY = 'hcua-review-demo-a4';
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
   const save = (s) => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* private window */ } };
   let state = load();

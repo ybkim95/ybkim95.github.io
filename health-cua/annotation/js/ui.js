@@ -70,6 +70,64 @@ export function debounce(fn, ms) {
   let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
 }
 
+// Typed answers of one form: edits of every field are merged and saved together after a pause, on leaving a box, on leaving the page and
+// before submit, so moving quickly from one box to the next never drops the first box's text.
+export function textSaver(save, ms = 400) {
+  let pending = {}; let t = null;
+  const flush = () => { clearTimeout(t); t = null; const p = pending; pending = {}; return Object.keys(p).length ? save(p) : Promise.resolve(); };
+  const away = () => { if (document.visibilityState === 'hidden') flush(); };
+  document.addEventListener('visibilitychange', away); window.addEventListener('pagehide', flush);
+  window.addEventListener('hashchange', () => { flush(); document.removeEventListener('visibilitychange', away); window.removeEventListener('pagehide', flush); }, { once: true });
+  return { queue(patch) { Object.assign(pending, patch); clearTimeout(t); t = setTimeout(flush, ms); }, flush };
+}
+
+// A database call that has not answered after ms rejects with code 'timeout' instead of leaving the page on "Loading…" (for example when a
+// hospital network blocks the database connection).
+export const NO_CONNECTION = 'The study database does not answer. Check your network connection (some hospital networks block it; a home network or a phone hotspot usually works), then reload the page.';
+export function withTimeout(p, ms = 10000) {
+  let t;
+  const late = new Promise((_, reject) => { t = setTimeout(() => reject(Object.assign(new Error(NO_CONNECTION), { code: 'timeout' })), ms); });
+  return Promise.race([p, late]).finally(() => clearTimeout(t));
+}
+
+// Dates in text we write (order lines, answer keys) as clinicians write them: 2024-07-29 becomes Jul 29, 2024. Agents' notes are left as written.
+export function humanDates(text) {
+  return String(text ?? '').replace(/\b(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::\d{2})?(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)?\b/g, (m, y, mo, d) => fmtDate(`${y}-${mo}-${d}`));
+}
+
+// Active time: counted while the tab is visible and the reader has used the mouse or keyboard in the last minute.
+export function activeTimer(initial, persist) {
+  let lastInput = Date.now(); let active = initial || 0; let unsaved = 0;
+  const bump = () => { lastInput = Date.now(); };
+  const events = ['mousemove', 'keydown', 'wheel', 'pointerdown', 'scroll'];
+  events.forEach((e) => window.addEventListener(e, bump, { passive: true, capture: true }));
+  const timer = setInterval(() => {
+    if (document.visibilityState === 'visible' && Date.now() - lastInput < 60000) { active += 5000; unsaved += 5000; }
+    if (unsaved >= 15000) { unsaved = 0; persist(active).catch(() => {}); }
+  }, 5000);
+  const cleanup = () => { clearInterval(timer); events.forEach((e) => window.removeEventListener(e, bump, { capture: true })); };
+  window.addEventListener('hashchange', cleanup, { once: true });
+  return { cleanup, value: () => active };
+}
+
+// Light or dark page: follows the system unless the reader picks one; kept in this browser only.
+const THEME_KEY = 'hcua-validity-theme';
+function applyTheme(t) { if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; }
+try { applyTheme(localStorage.getItem(THEME_KEY)); } catch { /* storage blocked: follow the system */ }
+export function themeButton() {
+  const dark = () => document.documentElement.dataset.theme === 'dark' || (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+  const b = h('button', { class: 'ghost small', title: 'Switch between a light and a dark page' });
+  const label = () => { b.textContent = dark() ? 'Light page' : 'Dark page'; };
+  b.onclick = () => { const t = dark() ? 'light' : 'dark'; applyTheme(t); try { localStorage.setItem(THEME_KEY, t); } catch { /* ignore */ } label(); };
+  label(); return b;
+}
+
+// The page shown when the database cannot be reached.
+export function connectionView(app, e) {
+  app.replaceChildren(h('main', { class: 'page' }, h('div', { class: 'card stack', style: { maxWidth: '620px' } }, h('h1', {}, 'Cannot connect'),
+    h('p', {}, e?.code === 'timeout' ? NO_CONNECTION : `Something went wrong: ${e?.message || e}`), h('div', { class: 'row' }, h('button', { class: 'primary', onclick: () => location.reload() }, 'Reload')))));
+}
+
 export function emailKey(email) { return String(email || '').trim().toLowerCase().replaceAll('.', ','); }
 export const EMAIL_RE = /^[^\s@#$\[\]\/]+@[^\s@#$\[\]\/]+\.[^\s@#$\[\]\/]+$/;
 

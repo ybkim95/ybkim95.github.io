@@ -11,9 +11,9 @@
 //   ratings/{uid}/{itemId}      one rating per item (own; a submitted rating is readable by the adjudicator; locked once submitted)
 //   adjudications/{itemId}      the adjudicator's final rating (locked once submitted)
 // The model, interface and grader verdict of an item are never uploaded, so no call here can return them.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=7b633b620f';
-import { emailKey } from './ui.js?v=7b633b620f';
-import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=7b633b620f';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=31920bc768';
+import { emailKey, withTimeout } from './ui.js?v=31920bc768';
+import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=31920bc768';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 
@@ -37,8 +37,9 @@ async function firebaseStore(emulator) {
   await A.setPersistence(auth, A.browserLocalPersistence);
   await A.getRedirectResult(auth).catch((e) => { console.error('sign-in redirect', e); });
   const r = (p) => D.ref(db, `${ROOT}/${p}`);
-  const val = async (p) => { const s = await D.get(r(p)); return s.exists() ? s.val() : null; };
+  const val = async (p) => { const s = await withTimeout(D.get(r(p))); return s.exists() ? s.val() : null; };  // a stuck connection rejects after 10 s
   const now = D.serverTimestamp;
+  const denied = (e) => { if (e.code === 'timeout') throw e; return null; };
   let user = null;
   const ek = () => emailKey(user?.email);
 
@@ -56,8 +57,8 @@ async function firebaseStore(emulator) {
     signOut() { return A.signOut(auth); },
     onConnection(cb) { return D.onValue(D.ref(db, '.info/connected'), (s) => cb(!!s.val())); },
     async me() {
-      const admin = (await val(`admins/${ek()}`).catch(() => null)) === true;
-      const invite = await val(`invites/${ek()}`).catch(() => null);
+      const admin = (await val(`admins/${ek()}`).catch(denied)) === true;
+      const invite = await val(`invites/${ek()}`).catch(denied);
       return { admin, invite };
     },
     async claim() {

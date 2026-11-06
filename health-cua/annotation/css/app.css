@@ -543,3 +543,4 @@ button.linkish { background: none; border: 0; padding: 0; font-weight: 600; text
 .penc .simdate { padding: 0 8px; border-radius: 4px; background: var(--warn-soft); }
 @media (max-width: 1360px) { .penc > div:nth-child(3) { display: revert; } .penc > div:nth-child(4) { display: none; } }
 .detail-body ul.plain { list-style: none; margin: 0; padding: 0; }
+.field-hint { font-size: 12px; color: var(--muted); margin-top: 3px; }

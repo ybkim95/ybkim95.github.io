@@ -11,15 +11,15 @@
 //   ratings/{uid}/{itemId}      one rating per item (own; a submitted rating is readable by the adjudicator; locked once submitted)
 //   adjudications/{itemId}      the adjudicator's final rating (locked once submitted)
 // Open recruitment (B-4.4): a physician applies with Google and the study team decides; approved raters take blocks of items.
-//   applicants/{uid}            {name, email, specialty, stage, place, licensed, consent, appliedAt} (own, until the decision)
+//   applicants/{uid}            {name, email, specialty, stage, yearsPractice, place, country, licensed, consent, appliedAt} (own, until the decision)
 //   decisions/{uid}             {status: approved|rejected, B, A, at, by} (study team; read by the applicant; also opens Study A')
 //   blocks/{blockId}            {items/{itemId}: position, cases/{caseId}: true} (uploaded; every block has one item of each stratum)
 //   claims/{blockId}/{uid}      when a rater took the block (written once by that rater)
 //   current/{uid}               the block the rater works on; items and cases of that block are readable
 // The model, interface and grader verdict of an item are never uploaded, so no call here can return them.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=f859a2c939';
-import { emailKey, withTimeout } from './ui.js?v=f859a2c939';
-import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=f859a2c939';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=3bc21eb232';
+import { emailKey, withTimeout } from './ui.js?v=3bc21eb232';
+import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=3bc21eb232';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 
@@ -90,7 +90,7 @@ async function firebaseStore(emulator) {
     saveProfile: (patch) => D.update(r(`profiles/${user.uid}`), { ...patch, email: user.email, updatedAt: now() }),
     // open recruitment
     applicant: () => val(`applicants/${user.uid}`).catch(denied),
-    apply: (a) => withTimeout(D.set(r(`applicants/${user.uid}`), { ...a, email: user.email, licensed: true, consent: 'v1', appliedAt: now() })),
+    apply: (a) => withTimeout(D.set(r(`applicants/${user.uid}`), { ...a, email: user.email, licensed: true, consent: 'v2', appliedAt: now() })),
     watchDecision: (cb) => D.onValue(r(`decisions/${user.uid}`), (s) => cb(s.val()), () => cb(null)),
     current: () => val(`current/${user.uid}`).catch(denied),
     blocksAndClaims: async () => ({ blocks: (await val('blocks')) || {}, claims: (await val('claims')) || {} }),

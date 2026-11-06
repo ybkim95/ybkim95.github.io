@@ -83,7 +83,7 @@ export function textSaver(save, ms = 400) {
 
 // A database call that has not answered after ms rejects with code 'timeout' instead of leaving the page on "Loading…" (for example when a
 // hospital network blocks the database connection).
-export const NO_CONNECTION = 'The study database does not answer. Check your network connection (some hospital networks block it; a home network or a phone hotspot usually works), then reload the page.';
+export const NO_CONNECTION = 'The study database does not answer. Check your network connection (some hospital networks block it, but a home network or a phone hotspot usually works), then reload the page.';
 export function withTimeout(p, ms = 10000) {
   let t;
   const late = new Promise((_, reject) => { t = setTimeout(() => reject(Object.assign(new Error(NO_CONNECTION), { code: 'timeout' })), ms); });

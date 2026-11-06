@@ -1,8 +1,8 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=cc445381af';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND, orderKind } from './ui.js?v=cc445381af';
-import { caseLayout, deptOf, lowerName } from './chart.js?v=cc445381af';
-import { COUNTRIES } from './countries.js?v=cc445381af';
+import { createStore } from './validity-store.js?v=3d73f45ccb';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND, orderKind } from './ui.js?v=3d73f45ccb';
+import { caseLayout, deptOf, lowerName } from './chart.js?v=3d73f45ccb';
+import { COUNTRIES } from './countries.js?v=3d73f45ccb';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)
@@ -234,6 +234,9 @@ function parseLine(s) {
   const [name, ...rest] = String(s).replace(PREFIX, '').split('; '); let n = name; const f = {}; let last = null;
   // a part that is not a field continues the one before it (free-text frequencies may hold semicolons), or the name
   for (const part of rest) { const m = part.match(FIELD); if (m) f[last = m[1].toLowerCase()] = m[2]; else if (last) f[last] += `; ${part}`; else n += `; ${part}`; }
+  // a name the packet cut inside brackets at the first strength ('tablet (buprenorphine') drops the open bracket and what follows it
+  let depth = 0, open = -1; [...n].forEach((c, i) => { if (c === '(') { if (!depth) open = i; depth++; } else if (c === ')' && depth) depth--; });
+  if (depth) n = n.slice(0, open).trim();
   return { name: n, f };
 }
 const GROUPS = ['Medications', 'Laboratory', 'Imaging', 'Procedures', 'Referrals', 'Visit orders'];

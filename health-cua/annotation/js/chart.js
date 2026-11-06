@@ -1,5 +1,5 @@
 // The patient chart, in the modules the study EHR shows: summary, problems, medications, results, vitals, notes, procedures.
-import { h, md, fmtDate } from './ui.js?v=cc445381af';
+import { h, md, fmtDate } from './ui.js?v=3d73f45ccb';
 
 const TABS = [['summary', 'Summary'], ['problems', 'Problems'], ['medications', 'Medications'], ['labs', 'Results'], ['vitals', 'Vitals'],
   ['notes', 'Notes'], ['procedures', 'Procedures']];
@@ -14,14 +14,16 @@ function flag(row) {
 }
 const has = (x) => x !== null && x !== undefined && x !== '';
 // reference range as an EHR prints it: 3.5–5.1, <5 (upper bound only), >60 (lower bound only)
-const range = (r) => (has(r.low) && has(r.high) ? `${r.low}–${r.high}` : has(r.high) ? `<${r.high}` : has(r.low) ? `>${r.low}` : '');
+// a number as a laboratory prints it, with thousands separators from 1,000 (49,354); only result values and ranges pass through here, never years or ids
+const num = (x) => (typeof x === 'number' || /^-?[\d.]+$/.test(String(x ?? '')) ? Number(x).toLocaleString('en-US', { maximumFractionDigits: 6 }) : String(x ?? ''));
+const range = (r) => (has(r.low) && has(r.high) ? `${num(r.low)}–${num(r.high)}` : has(r.high) ? `<${num(r.high)}` : has(r.low) ? `>${num(r.low)}` : '');
 
 // Display only (the chart data are unchanged): vital names and units as clinicians write them, blood pressure as one reading,
 // at most one decimal for vitals, dates as Jan 24, 2024 18:54.
 const VITAL_NAMES = [[/^pain severity\b.*/i, 'Pain'], [/^blood pressure panel\b.*/i, 'BP'], [/^oxygen saturation\b.*/i, 'SpO2'],
   [/^body height\b.*/i, 'Height'], [/^body weight\b.*/i, 'Weight'], [/^body temperature\b.*/i, 'Temp'], [/^body mass index\b.*/i, 'BMI'],
   [/^heart rate\b.*/i, 'Pulse'], [/^respiratory rate\b.*/i, 'Resp'], [/^head occipital-frontal circumference\b.*/i, 'Head circumference']];  // one short name per vital everywhere
-const UNITS = [[/mm\[Hg\]/g, 'mmHg'], [/^Cel$/, '°C'], [/^\[degF\]$/, '°F'], [/kg\/m2/g, 'kg/m²'], [/10\*3\/uL/g, '×10³/µL'], [/10\*6\/uL/g, '×10⁶/µL'], [/\buL\b/g, 'µL'], [/\{[^}]*\}/g, '']];
+const UNITS = [[/\{copies\}/g, 'copies'], [/\[IU\]/g, 'IU'], [/\[HPF\]/g, 'HPF'], [/\{1\.73_m2\}|1\.73m2/g, '1.73 m²'], [/\bug\//g, 'µg/'], [/\bumol\//g, 'µmol/'], [/mm\[Hg\]/g, 'mmHg'], [/^Cel$/, '°C'], [/^\[degF\]$/, '°F'], [/kg\/m2/g, 'kg/m²'], [/10\*3\/uL/g, '×10³/µL'], [/10\*6\/uL/g, '×10⁶/µL'], [/\buL\b/g, 'µL'], [/\{[^}]*\}/g, '']];
 export const cleanUnit = (u) => UNITS.reduce((x, [re, to]) => x.replace(re, to), String(u || '')).trim();
 const withUnit = (v, u) => { const x = cleanUnit(u); return `${v ?? ''}${x && !/^[/%°]/.test(x) ? ' ' : ''}${x}`.trim(); };  // 4/10, 94%, 37.2°C
 export function fmtStamp(s) { const m = String(s || '').match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})/); return m ? `${fmtDate(m[1])} ${m[2]}` : fmtDate(s); }
@@ -156,7 +158,8 @@ const PREC = [[/^(Total cholesterol|LDL cholesterol|HDL cholesterol|Triglyceride
   [/^Urine specific gravity$/i, 3]];
 export const shown = (r) => { const v = Number(r.value); if (r.value === '' || r.value === null || Number.isNaN(v) || typeof r.value === 'string' && !/^-?[\d.]+$/.test(r.value)) return r.value ?? '';
   const d = PREC.find(([re]) => re.test(r.text))?.[1];
-  return d === undefined ? String(+v.toFixed(Math.abs(v) >= 100 ? 0 : Math.abs(v) >= 10 ? 1 : 2)) : v.toFixed(d); };  // a test without a fixed precision
+  if (d === undefined && Math.abs(v) < 100) return String(+v.toFixed(Math.abs(v) >= 10 ? 1 : 2));  // a test without a fixed precision
+  return Math.abs(v) >= 1000 ? v.toLocaleString('en-US', { minimumFractionDigits: d ?? 0, maximumFractionDigits: d ?? 0 }) : v.toFixed(d ?? 0); };
 const CELL = { Neutrophils: 'Neut', Lymphocytes: 'Lymph', Monocytes: 'Mono', Eosinophils: 'Eos', Basophils: 'Baso' };
 // standard short names for the storyboard and the header (the full name is in the tooltip); every name over 10 characters in the packet has one
 const SHORT = [[/^C[- ]reactive protein$/i, 'CRP'], [/^Hemoglobin A1c$/i, 'HbA1c'], [/^Total bilirubin$/i, 'T. bili'], [/^Direct bilirubin$/i, 'D. bili'], [/^Indirect bilirubin$/i, 'I. bili'], [/^eGFR.*/i, 'eGFR'],
@@ -212,7 +215,7 @@ export const deptOf = (role) => { const r = String(role || '').toLowerCase();
     [/oncolog/, 'Oncology'], [/obstetric/, 'Obstetrics']];
   return (D.find(([re]) => re.test(r))?.[1]) || String(role || '').replace(/ physician$/i, ''); };
 const flagMark = (r) => { const f = flag(r); return f ? h('span', { class: 'fl' }, f === 'high' ? ' H' : ' L') : null; };
-const val = (r) => h('span', { class: flag(r) ? 'flag' : '', title: `${r.value ?? ''} ${cleanUnit(r.unit)}` }, String(shown(r)), h('span', { class: 'u' }, ` ${cleanUnit(r.unit)}`), flagMark(r));
+const val = (r) => h('span', { class: flag(r) ? 'flag' : '', title: `${num(r.value)} ${cleanUnit(r.unit)}` }, String(shown(r)), h('span', { class: 'u' }, ` ${cleanUnit(r.unit)}`), flagMark(r));
 const timeOf = (s) => (String(s).match(/[ T](\d{2}:\d{2})/) || [])[1] || '';
 const stamp = (s) => h('span', { class: 'nw' }, fmtDate(String(s).slice(0, 10)), timeOf(s) ? h('span', { class: 'tm' }, ` ${timeOf(s)}`) : null);
 // test names as a flowsheet prints them: LOINC qualifiers, specimen and method dropped (urine and stool kept), one name per test
@@ -288,8 +291,8 @@ function trendGraph(name, rows, onClose) {
   const ns = 'http://www.w3.org/2000/svg'; const el = (n, a = {}, txt) => { const e = document.createElementNS(ns, n); for (const [k, v] of Object.entries(a)) e.setAttribute(k, v); if (txt !== undefined) e.textContent = txt; return e; };
   const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, class: 'tgraph', role: 'img', 'aria-label': `${name} over time` });
   if (lo0 !== null || hi0 !== null) svg.append(el('rect', { class: 'band', x: L, width: W - L - R, y: Y(hi0 ?? hi), height: Math.max(0, Y(lo0 ?? lo) - Y(hi0 ?? hi)) }));
-  svg.append(el('line', { class: 'axis', x1: L, x2: W - R, y1: H - B, y2: H - B }), el('text', { class: 'ax', x: L - 6, y: Y(hi - pad) + 4, 'text-anchor': 'end' }, +(hi - pad).toPrecision(3)),
-    el('text', { class: 'ax', x: L - 6, y: Y(lo + pad) + 4, 'text-anchor': 'end' }, +(lo + pad).toPrecision(3)),
+  svg.append(el('line', { class: 'axis', x1: L, x2: W - R, y1: H - B, y2: H - B }), el('text', { class: 'ax', x: L - 6, y: Y(hi - pad) + 4, 'text-anchor': 'end' }, num(+(hi - pad).toPrecision(3))),
+    el('text', { class: 'ax', x: L - 6, y: Y(lo + pad) + 4, 'text-anchor': 'end' }, num(+(lo + pad).toPrecision(3))),
     el('text', { class: 'ax', x: X(pts[0]), y: H - 8, 'text-anchor': pts.length === 1 ? 'middle' : 'start' }, fmtDate(String(pts[0].date).slice(0, 10))));
   if (pts.length > 1) svg.append(el('text', { class: 'ax', x: X(pts[pts.length - 1]), y: H - 8, 'text-anchor': 'end' }, fmtDate(String(pts[pts.length - 1].date).slice(0, 10))),
     el('polyline', { class: 'line', points: pts.map((r) => `${X(r)},${Y(Number(r.value))}`).join(' ') }));
@@ -328,7 +331,7 @@ export function ehrChart(c, { onView, task = true } = {}) {
   const p = ch.patient; const vit = (n) => latestVitals.find((v) => v.text === n);
   const allergies = arr(c.chart.allergies).map((a) => (typeof a === 'string' ? a : a.text || a.substance || '')).filter(Boolean);
   const tm = String(c.instructions || '').match(/(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/); const simNow = `${fmtDate(tm ? tm[1] : c.taskDate)}${tm ? ` ${tm[2]}` : ''}`;
-  const key = (label, r) => (r ? h('div', {}, h('dt', { title: r.full || label }, label), h('dd', { class: flag(r) ? 'flag' : '', title: `${r.value} ${cleanUnit(r.unit)}` }, withUnit(shown(r), r.unit), flagMark(r))) : null);
+  const key = (label, r) => (r ? h('div', {}, h('dt', { title: r.full || label }, label), h('dd', { class: flag(r) ? 'flag' : '', title: `${num(r.value)} ${cleanUnit(r.unit)}` }, withUnit(shown(r), r.unit), flagMark(r))) : null);
 
   const banner = h('div', { class: 'pheader' },
     h('div', { class: 'pname' }, h('h1', {}, p.name), h('div', { class: 'pfacts' }, h('span', {}, `${p.age} y.o. ${String(p.sex || '').slice(0, 1).toUpperCase()}`),
@@ -446,8 +449,8 @@ export function ehrChart(c, { onView, task = true } = {}) {
           const lm = String(last.date).match(/^(\d{4}-\d{2}-\d{2})/);
           body2.push(h('tr', { class: `clickable${state.graph === name ? ' sel' : ''}`, title: 'Show the trend', onclick: () => { state.graph = state.graph === name ? null : name; draw(); onView?.('results-graph'); } },
             h('td', { title: rs[0].full || name }, name, h('small', {}, cleanUnit(rs[0].unit))), h('td', {}, spark(asc)), state.rr === 'labs' ? h('td', { class: 'nw muted' }, range(rs[0])) : null,
-            h('td', { class: `nw val latest${flag(last) ? ' flag' : ''}`, title: String(last.value ?? '') }, String(shown(last)), flagMark(last), h('small', {}, lm ? fmtDate(lm[1]).replace(/, \d{4}$/, '') : '')),
-            cols.map((d) => h('td', { class: `nw val${by[d] && flag(by[d]) ? ' flag' : ''}`, title: by[d] ? String(by[d].value ?? '') : null }, by[d] ? [String(shown(by[d])), flagMark(by[d])] : ''))));
+            h('td', { class: `nw val latest${flag(last) ? ' flag' : ''}`, title: num(last.value) }, String(shown(last)), flagMark(last), h('small', {}, lm ? fmtDate(lm[1]).replace(/, \d{4}$/, '') : '')),
+            cols.map((d) => h('td', { class: `nw val${by[d] && flag(by[d]) ? ' flag' : ''}`, title: by[d] ? num(by[d].value) : null }, by[d] ? [String(shown(by[d])), flagMark(by[d])] : ''))));
         }
       }
       const table = h('div', { class: 'gridwrap trend' }, h('table', { class: 'grid', style: { width: '100%' } }, colgroup,

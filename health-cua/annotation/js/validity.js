@@ -1,7 +1,7 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=976f247624';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND } from './ui.js?v=976f247624';
-import { caseLayout } from './chart.js?v=976f247624';
+import { createStore } from './validity-store.js?v=94e2015300';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND } from './ui.js?v=94e2015300';
+import { caseLayout } from './chart.js?v=94e2015300';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)
@@ -213,7 +213,7 @@ function orderRow(text, k, kind, judge) {
   let { name, f } = parseLine(text); let extra = '';
   if (kind === 'Stopped' && name.includes('; ')) [name, extra] = [name.slice(0, name.indexOf('; ')), name.slice(name.indexOf('; ') + 2)];  // a stop: drug name, then the agent's words
   const urgent = f.priority && /stat|urgent|asap/i.test(f.priority);
-  const detail = kind === 'Medications' ? [f.dose, f.route, f.frequency && f.frequency.replace(/^\w/, (c) => c.toLowerCase())]
+  const detail = kind === 'Medications' ? [f.dose && f.dose.replace(/\b\d{4,}\b/g, (n) => Number(n).toLocaleString('en-US')), f.route, f.frequency && f.frequency.replace(/^\w/, (c) => c.toLowerCase())]
     : kind === 'Stopped' ? [extra ? humanDates(extra) : null, f.reason ? `Reason: ${humanDates(f.reason)}` : null]
       : [urgent ? null : cap(f.priority || 'Routine'), f.scheduled || f.date ? `Expected ${fmtDate(f.scheduled || f.date)}` : 'Once', f.type];
   return h('div', { class: 'orow' },

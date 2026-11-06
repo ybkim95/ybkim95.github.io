@@ -1,5 +1,5 @@
 // The patient chart, in the modules the study EHR shows: summary, problems, medications, results, vitals, notes, procedures.
-import { h, md, fmtDate } from './ui.js?v=976f247624';
+import { h, md, fmtDate } from './ui.js?v=94e2015300';
 
 const TABS = [['summary', 'Summary'], ['problems', 'Problems'], ['medications', 'Medications'], ['labs', 'Results'], ['vitals', 'Vitals'],
   ['notes', 'Notes'], ['procedures', 'Procedures']];
@@ -12,7 +12,9 @@ function flag(row) {
   if (row.low !== null && row.low !== undefined && v < row.low) return 'low';
   return '';
 }
-const range = (r) => (r.low ?? '') !== '' || (r.high ?? '') !== '' ? `${r.low ?? ''}–${r.high ?? ''}` : '';
+const has = (x) => x !== null && x !== undefined && x !== '';
+// reference range as an EHR prints it: 3.5–5.1, <5 (upper bound only), >60 (lower bound only)
+const range = (r) => (has(r.low) && has(r.high) ? `${r.low}–${r.high}` : has(r.high) ? `<${r.high}` : has(r.low) ? `>${r.low}` : '');
 
 // Display only (the chart data are unchanged): vital names and units as clinicians write them, blood pressure as one reading,
 // at most one decimal for vitals, dates as Jan 24, 2024 18:54.
@@ -192,7 +194,7 @@ export function ehrChart(c, { onView, task } = {}) {
 
   const body = h('div', { class: 'actbody' });
   const tabs = h('nav', { class: 'acttabs', role: 'tablist' });
-  let current = task ? 'inbasket' : 'summary'; const state = { cr: 'notes', range: 'all', ntype: 'all', find: '', note: null, rr: 'labs', mstat: 'active' };
+  let current = task ? 'inbasket' : 'summary'; const state = { page: 0, cr: 'notes', range: 'all', ntype: 'all', find: '', note: null, rr: 'labs', mstat: 'active' };
   const go = (k, patch = {}) => { Object.assign(state, patch); current = k; draw(); onView?.(`tab:${k}${k === 'chartreview' ? `-${state.cr}` : k === 'results' ? `-${state.rr}` : ''}`); };
   const find = (placeholder) => {
     const i = h('input', { type: 'search', class: 'find', placeholder, value: state.find, 'aria-label': placeholder });
@@ -257,22 +259,30 @@ export function ehrChart(c, { onView, task } = {}) {
     results: () => {
       const src = state.rr === 'labs' ? ch.labs : ch.vitals;
       const rows = src.filter((r) => within(r.date, state.range) && match(r.text));
-      const cols = [...new Set(rows.map((r) => r.date))].sort().reverse();
+      const all = [...new Set(rows.map((r) => r.date))].sort().reverse();
+      // as many date columns as fit beside the fixed columns (no column is ever cut off); older dates page in with the arrows
+      const fixed = state.rr === 'labs' ? 336 : 252; const fit = Math.max(1, Math.floor(((body.clientWidth || 640) - 30 - fixed) / 92));
+      const pages = Math.max(1, Math.ceil(all.length / fit)); state.page = Math.min(state.page, pages - 1);
+      const cols = all.slice(state.page * fit, state.page * fit + fit);
       const tests = Object.entries(rows.reduce((m, r) => { (m[r.text] = m[r.text] || []).push(r); return m; }, {}))
         .sort((a, b) => String(b[1].map((r) => r.date).sort().pop()).localeCompare(String(a[1].map((r) => r.date).sort().pop())));
-      const head = h('div', { class: 'headrow' }, h('h2', {}, 'Results Review'), h('div', { class: 'seg' }, [['labs', 'Labs'], ['vitals', 'Vitals']].map(([k, l]) => h('button', { type: 'button', class: state.rr === k ? 'on' : '', onclick: () => go('results', { rr: k, find: '' }) }, l))));
-      const bar = h('div', { class: 'chipbar' }, chips(RANGES.map(([k, l]) => [k, l]), state.range, (k) => go('results', { range: k })), h('span', { class: 'grow' }), find('Find in list'));
+      const head = h('div', { class: 'headrow' }, h('h2', {}, 'Results Review'), h('div', { class: 'seg' }, [['labs', 'Labs'], ['vitals', 'Vitals']].map(([k, l]) => h('button', { type: 'button', class: state.rr === k ? 'on' : '', onclick: () => go('results', { rr: k, find: '', page: 0 }) }, l))));
+      const bar = h('div', { class: 'chipbar' }, chips(RANGES.map(([k, l]) => [k, l]), state.range, (k) => go('results', { range: k, page: 0 })), h('span', { class: 'grow' }), find('Find in list'));
       if (!tests.length) return h('div', {}, head, bar, h('div', { class: 'none' }, 'No matching results.'));
+      const pager = pages > 1 ? h('div', { class: 'pager' }, h('button', { type: 'button', class: 'ghost small', disabled: state.page >= pages - 1, onclick: () => { state.page += 1; draw(); } }, '◀ Older'),
+        h('span', { class: 'meta' }, `${state.page * fit + 1}–${Math.min(all.length, state.page * fit + fit)} of ${all.length} dates`),
+        h('button', { type: 'button', class: 'ghost small', disabled: state.page === 0, onclick: () => { state.page -= 1; draw(); } }, 'Newer ▶')) : null;
       const colHead = (s) => { const m = String(s).match(/^(\d{4}-\d{2}-\d{2})[ T]?(\d{2}:\d{2})?/); return h('th', { class: 'nw' }, m ? fmtDate(m[1]) : s, m?.[2] ? h('small', {}, m[2]) : null); };
-      const table = h('div', { class: 'gridwrap trend' }, h('table', { class: 'grid' },
-        h('thead', {}, h('tr', {}, h('th', { class: 'stick' }, state.rr === 'labs' ? 'Test' : 'Vital'), h('th', {}, 'Trend'), state.rr === 'labs' ? h('th', {}, 'Reference range') : null, cols.map(colHead))),
+      const colgroup = h('colgroup', {}, h('col', { style: { width: '170px' } }), h('col', { style: { width: '82px' } }), state.rr === 'labs' ? h('col', { style: { width: '84px' } }) : null, cols.map(() => h('col', { style: { width: '92px' } })));
+      const table = h('div', { class: 'gridwrap trend' }, h('table', { class: 'grid', style: { width: `${fixed + 92 * cols.length}px` } }, colgroup,
+        h('thead', {}, h('tr', {}, h('th', {}, state.rr === 'labs' ? 'Test' : 'Vital'), h('th', {}, 'Trend'), state.rr === 'labs' ? h('th', {}, 'Ref. range') : null, cols.map(colHead))),
         h('tbody', {}, tests.map(([name, rs]) => {
           const by = Object.fromEntries(rs.map((r) => [r.date, r]));
           const asc = [...rs].sort((a, b) => String(a.date).localeCompare(String(b.date)));
-          return h('tr', {}, h('td', { class: 'stick' }, name, h('small', {}, cleanUnit(rs[0].unit))), h('td', {}, spark(asc)), state.rr === 'labs' ? h('td', { class: 'nw muted' }, range(rs[0])) : null,
+          return h('tr', {}, h('td', {}, name, h('small', {}, cleanUnit(rs[0].unit))), h('td', {}, spark(asc)), state.rr === 'labs' ? h('td', { class: 'nw muted' }, range(rs[0])) : null,
             cols.map((d) => h('td', { class: `nw val${by[d] && flag(by[d]) ? ' flag' : ''}` }, by[d] ? [String(by[d].value ?? ''), flagMark(by[d])] : '')));
         }))));
-      return h('div', {}, head, bar, h('div', { class: 'paging' }, `Showing ${rows.length} of ${src.length} results · newest first`), table);
+      return h('div', {}, head, bar, h('div', { class: 'spread' }, h('div', { class: 'paging' }, `Showing ${rows.length} of ${src.length} results · newest first`), pager), table);
     },
     problems: () => h('div', {}, h('div', { class: 'headrow' }, h('h2', {}, 'Problem List')),
       grid([['Problem', (r) => h('td', {}, r.text)], ['Status', (r) => h('td', {}, h('span', { class: `status ${isActive(r) ? 'active' : ''}` }, r.status || ''))], ['Noted', (r) => h('td', { class: 'nw' }, fmtDate(r.onset))], ['Resolved', (r) => h('td', { class: 'nw' }, fmtDate(r.abated))]],
@@ -290,6 +300,7 @@ export function ehrChart(c, { onView, task } = {}) {
     body.replaceChildren(views[current]());
   }
   draw(); onView?.(`tab:${current}`);
+  addEventListener('resize', () => { if (current === 'results' && body.isConnected) draw(); });
   return { banner, side, main: h('div', { class: 'chartmain' }, tabs, body) };
 }
 

@@ -410,3 +410,7 @@ table.mini td.when { width: 50px; }
 .oside { align-self: start; }
 @media (max-width: 1360px) { .ehr-grid { grid-template-columns: 208px minmax(0, 1fr) minmax(440px, 40%); } .acttabs a { padding: 6px 9px; font-size: 12.5px; } }
 @media (max-width: 1360px) { .sidebar table.kr .u { display: none; } }
+
+.trend table.grid { table-layout: fixed; }
+.trend table.grid td { overflow-wrap: anywhere; }
+.pager { display: flex; gap: 8px; align-items: center; }

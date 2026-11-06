@@ -1,8 +1,8 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=9f2e4e6156';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND } from './ui.js?v=9f2e4e6156';
-import { caseLayout, deptOf, lowerName } from './chart.js?v=9f2e4e6156';
-import { COUNTRIES } from './countries.js?v=9f2e4e6156';
+import { createStore } from './validity-store.js?v=cc445381af';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND, orderKind } from './ui.js?v=cc445381af';
+import { caseLayout, deptOf, lowerName } from './chart.js?v=cc445381af';
+import { COUNTRIES } from './countries.js?v=cc445381af';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)
@@ -23,7 +23,6 @@ let online = true; const savedListeners = new Set(); let PROGRESS = null; let SP
 // rating comes on every 10th and the interface guess on every 5th item the rater opens, counted over all of the rater's blocks.
 const CHOICES = {
   missing_required: ['Is anything required missing?', [['yes', 'Yes'], ['no', 'No']]],
-  harm_severity: ['How severe is the worst wrong or harmful order or stop?', [['minor', 'Minor'], ['moderate', 'Moderate'], ['severe', 'Severe']]],
   note_untrue: ['Does the note say anything that is not true of the record or the chart?', [['yes', 'Yes'], ['no', 'No'], ['no note', 'There is no note']]],
   message_problem: ['Is any message wrong, unsafe, or sent to the wrong person?', [['yes', 'Yes'], ['no', 'No']]],
   harm_if_signed: ['If this work were signed as it is, what is the worst likely harm to the patient?', [['none', 'None'], ['mild', 'Mild'], ['moderate', 'Moderate'], ['severe', 'Severe']]],
@@ -44,7 +43,9 @@ const TEXTS = {
 const LABELS = { order_judgments: 'Each order and stop', wrong_or_harmful_order: 'Any order or stop wrong or harmful (derived)', unjustified_orders: 'Not needed (derived)' };
 // Version B-4.7 (2026-11-06, before any study rating): every item asks the worst likely harm if the work were signed as it is
 // (harm_if_signed), and items with messages ask whether a message is wrong, unsafe or misaddressed (message_problem, 'no message' otherwise).
-const ORDER = ['order_judgments', 'harm_severity', 'missing_required', 'required_missing', 'note_untrue', 'note_untrue_text', 'message_problem', 'message_problem_text',
+// B-4.8 drops the severity of the worst wrong order (harm_severity, minor to severe): harm_if_signed asks the same on one scale. Ratings
+// that already hold it keep it (the rules still accept the field).
+const ORDER = ['order_judgments', 'missing_required', 'required_missing', 'note_untrue', 'note_untrue_text', 'message_problem', 'message_problem_text',
   'harm_if_signed', 'overall', 'cannot_judge_reason', 'effort', 'guessed_interface', 'notes'];
 const JUDGE = [['appropriate', 'Appropriate'], ['unjustified', 'Not needed'], ['harmful', 'Wrong or harmful']];
 const list = (v) => (Array.isArray(v) ? v : Object.values(v || {}));
@@ -64,11 +65,10 @@ function asks(id, ratings) {
 function derive(d, item) {
   d.wrong_or_harmful_order = anyHarm(d) ? 'yes' : 'no';
   d.unjustified_orders = judged(item).filter((l) => (d.order_judgments || {})[l.k] === 'unjustified').map((l) => l.t).join('\n');
-  if (!anyHarm(d)) delete d.harm_severity;
-  return { wrong_or_harmful_order: d.wrong_or_harmful_order, unjustified_orders: d.unjustified_orders, ...(anyHarm(d) ? {} : { harm_severity: null }) };
+  return { wrong_or_harmful_order: d.wrong_or_harmful_order, unjustified_orders: d.unjustified_orders };
 }
 const needed = (d, item, ask = {}) => {
-  const miss = [...(anyHarm(d) ? ['harm_severity'] : []), 'missing_required', ...(d.missing_required === 'yes' ? ['required_missing'] : []),
+  const miss = ['missing_required', ...(d.missing_required === 'yes' ? ['required_missing'] : []),
     'note_untrue', ...(d.note_untrue === 'yes' ? ['note_untrue_text'] : []), ...(list(item.messages).length ? ['message_problem', ...(d.message_problem === 'yes' ? ['message_problem_text'] : [])] : []),
     'harm_if_signed', 'overall', ...(d.overall === 'cannot-judge' ? ['cannot_judge_reason'] : []),
     ...(ask.effort ? ['effort'] : []), ...(ask.guessed_interface ? ['guessed_interface'] : [])]
@@ -148,7 +148,8 @@ function applyView() {
     const miss = [];
     for (const k of ['name', 'specialty', 'stage', 'years', 'place', 'country']) { const bad = k === 'years' ? !yearsOk(a[k]) : !a[k]; f[k].classList.toggle('invalid', tried && bad); hint[k].textContent = tried && bad ? (k === 'years' && a[k] ? 'A whole number from 0 to 60' : 'Required') : ''; if (bad) miss.push(LABEL[k]); }
     for (const [el, label] of Object.values(checks)) { el.closest('label').classList.toggle('invalid', tried && !el.checked); if (!el.checked) miss.push(label); }
-    err.textContent = tried && miss.length ? `Please add ${list2(miss)}.` : '';
+    const range = a.years !== '' && !yearsOk(a.years); const add = miss.filter((x) => !(range && x === LABEL.years));  // a value out of range is not 'missing'
+    err.textContent = tried && miss.length ? [add.length ? `Please add ${list2(add)}.` : '', range ? 'Years in clinical practice must be a whole number from 0 to 60.' : ''].filter(Boolean).join(' ') : '';
     return { a, miss };
   };
   for (const el of [...Object.values(f), licensed, agree]) { el.addEventListener('input', () => tried && validate()); el.addEventListener('change', () => tried && validate()); }
@@ -172,12 +173,12 @@ function waitingView(a) {
   page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('div', { class: 'eyebrow' }, 'Application sent'), h('h1', {}, `Thank you, ${a.name}`),
     h('p', {}, 'The study team reviews each application. As soon as yours is approved, this page opens your first block by itself.'),
     h('p', { class: 'muted' }, 'You can leave this page open, or close it and come back later with the same Google account (', h('strong', {}, ME.user.email), ').'),
-    h('p', { class: 'small muted' }, `Questions: ${CONTACT}`)));
+    h('p', { class: 'small muted' }, h('strong', {}, 'Contact.'), ` ${CONTACT}`)));
 }
 
 function rejectedView() {
   page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('h1', {}, 'Thank you for your interest'),
-    h('p', {}, 'The study team could not include this account in the review.'), h('p', { class: 'small muted' }, `Questions: ${CONTACT}`)));
+    h('p', {}, 'The study team could not include this account in the review.'), h('p', { class: 'small muted' }, h('strong', {}, 'Contact.'), ` ${CONTACT}`)));
 }
 
 async function takeNextBlock() {
@@ -230,15 +231,12 @@ function orderedItems() { return Object.entries(SLOT.items).map(([id, v]) => ({ 
 // Rows that are judged carry their judgment control; the judgment keys (o0, o1, s0) are the packet's order and stop indexes.
 const FIELD = /^(dose|frequency|route|priority|scheduled|date|type|reason):?\s+(.*)$/i;
 function parseLine(s) {
-  const [name, ...rest] = String(s).replace(PREFIX, '').split('; '); let n = name; const f = {};
-  for (const part of rest) { const m = part.match(FIELD); if (m) f[m[1].toLowerCase()] = m[2]; else n += `; ${part}`; }
+  const [name, ...rest] = String(s).replace(PREFIX, '').split('; '); let n = name; const f = {}; let last = null;
+  // a part that is not a field continues the one before it (free-text frequencies may hold semicolons), or the name
+  for (const part of rest) { const m = part.match(FIELD); if (m) f[last = m[1].toLowerCase()] = m[2]; else if (last) f[last] += `; ${part}`; else n += `; ${part}`; }
   return { name: n, f };
 }
-const KINDS = [['Referrals', /\breferr|\bconsult|e-?consult/i],
-  ['Imaging', /\b(x-?ray|xr|radiograph|ct|cta|mri|mra|ultrasound|us|sonograph\w*|echocardiogra\w*|echo|doppler|mammogra\w*|dexa|dxa|pet|scan|angiogra\w*|fluoroscop\w*|imaging|scintigraph\w*|venogra\w*|elastograph\w*)\b/i],
-  ['Procedures', /\b(biopsy|endoscop\w*|colonoscop\w*|egd|bronchoscop\w*|ecg|ekg|electrocardiogra\w*|holter|injection|infusion|aspiration|excision|drainage|vaccin\w*|administration|spirometry|pulmonary function|stress test|eeg|emg|nerve conduction|audiometr\w*|tympanometr\w*|cystoscop\w*|phlebotomy|physical therapy|occupational therapy|counsel\w*|polysomnogra\w*|sleep study|monitor)\b/i]];
-const kindOf = (t) => (/^Medication:/.test(t) ? 'Medications' : (KINDS.find(([, re]) => re.test(t.replace(PREFIX, '')))?.[0] || 'Laboratory'));
-const GROUPS = ['Medications', 'Laboratory', 'Imaging', 'Procedures', 'Referrals'];
+const GROUPS = ['Medications', 'Laboratory', 'Imaging', 'Procedures', 'Referrals', 'Visit orders'];
 const cap = (s) => String(s || '').replace(/^\w/, (c) => c.toUpperCase());
 // The agent's work as an EHR order review: a table with Order (name and sig line), Priority and Status, grouped by order class, the
 // orders in the order they were placed. Only what the packet holds is shown (name, dose, frequency, priority, expected date); typed
@@ -252,7 +250,9 @@ function orderRows(text, k, kind, judge) {
   const dose = f.dose && f.dose.replace(/\b\d{4,}\b/g, (n) => Number(n).toLocaleString('en-US'));
   const sig = kind === 'Medications' ? [dose, f.route, f.frequency && f.frequency.replace(/^\w/, (c) => c.toLowerCase())]
     : kind === 'Stopped' ? [extra ? humanDates(extra) : null, f.reason ? `Reason: ${humanDates(f.reason)}` : null]
-      : kind === 'Referrals' ? [f.scheduled || f.date ? `Expected ${fmtDate(f.scheduled || f.date)}` : null] : [f.scheduled || f.date ? `Expected ${fmtDate(f.scheduled || f.date)}` : 'Once', f.type];
+      // 'Once' only for a test or image whose name sets no schedule ('repeat weekly', 'every 3 months'); never for a procedure, referral or visit
+      : [f.scheduled || f.date ? `Expected ${fmtDate(f.scheduled || f.date)}` : (kind === 'Laboratory' || kind === 'Imaging') && !/\b(every|weekly|daily|monthly|twice|until)\b/i.test(name) ? 'Once' : null,
+        kind === 'Referrals' || kind === 'Visit orders' ? null : f.type];
   const shownName = kind === 'Medications' || kind === 'Stopped' ? lowerName(name) : cap(name);
   const rows = [h('tr', { class: 'otr' }, h('td', {}, h('div', { class: 'oname' }, humanDates(shownName)), h('div', { class: 'odetail' }, sig.filter(Boolean).join(' · ') || ' ')),
     h('td', { class: 'nw' }, kind === 'Stopped' ? '—' : urgent ? h('span', { class: 'status urgent' }, cap(f.priority)) : cap(f.priority || 'Routine')),
@@ -261,7 +261,7 @@ function orderRows(text, k, kind, judge) {
   return rows;
 }
 function ordersPanel(item, judge) {
-  const orders = list(item.orders).map((t, i) => ({ t, k: `o${i}`, kind: kindOf(t) }));
+  const orders = list(item.orders).map((t, i) => ({ t, k: `o${i}`, kind: orderKind(t) }));
   const stops = list(item.stopped).map((t, i) => ({ t, k: `s${i}` }));
   const visits = list(item.visits);
   const body = [];
@@ -296,7 +296,6 @@ function ratingForm({ d, save, readOnly, idp, item, ask = {}, date, role }) {
   const draw = () => {
     const parts = [];
     for (const k of ORDER) {
-      if (k === 'harm_severity' && !anyHarm(d)) continue;
       if (k === 'required_missing' && d.missing_required !== 'yes') continue;
       if (k === 'cannot_judge_reason' && d.overall !== 'cannot-judge') continue;
       if (k === 'note_untrue_text' && d.note_untrue !== 'yes') continue;
@@ -320,7 +319,7 @@ function ratingForm({ d, save, readOnly, idp, item, ask = {}, date, role }) {
             label, h('span', { class: 'anchor' }, help[v]))))
           : radios(`${idp}-${k}`, opts, d[k], pick);
         parts.push(h('div', { class: 'q', 'data-k': k }, h('div', { class: 'label' }, q), group));
-        if (k === 'overall' && d.overall === 'accept' && d.missing_required === 'yes') parts.push(h('div', { class: 'warn small' }, 'You said something required is missing, and rated the work Accept. If the missing order matters, choose Accept with minor issues or Reject.'));
+        if (k === 'overall' && d.overall === 'accept' && d.missing_required === 'yes') parts.push(h('div', { class: 'warn small' }, 'You said something required is missing. If it changes the care, choose Reject.'));
         if (k === 'overall' && d.overall === 'accept' && ['moderate', 'severe'].includes(d.harm_if_signed)) parts.push(h('div', { class: 'warn small' }, `You rated the likely harm ${d.harm_if_signed} and the work Accept. If that harm is real, choose Accept with minor issues or Reject.`));
       } else {
         const [label, hint] = TEXTS[k];
@@ -528,7 +527,7 @@ function ratingCard(label, r, diffs, item) {
     if (v === undefined || v === null || v === '') return h('span', { class: 'muted' }, '–');
     return CHOICES[k] ? (CHOICES[k][1].find(([x]) => String(x) === String(v))?.[1] ?? String(v)) : h('span', { style: { whiteSpace: 'pre-wrap' } }, String(v));
   };
-  const shown = ORDER.filter((k) => (k !== 'harm_severity' || r.wrong_or_harmful_order === 'yes') && (k !== 'required_missing' || r.missing_required === 'yes') && (k !== 'cannot_judge_reason' || r.overall === 'cannot-judge')
+  const shown = ORDER.filter((k) => (k !== 'required_missing' || r.missing_required === 'yes') && (k !== 'cannot_judge_reason' || r.overall === 'cannot-judge')
     && (k !== 'note_untrue_text' || r.note_untrue === 'yes') && (k !== 'message_problem_text' || r.message_problem === 'yes') && ((k !== 'effort' && k !== 'guessed_interface') || r[k] !== undefined));
   return h('div', { class: 'card compare-card' }, h('h3', {}, label),
     h('dl', { class: 'kv' }, shown.flatMap((k) => [

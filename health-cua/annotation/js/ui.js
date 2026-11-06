@@ -185,3 +185,13 @@ export function nextBlock(blocks, claims, uid) {
 }
 // a block as the item list of a slot ({id: {pos}}), so the queue and item pages work unchanged
 export const blockSlot = (block, kind) => ({ role: 'rater', [kind]: Object.fromEntries(Object.entries(block?.[kind] || {}).map(([id, pos]) => [id, { pos }])) });
+
+// The class of an order line, from its name (the packet records none): referrals and consults, visit orders, procedures (surgery, endoscopy,
+// biopsy, ECG, audiometry, fetal monitoring...), imaging, and laboratory for the rest. Every line of packet B-4.6 was checked by hand
+// (tests/ui.test.mjs holds the lines that were misfiled before).
+const ORDER_KINDS = [['Referrals', /\breferr|\bconsult|e-?consult/i],
+  ['Visit orders', /\b(follow-?up|office|clinic|return) visit\b/i],
+  ['Procedures', /\b(biops\w*|endoscop\w*|colonoscop\w*|sigmoidoscop\w*|egd|bronchoscop\w*|cystoscop\w*|cystourethroscop\w*|ureteroscop\w*|laryngoscop\w*|ecg|ekg|electrocardiogra\w*|holter|injection|infusion|aspiration|excision|drainage|vaccin\w*|administration|spirometry|pulmonary function|stress test|eeg|emg|nerve conduction|audiometr\w*|tympanometr\w*|therapeutic phlebotomy|physical therapy|occupational therapy|counsel\w*|polysomnogra\w*|sleep study|monitor|resection|surgery|surgical|\w+ectomy|\w+plasty|repair|fixation|ablation|transplant\w*|implant\w*|catheteri[sz]ation|turp|slit-lamp|skin snips?)\b/i],
+  ['Imaging', /\b(x-?ray|xr|radiograph\w*|ct|cta|mri?|mra|ultrasound|us|sonograph\w*|echocardiogra\w*|echo|doppler|mammogra\w*|dexa|dxa|pet|angiogra\w*|fluoroscop\w*|imaging|scintigraph\w*|venogra\w*|urethrogra\w*|cystogra\w*|elastograph\w*|fibroscan|skeletal survey|bone scan)\b/i]];
+export const orderKind = (t) => (/^Medication:/.test(t) ? 'Medications'
+  : ORDER_KINDS.find(([, re]) => re.test(String(t).replace(/^(Medication|Test or referral|Visit):\s*/, '')))?.[0] || 'Laboratory');

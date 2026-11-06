@@ -1,9 +1,9 @@
 // Study team page (admin.html): applications arrive live; one click approves a physician for the episode review (Study B) or rejects;
 // block progress and the JSON download. (2026-11-06: the site serves Study B only; Study A' keeps its code and database root.) The database rules let only the addresses in
 // hcua_validity/admins (and hcua_task_review/admins for Study A') read or write any of this.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=9f2e4e6156';
-import { COUNTRIES } from './countries.js?v=9f2e4e6156';
-import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=9f2e4e6156';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=cc445381af';
+import { COUNTRIES } from './countries.js?v=cc445381af';
+import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=cc445381af';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 const app = document.getElementById('app');
@@ -84,14 +84,14 @@ async function progressCard(root, kind, title, unit) {
   });
   const twice = Object.values(perItem).filter((n) => n >= 2).length; const once = Object.values(perItem).filter((n) => n === 1).length;
   const taken = Object.keys(blocks || {}).filter((b) => Object.keys(claims?.[b] || {}).length).length;
-  return h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', {}, h('div', { class: 'eyebrow' }, title), h('h2', { style: { margin: 0 } }, `${twice} of ${Object.keys(perItem).length} ${unit} rated by two physicians`), h('div', { class: 'small muted' }, `${once} rated by one so far; a case counts once two physicians have rated it.`)),
+  return h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', {}, h('div', { class: 'eyebrow' }, title), h('h2', { style: { margin: 0 } }, `${twice} of ${Object.keys(perItem).length} ${unit} rated by two physicians`), h('div', { class: 'small muted' }, `${once} rated by one so far. A case counts once two physicians have rated it.`)),
     h('button', { class: 'small', onclick: async () => {
       const nodes = root === V ? ['config', 'applicants', 'decisions', 'blocks', 'claims', 'current', 'profiles', 'ratings', 'adjudications', 'invites', 'slots', 'raters'] : ['config', 'blocks', 'claims', 'current', 'profiles', 'ratings', 'invites', 'slots'];
       const data = { exportedAt: new Date().toISOString(), ...Object.fromEntries(await Promise.all(nodes.map(async (p) => [p, await val(`${root}/${p}`)]))) };
       const a = h('a', { href: URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' })), download: `${root}-export-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '')}.json` });
       document.body.append(a); a.click(); a.remove();
     } }, 'Download all (JSON)')),
-  h('details', {}, h('summary', { class: 'small' }, `${taken} of ${rows.length} blocks taken; show every block`),
+  h('details', {}, h('summary', { class: 'small' }, `Show all ${rows.length} blocks (${taken} taken)`),
     h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Block', unit[0].toUpperCase() + unit.slice(1), 'Taken by', 'Finished by'].map((x) => h('th', {}, x)))), h('tbody', {}, rows)))));
 }
 

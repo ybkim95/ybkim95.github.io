@@ -1,5 +1,5 @@
 // The patient chart, in the modules the study EHR shows: summary, problems, medications, results, vitals, notes, procedures.
-import { h, md, fmtDate } from './ui.js?v=9f2e4e6156';
+import { h, md, fmtDate } from './ui.js?v=cc445381af';
 
 const TABS = [['summary', 'Summary'], ['problems', 'Problems'], ['medications', 'Medications'], ['labs', 'Results'], ['vitals', 'Vitals'],
   ['notes', 'Notes'], ['procedures', 'Procedures']];
@@ -148,19 +148,31 @@ function ago(s, now) {
 }
 const RANGES = [['all', 'All dates'], ['30', 'Last 30 days'], ['182', 'Last 6 months'], ['365', 'Last year']];
 const shortVital = (t) => t;
-// display precision of a result (flags use the raw value; the raw value is in the tooltip)
-const PREC = [[/^(total cholesterol|LDL cholesterol|HDL cholesterol|triglycerides|glucose|platelets|sodium|chloride|ALT|AST|alkaline phosphatase|ferritin|eGFR.*|BUN|urea nitrogen|CK|LDH|PDW)$/i, 0],
-  [/^(WBC|hemoglobin|hematocrit|MCV|MCH|MCHC|RDW|MPV|albumin|potassium|calcium|magnesium|C reactive protein|hemoglobin A1c|INR|bilirubin.*|phosph.*|lactate|ESR|erythrocyte sedimentation rate|temp|BMI|weight)$/i, 1],
-  [/^(RBC|creatinine|TSH)$/i, 2], [/specific gravity/i, 3], [/^pH/i, 1]];
-const shown = (r) => { const v = Number(r.value); if (r.value === '' || r.value === null || Number.isNaN(v) || typeof r.value === 'string' && !/^-?[\d.]+$/.test(r.value)) return r.value ?? '';
-  const d = PREC.find(([re]) => re.test(r.text))?.[1] ?? (Math.abs(v) >= 100 ? 0 : Math.abs(v) >= 10 ? 1 : 2);
-  return String(+v.toFixed(d)); };
-// standard short names for the storyboard and the header (the full name is in the tooltip)
-const SHORT = [[/^C reactive protein$/i, 'CRP'], [/^Hemoglobin A1c$/i, 'HbA1c'], [/^bilirubin.*total|^total bilirubin|^bilirubin total$/i, 'T. bili'], [/^eGFR/i, 'eGFR'],
+// display precision of a result, fixed per test with trailing zeros kept (6.0 %, 0.70 mg/dL) as a laboratory reports it; flags use the raw
+// value and the raw value is in the tooltip. Names are those of labName below.
+const PREC = [[/^(Total cholesterol|LDL cholesterol|HDL cholesterol|Triglycerides|Glucose|Fasting glucose|Platelets|Sodium|Chloride|Bicarbonate|ALT|AST|ALP|GGT|LDH|Ferritin|eGFR.*|BUN|CK|PDW|ESR|Erythrocyte sedimentation rate|CD4 count|HIV-1 RNA \(viral load\)|Albumin\/creatinine ratio, urine|Testosterone, total.*|Fibrinogen|IgA|IgE|IgG|Complement C3|Complement C4|Haptoglobin|hCG, serum.*|Iron|Iron binding capacity|Transferrin saturation|Vitamin B12|25-hydroxyvitamin D|PTH, intact|Calprotectin, stool|Ceruloplasmin|Troponin I, high sensitivity|Fecal immunochemical test|Urine WBC|Urine RBC|Urine epithelial cells|Urine glucose|Urine protein|Urine ketones)$/i, 0],
+  [/^(WBC|Hemoglobin|Hematocrit|MCV|MCH|MCHC|RDW|MPV|Albumin|Protein, total|Potassium|Calcium|Magnesium|Phosphate|C reactive protein|C-reactive protein|Hemoglobin A1c|INR|aPTT|Total bilirubin|Direct bilirubin|Indirect bilirubin|Urine bilirubin|Lactate|Neutrophils, absolute|Lymphocytes, absolute|Prolactin|LH|FSH|Folate|Bile acids, total|Tissue transglutaminase IgA|Reticulocytes|Carbamazepine|Urine pH|(Neutrophils|Lymphocytes|Monocytes|Eosinophils|Basophils)\/100 leukocytes)$/i, 1],
+  [/^(RBC|Creatinine|TSH|Free T4|Monocytes, absolute|Eosinophils, absolute|Basophils, absolute|Methylmalonic acid|Prostate specific antigen|Protein\/creatinine ratio, urine|QuantiFERON.*)$/i, 2],
+  [/^Urine specific gravity$/i, 3]];
+export const shown = (r) => { const v = Number(r.value); if (r.value === '' || r.value === null || Number.isNaN(v) || typeof r.value === 'string' && !/^-?[\d.]+$/.test(r.value)) return r.value ?? '';
+  const d = PREC.find(([re]) => re.test(r.text))?.[1];
+  return d === undefined ? String(+v.toFixed(Math.abs(v) >= 100 ? 0 : Math.abs(v) >= 10 ? 1 : 2)) : v.toFixed(d); };  // a test without a fixed precision
+const CELL = { Neutrophils: 'Neut', Lymphocytes: 'Lymph', Monocytes: 'Mono', Eosinophils: 'Eos', Basophils: 'Baso' };
+// standard short names for the storyboard and the header (the full name is in the tooltip); every name over 10 characters in the packet has one
+const SHORT = [[/^C[- ]reactive protein$/i, 'CRP'], [/^Hemoglobin A1c$/i, 'HbA1c'], [/^Total bilirubin$/i, 'T. bili'], [/^Direct bilirubin$/i, 'D. bili'], [/^Indirect bilirubin$/i, 'I. bili'], [/^eGFR.*/i, 'eGFR'],
   [/^LDL cholesterol$/i, 'LDL-C'], [/^HDL cholesterol$/i, 'HDL-C'], [/^Triglycerides$/i, 'TG'], [/^Platelets$/i, 'Plt'], [/^Total cholesterol$/i, 'TC'], [/^Hemoglobin$/i, 'Hgb'],
-  [/^Hematocrit$/i, 'Hct'], [/^Potassium$/i, 'K'], [/^Sodium$/i, 'Na'], [/^Albumin$/i, 'Alb'], [/^Alkaline phosphatase$/i, 'ALP'], [/^Creatinine$/i, 'Creat'],
-  [/^Erythrocyte sedimentation rate$/i, 'ESR'], [/^Tobacco smoking status$/i, 'Tobacco']];
-const shortLab = (t) => (SHORT.find(([re]) => re.test(t))?.[1]) || t;
+  [/^Hematocrit$/i, 'Hct'], [/^Potassium$/i, 'K'], [/^Sodium$/i, 'Na'], [/^Chloride$/i, 'Cl'], [/^Bicarbonate$/i, 'CO2'], [/^BUN$/i, 'BUN'], [/^Albumin$/i, 'Alb'], [/^Alkaline phosphatase|^ALP$/i, 'ALP'], [/^Creatinine$/i, 'Creat'],
+  [/^Magnesium$/i, 'Mg'], [/^Phosphate$/i, 'Phos'], [/^Protein, total$/i, 'T. protein'], [/^Erythrocyte sedimentation rate$|^ESR$/i, 'ESR'], [/^Tobacco smoking status$/i, 'Tobacco'],
+  [/^Prostate specific antigen$/i, 'PSA'], [/^Vitamin B12$/i, 'B12'], [/^25-hydroxyvitamin D$/i, '25-OH D'], [/^Methylmalonic acid$/i, 'MMA'], [/^PTH, intact$/i, 'PTH'], [/^Folate$/i, 'Folate'],
+  [/^GGT$/i, 'GGT'], [/^LDH$/i, 'LDH'], [/^Troponin I, high sensitivity$/i, 'hs-TnI'], [/^Testosterone, total.*/i, 'Testost.'], [/^Iron binding capacity$/i, 'TIBC'], [/^Transferrin saturation$/i, 'TSAT'],
+  [/^Fasting glucose$/i, 'FPG'], [/^Haptoglobin$/i, 'Hapto'], [/^Complement C([34])$/i, 'C$1'], [/^hCG, serum.*/i, 'hCG'], [/^Bile acids, total$/i, 'Bile acids'], [/^Tissue transglutaminase IgA$/i, 'tTG-IgA'],
+  [/^Calprotectin, stool$/i, 'Calpro'], [/^Fecal immunochemical test$/i, 'FIT'], [/^Ceruloplasmin$/i, 'Cerulo'], [/^Carbamazepine$/i, 'CBZ'], [/^Reticulocytes$/i, 'Retic'],
+  [/^CD4 count$/i, 'CD4'], [/^HIV-1 RNA.*/i, 'HIV VL'], [/^Albumin\/creatinine ratio, urine$/i, 'UACR'], [/^Protein\/creatinine ratio, urine$/i, 'UPCR'],
+  [/^Neutrophils, absolute$/i, 'ANC'], [/^Lymphocytes, absolute$/i, 'ALC'], [/^(Monocytes|Eosinophils|Basophils), absolute$/i, (m, x) => `${CELL[x]}, abs`],
+  [/^(Neutrophils|Lymphocytes|Monocytes|Eosinophils|Basophils)\/100 leukocytes$/i, (m, x) => `${CELL[x]} %`],
+  [/^QuantiFERON-TB Gold Plus (TB[12]) antigen minus nil$/i, '$1−nil'], [/^QuantiFERON-TB Gold Plus nil$/i, 'QFT nil'],
+  [/^Urine specific gravity$/i, 'U. SG'], [/^Urine (pH|WBC|RBC)$/i, 'U. $1'], [/^Urine (protein|glucose|ketones)$/i, 'U. $1'], [/^Urine bilirubin$/i, 'U. bili'], [/^Urine epithelial cells$/i, 'U. epi']];
+export const shortLab = (t) => { const s = SHORT.find(([re]) => re.test(t)); return s ? t.replace(s[0], s[1]) : t; };
 // medication names as an EHR medication list prints them: generic in lowercase with strength and form, combination products joined with
 // hyphens, package counts and NDA codes dropped, a brand kept in brackets (presentation only; the original string is in the tooltip)
 const FORMS = [[/Dry Powder Inhaler|Metered Dose Inhaler|Inhalation Aerosol/i, 'inhaler'], [/Auto-Injector/i, 'auto-injector'], [/Prefilled Syringe/i, 'prefilled syringe'],
@@ -203,13 +215,25 @@ const flagMark = (r) => { const f = flag(r); return f ? h('span', { class: 'fl' 
 const val = (r) => h('span', { class: flag(r) ? 'flag' : '', title: `${r.value ?? ''} ${cleanUnit(r.unit)}` }, String(shown(r)), h('span', { class: 'u' }, ` ${cleanUnit(r.unit)}`), flagMark(r));
 const timeOf = (s) => (String(s).match(/[ T](\d{2}:\d{2})/) || [])[1] || '';
 const stamp = (s) => h('span', { class: 'nw' }, fmtDate(String(s).slice(0, 10)), timeOf(s) ? h('span', { class: 'tm' }, ` ${timeOf(s)}`) : null);
-// test names as a flowsheet prints them: LOINC qualifiers dropped, common panel members abbreviated (the full name stays in the tooltip)
+// test names as a flowsheet prints them: LOINC qualifiers, specimen and method dropped (urine and stool kept), one name per test
+// (Bilirubin.total, Bilirubin, total and Total bilirubin are one series), common panel members abbreviated (the full name is in the tooltip)
 const ALIAS = [[/^Hemoglobin A1c\/Hemoglobin\.total.*/i, 'Hemoglobin A1c'], [/^Cholesterol in HDL.*/i, 'HDL cholesterol'], [/^Low Density Lipoprotein Cholesterol.*/i, 'LDL cholesterol'],
-  [/^Cholesterol$/i, 'Total cholesterol'], [/^Erythrocyte distribution width.*/i, 'RDW'], [/^Platelet distribution width.*/i, 'PDW'], [/^Platelet mean volume.*/i, 'MPV'],
-  [/^Leukocytes$/i, 'WBC'], [/^Erythrocytes$/i, 'RBC'], [/^Alanine aminotransferase$/i, 'ALT'], [/^Aspartate aminotransferase$/i, 'AST'], [/^Hemoglobin$/i, 'Hemoglobin'],
-  [/^CD3\+CD4\+ \(T4 helper\) cells$/i, 'CD4 count'], [/^HIV 1 RNA.*/i, 'HIV-1 RNA (viral load)']];
-const labName = (t) => { const s = String(t || '').replace(/\s*\[[^\]]*\]/g, '').replace(/\s+by (Automated count|Test strip|NAA with probe detection)$/i, '').replace(/\s+in (Serum or Plasma|Blood)$/i, '').trim();
-  return (ALIAS.find(([re]) => re.test(s))?.[1]) || s; };
+  [/^Cholesterol$|^Cholesterol, total$/i, 'Total cholesterol'], [/^Erythrocyte distribution width.*/i, 'RDW'], [/^Platelet distribution width.*/i, 'PDW'], [/^Platelet mean volume.*/i, 'MPV'],
+  [/^Leukocytes$|^White blood cell count$/i, 'WBC'], [/^Erythrocytes$/i, 'RBC'], [/^Alanine aminotransferase$/i, 'ALT'], [/^Aspartate aminotransferase$/i, 'AST'], [/^Alkaline phosphatase$/i, 'ALP'],
+  [/^Gamma glutamyl transferase$/i, 'GGT'], [/^Lactate dehydrogenase$/i, 'LDH'], [/^Urea nitrogen$/i, 'BUN'], [/^Carbon dioxide, total$|^Bicarbonate \(CO2\)$/i, 'Bicarbonate'],
+  [/^(Bilirubin\.total|Bilirubin, total|Bilirubin total|Total bilirubin)$/i, 'Total bilirubin'], [/^Bilirubin,? direct$/i, 'Direct bilirubin'], [/^Bilirubin,? indirect$/i, 'Indirect bilirubin'],
+  [/^Bilirubin\.total in Urine$/i, 'Urine bilirubin'], [/^Specific gravity of Urine$/i, 'Urine specific gravity'], [/^pH of Urine$/i, 'Urine pH'],
+  [/^(Protein|Glucose|Ketones) in Urine$/i, (m, x) => `Urine ${x.toLowerCase()}`], [/^WBCs$/i, 'Urine WBC'], [/^RBCs$/i, 'Urine RBC'], [/^Epithelial Cells$/i, 'Urine epithelial cells'],
+  [/^Glomerular filtration rate\/1\.73 sq M\.predicted.*/i, 'eGFR'], [/^Troponin I\.cardiac.*High sensitivity.*/i, 'Troponin I, high sensitivity'],
+  [/^Cobalamin \(Vitamin B12\)$/i, 'Vitamin B12'], [/^Prostate specific (Ag|antigen)$/i, 'Prostate specific antigen'], [/^Parathyrin\.intact$/i, 'PTH, intact'],
+  [/^Protein\/Creatinine( ratio, urine| in Urine)$/i, 'Protein/creatinine ratio, urine'], [/^Albumin\/Creatinine ratio, urine$/i, 'Albumin/creatinine ratio, urine'],
+  [/^Hemoglobin\.gastrointestinal\.lower.*Stool.*/i, 'Fecal immunochemical test'], [/^(Fecal calprotectin|Calprotectin, stool)$/i, 'Calprotectin, stool'],
+  [/^(Glucose \(fasting\)|Fasting glucose)$/i, 'Fasting glucose'], [/^(Bile acids total|Bile acids, total)$/i, 'Bile acids, total'], [/^Immunoglobulin A$/i, 'IgA'], [/^IgE, total$/i, 'IgE'],
+  [/^Absolute neutrophil count$|^Neutrophils$/i, 'Neutrophils, absolute'], [/^Lymphocytes$/i, 'Lymphocytes, absolute'], [/^(Monocytes|Basophils)$/i, '$1, absolute'],
+  [/^Eosinophils$/i, 'Eosinophils, absolute'],
+  [/^CD3\+CD4\+ \(T4 helper\) cells$|^CD4 cells$|^CD4\+ T cells$/i, 'CD4 count'], [/^HIV 1 RNA.*/i, 'HIV-1 RNA (viral load)']];
+export const labName = (t) => { const raw = String(t || ''); const s = raw.replace(/\s*\[[^\]]*\]/g, '').replace(/\s+by\s.*$/i, '').replace(/\s+(in|of) (Serum or Plasma|Serum|Plasma|Blood|Platelet poor plasma)$/i, '').trim();
+  const a = ALIAS.find(([re]) => re.test(s) || re.test(raw)); return a ? (a[0].test(s) ? s : raw).replace(a[0], a[1]) : s; };
 const PANELS = [['Microbiology', /culture|gram (positive|negative|stain)|organism|microb|susceptib|smear|\bAFB\b/i], ['Urinalysis', /urine|\bUA\b|ketones|specific gravity|nitrite|leukocyte esterase|^casts|mucus|epithelial|^bacteria|^WBCs|^RBCs/i],
   ['Endocrine', /A1c|\bTSH\b|thyro|\bT4\b|\bT3\b|cortisol|PTH|vitamin D/i], ['Lipids', /cholesterol|triglycerides|\bLDL\b|\bHDL\b/i],
   ['Coagulation', /\bINR\b|prothrombin|\bPTT\b|fibrinogen|D-dimer/i], ['Liver', /\bALT\b|\bAST\b|alkaline phosphatase|bilirubin|^albumin$|\bGGT\b|protein total/i],
@@ -309,7 +333,7 @@ export function ehrChart(c, { onView, task = true } = {}) {
   const banner = h('div', { class: 'pheader' },
     h('div', { class: 'pname' }, h('h1', {}, p.name), h('div', { class: 'pfacts' }, h('span', {}, `${p.age} y.o. ${String(p.sex || '').slice(0, 1).toUpperCase()}`),
       h('span', {}, `DOB ${fmtDate(p.birthDate)}`), h('span', { class: 'mono' }, `MRN ${p.mrn}`))),
-    h('dl', { class: 'penc' }, h('div', { class: 'simdate', title: 'The date and time of the simulated encounter; "1 d ago" and the date filters count from it' }, h('dt', {}, 'Simulated date'), h('dd', {}, simNow)),
+    h('dl', { class: 'penc' }, h('div', { class: 'simdate', title: 'The date and time of the simulated encounter. "1 d ago" and the date filters count from it.' }, h('dt', {}, 'Simulated date'), h('dd', {}, simNow)),
       h('div', {}, h('dt', {}, 'Allergies'), h('dd', { class: allergies.length ? 'flag' : 'muted', title: allergies.join(', ') }, allergies.length ? allergies.join(', ') : 'Not on file')), h('div', {}, h('dt', {}, 'Department'), h('dd', {}, deptOf(c.role))),
       h('div', {}, h('dt', {}, 'Request from'), h('dd', {}, c.inbox.sender))),
     h('dl', { class: 'pkeys' }, key('Weight', vit('Weight')), key('BP', vit('BP')),

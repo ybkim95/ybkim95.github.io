@@ -520,6 +520,8 @@ table.grid td.doc { min-width: 160px; }
 .sidebar table.mini td.when { width: 46px; }
 .sidebar table.mini td:not(.when) { overflow: visible; }
 .sidebar table.mini { table-layout: auto; } .sidebar table.mini th { max-width: none; white-space: nowrap; }
+/* Key results: the name gives way (ellipsis, full name on hover) so the value is always in view */
+.sidebar table.kr { table-layout: fixed; } .sidebar table.kr th { width: 42%; overflow: hidden; text-overflow: ellipsis; } .sidebar table.kr td:not(.when) { overflow: hidden; text-overflow: ellipsis; }
 /* v7: form validation, answers-left link, open-answer markers, full note, centered cards */
 .field input.invalid, .field select.invalid { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad); }
 .field-err { color: var(--bad); font-size: 12px; min-height: 0; margin-top: 3px; }

@@ -1,8 +1,8 @@
 // Study team page (admin.html): applications arrive live; one click approves a physician for the episode review (Study B) or rejects;
 // block progress and the JSON download. (2026-11-06: the site serves Study B only; Study A' keeps its code and database root.) The database rules let only the addresses in
 // hcua_validity/admins (and hcua_task_review/admins for Study A') read or write any of this.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=6d93ea3994';
-import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=6d93ea3994';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=fb9d18c226';
+import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=fb9d18c226';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 const app = document.getElementById('app');
@@ -61,7 +61,7 @@ function applicationsCard() {
         D.remove(ref(`${V}/decisions/${uid}`)).catch((e) => toast(e.message, 'bad'));
       } }, 'Undo');
     return h('tr', {}, h('td', {}, h('strong', {}, a.name), h('div', { class: 'small muted' }, a.email)), h('td', {}, d ? status : actions, d ? actions : null),
-      h('td', {}, a.specialty), h('td', {}, STAGE[a.stage] || a.stage), h('td', {}, a.place), h('td', { class: 'num small' }, a.appliedAt ? fmtTime(a.appliedAt) : ''));
+      h('td', {}, a.specialty), h('td', {}, STAGE[a.stage] || a.stage), h('td', {}, a.place), h('td', { class: 'nw small' }, a.appliedAt ? fmtTime(a.appliedAt) : ''));
   });
   const waiting = Object.keys(apps).filter((u) => !decisions[u]).length;
   return h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', {}, h('div', { class: 'eyebrow' }, 'Applications'), h('h1', { style: { margin: 0 } }, `${waiting} waiting`)),

@@ -1,7 +1,7 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=6d93ea3994';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND } from './ui.js?v=6d93ea3994';
-import { caseLayout, deptOf } from './chart.js?v=6d93ea3994';
+import { createStore } from './validity-store.js?v=fb9d18c226';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND } from './ui.js?v=fb9d18c226';
+import { caseLayout, deptOf, lowerName } from './chart.js?v=fb9d18c226';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)
@@ -122,13 +122,24 @@ function applyView() {
     place: input('ap-place', '', 'Hospital or city, and country', 'organization'),
     stage: h('select', { id: 'ap-stage' }, h('option', { value: '' }, 'Choose…'), STAGES.map(([v, l]) => h('option', { value: v }, l))) };
   const licensed = h('input', { type: 'checkbox', id: 'ap-licensed' }); const agree = h('input', { type: 'checkbox', id: 'ap-agree' });
-  const field = (k, label) => h('div', {}, h('label', { for: `ap-${k}` }, label), f[k]);
-  const err = h('div', { class: 'problems' });
-  const go = h('button', { class: 'primary', onclick: async () => {
+  const hint = {}; const field = (k, label) => h('div', { class: 'field' }, h('label', { for: `ap-${k}` }, label), f[k], hint[k] = h('div', { class: 'field-err' }));
+  const checks = { licensed: [licensed, 'the physician confirmation'], agree: [agree, 'your agreement'] };
+  const LABEL = { name: 'your name', specialty: 'your specialty', stage: 'your career stage', place: 'where you work' };
+  const err = h('div', { class: 'problems' }); let tried = false;
+  const list2 = (xs) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+  // which answers are missing; after the first try every field is checked again as it changes, and the message clears when all are in
+  const validate = () => {
     const a = Object.fromEntries(Object.entries(f).map(([k, el]) => [k, el.value.trim()]));
-    const miss = [!a.name && 'your name', !a.specialty && 'your specialty', !a.stage && 'your career stage', !a.place && 'where you work',
-      !licensed.checked && 'the physician confirmation', !agree.checked && 'your agreement'].filter(Boolean);
-    if (miss.length) { err.textContent = `Please add ${miss.join(', ')}.`; return; }
+    const miss = [];
+    for (const k of ['name', 'specialty', 'stage', 'place']) { const bad = !a[k]; f[k].classList.toggle('invalid', tried && bad); hint[k].textContent = tried && bad ? 'Required' : ''; if (bad) miss.push(LABEL[k]); }
+    for (const [el, label] of Object.values(checks)) { el.closest('label').classList.toggle('invalid', tried && !el.checked); if (!el.checked) miss.push(label); }
+    err.textContent = tried && miss.length ? `Please add ${list2(miss)}.` : '';
+    return { a, miss };
+  };
+  for (const el of [...Object.values(f), licensed, agree]) { el.addEventListener('input', () => tried && validate()); el.addEventListener('change', () => tried && validate()); }
+  const go = h('button', { class: 'primary', onclick: async () => {
+    tried = true; const { a, miss } = validate();
+    if (miss.length) { (Object.values(f).find((el) => el.classList.contains('invalid')) || licensed).focus(); return; }
     go.disabled = true;
     try { await S.apply(a); toast('Application sent.'); route(); } catch (e) { go.disabled = false; err.textContent = `Not sent: ${e.message}`; }
   } }, 'Apply');
@@ -219,11 +230,12 @@ function orderRows(text, k, kind, judge) {
   const dose = f.dose && f.dose.replace(/\b\d{4,}\b/g, (n) => Number(n).toLocaleString('en-US'));
   const sig = kind === 'Medications' ? [dose, f.route, f.frequency && f.frequency.replace(/^\w/, (c) => c.toLowerCase())]
     : kind === 'Stopped' ? [extra ? humanDates(extra) : null, f.reason ? `Reason: ${humanDates(f.reason)}` : null]
-      : [f.scheduled || f.date ? `Expected ${fmtDate(f.scheduled || f.date)}` : 'Once', f.type];
-  const rows = [h('tr', { class: 'otr' }, h('td', {}, h('div', { class: 'oname' }, humanDates(name)), h('div', { class: 'odetail' }, sig.filter(Boolean).join(' · ') || ' ')),
+      : kind === 'Referrals' ? [f.scheduled || f.date ? `Expected ${fmtDate(f.scheduled || f.date)}` : null] : [f.scheduled || f.date ? `Expected ${fmtDate(f.scheduled || f.date)}` : 'Once', f.type];
+  const shownName = kind === 'Medications' || kind === 'Stopped' ? lowerName(name) : cap(name);
+  const rows = [h('tr', { class: 'otr' }, h('td', {}, h('div', { class: 'oname' }, humanDates(shownName)), h('div', { class: 'odetail' }, sig.filter(Boolean).join(' · ') || ' ')),
     h('td', { class: 'nw' }, kind === 'Stopped' ? '—' : urgent ? h('span', { class: 'status urgent' }, cap(f.priority)) : cap(f.priority || 'Routine')),
     h('td', { class: 'nw' }, h('span', { class: `status ${kind === 'Stopped' ? 'discontinued' : 'signed'}` }, kind === 'Stopped' ? 'Discontinued' : 'Signed')))];
-  if (judge) rows.push(h('tr', { class: 'ojtr' }, h('td', { colspan: 3 }, h('span', { class: 'ojlabel' }, 'Your judgment'), judge(k))));
+  if (judge) rows.push(h('tr', { class: 'ojtr', 'data-k': k }, h('td', { colspan: 3 }, h('span', { class: 'ojlabel' }, 'Your judgment'), judge(k))));
   return rows;
 }
 function ordersPanel(item, judge) {
@@ -234,7 +246,7 @@ function ordersPanel(item, judge) {
   const group = (title, n) => body.push(h('tr', { class: 'grouprow' }, h('td', { colspan: 3 }, title, h('span', { class: 't' }, String(n)))));
   for (const g of GROUPS) { const rows = orders.filter((o) => o.kind === g); if (rows.length) { group(g, rows.length); rows.forEach((o) => body.push(...orderRows(o.t, o.k, g, judge))); } }
   if (visits.length) { group('Follow-up and appointments', visits.length); visits.forEach((v) => { const { name, f } = parseLine(v);
-    body.push(h('tr', { class: 'otr' }, h('td', {}, h('div', { class: 'oname' }, humanDates(name)), h('div', { class: 'odetail' }, [f.type || 'Office visit', f.date ? fmtDate(f.date) : null].filter(Boolean).join(' · '))),
+    body.push(h('tr', { class: 'otr' }, h('td', {}, h('div', { class: 'oname' }, humanDates(cap(name))), h('div', { class: 'odetail' }, [f.type || 'Office visit', f.date ? fmtDate(f.date) : null].filter(Boolean).join(' · '))),
       h('td', { class: 'nw' }, '—'), h('td', { class: 'nw' }, h('span', { class: 'status booked' }, 'Scheduled')))); }); }
   if (stops.length) { group('Discontinued medications', stops.length); stops.forEach((s) => body.push(...orderRows(s.t, s.k, 'Stopped', judge))); }
   const n = orders.length + stops.length + visits.length;
@@ -269,7 +281,7 @@ function ratingForm({ d, save, readOnly, idp, item, ask = {}, date, role }) {
       if ((k === 'effort' || k === 'guessed_interface') && !ask[k]) continue;
       if ((k === 'note_untrue' || k === 'note_untrue_text') && !item.notes) continue;  // stored as "no note" when the rating starts
       if (k === 'order_judgments') {
-        parts.push(ordersPanel(item, (key) => h('span', { class: 'ojudge' }, radios(`${idp}-${key}`, JUDGE, (d.order_judgments || {})[key], (v) => {
+        parts.push(ordersPanel(item, (key) => h('span', { class: `ojudge${(d.order_judgments || {})[key] ? '' : ' open'}` }, radios(`${idp}-${key}`, JUDGE, (d.order_judgments || {})[key], (v) => {
           d.order_judgments = { ...(d.order_judgments || {}), [key]: v };
           save({ [`order_judgments/${key}`]: v, ...derive(d, item) }); draw();
         }))), ...recordRest(item, date, role), h('div', { class: 'panel-h rating-h' }, h('h2', {}, 'Your rating')));
@@ -282,14 +294,14 @@ function ratingForm({ d, save, readOnly, idp, item, ask = {}, date, role }) {
           ? h('div', { class: 'choice anchored', role: 'radiogroup' }, opts.map(([v, label]) => h('label', {}, h('input', { type: 'radio', name: `${idp}-${k}`, value: v, checked: d[k] === v, onchange: () => pick(v) }),
             label, h('span', { class: 'anchor' }, OVERALL_HELP[v]))))
           : radios(`${idp}-${k}`, opts, d[k], pick);
-        parts.push(h('div', { class: 'q' }, h('div', { class: 'label' }, q), group));
+        parts.push(h('div', { class: 'q', 'data-k': k }, h('div', { class: 'label' }, q), group));
         if (k === 'overall' && d.overall === 'accept' && d.missing_required === 'yes') parts.push(h('div', { class: 'warn small' }, 'You said something required is missing, and rated the work Accept. If the missing order matters, choose Accept with minor issues or Reject.'));
       } else {
         const [label, hint] = TEXTS[k];
         const t = h('textarea', { readonly: readOnly, style: { minHeight: k === 'notes' ? '70px' : '56px' }, placeholder: hint }, d[k] || '');
         t.addEventListener('input', () => { d[k] = t.value; texts.queue({ [k]: t.value }); });
         t.addEventListener('blur', () => texts.flush());
-        parts.push(h('label', {}, label, ' ', h('span', { class: 'opt' }, k === 'notes' ? '(optional)' : '')), t);
+        parts.push(h('div', { class: 'qt', 'data-k': k }, h('label', {}, label, ' ', h('span', { class: 'opt' }, k === 'notes' ? '(optional)' : '')), t));
       }
     }
     box.replaceChildren(...parts);
@@ -310,7 +322,15 @@ function footerBar(d, item, onSubmit, what, ask) {
     try { await onSubmit(); } catch (e) { submit.disabled = false; err.textContent = `Not submitted: ${e.message}`; toast(`Could not submit: ${e.message}`, 'bad'); }
   } }, `Submit ${what}`);
   const err = h('div', { class: 'problems' });
-  return h('div', { class: 'footer-bar' }, h('div', {}, h('div', { class: miss.length ? 'problems' : 'ready' }, miss.length ? `${miss.length} answer${miss.length > 1 ? 's' : ''} left.` : 'Ready to submit.'), err), submit);
+  const show = () => {  // the first open answer comes into view and flashes; open order judgments keep a quiet marker
+    const panel = document.querySelector('.ehr-right'); if (!panel) return;
+    panel.classList.add('tried');
+    const el = miss.map((k) => panel.querySelector(`[data-k="${k}"]`)).find(Boolean); if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  };
+  const left = miss.length ? h('button', { type: 'button', class: 'linkish problems', onclick: show, title: 'Show the first open answer' }, `${miss.length} answer${miss.length > 1 ? 's' : ''} left · show`)
+    : h('div', { class: 'ready' }, 'Ready to submit.');
+  return h('div', { class: 'footer-bar' }, h('div', {}, left, err), submit);
 }
 
 function caseShell(c0, extra, right, onView) {
@@ -360,6 +380,8 @@ async function queueView() {
 // How to rate, at the top of the review panel: open on a rater's first item, folded after that.
 function howTo(open) {
   return h('details', { class: 'howto', open }, h('summary', {}, 'How to rate'), h('div', { class: 'md small', html: md(`Judge the agent's work as you would a colleague's: **each order and stop** (appropriate, not needed, or wrong or harmful), whether anything **required is missing**, whether the **note** says anything untrue, then an **overall** rating. A few items also ask about mental effort or which kind of system the agent used.
+
+The chart shows the record as it was before the agent acted, so a medication the agent stopped still appears as active there.
 
 Not shown: the reason or instructions typed with an order, the timing and order of the agent's steps, and which system it used. Your answers save as you go; submitting an item locks it and opens the next one.`) }));
 }

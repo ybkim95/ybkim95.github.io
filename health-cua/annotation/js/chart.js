@@ -1,5 +1,5 @@
 // The patient chart, in the modules the study EHR shows: summary, problems, medications, results, vitals, notes, procedures.
-import { h, md, fmtDate } from './ui.js?v=6d93ea3994';
+import { h, md, fmtDate } from './ui.js?v=fb9d18c226';
 
 const TABS = [['summary', 'Summary'], ['problems', 'Problems'], ['medications', 'Medications'], ['labs', 'Results'], ['vitals', 'Vitals'],
   ['notes', 'Notes'], ['procedures', 'Procedures']];
@@ -18,9 +18,9 @@ const range = (r) => (has(r.low) && has(r.high) ? `${r.low}–${r.high}` : has(r
 
 // Display only (the chart data are unchanged): vital names and units as clinicians write them, blood pressure as one reading,
 // at most one decimal for vitals, dates as Jan 24, 2024 18:54.
-const VITAL_NAMES = [[/^pain severity\b.*/i, 'Pain score'], [/^blood pressure panel\b.*/i, 'Blood pressure'], [/^oxygen saturation\b.*/i, 'Oxygen saturation'],
-  [/^body height\b.*/i, 'Height'], [/^body weight\b.*/i, 'Weight'], [/^body temperature\b.*/i, 'Temperature'], [/^body mass index\b.*/i, 'BMI'],
-  [/^heart rate\b.*/i, 'Heart rate'], [/^respiratory rate\b.*/i, 'Respiratory rate'], [/^head occipital-frontal circumference\b.*/i, 'Head circumference']];
+const VITAL_NAMES = [[/^pain severity\b.*/i, 'Pain'], [/^blood pressure panel\b.*/i, 'BP'], [/^oxygen saturation\b.*/i, 'SpO2'],
+  [/^body height\b.*/i, 'Height'], [/^body weight\b.*/i, 'Weight'], [/^body temperature\b.*/i, 'Temp'], [/^body mass index\b.*/i, 'BMI'],
+  [/^heart rate\b.*/i, 'Pulse'], [/^respiratory rate\b.*/i, 'Resp'], [/^head occipital-frontal circumference\b.*/i, 'Head circumference']];  // one short name per vital everywhere
 const UNITS = [[/mm\[Hg\]/g, 'mmHg'], [/^Cel$/, '°C'], [/^\[degF\]$/, '°F'], [/kg\/m2/g, 'kg/m²'], [/10\*3\/uL/g, '×10³/µL'], [/10\*6\/uL/g, '×10⁶/µL'], [/\buL\b/g, 'µL'], [/\{[^}]*\}/g, '']];
 export const cleanUnit = (u) => UNITS.reduce((x, [re, to]) => x.replace(re, to), String(u || '')).trim();
 const withUnit = (v, u) => { const x = cleanUnit(u); return `${v ?? ''}${x && !/^[/%°]/.test(x) ? ' ' : ''}${x}`.trim(); };  // 4/10, 94%, 37.2°C
@@ -31,13 +31,14 @@ export function tidyVitals(rows) {
   const out = []; const bp = {};
   for (const r of rows || []) {
     const t = String(r.text || '');
-    if (/^(systolic|diastolic) blood pressure$/i.test(t)) { const k = r.date; bp[k] = bp[k] || { ...r, text: 'Blood pressure', unit: 'mmHg', _bp: {} }; bp[k]._bp[/^s/i.test(t) ? 's' : 'd'] = r.value; continue; }
+    if (/^(systolic|diastolic) blood pressure$/i.test(t)) { const k = r.date; bp[k] = bp[k] || { ...r, text: 'BP', unit: 'mmHg', _bp: {} }; bp[k]._bp[/^s/i.test(t) ? 's' : 'd'] = r.value; continue; }
     const name = (VITAL_NAMES.find(([re]) => re.test(t))?.[1]) || t.replace(/\s*\[[^\]]*\]/g, '').replace(/\s+-\s+Reported$/, '');
     let value = r.value; let unit = cleanUnit(r.unit);
     const pair = typeof value === 'string' ? bpOf(value) : null;
     if (pair) { value = pair; unit = 'mmHg'; }
     else if (typeof value === 'number' && !Number.isInteger(value)) value = Math.round(value * 10) / 10;
-    if (name === 'Pain score' && !unit) unit = '/10';
+    if (name === 'Height' && typeof value === 'number') value = Math.round(value);
+    if (name === 'Pain' && !unit) unit = '/10';
     out.push({ ...r, text: name, value, unit });
   }
   for (const r of Object.values(bp)) { out.push({ ...r, value: `${r._bp.s ?? '–'}/${r._bp.d ?? '–'}` }); delete r._bp; }
@@ -146,9 +147,60 @@ function ago(s, now) {
   return d <= 0 ? 'today' : d < 14 ? `${d} d ago` : d < 60 ? `${Math.round(d / 7)} wk ago` : d < 730 ? `${Math.round(d / 30.4)} mo ago` : `${Math.round(d / 365)} y ago`;
 }
 const RANGES = [['all', 'All dates'], ['30', 'Last 30 days'], ['182', 'Last 6 months'], ['365', 'Last year']];
-const shortVital = (t) => ({ 'Blood pressure': 'BP', 'Heart rate': 'Pulse', 'Respiratory rate': 'Resp', 'Oxygen saturation': 'SpO2', Temperature: 'Temp', 'Pain score': 'Pain' }[t] || t);
+const shortVital = (t) => t;
+// display precision of a result (flags use the raw value; the raw value is in the tooltip)
+const PREC = [[/^(total cholesterol|LDL cholesterol|HDL cholesterol|triglycerides|glucose|platelets|sodium|chloride|ALT|AST|alkaline phosphatase|ferritin|eGFR.*|BUN|urea nitrogen|CK|LDH|PDW)$/i, 0],
+  [/^(WBC|hemoglobin|hematocrit|MCV|MCH|MCHC|RDW|MPV|albumin|potassium|calcium|magnesium|C reactive protein|hemoglobin A1c|INR|bilirubin.*|phosph.*|lactate|ESR|erythrocyte sedimentation rate|temp|BMI|weight)$/i, 1],
+  [/^(RBC|creatinine|TSH)$/i, 2], [/specific gravity/i, 3], [/^pH/i, 1]];
+const shown = (r) => { const v = Number(r.value); if (r.value === '' || r.value === null || Number.isNaN(v) || typeof r.value === 'string' && !/^-?[\d.]+$/.test(r.value)) return r.value ?? '';
+  const d = PREC.find(([re]) => re.test(r.text))?.[1] ?? (Math.abs(v) >= 100 ? 0 : Math.abs(v) >= 10 ? 1 : 2);
+  return String(+v.toFixed(d)); };
+// standard short names for the storyboard and the header (the full name is in the tooltip)
+const SHORT = [[/^C reactive protein$/i, 'CRP'], [/^Hemoglobin A1c$/i, 'HbA1c'], [/^bilirubin.*total|^total bilirubin|^bilirubin total$/i, 'T. bili'], [/^eGFR/i, 'eGFR'],
+  [/^LDL cholesterol$/i, 'LDL-C'], [/^HDL cholesterol$/i, 'HDL-C'], [/^Triglycerides$/i, 'TG'], [/^Platelets$/i, 'Plt'], [/^Total cholesterol$/i, 'TC'], [/^Hemoglobin$/i, 'Hgb'],
+  [/^Hematocrit$/i, 'Hct'], [/^Potassium$/i, 'K'], [/^Sodium$/i, 'Na'], [/^Albumin$/i, 'Alb'], [/^Alkaline phosphatase$/i, 'ALP'], [/^Creatinine$/i, 'Creat'],
+  [/^Erythrocyte sedimentation rate$/i, 'ESR'], [/^Tobacco smoking status$/i, 'Tobacco']];
+const shortLab = (t) => (SHORT.find(([re]) => re.test(t))?.[1]) || t;
+// medication names as an EHR medication list prints them: generic in lowercase with strength and form, combination products joined with
+// hyphens, package counts and NDA codes dropped, a brand kept in brackets (presentation only; the original string is in the tooltip)
+const FORMS = [[/Dry Powder Inhaler|Metered Dose Inhaler|Inhalation Aerosol/i, 'inhaler'], [/Auto-Injector/i, 'auto-injector'], [/Prefilled Syringe/i, 'prefilled syringe'],
+  [/24HR Transdermal System|Transdermal Patch/i, 'patch'], [/Extended-Release Injectable Suspension/i, 'ER injectable suspension'], [/Injectable Solution|Injectable Suspension|Injection/i, 'injection'],
+  [/Inhalation Solution/i, 'inhalation solution'], [/Inhalation Suspension/i, 'inhalation suspension'], [/Nasal Spray/i, 'nasal spray'], [/Mucosal Spray/i, 'spray'],
+  [/Ophthalmic Solution/i, 'ophthalmic solution'], [/Topical Ointment/i, 'ointment'], [/Oral Solution/i, 'oral solution'], [/Topical Cream/i, 'cream'], [/Oral Capsule|Capsule/i, 'capsule'],
+  [/Delayed Release Oral Tablet/i, 'DR tablet'], [/Extended Release Oral Tablet/i, 'ER tablet'], [/Chewable Tablet/i, 'chewable tablet'], [/Oral Tablet|Tablet/i, 'tablet'], [/28 Day Pack/i, '28-day pack']];
+export const lowerName = (s) => s.split(/(\s+|-)/).map((w) => (/^[A-Z][a-z]+$/.test(w) ? w.toLowerCase() : w)).join('');  // tall-man spellings (amLODIPine) stay, as EHRs print them
+const sep = (v) => (typeof v === 'number' && v >= 1000 && Number.isInteger(v) ? v.toLocaleString('en-US') : v);
+const unitOf = (u) => u.replace(/\bMG\b/g, 'mg').replace(/\bMCG\b/g, 'mcg').replace(/\bML\b/gi, 'mL').replace(/\bUNT\b/g, 'units').replace(/\bACTUAT\b/g, 'actuation').replace(/\bG\b/g, 'g').replace(/\bHR\b/g, 'hr').replace(/\bDay\b/g, 'day');
+export function medName(raw) {
+  let s = String(raw || '').trim(); let brand = ''; let note = '';
+  s = s.replace(/\s*\[([^\]]+)\]\s*$/, (_, b) => { brand = b; return ''; }).replace(/\s*\(([^)]*)\)\s*$/, (_, n) => { note = n; return ''; });
+  s = s.replace(/^NDA\d+\s+/, '').replace(/^\d+\s*HR\s+/i, '');
+  let vol = null; s = s.replace(/^(\d+(?:\.\d+)?)\s*ML\s+/i, (_, v) => { vol = Number(v); return ''; }); s = s.replace(/^\d+\s+ACTUAT\s+/i, '');
+  const form = FORMS.find(([re]) => re.test(s)); let rest = form ? s.replace(form[0], '').trim() : s;
+  const parts = rest.split(/\s+\/\s+/); const comp = [];
+  for (const part of parts) {
+    const m = part.match(/^(.*?)\s+(\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)?)\s*(MG|MCG|UNT|ML|IU|%|MEQ|G)(?:\s*(?:\/|per)\s*(\d+(?:\.\d+)?)?\s*(ML|ACTUAT|G|HR|Day|mL))?(.*)$/i);
+    if (!m) { if (/28 Day Pack/i.test(s)) return `${s.replace(/\s*28 Day Pack/i, '')} (28-day pack)`; return raw; }
+    let [, name, val, unit, per, perU] = m; let v = Number(val); unit = unitOf(unit.toUpperCase() === 'IU' ? 'units' : unit); perU = perU ? unitOf(perU) : '';
+    if (perU === 'actuation' && unit === 'mg' && v < 1) { v = +(v * 1000).toFixed(3); unit = 'mcg'; }
+    comp.push({ name: lowerName(name.trim()), v: Number.isNaN(v) ? val : v, unit, per: per ? `${per} ${perU}` : perU, extra: m[6].trim() });
+  }
+  if (!comp.length) return raw;
+  const names = comp.map((c) => c.name).join(comp.some((c) => c.name.includes(',')) ? ' / ' : '-'); const same = comp.every((c) => c.unit === comp[0].unit && c.per === comp[0].per);
+  let strength = same ? `${comp.map((c) => sep(c.v)).join('-')} ${comp[0].unit}${comp[0].per ? `/${comp[0].per}` : ''}` : comp.map((c) => `${sep(c.v)} ${c.unit}${c.per ? `/${c.per}` : ''}`).join(' / ');
+  if (comp.length === 1 && comp[0].extra) strength += ` ${comp[0].extra.toLowerCase()}`;
+  if (vol && comp.length === 1 && comp[0].per === 'mL') strength = `${+(comp[0].v * vol).toFixed(3)} ${comp[0].unit}/${vol} mL`;
+  return [names, strength, form ? form[1] : '', brand ? `[${brand}]` : '', note ? `(${note})` : ''].filter(Boolean).join(' ').replace(/\s+/g, ' ');
+}
+export const deptOf = (role) => { const r = String(role || '').toLowerCase();
+  const D = [[/primary care and addiction/, 'Primary Care and Addiction Medicine'], [/primary care/, 'Primary Care'], [/family/, 'Family Medicine'], [/internal medicine/, 'Internal Medicine'],
+    [/infectious/, 'Infectious Disease'], [/hematolog/, 'Hematology'], [/hepatolog/, 'Hepatology'], [/neurolog/, 'Neurology'], [/endocrin/, 'Endocrinology'], [/cardiolog/, 'Cardiology'],
+    [/dermatolog/, 'Dermatology'], [/urolog/, 'Urology'], [/allerg/, 'Allergy and Immunology'], [/gastroenter/, 'Gastroenterology'], [/rheumat/, 'Rheumatology'],
+    [/otolaryng/, 'Otolaryngology'], [/pulmon/, 'Pulmonology'], [/nephrolog/, 'Nephrology'], [/maternal-fetal/, 'Maternal-Fetal Medicine'], [/addiction/, 'Addiction Medicine'], [/psychiatr/, 'Psychiatry'],
+    [/oncolog/, 'Oncology'], [/obstetric/, 'Obstetrics']];
+  return (D.find(([re]) => re.test(r))?.[1]) || String(role || '').replace(/ physician$/i, ''); };
 const flagMark = (r) => { const f = flag(r); return f ? h('span', { class: 'fl' }, f === 'high' ? ' H' : ' L') : null; };
-const val = (r) => h('span', { class: flag(r) ? 'flag' : '' }, String(r.value ?? ''), h('span', { class: 'u' }, ` ${cleanUnit(r.unit)}`), flagMark(r));
+const val = (r) => h('span', { class: flag(r) ? 'flag' : '', title: `${r.value ?? ''} ${cleanUnit(r.unit)}` }, String(shown(r)), h('span', { class: 'u' }, ` ${cleanUnit(r.unit)}`), flagMark(r));
 const timeOf = (s) => (String(s).match(/[ T](\d{2}:\d{2})/) || [])[1] || '';
 const stamp = (s) => h('span', { class: 'nw' }, fmtDate(String(s).slice(0, 10)), timeOf(s) ? h('span', { class: 'tm' }, ` ${timeOf(s)}`) : null);
 // test names as a flowsheet prints them: LOINC qualifiers dropped, common panel members abbreviated (the full name stays in the tooltip)
@@ -158,7 +210,7 @@ const ALIAS = [[/^Hemoglobin A1c\/Hemoglobin\.total.*/i, 'Hemoglobin A1c'], [/^C
   [/^CD3\+CD4\+ \(T4 helper\) cells$/i, 'CD4 count'], [/^HIV 1 RNA.*/i, 'HIV-1 RNA (viral load)']];
 const labName = (t) => { const s = String(t || '').replace(/\s*\[[^\]]*\]/g, '').replace(/\s+by (Automated count|Test strip|NAA with probe detection)$/i, '').replace(/\s+in (Serum or Plasma|Blood)$/i, '').trim();
   return (ALIAS.find(([re]) => re.test(s))?.[1]) || s; };
-const PANELS = [['Urinalysis', /urine|\bUA\b|ketones|specific gravity|nitrite|leukocyte esterase|^casts|mucus|epithelial|^bacteria|^WBCs|^RBCs/i],
+const PANELS = [['Microbiology', /culture|gram (positive|negative|stain)|organism|microb|susceptib|smear|\bAFB\b/i], ['Urinalysis', /urine|\bUA\b|ketones|specific gravity|nitrite|leukocyte esterase|^casts|mucus|epithelial|^bacteria|^WBCs|^RBCs/i],
   ['Endocrine', /A1c|\bTSH\b|thyro|\bT4\b|\bT3\b|cortisol|PTH|vitamin D/i], ['Lipids', /cholesterol|triglycerides|\bLDL\b|\bHDL\b/i],
   ['Coagulation', /\bINR\b|prothrombin|\bPTT\b|fibrinogen|D-dimer/i], ['Liver', /\bALT\b|\bAST\b|alkaline phosphatase|bilirubin|^albumin$|\bGGT\b|protein total/i],
   ['Chemistry', /sodium|potassium|chloride|bicarbonate|\bCO2\b|\bBUN\b|urea|creatinine|eGFR|glucose|calcium|magnesium|phosph|albumin\/creatinine/i],
@@ -168,9 +220,6 @@ const panelOf = (name) => (PANELS.find(([, re]) => re.test(name))?.[0]) || 'Othe
 const CRED = { MD: 'Physician', DO: 'Physician', RN: 'Registered nurse', NP: 'Nurse practitioner', 'PA-C': 'Physician assistant', PA: 'Physician assistant', PharmD: 'Pharmacist',
   CNM: 'Nurse midwife', OD: 'Optometrist', PhD: 'Psychologist', LCSW: 'Social worker', RD: 'Dietitian', PT: 'Physical therapist' };
 const authorType = (a) => { const c = String(a || '').split(',').pop().trim(); return CRED[c] || ''; };
-export const deptOf = (role) => { const r = String(role || '').replace(/ Physician$/, ''); return { Cardiologist: 'Cardiology', Endocrinologist: 'Endocrinology', Otolaryngologist: 'Otolaryngology',
-  Psychiatrist: 'Psychiatry', Dermatologist: 'Dermatology', Nephrologist: 'Nephrology', Neurologist: 'Neurology', Hematologist: 'Hematology', Gastroenterologist: 'Gastroenterology',
-  Rheumatologist: 'Rheumatology', Urologist: 'Urology', Pulmonologist: 'Pulmonology', Ophthalmologist: 'Ophthalmology', Obstetrician: 'Obstetrics', Allergist: 'Allergy and Immunology' }[r] || r; };
 const ICONS = {  // our own 16px line icons
   inbasket: '<path d="M2 9.5h3.2l1.3 2h3l1.3-2H14M2 9.5V13h12V9.5M2 9.5 4 4h8l2 5.5"/>',
   summary: '<rect x="2.5" y="2.5" width="4.5" height="4.5"/><rect x="9" y="2.5" width="4.5" height="4.5"/><rect x="2.5" y="9" width="4.5" height="4.5"/><rect x="9" y="9" width="4.5" height="4.5"/>',
@@ -220,7 +269,7 @@ function trendGraph(name, rows, onClose) {
     el('text', { class: 'ax', x: X(pts[0]), y: H - 8, 'text-anchor': pts.length === 1 ? 'middle' : 'start' }, fmtDate(String(pts[0].date).slice(0, 10))));
   if (pts.length > 1) svg.append(el('text', { class: 'ax', x: X(pts[pts.length - 1]), y: H - 8, 'text-anchor': 'end' }, fmtDate(String(pts[pts.length - 1].date).slice(0, 10))),
     el('polyline', { class: 'line', points: pts.map((r) => `${X(r)},${Y(Number(r.value))}`).join(' ') }));
-  pts.forEach((r) => svg.append(el('circle', { class: flag(r) ? 'pt hi' : 'pt', cx: X(r), cy: Y(Number(r.value)), r: 3.2 }), el('text', { class: 'pv', x: X(r), y: Y(Number(r.value)) - 7, 'text-anchor': 'middle' }, String(r.value))));
+  pts.forEach((r) => svg.append(el('circle', { class: flag(r) ? 'pt hi' : 'pt', cx: X(r), cy: Y(Number(r.value)), r: 3.2 }), el('text', { class: 'pv', x: X(r), y: Y(Number(r.value)) - 7, 'text-anchor': 'middle' }, String(shown(r)))));
   return h('div', { class: 'trend-graph' }, h('div', { class: 'tg-head' }, h('strong', {}, name), h('span', { class: 'meta' }, ` ${cleanUnit(rows[0].unit)}${range(rows[0]) ? ` · reference ${range(rows[0])}` : ''} · ${pts.length} result${pts.length === 1 ? '' : 's'}`),
     h('span', { class: 'grow' }), h('button', { type: 'button', class: 'ghost small', onclick: onClose }, 'Close')), pts.length ? svg : h('div', { class: 'none' }, 'No numeric values to plot.'));
 }
@@ -253,15 +302,15 @@ export function ehrChart(c, { onView, task = true } = {}) {
   const latest = (rows) => Object.values(Object.fromEntries([...rows].sort((a, b) => String(a.date).localeCompare(String(b.date))).map((r) => [r.text, r])));
   const latestVitals = latest(ch.vitals); const latestLabs = latest(ch.labs).filter((r) => r.value !== '' && !Number.isNaN(Number(r.value))).sort((a, b) => (flag(b) ? 1 : 0) - (flag(a) ? 1 : 0) || byDateDesc(a, b));
   const p = ch.patient; const vit = (n) => latestVitals.find((v) => v.text === n);
-  const key = (label, r) => (r ? h('div', {}, h('dt', {}, label), h('dd', { class: flag(r) ? 'flag' : '' }, withUnit(r.value, r.unit), flagMark(r))) : null);
+  const key = (label, r) => (r ? h('div', {}, h('dt', { title: r.full || label }, label), h('dd', { class: flag(r) ? 'flag' : '', title: `${r.value} ${cleanUnit(r.unit)}` }, withUnit(shown(r), r.unit), flagMark(r))) : null);
 
   const banner = h('div', { class: 'pheader' },
     h('div', { class: 'pname' }, h('h1', {}, p.name), h('div', { class: 'pfacts' }, h('span', {}, `${p.age} y.o. ${String(p.sex || '').slice(0, 1).toUpperCase()}`),
       h('span', {}, `DOB ${fmtDate(p.birthDate)}`), h('span', { class: 'mono' }, `MRN ${p.mrn}`))),
     h('dl', { class: 'penc' }, h('div', {}, h('dt', {}, 'Encounter'), h('dd', {}, fmtDate(c.taskDate))), h('div', {}, h('dt', {}, 'Department'), h('dd', {}, deptOf(c.role))),
       h('div', {}, h('dt', {}, 'Request from'), h('dd', {}, c.inbox.sender))),
-    h('dl', { class: 'pkeys' }, key('Weight', vit('Weight')), key('BP', vit('Blood pressure')),
-      latestLabs[0] && flag(latestLabs[0]) ? key(latestLabs[0].text, latestLabs[0]) : null,
+    h('dl', { class: 'pkeys' }, key('Weight', vit('Weight')), key('BP', vit('BP')),
+      latestLabs[0] && flag(latestLabs[0]) ? key(shortLab(latestLabs[0].text), latestLabs[0]) : null,
       h('div', {}, h('dt', {}, 'Problems'), h('dd', {}, String(activeProblems.length))), h('div', {}, h('dt', {}, 'Medications'), h('dd', {}, String(activeMeds.length)))));
 
   const body = h('div', { class: 'actbody' });
@@ -280,10 +329,10 @@ export function ehrChart(c, { onView, task = true } = {}) {
   const link = (text, onclick) => h('a', { href: 'javascript:void 0', onclick }, text);
 
   const side = h('aside', { class: 'sidebar' },
-    h('h2', {}, 'Vitals'), latestVitals.length ? h('table', { class: 'mini' }, h('tbody', {}, latestVitals.filter((v) => !/circumference/i.test(v.text)).map((v) => h('tr', {}, h('th', {}, shortVital(v.text)), h('td', {}, String(v.value ?? ''), h('span', { class: 'u' }, ` ${cleanUnit(v.unit)}`)), h('td', { class: 'when' }, ago(v.date, now)))))) : h('div', { class: 'none' }, 'None recorded'),
-    h('h2', {}, 'Key results'), latestLabs.length ? h('table', { class: 'mini kr' }, h('tbody', {}, latestLabs.slice(0, 8).map((r) => h('tr', {}, h('th', { title: r.full }, r.text), h('td', {}, val(r)), h('td', { class: 'when' }, ago(r.date, now)))))) : h('div', { class: 'none' }, 'None recorded'),
+    h('h2', {}, 'Vitals'), latestVitals.length ? h('table', { class: 'mini' }, h('tbody', {}, latestVitals.filter((v) => !/circumference/i.test(v.text)).map((v) => h('tr', {}, h('th', {}, v.text), h('td', {}, String(v.value ?? ''), h('span', { class: 'u' }, ` ${cleanUnit(v.unit)}`)), h('td', { class: 'when' }, ago(v.date, now)))))) : h('div', { class: 'none' }, 'None recorded'),
+    h('h2', {}, 'Key results'), latestLabs.length ? h('table', { class: 'mini kr' }, h('tbody', {}, latestLabs.slice(0, 8).map((r) => h('tr', {}, h('th', { title: r.full }, shortLab(r.text)), h('td', {}, val(r)), h('td', { class: 'when' }, ago(r.date, now)))))) : h('div', { class: 'none' }, 'None recorded'),
     h('h2', {}, 'Problems', h('span', { class: 'n' }, String(activeProblems.length))), activeProblems.length ? h('ul', { class: 'plain' }, activeProblems.map((r) => h('li', {}, link(r.text, () => go('problems'))))) : h('div', { class: 'none' }, 'None'),
-    h('h2', {}, 'Medications', h('span', { class: 'n' }, String(activeMeds.length))), activeMeds.length ? h('ul', { class: 'plain' }, activeMeds.map((r) => h('li', {}, link(r.text, () => go('medications'))))) : h('div', { class: 'none' }, 'None'),
+    h('h2', {}, 'Medications', h('span', { class: 'n' }, String(activeMeds.length))), activeMeds.length ? h('ul', { class: 'plain' }, activeMeds.map((r) => h('li', { title: r.text }, link(medName(r.text), () => go('medications'))))) : h('div', { class: 'none' }, 'None'),
     ch.notes.length ? [h('h2', {}, 'Recent notes'), h('ul', { class: 'plain activity' }, [...ch.notes].sort(byDateDesc).slice(0, 4).map((n) => h('li', {}, link(n.title || n.type || 'Note', () => openNote(n)), h('small', {}, `${fmtDate(n.date)} · ${ago(n.date, now)}`))))] : null);
 
   const panel = (title, ...kids) => h('section', { class: 'panel' }, h('h3', {}, title), h('div', { class: 'body' }, ...kids));
@@ -293,7 +342,7 @@ export function ehrChart(c, { onView, task = true } = {}) {
     inbasket: () => inBasket(c, p, (k) => go(k, { find: '', range: 'all' })),
     summary: () => h('div', { class: 'summarygrid' },
       panel(`Active problems (${activeProblems.length})`, activeProblems.length ? h('table', { class: 'mini wide' }, h('tbody', {}, activeProblems.map((r) => h('tr', {}, h('td', {}, r.text), h('td', { class: 'when' }, r.onset ? `since ${fmtDate(r.onset)}` : ''))))) : h('div', { class: 'none' }, 'None')),
-      panel(`Active medications (${activeMeds.length})`, activeMeds.length ? h('ul', { class: 'plain' }, activeMeds.map((r) => h('li', {}, r.text, r.sig ? h('small', { class: 'sig' }, r.sig) : null))) : h('div', { class: 'none' }, 'None')),
+      panel(`Active medications (${activeMeds.length})`, activeMeds.length ? h('ul', { class: 'plain' }, activeMeds.map((r) => h('li', { title: r.text }, medName(r.text), r.sig ? h('small', { class: 'sig' }, r.sig) : null))) : h('div', { class: 'none' }, 'None')),
       panel('Recent results', latestLabs.length ? h('table', { class: 'mini wide' }, h('tbody', {}, latestLabs.slice(0, 10).map((r) => h('tr', {}, h('th', { title: r.full }, r.text), h('td', {}, val(r)), h('td', { class: 'when' }, fmtDate(String(r.date).slice(0, 10))))))) : h('div', { class: 'none' }, 'None')),
       panel('Vitals', latestVitals.length ? h('table', { class: 'mini wide' }, h('tbody', {}, latestVitals.map((v) => h('tr', {}, h('th', {}, v.text), h('td', {}, String(v.value ?? ''), h('span', { class: 'u' }, ` ${cleanUnit(v.unit)}`)), h('td', { class: 'when' }, fmtDate(String(v.date).slice(0, 10))))))) : h('div', { class: 'none' }, 'None')),
       ch.notes.length ? h('div', { class: 'span2' }, panel('Recent notes', grid([['Date', (n) => td(stamp(n.date))], ['Document', (n) => td(link(n.title || 'Note'))], ['Type', (n) => td(n.type || '')], ['Author', (n) => td(n.author || '')], ['Department', (n) => td(n.service || '')]],
@@ -308,8 +357,8 @@ export function ehrChart(c, { onView, task = true } = {}) {
         const types = [...new Set(ch.notes.map((n) => n.type).filter(Boolean))].sort();
         const rows = dated(ch.notes).filter((n) => (state.ntype === 'all' || n.type === state.ntype) && match(`${n.title} ${n.type} ${n.author} ${n.service} ${n.text}`));
         const sel = state.note !== null ? ch.notes[state.note] : null;
-        const g = grid([['Date', (n) => td(stamp(n.date)), (n) => n.date], ['Document', (n) => td(link(n.title || 'Note')), (n) => n.title], ['Type', (n) => td(n.type || ''), (n) => n.type],
-          ['Author', (n) => td(n.author || ''), (n) => n.author], ['Author type', (n) => td(authorType(n.author)), (n) => authorType(n.author)], ['Department', (n) => td(n.service || ''), (n) => n.service],
+        const g = grid([['Date', (n) => td(stamp(n.date)), (n) => n.date], ['Document', (n) => h('td', { class: 'doc' }, link(n.title || 'Note')), (n) => n.title],
+          ['Type', (n) => td([n.type || '', n.service ? h('small', {}, n.service) : null]), (n) => n.type], ['Author', (n) => td([n.author || '', authorType(n.author) ? h('small', {}, authorType(n.author)) : null]), (n) => n.author],
           ['Status', () => td(statusChip('final'))]], rows, { sel, onRow: (n) => { state.note = ch.notes.indexOf(n); draw(); onView?.(`note:${state.note}`); }, ...sorter('notes', { k: 0, dir: 'desc' }) });
         const pane = sel ? h('article', { class: 'reading-pane' }, h('div', { class: 'preview-head' }, h('div', {}, h('strong', {}, sel.title || 'Note'),
           h('div', { class: 'meta' }, [sel.type, sel.author, authorType(sel.author), sel.service].filter(Boolean).join(' · '), ' · ', fmtDate(String(sel.date).slice(0, 10)), timeOf(sel.date) ? ` ${timeOf(sel.date)}` : '')),
@@ -326,7 +375,7 @@ export function ehrChart(c, { onView, task = true } = {}) {
       }
       if (state.cr === 'meds') {
         const rows = ch.medications.filter((m) => within(m.authored, state.range) && match(`${m.text} ${m.sig} ${m.reason}`)).map((m) => ({ ...m, _inactive: m.status !== 'active' }));
-        return h('div', {}, sub, bar(), count(rows.length, ch.medications.length, 'medications'), grid([['Ordered', (m) => td(fmtDate(m.authored), 'nw'), (m) => m.authored], ['Medication', (m) => td(m.text), (m) => m.text],
+        return h('div', {}, sub, bar(), count(rows.length, ch.medications.length, 'medications'), grid([['Ordered', (m) => td(fmtDate(m.authored), 'nw'), (m) => m.authored], ['Medication', (m) => h('td', { title: m.text }, medName(m.text)), (m) => medName(m.text)],
           ['Sig', (m) => td(m.sig || '')], ['Indication', (m) => td(m.reason || '')], ['Status', (m) => td(statusChip(m.status)), (m) => m.status]], rows, sorter('meds', { k: 0, dir: 'desc' })));
       }
       const rows = dated(ch.procedures).filter((r) => match(r.text));
@@ -364,8 +413,8 @@ export function ehrChart(c, { onView, task = true } = {}) {
           const lm = String(last.date).match(/^(\d{4}-\d{2}-\d{2})/);
           body2.push(h('tr', { class: `clickable${state.graph === name ? ' sel' : ''}`, title: 'Show the trend', onclick: () => { state.graph = state.graph === name ? null : name; draw(); onView?.('results-graph'); } },
             h('td', { title: rs[0].full || name }, name, h('small', {}, cleanUnit(rs[0].unit))), h('td', {}, spark(asc)), state.rr === 'labs' ? h('td', { class: 'nw muted' }, range(rs[0])) : null,
-            h('td', { class: `nw val latest${flag(last) ? ' flag' : ''}` }, String(last.value ?? ''), flagMark(last), h('small', {}, lm ? fmtDate(lm[1]).replace(/, \d{4}$/, '') : '')),
-            cols.map((d) => h('td', { class: `nw val${by[d] && flag(by[d]) ? ' flag' : ''}` }, by[d] ? [String(by[d].value ?? ''), flagMark(by[d])] : ''))));
+            h('td', { class: `nw val latest${flag(last) ? ' flag' : ''}`, title: String(last.value ?? '') }, String(shown(last)), flagMark(last), h('small', {}, lm ? fmtDate(lm[1]).replace(/, \d{4}$/, '') : '')),
+            cols.map((d) => h('td', { class: `nw val${by[d] && flag(by[d]) ? ' flag' : ''}`, title: by[d] ? String(by[d].value ?? '') : null }, by[d] ? [String(shown(by[d])), flagMark(by[d])] : ''))));
         }
       }
       const table = h('div', { class: 'gridwrap trend' }, h('table', { class: 'grid', style: { width: '100%' } }, colgroup,
@@ -382,7 +431,7 @@ export function ehrChart(c, { onView, task = true } = {}) {
       const rows = (state.mstat === 'active' ? activeMeds : ch.medications).filter((m) => match(`${m.text} ${m.sig}`)).map((m) => ({ ...m, _inactive: m.status !== 'active' }));
       return h('div', {}, h('div', { class: 'headrow' }, h('h2', {}, 'Medications'), h('span', { class: 'meta' }, `${activeMeds.length} active`)),
         h('div', { class: 'chipbar' }, chips([['active', `Active (${activeMeds.length})`], ['all', `All (${ch.medications.length})`]], state.mstat, (k) => go('medications', { mstat: k })), h('span', { class: 'grow' }), find('Find in list')),
-        grid([['Medication', (m) => td(h('strong', {}, m.text)), (m) => m.text], ['Sig', (m) => td(m.sig || h('span', { class: 'muted' }, 'No sig recorded'))], ['Indication', (m) => td(m.reason || '')],
+        grid([['Medication', (m) => h('td', { title: m.text }, h('strong', {}, medName(m.text))), (m) => medName(m.text)], ['Sig', (m) => td(m.sig || h('span', { class: 'muted' }, 'No sig recorded'))], ['Indication', (m) => td(m.reason || '')],
           ['Start', (m) => td(fmtDate(m.authored), 'nw'), (m) => m.authored], ['Status', (m) => td(statusChip(m.status)), (m) => m.status]], rows, { empty: 'No medications.', ...sorter('meds2', { k: 3, dir: 'desc' }) }));
     },
   };
@@ -397,8 +446,20 @@ export function ehrChart(c, { onView, task = true } = {}) {
 }
 
 // The whole review screen: the app bar, the patient header, then the storyboard, the chart activities and the review panel on the right.
+const RW_KEY = 'hcua-review-width';
 export function caseLayout({ c, top, right, onView }) {
   const chart = ehrChart(c, { onView });
-  return h('div', { class: 'ehr-shell' }, top, chart.banner,
-    h('div', { class: 'ehr-grid' }, chart.side, h('section', { class: 'ehr-main' }, chart.main), h('section', { class: 'ehr-right' }, right)));
+  const grid = h('div', { class: 'ehr-grid' }, chart.side, h('section', { class: 'ehr-main' }, chart.main), h('section', { class: 'ehr-right' }, right));
+  try { const w = Number(localStorage.getItem(RW_KEY)); if (w) grid.style.setProperty('--rw', `${w}px`); } catch { /* storage blocked: default width */ }
+  // a divider the reader can drag to widen the chart or the review panel; the width is kept in this browser
+  const handle = h('div', { class: 'ehr-divider', role: 'separator', 'aria-orientation': 'vertical', 'aria-label': 'Resize the review panel', title: 'Drag to resize' });
+  handle.addEventListener('pointerdown', (e) => {
+    e.preventDefault(); handle.setPointerCapture(e.pointerId); document.body.classList.add('resizing');
+    const move = (ev) => { const r = grid.getBoundingClientRect(); const w = Math.round(Math.min(Math.max(r.right - ev.clientX, 360), r.width * 0.6)); grid.style.setProperty('--rw', `${w}px`); };
+    const up = () => { handle.removeEventListener('pointermove', move); document.body.classList.remove('resizing'); try { localStorage.setItem(RW_KEY, String(parseInt(grid.style.getPropertyValue('--rw'), 10) || '')); } catch { /* ignore */ } dispatchEvent(new Event('resize')); };
+    handle.addEventListener('pointermove', move); handle.addEventListener('pointerup', up, { once: true });
+  });
+  handle.addEventListener('dblclick', () => { grid.style.removeProperty('--rw'); try { localStorage.removeItem(RW_KEY); } catch { /* ignore */ } dispatchEvent(new Event('resize')); });
+  grid.append(handle);
+  return h('div', { class: 'ehr-shell' }, top, chart.banner, grid);
 }

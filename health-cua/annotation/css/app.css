@@ -505,3 +505,30 @@ table.otable tr.otr + tr.otr td { border-top: 1px solid var(--line-2); }
 .status.new { background: var(--sel); color: var(--link); }
 table.mini.wide { table-layout: auto; }
 table.mini.wide td.when { width: auto; padding-left: 10px; }
+
+/* 2026-11-06 v7: the review panel width is a variable the divider changes (default narrower, so the chart grids breathe) */
+.ehr-grid { position: relative; grid-template-columns: var(--sw, 236px) minmax(0, 1fr) var(--rw, max(420px, 34%)); }
+@media (max-width: 1640px) { .ehr-grid { --sw: 200px; grid-template-columns: var(--sw) minmax(0, 1fr) var(--rw, max(420px, 34%)); } }
+@media (max-width: 1140px) { .ehr-grid { grid-template-columns: minmax(0, 1fr) var(--rw, max(400px, 42%)); } .ehr-divider { display: none; } }
+@media (max-width: 860px) { .ehr-grid { display: block; } }
+.ehr-divider { position: absolute; top: 0; bottom: 0; right: calc(var(--rw, max(420px, 34%)) - 4px); width: 8px; cursor: col-resize; z-index: 8; }
+.ehr-divider:hover, body.resizing .ehr-divider { background: linear-gradient(90deg, transparent 3px, var(--link) 3px, var(--link) 5px, transparent 5px); }
+body.resizing { cursor: col-resize; user-select: none; }
+table.grid td.doc { min-width: 160px; }
+.sidebar table.mini th { width: 40%; }
+.sidebar table.mini td.when { width: 46px; }
+.sidebar table.mini td:not(.when) { overflow: visible; }
+.sidebar table.mini { table-layout: auto; } .sidebar table.mini th { max-width: none; white-space: nowrap; }
+/* v7: form validation, answers-left link, open-answer markers, full note, centered cards */
+.field input.invalid, .field select.invalid { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad); }
+.field-err { color: var(--bad); font-size: 12px; min-height: 0; margin-top: 3px; }
+.field-err:empty { display: none; }
+label.check.invalid span { color: var(--bad); }
+label.check.invalid input { outline: 2px solid var(--bad); outline-offset: 1px; }
+button.linkish { background: none; border: 0; padding: 0; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.flash { animation: flash 1.6s ease-out; border-radius: 6px; }
+@keyframes flash { 0%, 30% { box-shadow: 0 0 0 3px var(--warn); background: var(--warn-soft); } 100% { box-shadow: 0 0 0 0 transparent; background: transparent; } }
+.ehr-right.tried tr.ojtr:has(.ojudge.open) td { box-shadow: inset 3px 0 0 var(--warn); }
+.ehr-right.tried tr.ojtr:has(.ojudge.open) .ojlabel { color: var(--warn); }
+.notedoc .text { max-height: none; overflow: visible; }
+.page > .card { margin-left: auto; margin-right: auto; }

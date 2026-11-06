@@ -1,5 +1,5 @@
 // The patient chart, in the modules the study EHR shows: summary, problems, medications, results, vitals, notes, procedures.
-import { h, md, fmtDate } from './ui.js?v=94e2015300';
+import { h, md, fmtDate } from './ui.js?v=d70d513cd6';
 
 const TABS = [['summary', 'Summary'], ['problems', 'Problems'], ['medications', 'Medications'], ['labs', 'Results'], ['vitals', 'Vitals'],
   ['notes', 'Notes'], ['procedures', 'Procedures']];
@@ -163,7 +163,7 @@ function spark(points) {
   const lo = Math.min(...ys); const hi = Math.max(...ys); const w = 80; const hgt = 22;
   const xy = ys.map((v, i) => [2 + (i * (w - 4)) / (ys.length - 1), hgt - 3 - (hi === lo ? (hgt - 6) / 2 : ((v - lo) * (hgt - 6)) / (hi - lo))]);
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('class', 'spark'); svg.setAttribute('viewBox', `0 0 ${w} ${hgt}`); svg.setAttribute('width', w); svg.setAttribute('height', hgt);
+  svg.setAttribute('class', 'spark'); svg.setAttribute('viewBox', `0 0 ${w} ${hgt}`); svg.setAttribute('width', 52); svg.setAttribute('height', hgt); svg.setAttribute('preserveAspectRatio', 'none');
   const pl = document.createElementNS(svg.namespaceURI, 'polyline'); pl.setAttribute('points', xy.map((p) => p.join(',')).join(' ')); svg.append(pl);
   xy.forEach(([x, y], i) => { const c = document.createElementNS(svg.namespaceURI, 'circle'); c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', 1.8); if (flag(points[i])) c.setAttribute('class', 'hi'); svg.append(c); });
   return svg;
@@ -261,7 +261,7 @@ export function ehrChart(c, { onView, task } = {}) {
       const rows = src.filter((r) => within(r.date, state.range) && match(r.text));
       const all = [...new Set(rows.map((r) => r.date))].sort().reverse();
       // as many date columns as fit beside the fixed columns (no column is ever cut off); older dates page in with the arrows
-      const fixed = state.rr === 'labs' ? 336 : 252; const fit = Math.max(1, Math.floor(((body.clientWidth || 640) - 30 - fixed) / 92));
+      const fixed = state.rr === 'labs' ? 362 : 292; const avail = (body.clientWidth || 640) - 30; const fit = Math.max(1, Math.floor((avail - fixed) / 76));
       const pages = Math.max(1, Math.ceil(all.length / fit)); state.page = Math.min(state.page, pages - 1);
       const cols = all.slice(state.page * fit, state.page * fit + fit);
       const tests = Object.entries(rows.reduce((m, r) => { (m[r.text] = m[r.text] || []).push(r); return m; }, {}))
@@ -272,14 +272,17 @@ export function ehrChart(c, { onView, task } = {}) {
       const pager = pages > 1 ? h('div', { class: 'pager' }, h('button', { type: 'button', class: 'ghost small', disabled: state.page >= pages - 1, onclick: () => { state.page += 1; draw(); } }, '◀ Older'),
         h('span', { class: 'meta' }, `${state.page * fit + 1}–${Math.min(all.length, state.page * fit + fit)} of ${all.length} dates`),
         h('button', { type: 'button', class: 'ghost small', disabled: state.page === 0, onclick: () => { state.page -= 1; draw(); } }, 'Newer ▶')) : null;
-      const colHead = (s) => { const m = String(s).match(/^(\d{4}-\d{2}-\d{2})[ T]?(\d{2}:\d{2})?/); return h('th', { class: 'nw' }, m ? fmtDate(m[1]) : s, m?.[2] ? h('small', {}, m[2]) : null); };
-      const colgroup = h('colgroup', {}, h('col', { style: { width: '170px' } }), h('col', { style: { width: '82px' } }), state.rr === 'labs' ? h('col', { style: { width: '84px' } }) : null, cols.map(() => h('col', { style: { width: '92px' } })));
-      const table = h('div', { class: 'gridwrap trend' }, h('table', { class: 'grid', style: { width: `${fixed + 92 * cols.length}px` } }, colgroup,
-        h('thead', {}, h('tr', {}, h('th', {}, state.rr === 'labs' ? 'Test' : 'Vital'), h('th', {}, 'Trend'), state.rr === 'labs' ? h('th', {}, 'Ref. range') : null, cols.map(colHead))),
+      const colHead = (s) => { const m = String(s).match(/^(\d{4})-(\d{2}-\d{2})[ T]?(\d{2}:\d{2})?/); return h('th', { class: 'nw' }, m ? fmtDate(`${m[1]}-${m[2]}`).replace(/, \d{4}$/, '') : s, m ? h('small', {}, `${m[1]}${m[3] ? ` ${m[3]}` : ''}`) : null); };  // Jun 3 over 2024 10:00, so a narrow column never clips
+      // fixed widths for Test, Trend, Ref. range and Latest; the date columns share the rest of the panel
+      const colgroup = h('colgroup', {}, h('col', { style: { width: '160px' } }), h('col', { style: { width: '62px' } }), state.rr === 'labs' ? h('col', { style: { width: '70px' } }) : null, h('col', { style: { width: '70px' } }), cols.map(() => h('col', {})));
+      const table = h('div', { class: 'gridwrap trend' }, h('table', { class: 'grid', style: { width: '100%' } }, colgroup,
+        h('thead', {}, h('tr', {}, h('th', {}, state.rr === 'labs' ? 'Test' : 'Vital'), h('th', {}, 'Trend'), state.rr === 'labs' ? h('th', {}, 'Ref. range') : null, h('th', { class: 'latest' }, 'Latest'), cols.map(colHead))),
         h('tbody', {}, tests.map(([name, rs]) => {
           const by = Object.fromEntries(rs.map((r) => [r.date, r]));
           const asc = [...rs].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+          const last = asc[asc.length - 1]; const lm = String(last.date).match(/^(\d{4}-\d{2}-\d{2})/);
           return h('tr', {}, h('td', {}, name, h('small', {}, cleanUnit(rs[0].unit))), h('td', {}, spark(asc)), state.rr === 'labs' ? h('td', { class: 'nw muted' }, range(rs[0])) : null,
+            h('td', { class: `nw val latest${flag(last) ? ' flag' : ''}` }, String(last.value ?? ''), flagMark(last), h('small', {}, lm ? fmtDate(lm[1]).replace(/, \d{4}$/, '') : '')),
             cols.map((d) => h('td', { class: `nw val${by[d] && flag(by[d]) ? ' flag' : ''}` }, by[d] ? [String(by[d].value ?? ''), flagMark(by[d])] : '')));
         }))));
       return h('div', {}, head, bar, h('div', { class: 'spread' }, h('div', { class: 'paging' }, `Showing ${rows.length} of ${src.length} results · newest first`), pager), table);

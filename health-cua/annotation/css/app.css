@@ -414,3 +414,5 @@ table.mini td.when { width: 50px; }
 .trend table.grid { table-layout: fixed; }
 .trend table.grid td { overflow-wrap: anywhere; }
 .pager { display: flex; gap: 8px; align-items: center; }
+.trend table.grid th.latest, .trend table.grid td.latest { background: var(--surface-2); border-right: 1px solid var(--line); }
+.trend table.grid td small { font-weight: 400; }

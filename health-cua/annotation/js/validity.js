@@ -1,7 +1,7 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=a949b888e2';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND } from './ui.js?v=a949b888e2';
-import { caseLayout, deptOf } from './chart.js?v=a949b888e2';
+import { createStore } from './validity-store.js?v=0ded9af66c';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND } from './ui.js?v=0ded9af66c';
+import { caseLayout, deptOf } from './chart.js?v=0ded9af66c';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)
@@ -177,7 +177,7 @@ function allDoneView() {
 }
 
 async function recruitRoute() {
-  if (!ME.decision) { const a = await S.applicant(); if (!a && ME.admin) return location.replace(`admin.html${location.search}`); return a ? waitingView(a) : applyView(); }
+  if (!ME.decision) { const a = await S.applicant(); return a ? waitingView(a) : applyView();  // never redirect from here: the team page sends non-admins back, so a redirect could loop }
   if (ME.decision.status !== 'approved') return rejectedView();
     if (!ME.block) ME.block = await S.current();
   if (!ME.block && !(await takeNextBlock())) return allDoneView();

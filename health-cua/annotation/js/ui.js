@@ -122,7 +122,7 @@ export function themeButton() {
   label(); return b;
 }
 
-export const BRAND = 'Health-CUA Annotation';
+export const BRAND = 'Health-CUA';  // the name beside the logo; page titles keep 'Health-CUA Annotation'
 export const brand = (href = '#/') => h('a', { class: 'brand', href }, h('img', { class: 'mark', src: 'img/logo-64.png', alt: '' }), BRAND);
 
 // The account button of the top bar: the Google photo or initials; the menu holds the name, the study and progress, links and Sign out.

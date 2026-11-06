@@ -1,7 +1,7 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=fb9d18c226';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND } from './ui.js?v=fb9d18c226';
-import { caseLayout, deptOf, lowerName } from './chart.js?v=fb9d18c226';
+import { createStore } from './validity-store.js?v=f859a2c939';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND } from './ui.js?v=f859a2c939';
+import { caseLayout, deptOf, lowerName } from './chart.js?v=f859a2c939';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)
@@ -224,8 +224,9 @@ const cap = (s) => String(s || '').replace(/^\w/, (c) => c.toUpperCase());
 // reasons and instructions, route and signing times stay out because they would tell the interface. The judgment of an order sits in a
 // quiet row under it.
 function orderRows(text, k, kind, judge) {
-  let { name, f } = parseLine(text); let extra = '';
-  if (kind === 'Stopped' && name.includes('; ')) [name, extra] = [name.slice(0, name.indexOf('; ')), name.slice(name.indexOf('; ') + 2)];  // a stop: drug name, then the agent's words
+  let { name, f } = parseLine(text); const extra = '';
+  // a stop is 'drug; reason: the agent's stop reason', and the reason itself may hold semicolons: show it once, whole
+  if (kind === 'Stopped') { const at = text.indexOf('; reason: '); name = at < 0 ? text : text.slice(0, at); f = at < 0 ? {} : { reason: text.slice(at + 10) }; }
   const urgent = f.priority && /stat|urgent|asap/i.test(f.priority);
   const dose = f.dose && f.dose.replace(/\b\d{4,}\b/g, (n) => Number(n).toLocaleString('en-US'));
   const sig = kind === 'Medications' ? [dose, f.route, f.frequency && f.frequency.replace(/^\w/, (c) => c.toLowerCase())]
@@ -255,15 +256,15 @@ function ordersPanel(item, judge) {
       h('thead', {}, h('tr', {}, h('th', {}, 'Order'), h('th', {}, 'Priority'), h('th', {}, 'Status'))), h('tbody', {}, body))
       : h('div', { class: 'none pad' }, 'No orders were placed and no medication was stopped.'));
 }
-// messages the agent sent, as an In Basket thread, and the signed note in a note viewer (the author is withheld for blinding)
+// messages the agent sent, as an In Basket thread, and the signed note in a note viewer (author shown as the AI agent: every item is by one)
 function recordRest(item, date, role) {
   const msgs = list(item.messages);
   return [msgs.length ? h('section', { class: 'panel' }, h('h3', {}, 'Messages sent', h('span', { class: 'muted' }, ` · ${msgs.length}`)), h('div', { class: 'body flush' }, msgs.map((m) => h('div', { class: 'msg' },
-    h('div', { class: 'msg-head' }, h('strong', {}, 'Staff Message'), h('span', { class: 'status signed' }, 'Sent'), h('span', { class: 'meta' }, ['Sender withheld', date ? fmtDate(date) : null].filter(Boolean).join(' · '))),
+    h('div', { class: 'msg-head' }, h('strong', {}, 'Staff Message'), h('span', { class: 'status signed' }, 'Sent'), h('span', { class: 'meta' }, ['From AI agent', date ? fmtDate(date) : null].filter(Boolean).join(' · '))),
     h('div', { class: 'text' }, humanDates(m)))))) : null,
   h('section', { class: 'panel' }, h('h3', {}, 'Note'), item.notes ? h('div', { class: 'notedoc' }, h('dl', { class: 'note-fields' },
     h('dt', {}, 'Type'), h('dd', {}, h('strong', {}, 'Progress Note')), h('dt', {}, 'Service'), h('dd', {}, deptOf(role) || '—'), h('dt', {}, 'Date'), h('dd', {}, date ? fmtDate(date) : '—'),
-    h('dt', {}, 'Status'), h('dd', {}, h('span', { class: 'status signed' }, 'Signed')), h('dt', {}, 'Author'), h('dd', { class: 'muted' }, 'Withheld')), h('div', { class: 'text' }, item.notes))
+    h('dt', {}, 'Status'), h('dd', {}, h('span', { class: 'status signed' }, 'Signed')), h('dt', {}, 'Author'), h('dd', {}, 'AI agent')), h('div', { class: 'text' }, item.notes))
     : h('div', { class: 'body' }, h('div', { class: 'none' }, 'No note was signed.')))].filter(Boolean);
 }
 

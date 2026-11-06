@@ -1,8 +1,8 @@
 // Study team page (admin.html): applications arrive live; one click approves a physician for the episode review (Study B) or rejects;
 // block progress and the JSON download. (2026-11-06: the site serves Study B only; Study A' keeps its code and database root.) The database rules let only the addresses in
 // hcua_validity/admins (and hcua_task_review/admins for Study A') read or write any of this.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=fb9d18c226';
-import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=fb9d18c226';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=f859a2c939';
+import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=f859a2c939';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 const app = document.getElementById('app');

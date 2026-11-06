@@ -1,5 +1,5 @@
 // The patient chart, in the modules the study EHR shows: summary, problems, medications, results, vitals, notes, procedures.
-import { h, md, fmtDate } from './ui.js?v=fb9d18c226';
+import { h, md, fmtDate } from './ui.js?v=f859a2c939';
 
 const TABS = [['summary', 'Summary'], ['problems', 'Problems'], ['medications', 'Medications'], ['labs', 'Results'], ['vitals', 'Vitals'],
   ['notes', 'Notes'], ['procedures', 'Procedures']];
@@ -285,7 +285,7 @@ function inBasket(c, p, go) {
     h('dl', { class: 'msg-fields' }, h('dt', {}, 'From'), h('dd', {}, c.inbox.sender), h('dt', {}, 'To'), h('dd', {}, `${c.role} (you)`),
       h('dt', {}, 'Received'), h('dd', {}, fmtDate(at.slice(0, 10)), at.length > 15 ? ` ${at.slice(11, 16)}` : ''), h('dt', {}, 'Patient'), h('dd', {}, `${p.name} · MRN ${p.mrn}`)),
     h('div', { class: 'msg-body text' }, c.inbox.body),
-    h('details', { class: 'taskbox', open: true }, h('summary', {}, h('span', {}, 'Task: ', h('strong', {}, c.title))),
+    h('details', { class: 'taskbox', open: true }, h('summary', {}, h('span', {}, 'Task given to the AI agent: ', h('strong', {}, c.title))),
       h('div', { class: 'md', html: md(isoToClinician(c.instructions)) })));
 }
 
@@ -302,12 +302,15 @@ export function ehrChart(c, { onView, task = true } = {}) {
   const latest = (rows) => Object.values(Object.fromEntries([...rows].sort((a, b) => String(a.date).localeCompare(String(b.date))).map((r) => [r.text, r])));
   const latestVitals = latest(ch.vitals); const latestLabs = latest(ch.labs).filter((r) => r.value !== '' && !Number.isNaN(Number(r.value))).sort((a, b) => (flag(b) ? 1 : 0) - (flag(a) ? 1 : 0) || byDateDesc(a, b));
   const p = ch.patient; const vit = (n) => latestVitals.find((v) => v.text === n);
+  const allergies = arr(c.chart.allergies).map((a) => (typeof a === 'string' ? a : a.text || a.substance || '')).filter(Boolean);
+  const tm = String(c.instructions || '').match(/(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/); const simNow = `${fmtDate(tm ? tm[1] : c.taskDate)}${tm ? ` ${tm[2]}` : ''}`;
   const key = (label, r) => (r ? h('div', {}, h('dt', { title: r.full || label }, label), h('dd', { class: flag(r) ? 'flag' : '', title: `${r.value} ${cleanUnit(r.unit)}` }, withUnit(shown(r), r.unit), flagMark(r))) : null);
 
   const banner = h('div', { class: 'pheader' },
     h('div', { class: 'pname' }, h('h1', {}, p.name), h('div', { class: 'pfacts' }, h('span', {}, `${p.age} y.o. ${String(p.sex || '').slice(0, 1).toUpperCase()}`),
       h('span', {}, `DOB ${fmtDate(p.birthDate)}`), h('span', { class: 'mono' }, `MRN ${p.mrn}`))),
-    h('dl', { class: 'penc' }, h('div', {}, h('dt', {}, 'Encounter'), h('dd', {}, fmtDate(c.taskDate))), h('div', {}, h('dt', {}, 'Department'), h('dd', {}, deptOf(c.role))),
+    h('dl', { class: 'penc' }, h('div', { class: 'simdate', title: 'The date and time of the simulated encounter; "1 d ago" and the date filters count from it' }, h('dt', {}, 'Simulated date'), h('dd', {}, simNow)),
+      h('div', {}, h('dt', {}, 'Allergies'), h('dd', { class: allergies.length ? 'flag' : 'muted', title: allergies.join(', ') }, allergies.length ? allergies.join(', ') : 'Not on file')), h('div', {}, h('dt', {}, 'Department'), h('dd', {}, deptOf(c.role))),
       h('div', {}, h('dt', {}, 'Request from'), h('dd', {}, c.inbox.sender))),
     h('dl', { class: 'pkeys' }, key('Weight', vit('Weight')), key('BP', vit('BP')),
       latestLabs[0] && flag(latestLabs[0]) ? key(shortLab(latestLabs[0].text), latestLabs[0]) : null,
@@ -316,8 +319,9 @@ export function ehrChart(c, { onView, task = true } = {}) {
   const body = h('div', { class: 'actbody' });
   const tabs = h('nav', { class: 'acttabs', role: 'tablist' });
   let current = task ? 'inbasket' : 'summary';
-  const state = { page: 0, cr: 'notes', range: 'all', ntype: 'all', find: '', note: null, rr: 'labs', mstat: 'active', graph: null, sort: {} };
-  const go = (k, patch = {}) => { Object.assign(state, patch); current = k; draw(); onView?.(`tab:${k}${k === 'chartreview' ? `-${state.cr}` : k === 'results' ? `-${state.rr}` : ''}`); };
+  const state = { prob: null, med: null, page: 0, cr: 'notes', range: 'all', ntype: 'all', find: '', note: null, rr: 'labs', mstat: 'active', graph: null, sort: {} };
+  const go = (k, patch = {}) => { Object.assign(state, patch); current = k; draw(); onView?.(`tab:${k}${k === 'chartreview' ? `-${state.cr}` : k === 'results' ? `-${state.rr}` : ''}`);
+    requestAnimationFrame(() => (body.querySelector('.reading-pane:not(.empty-pane), .detail-pane') || body.querySelector('tr.sel'))?.scrollIntoView({ block: 'nearest' })); };
   const sorter = (id, def) => ({ sort: state.sort[id] || def, onSort: (k) => { const s = state.sort[id] || def; state.sort[id] = { k, dir: s.k === k && s.dir === 'desc' ? 'asc' : 'desc' }; draw(); } });
   const find = (placeholder) => {
     const i = h('input', { type: 'search', class: 'find', placeholder, value: state.find, 'aria-label': placeholder });
@@ -326,13 +330,18 @@ export function ehrChart(c, { onView, task = true } = {}) {
   };
   const match = (t) => !state.find.trim() || String(t).toLowerCase().includes(state.find.trim().toLowerCase());
   const openNote = (n) => { const i = ch.notes.indexOf(n); go('chartreview', { cr: 'notes', note: i, range: 'all', ntype: 'all', find: '' }); onView?.(`note:${i}`); };
+  const openProblem = (r) => go('problems', { prob: ch.problems.indexOf(r) });
+  const openMed = (m) => go('medications', { med: ch.medications.indexOf(m), mstat: m.status === 'active' ? 'active' : 'all', find: '' });
+  // notes that mention a problem: its name, or the name before a qualifier such as "of right elbow" or "(disorder)"
+  const mentions = (r) => { const full = r.text.toLowerCase().replace(/\s*\(.*?\)\s*/g, ' ').trim(); const core = full.split(/,| of | due to | with /)[0].trim();
+    const terms = [...new Set([full, core])].filter((x) => x.length >= 5); return ch.notes.filter((n) => terms.some((x) => String(n.text || '').toLowerCase().includes(x))); };
   const link = (text, onclick) => h('a', { href: 'javascript:void 0', onclick }, text);
 
   const side = h('aside', { class: 'sidebar' },
     h('h2', {}, 'Vitals'), latestVitals.length ? h('table', { class: 'mini' }, h('tbody', {}, latestVitals.filter((v) => !/circumference/i.test(v.text)).map((v) => h('tr', {}, h('th', {}, v.text), h('td', {}, String(v.value ?? ''), h('span', { class: 'u' }, ` ${cleanUnit(v.unit)}`)), h('td', { class: 'when' }, ago(v.date, now)))))) : h('div', { class: 'none' }, 'None recorded'),
     h('h2', {}, 'Key results'), latestLabs.length ? h('table', { class: 'mini kr' }, h('tbody', {}, latestLabs.slice(0, 8).map((r) => h('tr', {}, h('th', { title: r.full }, shortLab(r.text)), h('td', {}, val(r)), h('td', { class: 'when' }, ago(r.date, now)))))) : h('div', { class: 'none' }, 'None recorded'),
-    h('h2', {}, 'Problems', h('span', { class: 'n' }, String(activeProblems.length))), activeProblems.length ? h('ul', { class: 'plain' }, activeProblems.map((r) => h('li', {}, link(r.text, () => go('problems'))))) : h('div', { class: 'none' }, 'None'),
-    h('h2', {}, 'Medications', h('span', { class: 'n' }, String(activeMeds.length))), activeMeds.length ? h('ul', { class: 'plain' }, activeMeds.map((r) => h('li', { title: r.text }, link(medName(r.text), () => go('medications'))))) : h('div', { class: 'none' }, 'None'),
+    h('h2', {}, 'Problems', h('span', { class: 'n' }, String(activeProblems.length))), activeProblems.length ? h('ul', { class: 'plain' }, activeProblems.map((r) => h('li', {}, link(r.text, () => openProblem(r))))) : h('div', { class: 'none' }, 'None'),
+    h('h2', {}, 'Medications', h('span', { class: 'n' }, String(activeMeds.length))), activeMeds.length ? h('ul', { class: 'plain' }, activeMeds.map((r) => h('li', { title: r.text }, link(medName(r.text), () => openMed(r))))) : h('div', { class: 'none' }, 'None'),
     ch.notes.length ? [h('h2', {}, 'Recent notes'), h('ul', { class: 'plain activity' }, [...ch.notes].sort(byDateDesc).slice(0, 4).map((n) => h('li', {}, link(n.title || n.type || 'Note', () => openNote(n)), h('small', {}, `${fmtDate(n.date)} · ${ago(n.date, now)}`))))] : null);
 
   const panel = (title, ...kids) => h('section', { class: 'panel' }, h('h3', {}, title), h('div', { class: 'body' }, ...kids));
@@ -341,8 +350,8 @@ export function ehrChart(c, { onView, task = true } = {}) {
   const views = {
     inbasket: () => inBasket(c, p, (k) => go(k, { find: '', range: 'all' })),
     summary: () => h('div', { class: 'summarygrid' },
-      panel(`Active problems (${activeProblems.length})`, activeProblems.length ? h('table', { class: 'mini wide' }, h('tbody', {}, activeProblems.map((r) => h('tr', {}, h('td', {}, r.text), h('td', { class: 'when' }, r.onset ? `since ${fmtDate(r.onset)}` : ''))))) : h('div', { class: 'none' }, 'None')),
-      panel(`Active medications (${activeMeds.length})`, activeMeds.length ? h('ul', { class: 'plain' }, activeMeds.map((r) => h('li', { title: r.text }, medName(r.text), r.sig ? h('small', { class: 'sig' }, r.sig) : null))) : h('div', { class: 'none' }, 'None')),
+      panel(`Active problems (${activeProblems.length})`, activeProblems.length ? h('table', { class: 'mini wide' }, h('tbody', {}, activeProblems.map((r) => h('tr', {}, h('td', {}, link(r.text, () => openProblem(r))), h('td', { class: 'when' }, r.onset ? `since ${fmtDate(r.onset)}` : ''))))) : h('div', { class: 'none' }, 'None')),
+      panel(`Active medications (${activeMeds.length})`, activeMeds.length ? h('ul', { class: 'plain' }, activeMeds.map((r) => h('li', { title: r.text }, link(medName(r.text), () => openMed(r)), r.sig ? h('small', { class: 'sig' }, r.sig) : null))) : h('div', { class: 'none' }, 'None')),
       panel('Recent results', latestLabs.length ? h('table', { class: 'mini wide' }, h('tbody', {}, latestLabs.slice(0, 10).map((r) => h('tr', {}, h('th', { title: r.full }, r.text), h('td', {}, val(r)), h('td', { class: 'when' }, fmtDate(String(r.date).slice(0, 10))))))) : h('div', { class: 'none' }, 'None')),
       panel('Vitals', latestVitals.length ? h('table', { class: 'mini wide' }, h('tbody', {}, latestVitals.map((v) => h('tr', {}, h('th', {}, v.text), h('td', {}, String(v.value ?? ''), h('span', { class: 'u' }, ` ${cleanUnit(v.unit)}`)), h('td', { class: 'when' }, fmtDate(String(v.date).slice(0, 10))))))) : h('div', { class: 'none' }, 'None')),
       ch.notes.length ? h('div', { class: 'span2' }, panel('Recent notes', grid([['Date', (n) => td(stamp(n.date))], ['Document', (n) => td(link(n.title || 'Note'))], ['Type', (n) => td(n.type || '')], ['Author', (n) => td(n.author || '')], ['Department', (n) => td(n.service || '')]],
@@ -423,16 +432,30 @@ export function ehrChart(c, { onView, task = true } = {}) {
       const graph = state.graph && byTest[state.graph] ? trendGraph(state.graph, byTest[state.graph], () => { state.graph = null; draw(); }) : null;
       return h('div', {}, head, bar, h('div', { class: 'spread' }, h('div', { class: 'paging' }, `${Object.keys(byTest).length} ${state.rr === 'labs' ? 'tests' : 'vitals'}, ${rows.length} results · newest first · select a row for its trend`), pager), graph, table);
     },
-    problems: () => h('div', {}, h('div', { class: 'headrow' }, h('h2', {}, 'Problem List'), h('span', { class: 'meta' }, `${activeProblems.length} active, ${ch.problems.length - activeProblems.length} resolved or inactive`)),
-      grid([['Problem', (r) => td(r.text), (r) => r.text], ['Noted', (r) => td(fmtDate(r.onset), 'nw'), (r) => r.onset], ['Status', (r) => td(statusChip(isActive(r) ? 'active' : r.status)), (r) => (isActive(r) ? 0 : 1)],
-        ['Resolved', (r) => td(fmtDate(r.abated), 'nw'), (r) => r.abated]],
-      ch.problems.map((r) => ({ ...r, _inactive: !isActive(r) })), { empty: 'No problems recorded.', ...sorter('problems', { k: 2, dir: 'asc' }) })),
+    problems: () => {
+      const sel = state.prob !== null ? ch.problems[state.prob] : null; const rows = ch.problems.map((r) => Object.assign(r, { _inactive: !isActive(r) }));
+      const notes = sel ? mentions(sel) : [];
+      return h('div', {}, h('div', { class: 'headrow' }, h('h2', {}, 'Problem List'), h('span', { class: 'meta' }, `${activeProblems.length} active, ${ch.problems.length - activeProblems.length} resolved or inactive`)),
+        grid([['Problem', (r) => td(r.text), (r) => r.text], ['Noted', (r) => td(fmtDate(r.onset), 'nw'), (r) => r.onset], ['Status', (r) => td(statusChip(isActive(r) ? 'active' : r.status)), (r) => (isActive(r) ? 0 : 1)],
+          ['Resolved', (r) => td(fmtDate(r.abated), 'nw'), (r) => r.abated]],
+        rows, { sel, onRow: (r) => { state.prob = ch.problems.indexOf(r); draw(); }, empty: 'No problems recorded.', ...sorter('problems', { k: 2, dir: 'asc' }) }),
+        sel ? h('section', { class: 'detail-pane' }, h('div', { class: 'preview-head' }, h('div', {}, h('strong', {}, sel.text), h('div', { class: 'meta' }, `Noted ${fmtDate(sel.onset) || '—'}${sel.abated ? ` · resolved ${fmtDate(sel.abated)}` : ''}`)),
+          statusChip(isActive(sel) ? 'active' : sel.status), h('button', { type: 'button', class: 'ghost small', onclick: () => { state.prob = null; draw(); } }, 'Close')),
+        h('div', { class: 'detail-body' }, h('div', { class: 'label' }, `Notes that mention it (${notes.length})`), notes.length ? h('ul', { class: 'plain' }, notes.sort(byDateDesc).map((n) => h('li', {}, link(n.title || n.type || 'Note', () => openNote(n)), h('span', { class: 't' }, `${n.type || ''} · ${fmtDate(String(n.date).slice(0, 10))}`))))
+          : h('div', { class: 'none' }, 'No note in the chart mentions it by name.'))) : h('div', { class: 'paging' }, 'Select a problem to see its details and the notes that mention it.'));
+    },
     medications: () => {
-      const rows = (state.mstat === 'active' ? activeMeds : ch.medications).filter((m) => match(`${m.text} ${m.sig}`)).map((m) => ({ ...m, _inactive: m.status !== 'active' }));
+      const rows = (state.mstat === 'active' ? activeMeds : ch.medications).filter((m) => match(`${m.text} ${medName(m.text)} ${m.sig}`)).map((m) => Object.assign(m, { _inactive: m.status !== 'active' }));
+      const sel = state.med !== null ? ch.medications[state.med] : null;
       return h('div', {}, h('div', { class: 'headrow' }, h('h2', {}, 'Medications'), h('span', { class: 'meta' }, `${activeMeds.length} active`)),
         h('div', { class: 'chipbar' }, chips([['active', `Active (${activeMeds.length})`], ['all', `All (${ch.medications.length})`]], state.mstat, (k) => go('medications', { mstat: k })), h('span', { class: 'grow' }), find('Find in list')),
         grid([['Medication', (m) => h('td', { title: m.text }, h('strong', {}, medName(m.text))), (m) => medName(m.text)], ['Sig', (m) => td(m.sig || h('span', { class: 'muted' }, 'No sig recorded'))], ['Indication', (m) => td(m.reason || '')],
-          ['Start', (m) => td(fmtDate(m.authored), 'nw'), (m) => m.authored], ['Status', (m) => td(statusChip(m.status)), (m) => m.status]], rows, { empty: 'No medications.', ...sorter('meds2', { k: 3, dir: 'desc' }) }));
+          ['Start', (m) => td(fmtDate(m.authored), 'nw'), (m) => m.authored], ['Status', (m) => td(statusChip(m.status)), (m) => m.status]], rows,
+        { sel, onRow: (m) => { state.med = ch.medications.indexOf(m); draw(); }, empty: 'No medications.', ...sorter('meds2', { k: 3, dir: 'desc' }) }),
+        sel ? h('section', { class: 'detail-pane' }, h('div', { class: 'preview-head' }, h('div', {}, h('strong', {}, medName(sel.text)), h('div', { class: 'meta' }, sel.text)), statusChip(sel.status),
+          h('button', { type: 'button', class: 'ghost small', onclick: () => { state.med = null; draw(); } }, 'Close')),
+        h('dl', { class: 'detail-kv' }, h('dt', {}, 'Sig'), h('dd', {}, sel.sig || 'No sig recorded'), h('dt', {}, 'Start'), h('dd', {}, fmtDate(sel.authored) || '—'),
+          h('dt', {}, 'Indication'), h('dd', {}, sel.reason || '—'), h('dt', {}, 'Status'), h('dd', {}, String(sel.status || '').replace(/^\w/, (x) => x.toUpperCase())))) : h('div', { class: 'paging' }, 'Select a medication to see its details.'));
     },
   };
   const TABS2 = [...(task ? [['inbasket', 'In Basket']] : []), ['summary', 'Summary'], ['chartreview', 'Chart Review'], ['results', 'Results Review'], ['problems', 'Problem List'], ['medications', 'Medications']];

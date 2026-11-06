@@ -532,3 +532,14 @@ button.linkish { background: none; border: 0; padding: 0; font-weight: 600; text
 .ehr-right.tried tr.ojtr:has(.ojudge.open) .ojlabel { color: var(--warn); }
 .notedoc .text { max-height: none; overflow: visible; }
 .page > .card { margin-left: auto; margin-right: auto; }
+/* v8: detail panes for a selected problem or medication, simulated date */
+.detail-pane { border: 1px solid var(--line); border-radius: 4px; background: var(--surface); margin-top: 10px; }
+.detail-body { padding: 8px 12px 10px; }
+.detail-body .label { font-size: 11.5px; font-weight: 700; color: var(--ink-2); margin-bottom: 4px; }
+.detail-body ul.plain li { padding: 3px 0; border-bottom: 1px solid var(--line-2); }
+.detail-kv { display: grid; grid-template-columns: 90px 1fr; gap: 4px 12px; margin: 0; padding: 8px 12px 10px; font-size: 12.5px; }
+.detail-kv dt { color: var(--muted); } .detail-kv dd { margin: 0; }
+.penc .simdate dd { color: var(--warn); }
+.penc .simdate { padding: 0 8px; border-radius: 4px; background: var(--warn-soft); }
+@media (max-width: 1360px) { .penc > div:nth-child(3) { display: revert; } .penc > div:nth-child(4) { display: none; } }
+.detail-body ul.plain { list-style: none; margin: 0; padding: 0; }

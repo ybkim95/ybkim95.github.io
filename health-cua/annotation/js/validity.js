@@ -1,7 +1,7 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=60945406d2';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND } from './ui.js?v=60945406d2';
-import { caseLayout } from './chart.js?v=60945406d2';
+import { createStore } from './validity-store.js?v=a949b888e2';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND } from './ui.js?v=a949b888e2';
+import { caseLayout, deptOf } from './chart.js?v=a949b888e2';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)
@@ -80,7 +80,8 @@ function topbar(extra = []) {
   const links = [...(SLOT ? [[SLOT.role === 'adjudicator' ? 'All cases' : 'My cases', '#/items']] : []), ...(ME.admin ? [['Study team', 'admin.html']] : [])];
   return h('div', {}, S.mode === 'demo' ? h('div', { class: 'demo-banner' }, 'Demo: invented items, stored only in this browser. Nothing here is part of the study.') : null,
     h('header', { class: 'topbar' }, brand(), h('span', { class: 'grow' }), ...extra, ME.user && SLOT ? status : null, themeButton(),
-      profileMenu(ME.user, { lines, links, onSignOut: S.mode === 'demo' ? null : async () => { await S.signOut(); location.hash = '#/'; } })));
+      profileMenu(ME.user, { lines, links, onSignOut: S.mode === 'demo' ? null : async () => { await S.signOut(); location.hash = '#/'; },
+        onSwitch: S.mode === 'demo' ? null : async () => { await S.signOut(); location.hash = '#/'; } })));  // the sign-in page then offers the account chooser
 }
 function page(children, wide = false, extra = []) { app.replaceChildren(topbar(extra), h('main', { class: `page${wide ? ' wide' : ''}` }, children)); }
 
@@ -167,7 +168,7 @@ function blockDoneView() {
   }) }, 'Take another block');
   page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('div', { class: 'eyebrow' }, `Block ${Number(ME.block.slice(1))} finished`), h('h1', {}, 'Thank you'),
     h('p', {}, 'Your ratings of this block are saved.'),
-    h('p', { class: 'muted' }, 'Another block has 8 new items and takes about an hour. You can also stop here and close the page.'),
+    h('p', { class: 'muted' }, 'Another block has 8 new cases and takes about an hour. You can also stop here and close the page.'),
     h('div', { class: 'row' }, more, h('a', { class: 'btn ghost', href: '#/items' }, 'See this block'))));
 }
 
@@ -176,7 +177,7 @@ function allDoneView() {
 }
 
 async function recruitRoute() {
-  if (!ME.decision) { const a = await S.applicant(); if (!a && ME.admin) return location.replace('admin.html'); return a ? waitingView(a) : applyView(); }
+  if (!ME.decision) { const a = await S.applicant(); if (!a && ME.admin) return location.replace(`admin.html${location.search}`); return a ? waitingView(a) : applyView(); }
   if (ME.decision.status !== 'approved') return rejectedView();
     if (!ME.block) ME.block = await S.current();
   if (!ME.block && !(await takeNextBlock())) return allDoneView();
@@ -207,44 +208,55 @@ const KINDS = [['Referrals', /\breferr|\bconsult|e-?consult/i],
 const kindOf = (t) => (/^Medication:/.test(t) ? 'Medications' : (KINDS.find(([, re]) => re.test(t.replace(PREFIX, '')))?.[0] || 'Laboratory'));
 const GROUPS = ['Medications', 'Laboratory', 'Imaging', 'Procedures', 'Referrals'];
 const cap = (s) => String(s || '').replace(/^\w/, (c) => c.toUpperCase());
-// One order as an EHR order review shows it: the name in bold, the order details on one line in sig style, the status at the right.
-// Only what the packet holds is shown (name, dose, frequency, priority, expected date); typed reasons and instructions stay out.
-function orderRow(text, k, kind, judge) {
+// The agent's work as an EHR order review: a table with Order (name and sig line), Priority and Status, grouped by order class, the
+// orders in the order they were placed. Only what the packet holds is shown (name, dose, frequency, priority, expected date); typed
+// reasons and instructions, route and signing times stay out because they would tell the interface. The judgment of an order sits in a
+// quiet row under it.
+function orderRows(text, k, kind, judge) {
   let { name, f } = parseLine(text); let extra = '';
   if (kind === 'Stopped' && name.includes('; ')) [name, extra] = [name.slice(0, name.indexOf('; ')), name.slice(name.indexOf('; ') + 2)];  // a stop: drug name, then the agent's words
   const urgent = f.priority && /stat|urgent|asap/i.test(f.priority);
-  const detail = kind === 'Medications' ? [f.dose && f.dose.replace(/\b\d{4,}\b/g, (n) => Number(n).toLocaleString('en-US')), f.route, f.frequency && f.frequency.replace(/^\w/, (c) => c.toLowerCase())]
+  const dose = f.dose && f.dose.replace(/\b\d{4,}\b/g, (n) => Number(n).toLocaleString('en-US'));
+  const sig = kind === 'Medications' ? [dose, f.route, f.frequency && f.frequency.replace(/^\w/, (c) => c.toLowerCase())]
     : kind === 'Stopped' ? [extra ? humanDates(extra) : null, f.reason ? `Reason: ${humanDates(f.reason)}` : null]
-      : [urgent ? null : cap(f.priority || 'Routine'), f.scheduled || f.date ? `Expected ${fmtDate(f.scheduled || f.date)}` : 'Once', f.type];
-  return h('div', { class: 'orow' },
-    h('div', { class: 'omain' }, h('div', { class: 'oname' }, humanDates(name)), h('div', { class: 'odetail' }, detail.filter(Boolean).join(' · '))),
-    h('div', { class: 'oside' }, h('div', { class: 'ochips' }, urgent ? h('span', { class: 'status urgent' }, cap(f.priority)) : null,
-      h('span', { class: `status ${kind === 'Stopped' ? 'discontinued' : 'signed'}` }, kind === 'Stopped' ? 'Discontinued' : 'Signed')), judge ? judge(k) : null));
+      : [f.scheduled || f.date ? `Expected ${fmtDate(f.scheduled || f.date)}` : 'Once', f.type];
+  const rows = [h('tr', { class: 'otr' }, h('td', {}, h('div', { class: 'oname' }, humanDates(name)), h('div', { class: 'odetail' }, sig.filter(Boolean).join(' · ') || ' ')),
+    h('td', { class: 'nw' }, kind === 'Stopped' ? '—' : urgent ? h('span', { class: 'status urgent' }, cap(f.priority)) : cap(f.priority || 'Routine')),
+    h('td', { class: 'nw' }, h('span', { class: `status ${kind === 'Stopped' ? 'discontinued' : 'signed'}` }, kind === 'Stopped' ? 'Discontinued' : 'Signed')))];
+  if (judge) rows.push(h('tr', { class: 'ojtr' }, h('td', { colspan: 3 }, h('span', { class: 'ojlabel' }, 'Your judgment'), judge(k))));
+  return rows;
 }
-const section = (title, n, rows) => h('div', { class: 'ogroup' }, h('div', { class: 'ogh' }, title, h('span', { class: 'n' }, String(n))), rows);
 function ordersPanel(item, judge) {
   const orders = list(item.orders).map((t, i) => ({ t, k: `o${i}`, kind: kindOf(t) }));
   const stops = list(item.stopped).map((t, i) => ({ t, k: `s${i}` }));
   const visits = list(item.visits);
-  const parts = [];
-  for (const g of GROUPS) { const rows = orders.filter((o) => o.kind === g); if (rows.length) parts.push(section(g, rows.length, rows.map((o) => orderRow(o.t, o.k, g, judge)))); }
-  if (visits.length) parts.push(section('Follow-up and appointments', visits.length, visits.map((v) => { const { name, f } = parseLine(v);
-    return h('div', { class: 'orow' }, h('div', { class: 'omain' }, h('div', { class: 'oname' }, humanDates(name)), h('div', { class: 'odetail' }, [f.type || 'Office visit', f.date ? fmtDate(f.date) : null].filter(Boolean).join(' · '))),
-      h('div', { class: 'oside' }, h('span', { class: 'status booked' }, 'Scheduled'))); })));
-  if (stops.length) parts.push(section('Discontinued medications', stops.length, stops.map((s) => orderRow(s.t, s.k, 'Stopped', judge))));
+  const body = [];
+  const group = (title, n) => body.push(h('tr', { class: 'grouprow' }, h('td', { colspan: 3 }, title, h('span', { class: 't' }, String(n)))));
+  for (const g of GROUPS) { const rows = orders.filter((o) => o.kind === g); if (rows.length) { group(g, rows.length); rows.forEach((o) => body.push(...orderRows(o.t, o.k, g, judge))); } }
+  if (visits.length) { group('Follow-up and appointments', visits.length); visits.forEach((v) => { const { name, f } = parseLine(v);
+    body.push(h('tr', { class: 'otr' }, h('td', {}, h('div', { class: 'oname' }, humanDates(name)), h('div', { class: 'odetail' }, [f.type || 'Office visit', f.date ? fmtDate(f.date) : null].filter(Boolean).join(' · '))),
+      h('td', { class: 'nw' }, '—'), h('td', { class: 'nw' }, h('span', { class: 'status booked' }, 'Scheduled')))); }); }
+  if (stops.length) { group('Discontinued medications', stops.length); stops.forEach((s) => body.push(...orderRows(s.t, s.k, 'Stopped', judge))); }
   const n = orders.length + stops.length + visits.length;
-  return h('section', { class: 'panel orders' }, h('h3', {}, 'Orders', h('span', { class: 'muted' }, ` · ${n} this encounter`)), h('div', { class: 'body' }, parts.length ? parts : h('div', { class: 'none pad' }, 'No orders were placed and no medication was stopped.')));
+  return h('section', { class: 'panel orders' }, h('h3', {}, 'Orders · Signed', h('span', { class: 'muted' }, ` · ${n} this encounter`)),
+    n ? h('table', { class: 'grid otable' }, h('colgroup', {}, h('col', {}), h('col', { style: { width: '84px' } }), h('col', { style: { width: '104px' } })),
+      h('thead', {}, h('tr', {}, h('th', {}, 'Order'), h('th', {}, 'Priority'), h('th', {}, 'Status'))), h('tbody', {}, body))
+      : h('div', { class: 'none pad' }, 'No orders were placed and no medication was stopped.'));
 }
-function recordRest(item, date) {
+// messages the agent sent, as an In Basket thread, and the signed note in a note viewer (the author is withheld for blinding)
+function recordRest(item, date, role) {
   const msgs = list(item.messages);
   return [msgs.length ? h('section', { class: 'panel' }, h('h3', {}, 'Messages sent', h('span', { class: 'muted' }, ` · ${msgs.length}`)), h('div', { class: 'body flush' }, msgs.map((m) => h('div', { class: 'msg' },
-    h('div', { class: 'msg-head' }, h('strong', {}, 'Staff message'), h('span', { class: 'status signed' }, 'Sent'), date ? h('span', { class: 'meta' }, fmtDate(date)) : null), h('div', { class: 'text' }, humanDates(m)))))) : null,
-  h('section', { class: 'panel' }, h('h3', {}, 'Note'), item.notes ? h('div', { class: 'notedoc' }, h('div', { class: 'note-head' }, h('strong', {}, 'Progress Note'), h('span', { class: 'status signed' }, 'Signed'),
-    h('span', { class: 'meta' }, ['Author withheld', date ? fmtDate(date) : null].filter(Boolean).join(' · '))), h('div', { class: 'text' }, item.notes)) : h('div', { class: 'body' }, h('div', { class: 'none' }, 'No note was signed.')))].filter(Boolean);
+    h('div', { class: 'msg-head' }, h('strong', {}, 'Staff Message'), h('span', { class: 'status signed' }, 'Sent'), h('span', { class: 'meta' }, ['Sender withheld', date ? fmtDate(date) : null].filter(Boolean).join(' · '))),
+    h('div', { class: 'text' }, humanDates(m)))))) : null,
+  h('section', { class: 'panel' }, h('h3', {}, 'Note'), item.notes ? h('div', { class: 'notedoc' }, h('dl', { class: 'note-fields' },
+    h('dt', {}, 'Type'), h('dd', {}, h('strong', {}, 'Progress Note')), h('dt', {}, 'Service'), h('dd', {}, deptOf(role) || '—'), h('dt', {}, 'Date'), h('dd', {}, date ? fmtDate(date) : '—'),
+    h('dt', {}, 'Status'), h('dd', {}, h('span', { class: 'status signed' }, 'Signed')), h('dt', {}, 'Author'), h('dd', { class: 'muted' }, 'Withheld')), h('div', { class: 'text' }, item.notes))
+    : h('div', { class: 'body' }, h('div', { class: 'none' }, 'No note was signed.')))].filter(Boolean);
 }
 
 // d: the rating (mutated in place); save(patch) persists a partial update; item: the record being rated
-function ratingForm({ d, save, readOnly, idp, item, ask = {}, date }) {
+function ratingForm({ d, save, readOnly, idp, item, ask = {}, date, role }) {
   const box = h('fieldset', { disabled: readOnly, style: { border: 0, padding: 0, margin: 0, minWidth: 0 } });
   const texts = textSaver(save); box.flush = texts.flush;
   const draw = () => {
@@ -257,10 +269,10 @@ function ratingForm({ d, save, readOnly, idp, item, ask = {}, date }) {
       if ((k === 'effort' || k === 'guessed_interface') && !ask[k]) continue;
       if ((k === 'note_untrue' || k === 'note_untrue_text') && !item.notes) continue;  // stored as "no note" when the rating starts
       if (k === 'order_judgments') {
-        parts.push(ordersPanel(item, (key) => h('div', { class: 'ojudge' }, radios(`${idp}-${key}`, JUDGE, (d.order_judgments || {})[key], (v) => {
+        parts.push(ordersPanel(item, (key) => h('span', { class: 'ojudge' }, radios(`${idp}-${key}`, JUDGE, (d.order_judgments || {})[key], (v) => {
           d.order_judgments = { ...(d.order_judgments || {}), [key]: v };
           save({ [`order_judgments/${key}`]: v, ...derive(d, item) }); draw();
-        }))), ...recordRest(item, date), h('div', { class: 'panel-h' }, h('h2', {}, 'Your rating')));
+        }))), ...recordRest(item, date, role), h('div', { class: 'panel-h rating-h' }, h('h2', {}, 'Your rating')));
         continue;
       }
       if (CHOICES[k]) {
@@ -321,29 +333,28 @@ async function nextStep() {
 function itemLabel(it) {
   const items = orderedItems(); const training = items.filter((i) => i.training); const main = items.filter((i) => !i.training);
   if (SLOT.pilot) return `Pilot item ${items.findIndex((i) => i.id === it.id) + 1} of ${items.length}`;
-  return it.training ? `Training item ${training.findIndex((i) => i.id === it.id) + 1} of ${training.length}` : `Item ${main.findIndex((i) => i.id === it.id) + 1} of ${main.length}`;
+  return it.training ? `Training case ${training.findIndex((i) => i.id === it.id) + 1} of ${training.length}` : `Case ${main.findIndex((i) => i.id === it.id) + 1} of ${main.length}`;
 }
 
+// My cases: the block as an EHR worklist (patient, message, status), the current case highlighted.
 async function queueView() {
   const step = await nextStep();
   const items = orderedItems();
   const done = items.filter((i) => step.ratings[i.id]?.submittedAt).length;
-  const lst = h('div', { class: 'queue' });
-  let head = null;
-  items.forEach((it, n) => {
-    const group = SLOT.pilot ? 'Pilot' : it.training ? 'Training' : 'Items';
-    if (group !== head) { head = group; lst.append(h('div', { class: 'block-head' }, h('h3', { style: { margin: 0 } }, group), it.training ? h('span', { class: 'muted small' }, 'Not analysed') : null)); }
-    const r = step.ratings[it.id];
-    const isCur = step.kind === 'item' && step.id === it.id;
-    const state = r?.submittedAt ? h('span', { class: 'pill ok' }, '✓ Submitted') : isCur ? h('a', { class: 'btn primary small', href: `#/item/${it.id}` }, r ? 'Continue' : 'Start') : h('span', { class: 'pill' }, 'Locked');
-    lst.append(h('div', { class: `qitem nonum${isCur ? ' current' : ''}${!r?.submittedAt && !isCur ? ' locked' : ''}` },
-      h('div', { style: { fontWeight: 600 } }, itemLabel(it)),
-      r?.submittedAt ? h('div', { class: 'row' }, state, h('a', { class: 'btn small ghost', href: `#/item/${it.id}` }, 'View')) : state));
+  const info = await Promise.all(items.map(async (it) => { try { const x = await S.item(it.id); const c = x && (await S.caseData(x.caseId)); return c ? { p: c.chart.patient, m: c.inbox } : {}; } catch { return {}; } }));
+  const rows = items.map((it, n) => {
+    const r = step.ratings[it.id]; const isCur = step.kind === 'item' && step.id === it.id; const { p, m } = info[n];
+    const status = r?.submittedAt ? h('span', { class: 'status signed' }, 'Submitted') : isCur ? h('span', { class: 'status new' }, r ? 'In progress' : 'Next') : h('span', { class: 'status' }, 'Not started');
+    const open = r?.submittedAt ? h('a', { class: 'btn small ghost', href: `#/item/${it.id}` }, 'View') : isCur ? h('a', { class: 'btn small primary', href: `#/item/${it.id}` }, r ? 'Continue' : 'Open') : null;
+    return h('tr', { class: isCur ? 'sel' : r?.submittedAt ? '' : 'inactive' }, h('td', { class: 'nw' }, String(n + 1)), h('td', {}, p ? h('strong', {}, p.name) : '', p ? h('small', {}, `${p.age} y.o. ${String(p.sex || '').slice(0, 1).toUpperCase()} · MRN ${p.mrn}`) : null),
+      h('td', {}, m ? m.subject : '', m ? h('small', {}, `${m.category || ''} · from ${m.sender || ''}`) : null), h('td', { class: 'nw' }, status), h('td', { class: 'nw' }, open));
   });
-  const cta = step.kind === 'item' ? h('a', { class: 'btn primary', href: `#/item/${step.id}` }, step.ratings[step.id] ? 'Continue where you left off' : 'Start the next item') : h('span', { class: 'pill ok' }, 'All done. Thank you.');
-  page(h('div', { class: 'stack' }, h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', {}, h('div', { class: 'eyebrow' }, ME.block ? `Your block (block ${Number(ME.block.slice(1))})` : 'Your items'), h('h1', { style: { margin: '2px 0 0' } }, `${done} of ${items.length} submitted`)), cta),
-    h('div', { class: 'progress' }, h('div', { style: { width: `${(100 * done) / Math.max(items.length, 1)}%` } })),
-    h('p', { class: 'muted small', style: { margin: 0 } }, 'Items open in a fixed order. Your work is saved as you go, so you can stop and come back at any time.')), lst));
+  page(h('div', { class: 'worklist' }, h('div', { class: 'headrow' }, h('h2', {}, ME.block ? `My cases · Block ${Number(ME.block.slice(1))}` : 'My cases'),
+    h('span', { class: 'meta' }, `${done} of ${items.length} submitted`), h('span', { class: 'grow' }),
+    step.kind === 'item' ? h('a', { class: 'btn primary small', href: `#/item/${step.id}` }, step.ratings[step.id] ? 'Continue' : 'Open the next case') : null),
+  h('div', { class: 'progress' }, h('div', { style: { width: `${(100 * done) / Math.max(items.length, 1)}%` } })),
+  h('div', { class: 'gridwrap' }, h('table', { class: 'grid' }, h('thead', {}, h('tr', {}, ['#', 'Patient', 'Message', 'Status', ''].map((x) => h('th', {}, x)))), h('tbody', {}, rows))),
+  h('p', { class: 'meta' }, 'Cases open in a fixed order. Your work saves as you go; submitting a case locks it.')), true);
 }
 
 // How to rate, at the top of the review panel: open on a rater's first item, folded after that.
@@ -370,7 +381,7 @@ async function itemView(id) {
   if (!readOnly && d.wrong_or_harmful_order === undefined) save(derive(d, item));
   const ask = readOnly ? (d.asked || {}) : (d.asked || asks(id, step.ratings));
   if (!readOnly && !d.asked) { d.asked = ask; save({ asked: ask }); }
-  const form = ratingForm({ d, save, readOnly, idp: id, item, ask, date: c.taskDate });
+  const form = ratingForm({ d, save, readOnly, idp: id, item, ask, date: c.taskDate, role: c.role });
   const first = !Object.keys(step.ratings).some((i) => i !== id);
   if (first && !readOnly) S.saveProfile({ instructionsRead: Date.now() }).catch(() => {});
   const right = h('div', {}, howTo(first && !readOnly), form);
@@ -493,7 +504,7 @@ async function adjudicateView(id) {
   for (const l of judged(item)) if (new Set(entries.map(([, r]) => (r.order_judgments || {})[l.k] ?? '')).size > 1) { diffs.add(`oj:${l.k}`); diffs.add('order_judgments'); }
   const compare = h('div', { class: 'compare' }, entries.map(([, r], i) => ratingCard(`Rater ${i + 1}`, r, diffs, item)));
   if (!readOnly && d.wrong_or_harmful_order === undefined) save(derive(d, item));
-  const form = ratingForm({ d, save, readOnly, idp: `adj-${id}`, item, date: c.taskDate });
+  const form = ratingForm({ d, save, readOnly, idp: `adj-${id}`, item, date: c.taskDate, role: c.role });
   const right = h('div', {}, h('div', { class: 'panel-h' }, h('h2', {}, 'The ratings'), h('span', { class: 'muted small' }, 'Differences are marked.')), compare, form);
   let footer = null;
   const refresh = () => { if (!footer) return; const f = footerBar(d, item, submit, 'final rating', {}); footer.replaceWith(f); footer = f; };

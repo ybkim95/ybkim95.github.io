@@ -1,8 +1,8 @@
 // Study team page (admin.html): applications arrive live; one click approves a physician for the episode review (Study B) or rejects;
 // block progress and the JSON download. (2026-11-06: the site serves Study B only; Study A' keeps its code and database root.) The database rules let only the addresses in
 // hcua_validity/admins (and hcua_task_review/admins for Study A') read or write any of this.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=60945406d2';
-import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=60945406d2';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=a949b888e2';
+import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=a949b888e2';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 const app = document.getElementById('app');
@@ -15,7 +15,7 @@ async function init() {
   const [{ initializeApp }, a, d] = await Promise.all([import(`${SDK}/firebase-app.js`), import(`${SDK}/firebase-auth.js`), import(`${SDK}/firebase-database.js`)]);
   A = a; D = d;
   const cfg = local ? { apiKey: 'demo-key', authDomain: 'demo-hcua.firebaseapp.com', projectId: 'demo-hcua', databaseURL: 'http://127.0.0.1:9000?ns=demo-hcua' } : FIREBASE_CONFIG;
-  const fb = initializeApp(cfg, 'admin');
+  const fb = initializeApp(cfg);  // the default app: one sign-in shared with the episode review, so switching accounts on either page switches both
   auth = A.getAuth(fb); db = D.getDatabase(fb);
   if (local) { A.connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true }); D.connectDatabaseEmulator(db, '127.0.0.1', 9000); }
   await A.setPersistence(auth, A.browserLocalPersistence);
@@ -28,7 +28,7 @@ const val = async (p) => { const s = await withTimeout(D.get(ref(p))); return s.
 function shell(...children) {
   const me = user ? { name: user.displayName, email: user.email, photo: user.photoURL } : null;
   app.replaceChildren(h('header', { class: 'topbar' }, brand('admin.html'), h('span', { class: 'crumb' }, 'Study team'), h('span', { class: 'grow' }), themeButton(),
-    profileMenu(me, { lines: [['Role', 'Study team']], links: [['Episode review', 'validity.html']], onSignOut: () => A.signOut(auth) })),
+    profileMenu(me, { lines: [['Role', 'Study team']], links: [['Episode review', './']], onSignOut: () => A.signOut(auth), onSwitch: () => A.signOut(auth) })),
   h('main', { class: 'page wide' }, h('div', { class: 'stack' }, ...children)));
 }
 
@@ -107,7 +107,7 @@ async function boot() {
     if (!u) return signin(local);
     try {
       const isAdmin = (await val(`${V}/admins/${emailKey(u.email)}`).catch(() => null)) === true;
-      if (!isAdmin) return location.replace('./');  // a physician who lands here goes straight to the episode review
+      if (!isAdmin) return location.replace(`./${location.search}`);  // a physician who lands here goes straight to the episode review
       const loaded = new Set();  // render once both lists have arrived, then swap only the applications card on every change
       const update = (k) => { const fresh = !loaded.has('apps') || !loaded.has('dec'); loaded.add(k); if (loaded.size < 2) return; if (fresh) render(); else app.querySelector('.card')?.replaceWith(applicationsCard()); };
       unsub.push(D.onValue(ref(`${V}/applicants`), (s) => { apps = s.val() || {}; update('apps'); }, (e) => toast(e.message, 'bad')));

@@ -127,7 +127,7 @@ export const brand = (href = '#/') => h('a', { class: 'brand', href }, h('img', 
 
 // The account button of the top bar: the Google photo or initials; the menu holds the name, the study and progress, links and Sign out.
 // lines: [[label, text]] shown under the name; links: [[text, href]].
-export function profileMenu(user, { lines = [], links = [], onSignOut } = {}) {
+export function profileMenu(user, { lines = [], links = [], onSignOut, onSwitch } = {}) {
   if (!user) return null;
   const initials = (user.name || user.email || '?').split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
   const face = user.photo ? h('img', { src: user.photo, alt: '', referrerpolicy: 'no-referrer' }) : h('span', {}, initials);
@@ -136,6 +136,7 @@ export function profileMenu(user, { lines = [], links = [], onSignOut } = {}) {
     h('div', { class: 'who' }, h('strong', {}, user.name || user.email), user.name ? h('div', { class: 'small muted' }, user.email) : null),
     lines.length ? h('dl', { class: 'menu-lines' }, lines.flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v)])) : null,
     links.map(([t, href]) => h('a', { role: 'menuitem', href }, t)),
+    onSwitch ? h('button', { role: 'menuitem', class: 'menu-switch', onclick: onSwitch }, 'Sign in with another account') : null,
     onSignOut ? h('button', { role: 'menuitem', class: 'menu-out', onclick: onSignOut }, 'Sign out') : null);
   const close = () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
   btn.onclick = (e) => { e.stopPropagation(); menu.hidden = !menu.hidden; btn.setAttribute('aria-expanded', String(!menu.hidden)); };

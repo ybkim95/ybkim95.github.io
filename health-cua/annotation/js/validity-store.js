@@ -17,9 +17,9 @@
 //   claims/{blockId}/{uid}      when a rater took the block (written once by that rater)
 //   current/{uid}               the block the rater works on; items and cases of that block are readable
 // The model, interface and grader verdict of an item are never uploaded, so no call here can return them.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=9fe0a3c57f';
-import { emailKey, withTimeout } from './ui.js?v=9fe0a3c57f';
-import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=9fe0a3c57f';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=976f247624';
+import { emailKey, withTimeout } from './ui.js?v=976f247624';
+import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=976f247624';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 
@@ -51,7 +51,7 @@ async function firebaseStore(emulator) {
 
   return {
     mode: emulator ? 'emulator' : 'firebase',
-    onAuth(cb) { return A.onAuthStateChanged(auth, (u) => { user = u; cb(u ? { uid: u.uid, email: u.email, emailVerified: u.emailVerified, name: u.displayName } : null); }); },
+    onAuth(cb) { return A.onAuthStateChanged(auth, (u) => { user = u; cb(u ? { uid: u.uid, email: u.email, emailVerified: u.emailVerified, name: u.displayName, photo: u.photoURL } : null); }); },
     async signIn() {
       const p = new A.GoogleAuthProvider(); p.setCustomParameters({ prompt: 'select_account' });
       if (emulator) return A.signInWithRedirect(auth, p);

@@ -1,8 +1,8 @@
-// Study team page (admin.html): applications arrive live; one click approves a physician for Study B (episode review), Study A'
-// (task review) or both, or rejects; block progress of both studies; JSON downloads. The database rules let only the addresses in
+// Study team page (admin.html): applications arrive live; one click approves a physician for the episode review (Study B) or rejects;
+// block progress and the JSON download. (2026-11-06: the site serves Study B only; Study A' keeps its code and database root.) The database rules let only the addresses in
 // hcua_validity/admins (and hcua_task_review/admins for Study A') read or write any of this.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as V, REVIEW_ROOT as RV } from './config.js?v=9fe0a3c57f';
-import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView } from './ui.js?v=9fe0a3c57f';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=976f247624';
+import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=976f247624';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 const app = document.getElementById('app');
@@ -26,9 +26,10 @@ const ref = (p) => D.ref(db, p);
 const val = async (p) => { const s = await withTimeout(D.get(ref(p))); return s.exists() ? s.val() : null; };
 
 function shell(...children) {
-  app.replaceChildren(h('header', { class: 'topbar' }, h('span', { class: 'brand' }, h('img', { class: 'mark', src: 'img/logo-64.png', alt: '' }), 'Health-CUA study team'),
-    h('span', { class: 'grow' }), h('a', { class: 'btn small ghost', href: 'validity.html' }, 'Episode review'), h('a', { class: 'btn small ghost', href: 'review.html' }, 'Task review'), themeButton(),
-    user ? h('button', { class: 'ghost small', onclick: () => A.signOut(auth) }, 'Sign out') : null), h('main', { class: 'page wide' }, h('div', { class: 'stack' }, ...children)));
+  const me = user ? { name: user.displayName, email: user.email, photo: user.photoURL } : null;
+  app.replaceChildren(h('header', { class: 'topbar' }, brand('admin.html'), h('span', { class: 'crumb' }, 'Study team'), h('span', { class: 'grow' }), themeButton(),
+    profileMenu(me, { lines: [['Role', 'Study team']], links: [['Episode review', 'validity.html']], onSignOut: () => A.signOut(auth) })),
+  h('main', { class: 'page wide' }, h('div', { class: 'stack' }, ...children)));
 }
 
 function signin(local) {
@@ -43,7 +44,7 @@ function signin(local) {
 async function decide(uid, status, B, Astudy) {
   try {
     await withTimeout(D.set(ref(`${V}/decisions/${uid}`), { status, B, A: Astudy, at: D.serverTimestamp(), by: user.email }));
-    toast(status === 'approved' ? `Approved for ${[B && 'the episode review', Astudy && 'the task review'].filter(Boolean).join(' and ')}.` : 'Rejected.');
+    toast(status === 'approved' ? 'Approved. The physician starts at once.' : 'Rejected.');
   } catch (e) { toast(`Not saved: ${e.message}`, 'bad'); }
 }
 
@@ -51,11 +52,9 @@ function applicationsCard() {
   const rows = Object.entries(apps).sort((a, b) => (b[1].appliedAt || 0) - (a[1].appliedAt || 0)).map(([uid, a]) => {
     const d = decisions[uid];
     const status = !d ? h('span', { class: 'pill accent' }, 'Waiting')
-      : d.status === 'approved' ? h('span', { class: 'pill ok' }, `Approved: ${[d.B && 'episodes', d.A && 'tasks'].filter(Boolean).join(' + ')}`) : h('span', { class: 'pill' }, 'Rejected');
+      : d.status === 'approved' ? h('span', { class: 'pill ok' }, 'Approved') : h('span', { class: 'pill' }, 'Rejected');
     const actions = !d ? h('div', { class: 'row' },
-      h('button', { class: 'small primary', title: 'Approve for the episode review (Study B)', onclick: () => decide(uid, 'approved', true, false) }, 'Episodes'),
-      h('button', { class: 'small', title: "Approve for the task review (Study A′)", onclick: () => decide(uid, 'approved', false, true) }, 'Tasks'),
-      h('button', { class: 'small', title: 'Approve for both studies', onclick: () => decide(uid, 'approved', true, true) }, 'Both'),
+      h('button', { class: 'small primary', onclick: () => decide(uid, 'approved', true, false) }, 'Approve'),
       h('button', { class: 'small danger', onclick: async () => { if (await confirmBox('Reject this application?', `${a.name} (${a.email})`, 'Reject', true)) decide(uid, 'rejected', false, false); } }, 'Reject'))
       : h('button', { class: 'small ghost', onclick: async () => {
         if (!(await confirmBox('Undo this decision?', 'The physician goes back to waiting. Ratings already submitted are kept.', 'Undo', true))) return;
@@ -67,7 +66,7 @@ function applicationsCard() {
   const waiting = Object.keys(apps).filter((u) => !decisions[u]).length;
   return h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', {}, h('div', { class: 'eyebrow' }, 'Applications'), h('h1', { style: { margin: 0 } }, `${waiting} waiting`)),
     h('span', { class: 'muted small' }, 'Updates live. An approved physician starts at once.')),
-  h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Physician', 'Approve for, or status', 'Specialty', 'Stage', 'Where', 'Applied'].map((x) => h('th', {}, x)))),
+  h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Physician', 'Decision', 'Specialty', 'Stage', 'Where', 'Applied'].map((x) => h('th', {}, x)))),
     h('tbody', {}, rows.length ? rows : h('tr', {}, h('td', { colspan: 7, class: 'muted' }, 'No applications yet.'))))));
 }
 
@@ -82,7 +81,7 @@ async function progressCard(root, kind, title, unit) {
   });
   const twice = Object.values(perItem).filter((n) => n >= 2).length; const once = Object.values(perItem).filter((n) => n === 1).length;
   const taken = Object.keys(blocks || {}).filter((b) => Object.keys(claims?.[b] || {}).length).length;
-  return h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', {}, h('div', { class: 'eyebrow' }, title), h('h2', { style: { margin: 0 } }, `${twice} of ${Object.keys(perItem).length} ${unit} rated by two physicians`), h('div', { class: 'small muted' }, `${once} rated by one so far; a ${unit.slice(0, -1)} counts once two have rated it.`)),
+  return h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', {}, h('div', { class: 'eyebrow' }, title), h('h2', { style: { margin: 0 } }, `${twice} of ${Object.keys(perItem).length} ${unit} rated by two physicians`), h('div', { class: 'small muted' }, `${once} rated by one so far; a case counts once two physicians have rated it.`)),
     h('button', { class: 'small', onclick: async () => {
       const nodes = root === V ? ['config', 'applicants', 'decisions', 'blocks', 'claims', 'current', 'profiles', 'ratings', 'adjudications', 'invites', 'slots', 'raters'] : ['config', 'blocks', 'claims', 'current', 'profiles', 'ratings', 'invites', 'slots'];
       const data = { exportedAt: new Date().toISOString(), ...Object.fromEntries(await Promise.all(nodes.map(async (p) => [p, await val(`${root}/${p}`)]))) };
@@ -96,7 +95,7 @@ async function progressCard(root, kind, title, unit) {
 async function render() {
   const progress = h('div', { class: 'stack' }, h('p', { class: 'muted' }, 'Loading progress…'));
   shell(applicationsCard(), progress);
-  const cards = await Promise.all([progressCard(V, 'items', 'Episode review (Study B)', 'items'), progressCard(RV, 'tasks', "Task review (Study A′)", 'tasks')]);
+  const cards = [await progressCard(V, 'items', 'Progress', 'cases')];
   progress.replaceChildren(...cards, h('div', { class: 'row' }, h('button', { class: 'small', onclick: render }, 'Refresh progress')));
 }
 

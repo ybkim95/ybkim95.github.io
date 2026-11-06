@@ -116,10 +116,33 @@ function applyTheme(t) { if (t) document.documentElement.dataset.theme = t; else
 try { applyTheme(localStorage.getItem(THEME_KEY)); } catch { /* storage blocked: follow the system */ }
 export function themeButton() {
   const dark = () => document.documentElement.dataset.theme === 'dark' || (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
-  const b = h('button', { class: 'ghost small', title: 'Switch between a light and a dark page' });
-  const label = () => { b.textContent = dark() ? 'Light page' : 'Dark page'; };
+  const b = h('button', { class: 'iconbtn', html: '<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 2.5a7.5 7.5 0 0 1 0 15z" fill="currentColor"/></svg>' });
+  const label = () => { const l = dark() ? 'Switch to a light page' : 'Switch to a dark page'; b.setAttribute('aria-label', l); b.title = l; };
   b.onclick = () => { const t = dark() ? 'light' : 'dark'; applyTheme(t); try { localStorage.setItem(THEME_KEY, t); } catch { /* ignore */ } label(); };
   label(); return b;
+}
+
+export const BRAND = 'Health-CUA Annotation';
+export const brand = (href = '#/') => h('a', { class: 'brand', href }, h('img', { class: 'mark', src: 'img/logo-64.png', alt: '' }), BRAND);
+
+// The account button of the top bar: the Google photo or initials; the menu holds the name, the study and progress, links and Sign out.
+// lines: [[label, text]] shown under the name; links: [[text, href]].
+export function profileMenu(user, { lines = [], links = [], onSignOut } = {}) {
+  if (!user) return null;
+  const initials = (user.name || user.email || '?').split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
+  const face = user.photo ? h('img', { src: user.photo, alt: '', referrerpolicy: 'no-referrer' }) : h('span', {}, initials);
+  const btn = h('button', { class: 'avatar', 'aria-haspopup': 'menu', 'aria-expanded': 'false', 'aria-label': 'Account', title: user.email }, face);
+  const menu = h('div', { class: 'menu', role: 'menu', hidden: true },
+    h('div', { class: 'who' }, h('strong', {}, user.name || user.email), user.name ? h('div', { class: 'small muted' }, user.email) : null),
+    lines.length ? h('dl', { class: 'menu-lines' }, lines.flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v)])) : null,
+    links.map(([t, href]) => h('a', { role: 'menuitem', href }, t)),
+    onSignOut ? h('button', { role: 'menuitem', class: 'menu-out', onclick: onSignOut }, 'Sign out') : null);
+  const close = () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
+  btn.onclick = (e) => { e.stopPropagation(); menu.hidden = !menu.hidden; btn.setAttribute('aria-expanded', String(!menu.hidden)); };
+  document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) close(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  const wrap = h('div', { class: 'account' }, btn, menu);
+  return wrap;
 }
 
 // The page shown when the database cannot be reached.

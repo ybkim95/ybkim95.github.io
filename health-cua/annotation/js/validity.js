@@ -1,8 +1,8 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=3bc21eb232';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND } from './ui.js?v=3bc21eb232';
-import { caseLayout, deptOf, lowerName } from './chart.js?v=3bc21eb232';
-import { COUNTRIES } from './countries.js?v=3bc21eb232';
+import { createStore } from './validity-store.js?v=9f2e4e6156';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND } from './ui.js?v=9f2e4e6156';
+import { caseLayout, deptOf, lowerName } from './chart.js?v=9f2e4e6156';
+import { COUNTRIES } from './countries.js?v=9f2e4e6156';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)

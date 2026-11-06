@@ -225,6 +225,7 @@ ul.wrong-list { display: grid; gap: 6px; margin: 0; }
 .topbar .brand { color: var(--bar-ink); text-decoration: none; font-size: 15px; }
 .topbar .saved, .topbar .crumb { color: var(--bar-muted); font-size: 12.5px; text-decoration: none; }
 .topbar a.crumb:hover { color: var(--bar-ink); text-decoration: underline; }
+.topbar .savewarn { color: #ff8f80; font-weight: 600; font-size: 12.5px; }
 .iconbtn { width: 32px; height: 32px; padding: 0; justify-content: center; border-radius: 50%; background: transparent; border: 1px solid rgba(255, 255, 255, .28); color: var(--bar-ink); }
 .iconbtn:hover { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .5); }
 .iconbtn svg { width: 17px; height: 17px; }

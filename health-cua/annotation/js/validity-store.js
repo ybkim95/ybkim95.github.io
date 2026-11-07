@@ -17,9 +17,9 @@
 //   claims/{blockId}/{uid}      when a rater took the block (written once by that rater)
 //   current/{uid}               the block the rater works on; items and cases of that block are readable
 // The model, interface and grader verdict of an item are never uploaded, so no call here can return them.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=fd7c6acd2e';
-import { emailKey, withTimeout } from './ui.js?v=fd7c6acd2e';
-import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=fd7c6acd2e';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=1141fa41f6';
+import { emailKey, withTimeout } from './ui.js?v=1141fa41f6';
+import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=1141fa41f6';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 

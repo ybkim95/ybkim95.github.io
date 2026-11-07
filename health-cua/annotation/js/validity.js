@@ -1,9 +1,9 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=fd7c6acd2e';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND, orderKind } from './ui.js?v=fd7c6acd2e';
-import { caseLayout, deptOf, lowerName } from './chart.js?v=fd7c6acd2e';
-import { COUNTRIES } from './countries.js?v=fd7c6acd2e';
-import { startTour } from './tour.js?v=fd7c6acd2e';
+import { createStore } from './validity-store.js?v=1141fa41f6';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND, orderKind } from './ui.js?v=1141fa41f6';
+import { caseLayout, deptOf, lowerName, unitText } from './chart.js?v=1141fa41f6';
+import { COUNTRIES } from './countries.js?v=1141fa41f6';
+import { startTour } from './tour.js?v=1141fa41f6';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)
@@ -246,7 +246,7 @@ function orderedItems() { return Object.entries(SLOT.items).map(([id, v]) => ({ 
 // Rows that are judged carry their judgment control; the judgment keys (o0, o1, s0) are the packet's order and stop indexes.
 const FIELD = /^(dose|frequency|route|priority|scheduled|date|type|reason):?\s+(.*)$/i;
 function parseLine(s) {
-  const [name, ...rest] = String(s).replace(PREFIX, '').split('; '); let n = name; const f = {}; let last = null;
+  const [name, ...rest] = unitText(String(s).replace(PREFIX, '')).split('; '); let n = name; const f = {}; let last = null;
   // a part that is not a field continues the one before it (free-text frequencies may hold semicolons), or the name
   for (const part of rest) { const m = part.match(FIELD); if (m) f[last = m[1].toLowerCase()] = m[2]; else if (last) f[last] += `; ${part}`; else n += `; ${part}`; }
   // a name the packet cut inside brackets at the first strength ('tablet (buprenorphine') drops the open bracket and what follows it
@@ -285,7 +285,9 @@ function ordersPanel(item, judge) {
   const body = [];
   const group = (title, n) => body.push(h('tr', { class: 'grouprow' }, h('td', { colspan: 3 }, title, h('span', { class: 't' }, String(n)))));
   for (const g of GROUPS) { const rows = orders.filter((o) => o.kind === g); if (rows.length) { group(g, rows.length); rows.forEach((o) => body.push(...orderRows(o.t, o.k, g, judge))); } }
-  if (visits.length) { group('Follow-up and appointments', visits.length); visits.forEach((v) => { const { name, f } = parseLine(v);
+  // visits the agent booked are context, not judged: their own group says so (follow-up visit orders above keep their judgment)
+  if (visits.length) { group('Appointments booked', visits.length); body.push(h('tr', { class: 'groupnote' }, h('td', { colspan: 3 }, 'Shown for context. Not rated separately. Count them in Missing and Overall.')));
+    visits.forEach((v) => { const { name, f } = parseLine(v);
     body.push(h('tr', { class: 'otr' }, h('td', {}, h('div', { class: 'oname' }, humanDates(cap(name))), h('div', { class: 'odetail' }, [f.type || 'Office visit', f.date ? fmtDate(f.date) : null].filter(Boolean).join(' · '))),
       h('td', { class: 'nw' }, '—'), h('td', { class: 'nw' }, h('span', { class: 'status booked' }, 'Scheduled')))); }); }
   if (stops.length) { group('Discontinued medications', stops.length); stops.forEach((s) => body.push(...orderRows(s.t, s.k, 'Stopped', judge))); }

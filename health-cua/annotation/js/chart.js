@@ -1,5 +1,5 @@
 // The patient chart, in the modules the study EHR shows: summary, problems, medications, results, vitals, notes, procedures.
-import { h, md, fmtDate } from './ui.js?v=fd7c6acd2e';
+import { h, md, fmtDate } from './ui.js?v=1141fa41f6';
 
 const TABS = [['summary', 'Summary'], ['problems', 'Problems'], ['medications', 'Medications'], ['labs', 'Results'], ['vitals', 'Vitals'],
   ['notes', 'Notes'], ['procedures', 'Procedures']];
@@ -25,6 +25,10 @@ const VITAL_NAMES = [[/^pain severity\b.*/i, 'Pain'], [/^blood pressure panel\b.
   [/^heart rate\b.*/i, 'Pulse'], [/^respiratory rate\b.*/i, 'Resp'], [/^head occipital-frontal circumference\b.*/i, 'Head circumference']];  // one short name per vital everywhere
 const UNITS = [[/\{copies\}/g, 'copies'], [/\[IU\]/g, 'IU'], [/\[HPF\]/g, 'HPF'], [/\{1\.73_m2\}|1\.73m2/g, '1.73 m²'], [/\bug\//g, 'µg/'], [/\bumol\//g, 'µmol/'], [/mm\[Hg\]/g, 'mmHg'], [/^Cel$/, '°C'], [/^\[degF\]$/, '°F'], [/kg\/m2/g, 'kg/m²'], [/10\*3\/uL/g, '×10³/µL'], [/10\*6\/uL/g, '×10⁶/µL'], [/\buL\b/g, 'µL'], [/\{[^}]*\}/g, '']];
 export const cleanUnit = (u) => UNITS.reduce((x, [re, to]) => x.replace(re, to), String(u || '')).trim();
+// UCUM and LOINC tokens inside free text (an order's dose or name, a medication's sig): 1000 [IU] -> 1000 IU, mm[Hg] -> mmHg,
+// 'e Ag [Presence] in Serum' -> 'e Ag in Serum'; a brand in brackets ([Flovent]) has no slash and is not one of these, so it stays
+export const unitText = (t) => String(t ?? '').replace(/\[(IU|iU)\]/g, 'IU').replace(/mm\[Hg\]/g, 'mmHg').replace(/\[degF\]/g, '°F').replace(/\[HPF\]/g, 'HPF')
+  .replace(/\{copies\}/g, 'copies').replace(/\s*\{(INR|score|nominal|ratio)\}/gi, '').replace(/\s*\[(Presence|Time|Interpretation|[^\]\s]*\/[^\]\s]*)\]/g, '');
 const withUnit = (v, u) => { const x = cleanUnit(u); return `${v ?? ''}${x && !/^[/%°]/.test(x) ? ' ' : ''}${x}`.trim(); };  // 4/10, 94%, 37.2°C
 export function fmtStamp(s) { const m = String(s || '').match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})/); return m ? `${fmtDate(m[1])} ${m[2]}` : fmtDate(s); }
 const bpOf = (v) => { const m = String(v).match(/diastolic[^\d]*([\d.]+)[^;]*;\s*systolic[^\d]*([\d.]+)/i) || String(v).match(/systolic[^\d]*([\d.]+)[^;]*;\s*diastolic[^\d]*([\d.]+)/i);
@@ -215,7 +219,9 @@ export const deptOf = (role) => { const r = String(role || '').toLowerCase();
     [/oncolog/, 'Oncology'], [/obstetric/, 'Obstetrics']];
   return (D.find(([re]) => re.test(r))?.[1]) || String(role || '').replace(/ physician$/i, ''); };
 const flagMark = (r) => { const f = flag(r); return f ? h('span', { class: 'fl' }, f === 'high' ? ' H' : ' L') : null; };
-const val = (r) => h('span', { class: flag(r) ? 'flag' : '', title: `${num(r.value)} ${cleanUnit(r.unit)}` }, String(shown(r)), h('span', { class: 'u' }, ` ${cleanUnit(r.unit)}`), flagMark(r));
+// a unit glued to the value (%, °C) stays in view in Key results; longer units go when the sidebar is narrow (the tooltip keeps them)
+const val = (r) => { const u = cleanUnit(r.unit); const glued = /^[%°]/.test(u);
+  return h('span', { class: flag(r) ? 'flag' : '', title: `${num(r.value)} ${u}` }, String(shown(r)), h('span', { class: glued ? 'u glued' : 'u' }, glued ? u : ` ${u}`), flagMark(r)); };
 const timeOf = (s) => (String(s).match(/[ T](\d{2}:\d{2})/) || [])[1] || '';
 const stamp = (s) => h('span', { class: 'nw' }, fmtDate(String(s).slice(0, 10)), timeOf(s) ? h('span', { class: 'tm' }, ` ${timeOf(s)}`) : null);
 // test names as a flowsheet prints them: LOINC qualifiers, specimen and method dropped (urine and stool kept), one name per test
@@ -412,7 +418,7 @@ export function ehrChart(c, { onView, task = true } = {}) {
       if (state.cr === 'meds') {
         const rows = ch.medications.filter((m) => within(m.authored, state.range) && match(`${m.text} ${m.sig} ${m.reason}`)).map((m) => ({ ...m, _inactive: m.status !== 'active' }));
         return h('div', {}, sub, bar(), count(rows.length, ch.medications.length, 'medications'), grid([['Ordered', (m) => td(fmtDate(m.authored), 'nw'), (m) => m.authored], ['Medication', (m) => h('td', { title: m.text }, medName(m.text)), (m) => medName(m.text)],
-          ['Sig', (m) => td(m.sig || '')], ['Indication', (m) => td(m.reason || '')], ['Status', (m) => td(statusChip(m.status)), (m) => m.status]], rows, sorter('meds', { k: 0, dir: 'desc' })));
+          ['Sig', (m) => td(unitText(m.sig))], ['Indication', (m) => td(m.reason || '')], ['Status', (m) => td(statusChip(m.status)), (m) => m.status]], rows, sorter('meds', { k: 0, dir: 'desc' })));
       }
       const rows = dated(ch.procedures).filter((r) => match(r.text));
       return h('div', {}, sub, bar(), count(rows.length, ch.procedures.length, 'procedures'), grid([['Date', (r) => td(fmtDate(r.date), 'nw'), (r) => r.date], ['Procedure', (r) => td(r.text), (r) => r.text], ['Status', () => td(statusChip('completed'))]],
@@ -476,12 +482,12 @@ export function ehrChart(c, { onView, task = true } = {}) {
       const sel = state.med !== null ? ch.medications[state.med] : null;
       return h('div', {}, h('div', { class: 'headrow' }, h('h2', {}, 'Medications'), h('span', { class: 'meta' }, `${activeMeds.length} active`)),
         h('div', { class: 'chipbar' }, chips([['active', `Active (${activeMeds.length})`], ['all', `All (${ch.medications.length})`]], state.mstat, (k) => go('medications', { mstat: k })), h('span', { class: 'grow' }), find('Find in list')),
-        grid([['Medication', (m) => h('td', { title: m.text }, h('strong', {}, medName(m.text))), (m) => medName(m.text)], ['Sig', (m) => td(m.sig || h('span', { class: 'muted' }, 'No sig recorded'))], ['Indication', (m) => td(m.reason || '')],
+        grid([['Medication', (m) => h('td', { title: m.text }, h('strong', {}, medName(m.text))), (m) => medName(m.text)], ['Sig', (m) => td(unitText(m.sig) || h('span', { class: 'muted' }, 'No sig recorded'))], ['Indication', (m) => td(m.reason || '')],
           ['Start', (m) => td(fmtDate(m.authored), 'nw'), (m) => m.authored], ['Status', (m) => td(statusChip(m.status)), (m) => m.status]], rows,
         { sel, onRow: (m) => { state.med = ch.medications.indexOf(m); draw(); }, empty: 'No medications.', ...sorter('meds2', { k: 3, dir: 'desc' }) }),
         sel ? h('section', { class: 'detail-pane' }, h('div', { class: 'preview-head' }, h('div', {}, h('strong', {}, medName(sel.text)), h('div', { class: 'meta' }, sel.text)), statusChip(sel.status),
           h('button', { type: 'button', class: 'ghost small', onclick: () => { state.med = null; draw(); } }, 'Close')),
-        h('dl', { class: 'detail-kv' }, h('dt', {}, 'Sig'), h('dd', {}, sel.sig || 'No sig recorded'), h('dt', {}, 'Start'), h('dd', {}, fmtDate(sel.authored) || '—'),
+        h('dl', { class: 'detail-kv' }, h('dt', {}, 'Sig'), h('dd', {}, unitText(sel.sig) || 'No sig recorded'), h('dt', {}, 'Start'), h('dd', {}, fmtDate(sel.authored) || '—'),
           h('dt', {}, 'Indication'), h('dd', {}, sel.reason || '—'), h('dt', {}, 'Status'), h('dd', {}, String(sel.status || '').replace(/^\w/, (x) => x.toUpperCase())))) : h('div', { class: 'paging' }, 'Select a medication to see its details.'));
     },
   };

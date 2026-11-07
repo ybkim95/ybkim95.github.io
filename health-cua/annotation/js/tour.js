@@ -1,17 +1,27 @@
 // A short guided tour of the review screen: the page is dimmed except the parts a step describes, and a small popover sits beside them
 // (never over them) with Back, Next and Skip tour. The tour only scrolls and highlights. It never clicks anything, so no answer and no
 // view record changes. Esc closes it, the arrow keys step through it and Tab stays inside the popover.
-import { h } from './ui.js?v=1141fa41f6';
+import { h } from './ui.js?v=2503f1c9a7';
 
-const PAD = 6;   // room around a highlighted part
+const INSET = 3; // a highlight sits just inside its part, so two parts that touch never share or overlap an outline
+const PAD = 0;
 const GAP = 14;  // between the highlighted part and the popover
 const EDGE = 8;  // kept free at the window edges
 const SVG = 'http://www.w3.org/2000/svg';
 const svgEl = (tag, attrs) => { const e = document.createElementNS(SVG, tag); Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v)); return e; };
 const shown = (e) => { if (!e) return false; const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+// the part of an element its scrolling panels actually show (a message scrolled under the tab bar, a column cut by the window)
+const visible = (e) => {
+  const r = e.getBoundingClientRect(); let b = { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+  for (let p = e.parentElement; p && p !== document.body; p = p.parentElement) {
+    if (!/(auto|scroll|hidden)/.test(getComputedStyle(p).overflowY + getComputedStyle(p).overflowX)) continue;
+    const q = p.getBoundingClientRect(); b = { left: Math.max(b.left, q.left), top: Math.max(b.top, q.top), right: Math.min(b.right, q.right), bottom: Math.min(b.bottom, q.bottom) };
+  }
+  return b.right - b.left > 8 && b.bottom - b.top > 8 ? b : null;
+};
 const overlap = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
 
-// steps: [{ title, text, targets: () => [elements], anchor: () => element, block: 'start'|'center'|'nearest', place: ['left', 'below', ...] }]
+// steps: [{ title, text, targets: () => [elements], anchor: () => element, block: 'start'|'center'|'nearest', place: ['left', 'below', ...], union, pad, floor }]
 export function startTour(steps, { onClose } = {}) {
   let i = 0; let frame = 0;
   const dim = svgEl('svg', { class: 'tour-dim', 'aria-hidden': 'true' });
@@ -28,12 +38,18 @@ export function startTour(steps, { onClose } = {}) {
 
   const place = () => {
     const s = steps[i]; const W = innerWidth; const H = innerHeight;
-    const holes = s.targets().filter(shown).map((e) => { const r = e.getBoundingClientRect();
-      const left = Math.max(r.left - PAD, 0); const top = Math.max(r.top - PAD, 0);
-      return { left, top, right: Math.min(r.right + PAD, W), bottom: Math.min(r.bottom + PAD, H) }; }).filter((r) => r.right > r.left && r.bottom > r.top);
+    let rects = s.targets().filter(shown).map(visible).filter(Boolean);
+    // a stack of parts in one column (the questions) is one highlight: their bounding box
+    if (s.union && rects.length) rects = [{ left: Math.min(...rects.map((r) => r.left)), top: Math.min(...rects.map((r) => r.top)), right: Math.max(...rects.map((r) => r.right)), bottom: Math.max(...rects.map((r) => r.bottom)) }];
+    // inset, then clipped to the window with a margin so every rounded corner stays in view
+    const floor = s.floor?.() ?? H;  // a bar pinned over the bottom of the panel (the submit bar) ends the highlight
+    rects = rects.map((r) => ({ ...r, bottom: Math.min(r.bottom, floor) })).filter((r) => r.bottom - r.top > 8);
+    const d = s.pad ?? -INSET;  // a step whose parts have no border of their own (the questions) is padded outward instead
+    const holes = rects.map((r) => ({ left: Math.max(r.left - d, EDGE / 2), top: Math.max(r.top - d, EDGE / 2), right: Math.min(r.right + d, W - EDGE / 2), bottom: Math.min(r.bottom + d, H - EDGE / 2) }))
+      .filter((r) => r.right - r.left > 8 && r.bottom - r.top > 8);
     dim.setAttribute('viewBox', `0 0 ${W} ${H}`); dim.setAttribute('width', W); dim.setAttribute('height', H);
     const mask = svgEl('mask', { id: 'tour-mask' }); mask.append(svgEl('rect', { x: 0, y: 0, width: W, height: H, fill: 'white' }));
-    const rings = holes.map((r) => { const a = { x: r.left, y: r.top, width: r.right - r.left, height: r.bottom - r.top, rx: 8 }; mask.append(svgEl('rect', { ...a, fill: 'black' })); return svgEl('rect', { ...a, class: 'tour-ring' }); });
+    const rings = holes.map((r) => { const a = { x: r.left, y: r.top, width: r.right - r.left, height: r.bottom - r.top, rx: 6 }; mask.append(svgEl('rect', { ...a, fill: 'black' })); return svgEl('rect', { ...a, class: 'tour-ring' }); });
     dim.replaceChildren(mask, svgEl('rect', { x: 0, y: 0, width: W, height: H, class: 'tour-shade', mask: 'url(#tour-mask)' }), ...rings);
     // the first side (in the step's order) where the popover fits without covering a highlighted part; otherwise the least covering one
     const a = s.anchor()?.getBoundingClientRect() || holes[0] || { left: W / 2, right: W / 2, top: H / 2, bottom: H / 2 };

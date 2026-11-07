@@ -1,9 +1,9 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=1141fa41f6';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND, orderKind } from './ui.js?v=1141fa41f6';
-import { caseLayout, deptOf, lowerName, unitText } from './chart.js?v=1141fa41f6';
-import { COUNTRIES } from './countries.js?v=1141fa41f6';
-import { startTour } from './tour.js?v=1141fa41f6';
+import { createStore } from './validity-store.js?v=2503f1c9a7';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND, orderKind } from './ui.js?v=2503f1c9a7';
+import { caseLayout, deptOf, lowerName, unitText } from './chart.js?v=2503f1c9a7';
+import { COUNTRIES } from './countries.js?v=2503f1c9a7';
+import { startTour } from './tour.js?v=2503f1c9a7';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)
@@ -436,11 +436,11 @@ const TOUR = [
   { title: 'The chart', text: 'The chart tabs and the left column show the record as it was before the agent acted.',
     targets: () => [$('.acttabs'), $('.sidebar')], anchor: () => $('.acttabs'), place: ['below', 'right'] },
   { title: 'Orders', text: 'Judge each order and stop the agent signed as appropriate, not needed, or wrong or harmful.',
-    targets: () => [$('.ehr-right .panel.orders')], anchor: () => $('.ehr-right .panel.orders'), block: 'start', place: ['left', 'below'] },
+    targets: () => [$('.ehr-right .panel.orders')], anchor: () => $('.ehr-right .panel.orders'), block: 'start', place: ['left', 'below'], floor: () => $('.ehr-right .footer-bar')?.getBoundingClientRect().top },
   { title: 'The note', text: 'Read the note the agent signed and check it against the record.',
-    targets: () => [noteDoc()], anchor: () => noteDoc(), block: 'start', place: ['left', 'below'] },
+    targets: () => [noteDoc()], anchor: () => noteDoc(), block: 'start', place: ['left', 'below'], floor: () => $('.ehr-right .footer-bar')?.getBoundingClientRect().top },
   { title: 'Your rating', text: 'Then answer the questions below. They ask what is missing, whether the note is untrue, the likely harm and your overall rating.',
-    targets: () => [$('.ehr-right .rating-h'), ...document.querySelectorAll('.ehr-right .q, .ehr-right .qt')], anchor: () => $('.ehr-right .rating-h'), block: 'start', place: ['left'] },
+    targets: () => [$('.ehr-right .rating-h'), ...document.querySelectorAll('.ehr-right .q, .ehr-right .qt')], anchor: () => $('.ehr-right .rating-h'), block: 'start', place: ['left'], union: true, pad: 8, floor: () => $('.ehr-right .footer-bar')?.getBoundingClientRect().top },
   { title: 'Submit', text: 'Submit rating locks the case and opens the next one. Your answers save as you go until then.',
     targets: () => [$('.ehr-right .footer-bar button.primary')], anchor: () => $('.ehr-right .footer-bar button.primary'), place: ['above', 'left'] }];
 const noteDoc = () => [...document.querySelectorAll('.ehr-right .panel')].find((p) => p.querySelector('h3')?.textContent === 'Note');

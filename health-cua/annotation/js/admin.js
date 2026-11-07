@@ -1,9 +1,9 @@
 // Study team page (admin.html): applications arrive live; one click approves a physician for the episode review (Study B) or rejects;
 // block progress and the JSON download. (2026-11-06: the site serves Study B only; Study A' keeps its code and database root.) The database rules let only the addresses in
 // hcua_validity/admins (and hcua_task_review/admins for Study A') read or write any of this.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=b68fded186';
-import { COUNTRIES } from './countries.js?v=b68fded186';
-import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=b68fded186';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=962a94f633';
+import { COUNTRIES } from './countries.js?v=962a94f633';
+import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=962a94f633';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 const app = document.getElementById('app');
@@ -77,39 +77,38 @@ function applicationsCard() {
 
 
 const download = (root) => h('button', { class: 'small', onclick: async () => {
-      const nodes = root === V ? ['config', 'applicants', 'decisions', 'assign', 'plan', 'strata', 'design', 'blocks', 'claims', 'current', 'profiles', 'ratings', 'adjudications', 'invites', 'slots', 'raters'] : ['config', 'blocks', 'claims', 'current', 'profiles', 'ratings', 'invites', 'slots'];
+      const nodes = root === V ? ['config', 'applicants', 'decisions', 'assign', 'plan', 'design', 'guesses', 'blocks', 'claims', 'current', 'profiles', 'ratings', 'adjudications', 'invites', 'slots', 'raters'] : ['config', 'blocks', 'claims', 'current', 'profiles', 'ratings', 'invites', 'slots'];
       const data = { exportedAt: new Date().toISOString(), ...Object.fromEntries(await Promise.all(nodes.map(async (p) => [p, await val(`${root}/${p}`)]))) };
       const a = h('a', { href: URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' })), download: `${root}-export-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '')}.json` });
       document.body.append(a); a.click(); a.remove();
     } }, 'Download all (JSON)');
 
-// Fixed assignment: coverage by stratum (opaque codes S1 to S8; the key is private) and the anchors every physician rates
+// B-6: each physician's 36 (12 anchors, 24 rotating), the coverage of the 120 results, and the anchors each physician has done
 async function coverageCard() {
-  const [assign, plans, ratings, strata, design] = await Promise.all(['assign', 'plan', 'ratings', 'strata', 'design'].map((p) => val(`${V}/${p}`).catch(() => null)));
+  const [assign, plans, ratings, design, items] = await Promise.all(['assign', 'plan', 'ratings', 'design', 'items'].map((p) => val(`${V}/${p}`).catch(() => null)));
   const sub = (uid, i) => !!ratings?.[uid]?.[i]?.submittedAt;
-  const uids = Object.keys(assign || {}); PROG = {};
-  const anchors = new Set(Object.values(design?.anchors || {}));
+  const anchorCases = new Set(Object.values(design?.anchorCases || {}));
   const median = (xs) => { const s = [...xs].sort((x, y) => x - y); return s.length ? (s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2) : null; };
-  for (const u of uids) { const its = Object.keys(plans?.[assign[u]]?.items || {}); const done = its.filter((i) => sub(u, i));
-    PROG[u] = { rated: done.length, of: its.length, anchors: done.filter((i) => anchors.has(i)).length, minutes: median(done.map((i) => (ratings[u][i].activeMs || 0) / 60000)) }; }
-  const times = {}; for (const i of Object.keys(strata || {})) times[i] = Object.keys(ratings || {}).filter((u) => sub(u, i)).length;
-  const codes = [...new Set(Object.values(strata || {}))].sort();
-  const row = (label, ids) => { const n = (f) => String(ids.filter(f).length); return h('tr', {}, h('td', {}, label), h('td', { class: 'num' }, String(ids.length)),
-    h('td', { class: 'num' }, n((i) => times[i] === 0)), h('td', { class: 'num' }, n((i) => times[i] === 1)), h('td', { class: 'num' }, n((i) => times[i] >= 2))); };
-  const nonAnchor = (s) => Object.keys(strata || {}).filter((i) => strata[i] === s && !anchors.has(i));
-  const all = Object.keys(strata || {}).filter((i) => !anchors.has(i));
-  const finished = uids.filter((u) => PROG[u].rated >= PROG[u].of && PROG[u].of).length;
-  const need = Math.max(0, Math.ceil((all.length - new Set(uids.flatMap((u) => Object.keys(plans?.[assign[u]]?.items || {}))).size + anchors.size) / 24));
+  const uids = Object.keys(assign || {}); PROG = {};
+  for (const u of uids) {
+    const its = plans?.[assign[u]]?.items || {}; const done = Object.keys(its).filter((i) => sub(u, i));
+    PROG[u] = { rated: done.length, of: Object.keys(its).length, anchors: done.filter((i) => anchorCases.has(its[i].case)).length,
+      minutes: median(done.map((i) => (ratings[u][i].activeMs || 0) / 60000)) };
+  }
+  const ids = Object.keys(items || {});
+  const times = Object.fromEntries(ids.map((i) => [i, Object.keys(ratings || {}).filter((u) => sub(u, i)).length]));
+  const n = (f) => String(ids.filter((i) => f(times[i])).length);
+  const finished = uids.filter((u) => PROG[u].of && PROG[u].rated >= PROG[u].of).length;
   return h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', { class: 'eyebrow' }, 'Coverage'), download(V)),
     h('h2', { style: { margin: 0 } }, `${uids.length} physicians assigned, ${finished} finished`),
-    h('p', { class: 'small muted', style: { margin: 0 } }, `Each physician rates 36: the ${anchors.size} anchor cases and 24 of their own. About ${need} more physicians would give every case one rating.`),
-    h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Own cases by stratum', 'Cases', 'Rated 0 times', 'Once', 'Twice or more'].map((x) => h('th', {}, x)))),
-      h('tbody', {}, codes.map((s) => row(s, nonAnchor(s))), row('All', all)))),
-    h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Anchor', 'Stratum', 'Rated by'].map((x) => h('th', {}, x)))),
-      h('tbody', {}, [...anchors].map((i) => h('tr', {}, h('td', { class: 'mono' }, i), h('td', {}, strata?.[i] || ''), h('td', { class: 'num' }, `${times[i] || 0} of ${uids.length}`)))))),
-    h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Physician', 'Number', 'Rated', 'Anchors', 'Median minutes per case'].map((x) => h('th', {}, x)))),
+    h('p', { class: 'small muted', style: { margin: 0 } }, `Each physician rates 36 of the ${ids.length} results: 12 anchor charts and 24 rotating. Every four physicians add one rating of every rotating result.`),
+    h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Results', 'Rated 0 times', 'Once', 'Twice', '3 or more'].map((x) => h('th', {}, x)))),
+      h('tbody', {}, h('tr', {}, h('td', { class: 'num' }, String(ids.length)), h('td', { class: 'num' }, n((t) => t === 0)), h('td', { class: 'num' }, n((t) => t === 1)),
+        h('td', { class: 'num' }, n((t) => t === 2)), h('td', { class: 'num' }, n((t) => t >= 3)))))),
+    h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Physician', 'Number', 'Rated', 'Anchors done', 'Median minutes per case'].map((x) => h('th', {}, x)))),
       h('tbody', {}, uids.sort((x, y) => assign[x] - assign[y]).map((u) => h('tr', {}, h('td', {}, apps[u]?.name || u), h('td', { class: 'num' }, String(assign[u])),
-        h('td', { class: 'num' }, `${PROG[u].rated} of ${PROG[u].of}`), h('td', { class: 'num' }, `${PROG[u].anchors} of ${anchors.size}`), h('td', { class: 'num' }, PROG[u].minutes === null ? '' : PROG[u].minutes.toFixed(1))))))));
+        h('td', { class: 'num' }, `${PROG[u].rated} of ${PROG[u].of}`), h('td', { class: 'num' }, `${PROG[u].anchors} of 12`),
+        h('td', { class: 'num' }, PROG[u].minutes === null ? '' : PROG[u].minutes.toFixed(1))))))));
 }
 
 async function render() {

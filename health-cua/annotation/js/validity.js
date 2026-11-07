@@ -1,9 +1,10 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=b68fded186';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, brand, profileMenu, BRAND, orderKind } from './ui.js?v=b68fded186';
-import { caseLayout, deptOf, lowerName, unitText } from './chart.js?v=b68fded186';
-import { COUNTRIES } from './countries.js?v=b68fded186';
-import { startTour } from './tour.js?v=b68fded186';
+import { createStore } from './validity-store.js?v=962a94f633';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, brand, profileMenu, BRAND, orderKind } from './ui.js?v=962a94f633';
+import { caseLayout, deptOf, lowerName, unitText } from './chart.js?v=962a94f633';
+import { COUNTRIES } from './countries.js?v=962a94f633';
+import { startTour } from './tour.js?v=962a94f633';
+import { chartStep, workStep, needed1, needed6, ANSWERS6 } from './b6.js?v=962a94f633';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)
@@ -123,7 +124,7 @@ function signinView(msg) {
 const CONTACT = 'ybkim95@media.mit.edu';
 const INFO = `**About the study.** AI agents completed clinical inbox tasks in a simulated electronic health record. You review what an agent left in the chart (its orders, stopped medications, messages and signed note) and judge it as you would a colleague's work. All patients are synthetic.
 
-**Time.** 36 cases, about 4 to 5 hours in total. You can stop and come back, your work saves as you go.
+**Time.** 36 cases, about 5 hours in total. You can stop and come back, your work saves as you go.
 
 **Contact.** ${CONTACT}`;
 const STAGES = [['attending', 'Attending or consultant'], ['fellow', 'Fellow'], ['resident', 'Resident'], ['other', 'Other']];
@@ -188,7 +189,8 @@ function rejectedView() {
 async function loadPlan() {
   ME.k = await S.assignment();
   const plan = await S.plan(ME.k);
-  SLOT = { role: 'rater', items: Object.fromEntries(Object.entries(plan?.items || {}).map(([id, pos]) => [id, { pos }])) };
+  // B-6 plans give each result its position and its chart's case code (the agent's work stays unreadable until the chart question is locked)
+  SLOT = { role: 'rater', items: Object.fromEntries(Object.entries(plan?.items || {}).map(([id, x]) => [id, typeof x === 'object' ? { pos: x.pos, case: x.case } : { pos: x }])) };
   ME.plan = !!plan;
 }
 const quota = () => Object.keys(SLOT?.items || {}).length || GOAL;
@@ -338,8 +340,8 @@ function ratingForm({ d, save, readOnly, idp, item, ask = {}, date, role }) {
 const ANSWERS = ['order_judgments', ...ORDER.filter((k) => k !== 'order_judgments'), 'asked'];
 const answers = (d) => Object.fromEntries(ANSWERS.filter((k) => d[k] !== undefined && d[k] !== null).map((k) => [k, d[k]]));
 
-function footerBar(d, item, onSubmit, what, ask) {
-  const miss = needed(d, item, ask);
+function footerBar(d, item, onSubmit, what, ask, open) {
+  const miss = open ? open() : needed(d, item, ask);
   const submit = h('button', { class: 'primary', disabled: miss.length > 0, onclick: async () => {
     if (!(await confirmBox(`Submit this ${what}?`, `You cannot change the ${what} after submitting.`, 'Submit'))) return;
     submit.disabled = true;
@@ -387,7 +389,7 @@ async function queueView() {
   const step = await nextStep();
   const items = orderedItems();
   const done = items.filter((i) => step.ratings[i.id]?.submittedAt).length;
-  const info = await Promise.all(items.map(async (it) => { try { const x = await S.item(it.id); const c = x && (await S.caseData(x.caseId)); return c ? { p: c.chart.patient, m: c.inbox } : {}; } catch { return {}; } }));
+  const info = await Promise.all(items.map(async (it) => { try { const c = await S.caseData(it.case); return c ? { p: c.chart.patient, m: c.inbox } : {}; } catch { return {}; } }));
   const rows = items.map((it, n) => {
     const r = step.ratings[it.id]; const isCur = step.kind === 'item' && step.id === it.id; const { p, m } = info[n];
     const status = r?.submittedAt ? h('span', { class: 'status signed' }, 'Submitted') : isCur ? h('span', { class: 'status new' }, r ? 'In progress' : 'Next') : h('span', { class: 'status' }, 'Not started');
@@ -412,27 +414,33 @@ const TOUR = [
     targets: () => [$('.msgview') || $('.acttabs a')], anchor: () => $('.msgview') || $('.acttabs a'), block: 'start', place: ['right', 'below'] },
   { title: 'The chart', text: 'The chart tabs and the left column show the record as it was before the agent acted.',
     targets: () => [$('.acttabs'), $('.sidebar')], anchor: () => $('.acttabs'), place: ['below', 'right'] },
-  { title: 'Orders', text: 'Judge each order and stop the agent signed as appropriate, not needed, or wrong or harmful.',
-    targets: () => [$('.ehr-right .panel.orders')], anchor: () => $('.ehr-right .panel.orders'), block: 'start', place: ['left', 'below'], floor: () => $('.ehr-right .footer-bar')?.getBoundingClientRect().top },
-  { title: 'The note', text: 'Read the note the agent signed and check it against the record.',
-    targets: () => [noteDoc()], anchor: () => noteDoc(), block: 'start', place: ['left', 'below'], floor: () => $('.ehr-right .footer-bar')?.getBoundingClientRect().top },
-  { title: 'Your rating', text: 'Then answer the questions below. They ask what is missing, whether the note is untrue, the likely harm and your overall rating.',
-    targets: () => [$('.ehr-right .rating-h'), ...document.querySelectorAll('.ehr-right .q, .ehr-right .qt')], anchor: () => $('.ehr-right .rating-h'), block: 'start', place: ['left'], union: true, pad: 8, floor: () => $('.ehr-right .footer-bar')?.getBoundingClientRect().top },
-  { title: 'Submit', text: 'Submit rating locks the case and opens the next one. Your answers save as you go until then.',
-    targets: () => [$('.ehr-right .footer-bar button.primary')], anchor: () => $('.ehr-right .footer-bar button.primary'), place: ['above', 'left'] }];
-const noteDoc = () => [...document.querySelectorAll('.ehr-right .panel')].find((p) => p.querySelector('h3')?.textContent === 'Note');
+  { title: 'Step 1', text: 'First say whether the task can be answered from this chart. Tick the box if the case is outside your area of expertise.',
+    targets: () => [$('.ehr-right .step1 .q'), $('.ehr-right .expertise')], anchor: () => $('.ehr-right .step1 .q'), block: 'start', place: ['left'], union: true, pad: 8 },
+  { title: 'Lock', text: "Locking shows the agent's work with its questions. Your chart answer cannot change after that.",
+    targets: () => [$('.ehr-right .lock-btn')], anchor: () => $('.ehr-right .lock-btn'), place: ['left', 'above'] },
+  { title: 'Then', text: 'Judge each order and stop, what is missing, the note and any message, and whether the encounter can be finalized. Submit rating locks the case and opens the next one.',
+    targets: () => [$('.ehr-right .step1')], anchor: () => $('.ehr-right .step1'), place: ['left'], pad: 8 }];
 const tour = () => { if (!$('.tour')) startTour(TOUR); };
 
 // How to rate, at the top of the review panel, folded (the tour introduces the screen); it can start the tour again
 function howTo() {
-  return h('details', { class: 'howto' }, h('summary', {}, 'How to rate'), h('div', { class: 'md small', html: md(`Judge the agent's work as you would a colleague's. Rate **each order and stop** (appropriate, not needed, or wrong or harmful), whether anything **required is missing**, whether the **note** or a **message** says anything untrue or unsafe, the **worst likely harm** if the work were signed as it is, then an **overall** rating. A few cases also ask about mental effort or which kind of system the agent used.
+  return h('details', { class: 'howto' }, h('summary', {}, 'How to rate'), h('div', { class: 'md small', html: md(`Each case has two steps. First say whether the task can be answered from the **chart** and lock that answer. Then the **agent's work** appears: judge **each order and stop**, say whether anything **required is missing**, whether the **note** or a **message** says anything wrong, and whether the encounter can be **finalized** as recorded.
 
 The chart shows the record as it was before the agent acted, so a medication the agent stopped still appears as active there.
 
-Route is not shown for any order. Also not shown are the reason or instructions typed with an order, the timing and order of the agent's steps, and which system it used.
+Each order shows what the record holds. "Not recorded" means the record has nothing in that field. Which system the agent used and the timing of its steps are not shown.
 
 Your answers save as you go. Submitting a case locks it and opens the next one.`) }),
     h('div', { class: 'tour-again-row' }, h('button', { type: 'button', class: 'linkish small tour-again', onclick: tour }, 'Show tour again')));
+}
+
+// the interface guess, on every 6th case of the plan, asked once the case is submitted
+const askGuess = (id) => { const k = orderedItems().findIndex((i) => i.id === id) + 1; return k > 0 && k % 6 === 0; };
+function guessView(id, next) {
+  const pick = (g) => tracked(async () => { await S.guess(id, g).catch(() => {}); next(); })();
+  page(h('div', { class: 'card stack', style: { maxWidth: '520px' } }, h('div', { class: 'eyebrow' }, 'One more question'),
+    h('h2', { style: { margin: 0 } }, 'Which kind of system do you think produced this work?'),
+    h('div', { class: 'row' }, h('button', { onclick: () => pick('api') }, 'API'), h('button', { onclick: () => pick('screen') }, 'Screen'), h('button', { onclick: () => pick('unsure') }, 'Not sure'))));
 }
 
 async function itemView(id) {
@@ -442,39 +450,52 @@ async function itemView(id) {
   const existing = step.ratings[id];
   const readOnly = !!existing?.submittedAt;
   if (!readOnly && !(step.kind === 'item' && step.id === id)) { location.hash = '#/'; return; }
-  const item = await S.item(id);
-  const c = item && (await S.caseData(item.caseId));
-  if (!item || !c) { page(h('div', { class: 'card' }, h('h1', {}, 'This item is not available'), h('p', {}, 'Return to your items and try again.'))); return; }
-  const d = existing || { training: !!it.training, caseId: item.caseId, openedAt: Date.now(), activeMs: 0, ...(ME.block ? { block: ME.block } : {}), ...(item.notes ? {} : { note_untrue: 'no note' }), ...(list(item.messages).length ? {} : { message_problem: 'no message' }) };
+  const c = await S.caseData(it.case);
+  if (!c) { page(h('div', { class: 'card' }, h('h1', {}, 'This case is not available'), h('p', {}, 'Return to your cases and try again.'))); return; }
+  const d = existing || { training: false, caseId: it.case, openedAt: Date.now(), activeMs: 0, asked: { guessed_interface: askGuess(id) } };
   const save = (patch) => tracked(() => S.saveRating(id, patch))();
   if (!existing) await S.saveRating(id, d);
   const timer = readOnly ? null : activeTimer(d.activeMs, (ms) => S.saveRating(id, { activeMs: ms }));
-  if (!readOnly && d.wrong_or_harmful_order === undefined) save(derive(d, item));
-  const ask = readOnly ? (d.asked || {}) : (d.asked || asks(id, step.ratings));
-  if (!readOnly && !d.asked) { d.asked = ask; save({ asked: ask }); }
-  const form = ratingForm({ d, save, readOnly, idp: id, item, ask, date: c.taskDate, role: c.role });
   const first = !Object.keys(step.ratings).some((i) => i !== id);
   if (first && !readOnly) S.saveProfile({ instructionsRead: Date.now() }).catch(() => {});
+  const texts = textSaver(save);
+  const label = [h('a', { class: 'crumb', href: '#/items' }, itemLabel({ id, ...it }))];
+  const views = viewTracker(readOnly, save);
+  if (!d.chartLockedAt) {  // step 1: the chart only
+    const form = chartStep({ d, save, texts, idp: id, onLock: async () => {
+      await texts.flush();
+      await withTimeout(S.lockChart(id, { chart_answerable: d.chart_answerable, outside_expertise: !!d.outside_expertise, ...(d.chart_issue_text ? { chart_issue_text: d.chart_issue_text } : {}) }), 15000);
+      timer.cleanup(); itemView(id);
+    } });
+    caseShell({ ...c, id: it.case }, label, h('div', {}, howTo(), form), views);
+    if (!(await S.profile().catch(() => null))?.tourDone) {  // recorded when it starts, so a reload does not show it again
+      S.saveProfile({ tourDone: Date.now() }).catch(() => {});
+      requestAnimationFrame(tour);
+    }
+    return;
+  }
+  const item = await S.item(id);  // the agent's work, readable once the chart question is locked
+  if (!item) { page(h('div', { class: 'card' }, h('h1', {}, 'This case is not available'), h('p', {}, 'Return to your cases and try again.'))); return; }
+  if (!readOnly) {  // answers that do not apply are recorded once
+    const fill = {}; if (!item.note && !d.note_wrong) fill.note_wrong = 'no note'; if (!list(item.messages).length && !d.message_problem) fill.message_problem = 'no message';
+    if (Object.keys(fill).length) { Object.assign(d, fill); save(fill); }
+  }
+  const form = workStep({ d, save, texts, idp: id, item, readOnly, date: c.taskDate, dept: deptOf(c.role) });
+  form.flush = texts.flush;
   const right = h('div', {}, howTo(), form);
   let footer = null;
-  const refresh = () => { if (!footer) return; const f = footerBar(d, item, submit, 'rating', ask); footer.replaceWith(f); footer = f; };
   const submit = async () => {
-    await form.flush();
-    await withTimeout(S.submitRating(id, { ...answers(d), activeMs: timer.value(), ...derive(d, item) }), 15000);
+    await texts.flush();
+    const ans = Object.fromEntries(ANSWERS6.filter((k) => d[k] !== undefined && d[k] !== null).map((k) => [k, d[k]]));
+    await withTimeout(S.submitRating(id, { ...ans, activeMs: timer.value() }), 15000);
     timer.cleanup();
     toast('Rating submitted.');
-    if (it.training && !SLOT.pilot) itemView(id);  // show the reference rating at once
-    else location.hash = '#/';
+    if (d.asked?.guessed_interface) guessView(id, () => { location.hash = '#/'; route(); }); else location.hash = '#/';
   };
-  if (readOnly) {
-    right.append(h('div', { class: 'lock', style: { marginTop: '16px' } }, 'Submitted. This rating can no longer be changed.'));
-    if (it.training && !SLOT.pilot) right.append(referenceCard(item, d));
-  } else { footer = footerBar(d, item, submit, 'rating', ask); right.append(footer); form.addEventListener('change', refresh); form.addEventListener('input', refresh); }
-  caseShell({ ...c, id: item.caseId }, [h('a', { class: 'crumb', href: '#/items' }, itemLabel({ id, ...it }))], right, viewTracker(readOnly, save));
-  if (!readOnly && ME.block && !(await S.profile().catch(() => null))?.tourDone) {  // recorded when it starts, so a reload does not show it again
-    S.saveProfile({ tourDone: Date.now() }).catch(() => {});
-    requestAnimationFrame(tour);
-  }
+  const refresh = () => { if (!footer) return; const f = footerBar(d, item, submit, 'rating', null, () => needed6(d, item)); footer.replaceWith(f); footer = f; };
+  if (readOnly) right.append(h('div', { class: 'lock', style: { marginTop: '16px' } }, 'Submitted. This rating can no longer be changed.'));
+  else { footer = footerBar(d, item, submit, 'rating', null, () => needed6(d, item)); right.append(footer); form.addEventListener('change', refresh); form.addEventListener('input', refresh); form.addEventListener('click', () => setTimeout(refresh, 0)); }
+  caseShell({ ...c, id: it.case }, label, right, views);
 }
 
 // training feedback: the reference rating of a training item (written by the adjudicating physician) next to the rater's answers

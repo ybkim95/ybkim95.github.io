@@ -571,3 +571,31 @@ button.linkish { background: none; border: 0; padding: 0; font-weight: 600; text
 .sidebar table.mini th, .sidebar table.kr th { width: 100%; max-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sidebar table.mini td, .sidebar table.kr td:not(.when), .sidebar table.mini td.when { width: 1%; white-space: nowrap; overflow: visible; }
 @media (max-width: 1640px) { .sidebar table.mini .u:not(.glued) { display: none; } }  /* units in the tooltip when the sidebar is narrow */
+/* B-6: the order fields as recorded, the five judgments with the optional chips, the two steps */
+.ofields { margin-top: 3px; font-size: 12px; }
+.ogrid { display: flex; flex-wrap: wrap; gap: 2px 14px; margin: 1px 0 0; }
+.of { white-space: normal; } .ofk { color: var(--muted); font-size: 11px; }
+.ogrid dt, .otext dt { color: var(--muted); font-size: 11px; margin: 0; }
+.ogrid dd, .otext dd { margin: 0 0 3px; color: var(--ink); }
+.otext { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 1px 8px; margin: 3px 0 0; }
+.otext dt { padding-top: 1px; }
+.nr { color: var(--muted); font-style: italic; }
+.ojudge6 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.ojudge6 .choice { display: inline-flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; background: var(--surface); }
+.ojudge6 .choice label { border: 0; border-radius: 0; padding: 2px 8px; font-size: 11.5px; font-weight: 550; color: var(--ink-2); background: transparent; white-space: nowrap; }
+.ojudge6 .choice label + label { border-left: 1px solid var(--line); }
+.ojudge6 .choice label:hover { background: var(--surface-2); }
+.ojudge6 .choice label:has(input[value="indicated"]:checked) { background: var(--ok-soft); color: var(--ok); }
+.ojudge6 .choice label:has(input[value="alternative"]:checked) { background: var(--ok-soft); color: var(--ok); }
+.ojudge6 .choice label:has(input[value="unnecessary"]:checked) { background: var(--warn-soft); color: var(--warn); }
+.ojudge6 .choice label:has(input[value="harmful"]:checked) { background: var(--bad-soft); color: var(--bad); }
+.ojudge6 .choice label:has(input[value="cannot-assess"]:checked) { background: var(--surface-2); color: var(--ink); }
+.ojudge6 .choice input { position: absolute; opacity: 0; pointer-events: none; }
+.ehr-right.tried .ojudge6.open .choice { box-shadow: 0 0 0 1px var(--bad); }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; width: 100%; }
+.chip { font-size: 11.5px; padding: 2px 9px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); font-weight: 550; }
+.chip.on { background: var(--bad-soft); color: var(--bad); border-color: var(--bad); }
+.step1 .q { margin-top: 6px; }
+.check.expertise { display: flex; gap: 8px; align-items: center; margin: 12px 0 4px; font-size: 13.5px; }
+.lock-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 14px 0 16px; }
+.locked-chart { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; margin-bottom: 10px; }

@@ -17,9 +17,9 @@
 //   claims/{blockId}/{uid}      when a rater took the block (written once by that rater)
 //   current/{uid}               the block the rater works on; items and cases of that block are readable
 // The model, interface and grader verdict of an item are never uploaded, so no call here can return them.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=b68fded186';
-import { emailKey, withTimeout } from './ui.js?v=b68fded186';
-import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=b68fded186';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=962a94f633';
+import { emailKey, withTimeout } from './ui.js?v=962a94f633';
+import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=962a94f633';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 
@@ -81,6 +81,9 @@ async function firebaseStore(emulator) {
     rating: (i) => val(`ratings/${user.uid}/${i}`),
     saveRating: (i, patch) => D.update(r(`ratings/${user.uid}/${i}`), { ...patch, updatedAt: now() }),
     submitRating: (i, patch) => D.update(r(`ratings/${user.uid}/${i}`), { ...patch, updatedAt: now(), submittedAt: now() }),
+    // B-6: the chart answer locks with the server's time; the agent's work becomes readable after it
+    lockChart: (i, patch) => D.update(r(`ratings/${user.uid}/${i}`), { ...patch, chartLockedAt: now(), updatedAt: now() }),
+    guess: (i, g) => withTimeout(D.set(r(`guesses/${user.uid}/${i}`), { guess: g, at: now() })),
     // another rater's rating: readable by the adjudicator only once it is submitted, so a refusal means "not yet"
     otherRating: (uid, i) => val(`ratings/${uid}/${i}`).catch(() => null),
     adjudication: (i) => val(`adjudications/${i}`),

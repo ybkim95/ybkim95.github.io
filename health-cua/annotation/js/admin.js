@@ -1,9 +1,9 @@
 // Study team page (admin.html): applications arrive live; one click approves a physician for the episode review (Study B) or rejects;
 // block progress and the JSON download. (2026-11-06: the site serves Study B only; Study A' keeps its code and database root.) The database rules let only the addresses in
 // hcua_validity/admins (and hcua_task_review/admins for Study A') read or write any of this.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=3d73f45ccb';
-import { COUNTRIES } from './countries.js?v=3d73f45ccb';
-import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=3d73f45ccb';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=b326457fff';
+import { COUNTRIES } from './countries.js?v=b326457fff';
+import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=b326457fff';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 const app = document.getElementById('app');
@@ -95,10 +95,24 @@ async function progressCard(root, kind, title, unit) {
     h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Block', unit[0].toUpperCase() + unit.slice(1), 'Taken by', 'Finished by'].map((x) => h('th', {}, x)))), h('tbody', {}, rows)))));
 }
 
+// the number of cases asked of each physician (config/goalCases, 40 when unset): physicians see 'N of 40 rated' and a thanks at the goal
+async function goalCard() {
+  const now = Number(await val(`${V}/config/goalCases`).catch(() => null)) || 40;
+  const input = h('input', { type: 'number', min: 8, max: 160, step: 1, value: now, style: { width: '90px' }, 'aria-label': 'Cases per physician' });
+  const save = h('button', { class: 'small', onclick: async () => {
+    const n = Number(input.value);
+    if (!Number.isInteger(n) || n < 8 || n > 160) return toast('A whole number from 8 to 160.', 'bad');
+    try { await withTimeout(D.set(ref(`${V}/config/goalCases`), n)); toast(`Goal set to ${n} cases.`); } catch (e) { toast(e.message, 'bad'); }
+  } }, 'Save');
+  return h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Study goal'),
+    h('div', { class: 'row' }, h('label', { class: 'small' }, 'Cases per physician '), input, save),
+    h('p', { class: 'small muted', style: { margin: 0 } }, 'Physicians see how many they have rated against this number. Cases beyond it are still welcome.'));
+}
+
 async function render() {
   const progress = h('div', { class: 'stack' }, h('p', { class: 'muted' }, 'Loading progress…'));
   shell(applicationsCard(), progress);
-  const cards = [await progressCard(V, 'items', 'Progress', 'cases')];
+  const cards = [await progressCard(V, 'items', 'Progress', 'cases'), await goalCard()];
   progress.replaceChildren(...cards, h('div', { class: 'row' }, h('button', { class: 'small', onclick: render }, 'Refresh progress')));
 }
 

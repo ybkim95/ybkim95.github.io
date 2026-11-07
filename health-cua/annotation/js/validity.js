@@ -1,13 +1,14 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=3d73f45ccb';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND, orderKind } from './ui.js?v=3d73f45ccb';
-import { caseLayout, deptOf, lowerName } from './chart.js?v=3d73f45ccb';
-import { COUNTRIES } from './countries.js?v=3d73f45ccb';
+import { createStore } from './validity-store.js?v=b326457fff';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND, orderKind } from './ui.js?v=b326457fff';
+import { caseLayout, deptOf, lowerName } from './chart.js?v=b326457fff';
+import { COUNTRIES } from './countries.js?v=b326457fff';
+import { startTour } from './tour.js?v=b326457fff';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)
 let ADJ = null;  // adjudicator: { ratings: {itemId: {rater: rating}} }, the raters of an item being the slot roster or the physicians who took its block
-let online = true; const savedListeners = new Set(); let PROGRESS = null; let SPAN = null;  // SPAN.before: cases in this rater's earlier blocks  // { done, total } of the rater's current block, for the account menu
+let online = true; const savedListeners = new Set(); let PROGRESS = null; let SPAN = null; let GOAL = null;  // GOAL: cases asked of each physician (config/goalCases, 40 if unset)  // SPAN.before: cases in this rater's earlier blocks  // { done, total } of the rater's current block, for the account menu
 
 // Version B-4.3 (2026-11-04, after a physician's end-to-end test, before any rating): the B-4.2 questions; typed answers are merged and
 // saved on leaving a box and before submit, which writes the full answer set; tests and referrals show a priority other than routine
@@ -91,7 +92,7 @@ function topbar(extra = []) {
   };
   savedListeners.clear(); savedListeners.add(setStatus); status.hidden = online;
   const lines = [['Study', SLOT?.role === 'adjudicator' ? 'Episode review, adjudication' : 'Episode review'],
-    ...(ME.block && PROGRESS ? [['Block', `${Number(ME.block.slice(1))}: ${PROGRESS.done} of ${PROGRESS.total} submitted`]] : [])];
+    ...(ME.block && PROGRESS && GOAL ? [['Rated', h('span', {}, `${PROGRESS.rated} of ${GOAL}`, goalBar(PROGRESS.rated))]] : [])];
   const links = [...(SLOT ? [[SLOT.role === 'adjudicator' ? 'All cases' : 'My cases', '#/items']] : []), ...(ME.admin ? [['Study team', 'admin.html']] : [])];
   return h('div', {}, S.mode === 'demo' ? h('div', { class: 'demo-banner' }, 'Demo: invented items, stored only in this browser. Nothing here is part of the study.') : null,
     h('header', { class: 'topbar' }, brand(), h('span', { class: 'grow' }), ...extra, ME.user && SLOT ? status : null, themeButton(),
@@ -122,7 +123,7 @@ function signinView(msg) {
 const CONTACT = 'ybkim95@media.mit.edu';
 const INFO = `**About the study.** AI agents completed clinical inbox tasks in a simulated electronic health record. You review what an agent left in the chart (its orders, stopped medications, messages and signed note) and judge it as you would a colleague's work. All patients are synthetic.
 
-**Time.** Blocks of 8 cases, about an hour each. Do one block or several. Your work saves as you go.
+**Time.** Sets of 8 cases, about an hour each. Do one set or several. Your work saves as you go.
 
 **Contact.** ${CONTACT}`;
 const STAGES = [['attending', 'Attending or consultant'], ['fellow', 'Fellow'], ['resident', 'Resident'], ['other', 'Other']];
@@ -171,7 +172,7 @@ function applyView() {
 
 function waitingView(a) {
   page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('div', { class: 'eyebrow' }, 'Application sent'), h('h1', {}, `Thank you, ${a.name}`),
-    h('p', {}, 'The study team reviews each application. As soon as yours is approved, this page opens your first block by itself.'),
+    h('p', {}, 'The study team reviews each application. As soon as yours is approved, this page opens your first cases by itself.'),
     h('p', { class: 'muted' }, 'You can leave this page open, or close it and come back later with the same Google account (', h('strong', {}, ME.user.email), ').'),
     h('p', { class: 'small muted' }, h('strong', {}, 'Contact.'), ` ${CONTACT}`)));
 }
@@ -190,25 +191,39 @@ async function takeNextBlock() {
   return true;
 }
 
-function blockDoneView() {
+// a thin bar of the cases rated against the study goal
+const goalBar = (n) => h('div', { class: 'goalbar', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': GOAL, 'aria-valuenow': Math.min(n, GOAL), 'aria-label': 'Cases rated' },
+  h('div', { style: { width: `${Math.min(100, (100 * n) / Math.max(GOAL, 1))}%` } }));
+
+// after a set of 8: how many cases in all, the goal, and 8 more or stop (the set is a block internally; physicians never see the word)
+function setDoneView() {
+  const rated = PROGRESS?.rated ?? 0; const reached = rated >= GOAL;
   const more = h('button', { class: 'primary', onclick: tracked(async () => {
     more.disabled = true;
     if (await takeNextBlock()) { location.hash = '#/'; route(); } else allDoneView();
-  }) }, 'Take another block');
-  page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('div', { class: 'eyebrow' }, `Block ${Number(ME.block.slice(1))} finished`), h('h1', {}, 'Thank you'),
-    h('p', {}, 'Your ratings of this block are saved.'),
-    h('p', { class: 'muted' }, 'Another block has 8 new cases and takes about an hour. You can also stop here and close the page.'),
-    h('div', { class: 'row' }, more, h('a', { class: 'btn ghost', href: '#/items' }, 'See this block'))));
+  }) }, 'Continue with 8 more cases');
+  page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('div', { class: 'eyebrow' }, `${rated} of ${GOAL} cases rated`), goalBar(rated), h('h1', {}, 'Thank you'),
+    h('p', {}, `You have rated ${rated} case${rated === 1 ? '' : 's'} in total. ${reached ? `That reaches the study goal of ${GOAL} cases. Extra cases are welcome.` : `The study goal is ${GOAL} cases.`}`),
+    h('p', { class: 'muted' }, 'Each further set is 8 cases and takes about an hour. Your ratings are saved.'),
+    h('div', { class: 'row' }, more, h('a', { class: 'quiet-link', href: 'javascript:void 0', onclick: stoppedView }, 'Stop here'))));
+}
+
+function stoppedView() {
+  page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('h1', {}, 'Thank you'),
+    h('p', {}, 'Your ratings are saved. You can close this page.'),
+    h('p', { class: 'muted' }, `To rate more cases later, come back with the same Google account (${ME.user.email}).`)));
 }
 
 function allDoneView() {
-  page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('h1', {}, 'Thank you'), h('p', {}, 'You have rated every block of the study. Your ratings are saved.')));
+  page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('h1', {}, 'Thank you'), h('p', {}, 'You have rated every case available in the study. Your ratings are saved.')));
 }
 
 async function recruitRoute() {
   if (!ME.decision) { const a = await S.applicant(); return a ? waitingView(a) : applyView(); /* never redirect from here: the team page sends non-admins back, so a redirect could loop */ }
   if (ME.decision.status !== 'approved') return rejectedView();
-    if (!ME.block) ME.block = await S.current();
+  const cur = await S.current();  // read each time: a set the study team released must not stay in this page's memory
+  if (cur !== ME.block) { ME.block = cur; SLOT = null; SPAN = null; }
+  if (GOAL === null) GOAL = Number((await S.config().catch(() => null))?.goalCases) || 40;
   if (!ME.block && !(await takeNextBlock())) return allDoneView();
   if (!SLOT || !SPAN) {
     const { blocks, claims } = await S.blocksAndClaims(); if (!SLOT) SLOT = blockSlot(blocks[ME.block], 'items');
@@ -219,7 +234,7 @@ async function recruitRoute() {
   if (kind === 'item' && arg) return itemView(arg);
   const step = await nextStep();
   if (kind === 'items') return queueView();
-  if (step.kind === 'done') return blockDoneView();
+  if (step.kind === 'done') return setDoneView();
   history.replaceState(null, '', `#/item/${step.id}`); return itemView(step.id);  // straight into the next item, no list in between
 }
 
@@ -373,7 +388,8 @@ function viewTracker(readOnly, save) {
 // ---------- rater
 async function nextStep() {
   const ratings = await S.ratings();
-  const ids = orderedItems().map((i) => i.id); PROGRESS = { done: ids.filter((i) => ratings[i]?.submittedAt).length, total: ids.length };
+  const ids = orderedItems().map((i) => i.id);
+  PROGRESS = { done: ids.filter((i) => ratings[i]?.submittedAt).length, total: ids.length, rated: Object.values(ratings).filter((r) => r?.submittedAt && !r.training).length };
   for (const it of orderedItems()) if (!ratings[it.id]?.submittedAt) return { kind: 'item', id: it.id, ratings };
   return { kind: 'done', ratings };
 }
@@ -398,17 +414,39 @@ async function queueView() {
     return h('tr', { class: isCur ? 'sel' : r?.submittedAt ? '' : 'inactive' }, h('td', { class: 'nw' }, String(n + 1)), h('td', {}, p ? h('strong', {}, p.name) : '', p ? h('small', {}, `${p.age} y.o. ${String(p.sex || '').slice(0, 1).toUpperCase()} · MRN ${p.mrn}`) : null),
       h('td', {}, m ? m.subject : '', m ? h('small', {}, `${m.category || ''} · from ${m.sender || ''}`) : null), h('td', { class: 'nw' }, status), h('td', { class: 'nw' }, open));
   });
-  page(h('div', { class: 'worklist' }, h('div', { class: 'headrow' }, h('h2', {}, ME.block ? `My cases · Block ${Number(ME.block.slice(1))}` : 'My cases'),
-    h('span', { class: 'meta' }, `${done} of ${items.length} submitted`), h('span', { class: 'grow' }),
+  // a case that cannot be read means this page holds a set the study team has released: start again from the database
+  if (info.some((x) => !x.p) && (await S.current().catch(() => null)) !== ME.block) { ME.block = null; SLOT = null; SPAN = null; return route(); }
+  const rated = PROGRESS?.rated ?? done;
+  page(h('div', { class: 'worklist' }, h('div', { class: 'headrow' }, h('h2', {}, 'My cases'),
+    h('span', { class: 'meta' }, GOAL ? `${rated} of ${GOAL} rated` : `${done} of ${items.length} submitted`), h('span', { class: 'grow' }),
     step.kind === 'item' ? h('a', { class: 'btn primary small', href: `#/item/${step.id}` }, step.ratings[step.id] ? 'Continue' : 'Open the next case') : null),
-  h('div', { class: 'progress' }, h('div', { style: { width: `${(100 * done) / Math.max(items.length, 1)}%` } })),
+  GOAL ? goalBar(rated) : null, info.some((x) => !x.p) ? h('p', { class: 'problems small' }, 'Some case details could not be loaded. Reload the page to try again.') : null,
   h('div', { class: 'gridwrap' }, h('table', { class: 'grid' }, h('thead', {}, h('tr', {}, ['#', 'Patient', 'Message', 'Status', ''].map((x) => h('th', {}, x)))), h('tbody', {}, rows))),
   h('p', { class: 'meta' }, 'Cases open in a fixed order. Your work saves as you go. Submitting a case locks it.')), true);
 }
 
-// How to rate, at the top of the review panel: open on a rater's first item, folded after that.
-function howTo(open) {
-  return h('details', { class: 'howto', open }, h('summary', {}, 'How to rate'), h('div', { class: 'md small', html: md(`Judge the agent's work as you would a colleague's. Rate **each order and stop** (appropriate, not needed, or wrong or harmful), whether anything **required is missing**, whether the **note** or a **message** says anything untrue or unsafe, the **worst likely harm** if the work were signed as it is, then an **overall** rating. A few cases also ask about mental effort or which kind of system the agent used.
+// The guided tour of a rater's first case, in the order a physician works. It is shown once (profiles/{uid}/tourDone) and again from
+// How to rate. It only scrolls and highlights, so answers, views and active time are untouched, and it says nothing of model or interface.
+const $ = (s) => document.querySelector(s);
+const TOUR = [
+  { title: 'What was asked', text: 'Start with the In Basket message and the task given to the AI agent. This is what the agent was asked to do.',
+    targets: () => [$('.msgview') || $('.acttabs a')], anchor: () => $('.msgview') || $('.acttabs a'), block: 'start', place: ['right', 'below'] },
+  { title: 'The chart', text: 'The chart tabs and the left column show the record as it was before the agent acted.',
+    targets: () => [$('.acttabs'), $('.sidebar')], anchor: () => $('.acttabs'), place: ['below', 'right'] },
+  { title: 'Orders', text: 'Judge each order and stop the agent signed as appropriate, not needed, or wrong or harmful.',
+    targets: () => [$('.ehr-right .panel.orders')], anchor: () => $('.ehr-right .panel.orders'), block: 'start', place: ['left', 'below'] },
+  { title: 'The note', text: 'Read the note the agent signed and check it against the record.',
+    targets: () => [noteDoc()], anchor: () => noteDoc(), block: 'start', place: ['left', 'below'] },
+  { title: 'Your rating', text: 'Then answer the questions below. They ask what is missing, whether the note is untrue, the likely harm and your overall rating.',
+    targets: () => [$('.ehr-right .rating-h'), ...document.querySelectorAll('.ehr-right .q, .ehr-right .qt')], anchor: () => $('.ehr-right .rating-h'), block: 'start', place: ['left'] },
+  { title: 'Submit', text: 'Submit rating locks the case and opens the next one. Your answers save as you go until then.',
+    targets: () => [$('.ehr-right .footer-bar button.primary')], anchor: () => $('.ehr-right .footer-bar button.primary'), place: ['above', 'left'] }];
+const noteDoc = () => [...document.querySelectorAll('.ehr-right .panel')].find((p) => p.querySelector('h3')?.textContent === 'Note');
+const tour = () => { if (!$('.tour')) startTour(TOUR); };
+
+// How to rate, at the top of the review panel, folded (the tour introduces the screen); it can start the tour again
+function howTo() {
+  return h('details', { class: 'howto' }, h('summary', {}, 'How to rate'), h('button', { type: 'button', class: 'linkish small tour-again', onclick: tour }, 'Show tour again'), h('div', { class: 'md small', html: md(`Judge the agent's work as you would a colleague's. Rate **each order and stop** (appropriate, not needed, or wrong or harmful), whether anything **required is missing**, whether the **note** or a **message** says anything untrue or unsafe, the **worst likely harm** if the work were signed as it is, then an **overall** rating. A few cases also ask about mental effort or which kind of system the agent used.
 
 The chart shows the record as it was before the agent acted, so a medication the agent stopped still appears as active there.
 
@@ -437,7 +475,7 @@ async function itemView(id) {
   const form = ratingForm({ d, save, readOnly, idp: id, item, ask, date: c.taskDate, role: c.role });
   const first = !Object.keys(step.ratings).some((i) => i !== id);
   if (first && !readOnly) S.saveProfile({ instructionsRead: Date.now() }).catch(() => {});
-  const right = h('div', {}, howTo(first && !readOnly), form);
+  const right = h('div', {}, howTo(), form);
   let footer = null;
   const refresh = () => { if (!footer) return; const f = footerBar(d, item, submit, 'rating', ask); footer.replaceWith(f); footer = f; };
   const submit = async () => {
@@ -453,6 +491,10 @@ async function itemView(id) {
     if (it.training && !SLOT.pilot) right.append(referenceCard(item, d));
   } else { footer = footerBar(d, item, submit, 'rating', ask); right.append(footer); form.addEventListener('change', refresh); form.addEventListener('input', refresh); }
   caseShell({ ...c, id: item.caseId }, [h('a', { class: 'crumb', href: '#/items' }, itemLabel({ id, ...it }))], right, viewTracker(readOnly, save));
+  if (!readOnly && ME.block && !(await S.profile().catch(() => null))?.tourDone) {  // recorded when it starts, so a reload does not show it again
+    S.saveProfile({ tourDone: Date.now() }).catch(() => {});
+    requestAnimationFrame(tour);
+  }
 }
 
 // training feedback: the reference rating of a training item (written by the adjudicating physician) next to the rater's answers

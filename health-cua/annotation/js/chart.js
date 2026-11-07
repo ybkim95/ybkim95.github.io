@@ -1,5 +1,5 @@
 // The patient chart, in the modules the study EHR shows: summary, problems, medications, results, vitals, notes, procedures.
-import { h, md, fmtDate } from './ui.js?v=3d73f45ccb';
+import { h, md, fmtDate } from './ui.js?v=b326457fff';
 
 const TABS = [['summary', 'Summary'], ['problems', 'Problems'], ['medications', 'Medications'], ['labs', 'Results'], ['vitals', 'Vitals'],
   ['notes', 'Notes'], ['procedures', 'Procedures']];
@@ -336,7 +336,7 @@ export function ehrChart(c, { onView, task = true } = {}) {
   const banner = h('div', { class: 'pheader' },
     h('div', { class: 'pname' }, h('h1', {}, p.name), h('div', { class: 'pfacts' }, h('span', {}, `${p.age} y.o. ${String(p.sex || '').slice(0, 1).toUpperCase()}`),
       h('span', {}, `DOB ${fmtDate(p.birthDate)}`), h('span', { class: 'mono' }, `MRN ${p.mrn}`))),
-    h('dl', { class: 'penc' }, h('div', { class: 'simdate', title: 'The date and time of the simulated encounter. "1 d ago" and the date filters count from it.' }, h('dt', {}, 'Simulated date'), h('dd', {}, simNow)),
+    h('dl', { class: 'penc' }, h('div', { class: 'simdate', title: 'The date and time of the simulated encounter. "1 d ago" and the date filters count from it.' }, h('dt', {}, 'Date'), h('dd', {}, simNow)),
       h('div', {}, h('dt', {}, 'Allergies'), h('dd', { class: allergies.length ? 'flag' : 'muted', title: allergies.join(', ') }, allergies.length ? allergies.join(', ') : 'Not on file')), h('div', {}, h('dt', {}, 'Department'), h('dd', {}, deptOf(c.role))),
       h('div', {}, h('dt', {}, 'Request from'), h('dd', {}, c.inbox.sender))),
     h('dl', { class: 'pkeys' }, key('Weight', vit('Weight')), key('BP', vit('BP')),

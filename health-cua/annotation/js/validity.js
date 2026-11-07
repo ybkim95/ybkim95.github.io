@@ -1,10 +1,10 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=962a94f633';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, brand, profileMenu, BRAND, orderKind } from './ui.js?v=962a94f633';
-import { caseLayout, deptOf, lowerName, unitText } from './chart.js?v=962a94f633';
-import { COUNTRIES } from './countries.js?v=962a94f633';
-import { startTour } from './tour.js?v=962a94f633';
-import { chartStep, workStep, needed1, needed6, ANSWERS6 } from './b6.js?v=962a94f633';
+import { createStore } from './validity-store.js?v=bda075cdd4';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, brand, profileMenu, BRAND, orderKind } from './ui.js?v=bda075cdd4';
+import { caseLayout, deptOf, lowerName, unitText } from './chart.js?v=bda075cdd4';
+import { COUNTRIES } from './countries.js?v=bda075cdd4';
+import { startTour } from './tour.js?v=bda075cdd4';
+import { chartStep, workStep, needed1, needed6, ANSWERS6 } from './b6.js?v=bda075cdd4';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)
@@ -428,7 +428,9 @@ function howTo() {
 
 The chart shows the record as it was before the agent acted, so a medication the agent stopped still appears as active there.
 
-Each order shows what the record holds. "Not recorded" means the record has nothing in that field. Which system the agent used and the timing of its steps are not shown.
+Judge each order as **Indicated** (what this patient needs), **Reasonable alt.** (a reasonable alternative, not your first choice), **Unnecessary** (not needed, though not harmful), **Wrong or harmful** (wrong drug, dose, patient or timing, or it could cause harm) or **Can't assess** (the chart does not allow a judgment).
+
+Each order shows what the record holds. Dose, route and frequency of a medication always appear, with "Not recorded" when the record has nothing. Other fields appear only when recorded. Which system the agent used and the timing of its steps are not shown.
 
 Your answers save as you go. Submitting a case locks it and opens the next one.`) }),
     h('div', { class: 'tour-again-row' }, h('button', { type: 'button', class: 'linkish small tour-again', onclick: tour }, 'Show tour again')));

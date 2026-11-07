@@ -1,15 +1,18 @@
 // Study B-6 (2026-11-07, prospective): the two-step case. Step 1 asks whether the task can be answered from the chart and locks; only then
 // does the agent's work appear (the rules keep it unreadable until the lock), with a judgment per order and stop, what is missing, the note,
-// any message, and whether the encounter can be finalized as recorded. Every order shows what the record holds, the same fields for both
-// arms, "Not recorded" where the record has nothing.
-import { h, radios, humanDates, fmtDate, orderKind } from './ui.js?v=962a94f633';
-import { lowerName, unitText } from './chart.js?v=962a94f633';
+// any message, and whether the encounter can be finalized as recorded. Every order shows what the record holds, by the same rule for both
+// arms: dose, route and frequency of a medication always ("Not recorded" when empty), every other field only when recorded.
+import { h, radios, humanDates, fmtDate, orderKind } from './ui.js?v=bda075cdd4';
+import { lowerName, unitText } from './chart.js?v=bda075cdd4';
 
 export const CHART_Q = ['Can this task be answered from this chart?', [['answerable', 'Answerable'], ['minor-issue', 'Answerable with a minor chart issue'],
   ['missing', 'Material information missing or contradictory']]];
 const CHART_HELP = { answerable: 'The chart holds what the task needs.', 'minor-issue': 'A small gap or inconsistency that does not change the answer.',
   missing: 'Something the task needs is missing or contradicts itself. Say what.' };
-export const JUDGE6 = [['indicated', 'Indicated'], ['alternative', 'Reasonable alternative'], ['unnecessary', 'Unnecessary'], ['harmful', 'Wrong or harmful'], ['cannot-assess', 'Cannot assess']];
+export const JUDGE6 = [['indicated', 'Indicated'], ['alternative', 'Reasonable alt.'], ['unnecessary', 'Unnecessary'], ['harmful', 'Wrong or harmful'], ['cannot-assess', "Can't assess"]];
+export const JUDGE6_FULL = { indicated: 'Indicated: the order is what this patient needs.', alternative: 'Reasonable alternative: not your first choice but acceptable.',
+  unnecessary: 'Unnecessary: not needed for this patient, though not harmful.', harmful: 'Wrong or harmful: wrong drug, dose, patient or timing, or it could cause harm.',
+  'cannot-assess': 'Cannot assess: the chart does not allow a judgment.' };
 export const FLAGS = [['dose_route_frequency', 'Dose, route or frequency'], ['timing', 'Timing'], ['duplicate', 'Duplicate'], ['wrong_recipient', 'Wrong patient or recipient'],
   ['contraindicated', 'Contraindicated'], ['other', 'Other']];
 const YN = [['yes', 'Yes'], ['no', 'No']];
@@ -38,7 +41,9 @@ export const TEXTS6 = {
 };
 const list = (v) => (Array.isArray(v) ? v : Object.values(v || {}));
 const NR = () => h('span', { class: 'nr' }, 'Not recorded');
-const val = (v) => (v === null || v === undefined || String(v).trim() === '' ? NR() : humanDates(unitText(String(v))));
+const empty = (v) => v === null || v === undefined || String(v).trim() === '';
+const val = (v) => (empty(v) ? NR() : humanDates(unitText(String(v))));
+const titled = (g) => { g.querySelectorAll('input').forEach((i) => { i.parentElement.title = JUDGE6_FULL[i.value]; }); return g; };  // full wording on hover
 const cap = (s) => String(s || '').replace(/^\w/, (c) => c.toUpperCase());
 
 // the lines a physician judges: orders (o0, o1, ...) in the packet's order and stops (s0, ...)
@@ -47,11 +52,12 @@ export const lines6 = (item) => [...list(item.orders).map((o, i) => ({ k: `o${i}
 const GROUPS6 = ['Medications', 'Laboratory', 'Imaging', 'Procedures', 'Referrals', 'Visit orders'];
 
 function fieldGrid(o) {
-  const f = o.kind === 'medication'
-    ? [['Dose', o.dose], ['Route', o.route], ['Frequency', o.frequency], ['Duration', o.duration], ['Quantity', o.quantity], ['Refills', o.refills], ['Start', o.start && fmtDate(o.start)]]
-    : [[o.kind === 'service' ? 'Expected' : 'Date', o.start && fmtDate(o.start)]];
-  return h('div', { class: 'ofields' }, h('div', { class: 'ogrid' }, f.map(([k, v]) => h('span', { class: 'of' }, h('span', { class: 'ofk' }, k), ' ', val(v)))),
-    h('dl', { class: 'otext' }, h('dt', {}, 'Reason'), h('dd', {}, val(o.reason)), h('dt', {}, 'Instructions'), h('dd', {}, val(o.instructions))));
+  const med = o.kind === 'medication';
+  const f = (med ? [['Dose', o.dose], ['Route', o.route], ['Frequency', o.frequency], ['Duration', o.duration], ['Quantity', o.quantity], ['Refills', o.refills], ['Start', o.start && fmtDate(o.start)]]
+    : [[o.kind === 'service' ? 'Expected' : 'Date', o.start && fmtDate(o.start)]]).filter(([k, v], i) => (med && i < 3) || !empty(v));  // the sig always, the rest when recorded
+  const t = [['Reason', o.reason], ['Instructions', o.instructions]].filter(([, v]) => !empty(v));
+  return h('div', { class: 'ofields' }, f.length ? h('div', { class: 'ogrid' }, f.map(([k, v]) => h('span', { class: 'of' }, h('span', { class: 'ofk' }, k), ' ', val(v)))) : null,
+    t.length ? h('dl', { class: 'otext' }, t.map(([k, v]) => [h('dt', {}, k), h('dd', {}, val(v))])) : null);
 }
 
 // what the agent left in the record, as an order review; judge(k) gives the judgment control of line k (null when only reading)
@@ -63,8 +69,8 @@ export function workPanel(item, judge) {
     const urgent = l.o && /stat|urgent|asap/i.test(l.o.priority || '');
     const name = l.o ? (l.o.kind === 'medication' ? lowerName(l.o.name) : cap(l.o.name)) : lowerName(l.s.name);
     const out = [h('tr', { class: 'otr' }, h('td', {}, h('div', { class: 'oname' }, humanDates(unitText(name))),
-      l.o ? fieldGrid(l.o) : h('dl', { class: 'otext' }, h('dt', {}, 'Reason'), h('dd', {}, val(l.s.reason)))),
-    h('td', { class: 'nw' }, l.s ? '—' : l.o.priority ? (urgent ? h('span', { class: 'status urgent' }, cap(l.o.priority)) : cap(l.o.priority)) : NR()),
+      l.o ? fieldGrid(l.o) : empty(l.s.reason) ? null : h('dl', { class: 'otext' }, h('dt', {}, 'Reason'), h('dd', {}, val(l.s.reason)))),
+    h('td', { class: 'nw' }, l.s ? '—' : l.o.priority ? (urgent ? h('span', { class: 'status urgent' }, cap(l.o.priority)) : cap(l.o.priority)) : '—'),
     h('td', { class: 'nw' }, h('span', { class: `status ${l.s ? 'discontinued' : 'signed'}` }, l.s ? 'Discontinued' : 'Signed')))];
     if (judge) out.push(h('tr', { class: 'ojtr', 'data-k': l.k }, h('td', { colspan: 3 }, judge(l.k))));
     return out;
@@ -156,9 +162,9 @@ export function workStep({ d, save, texts, idp, item, readOnly, date, dept }) {
       const cur = (d.order_judgments || {})[key];
       const flags = (d.order_flags || {})[key] || {};
       return h('div', { class: `ojudge6${cur ? '' : ' open'}` }, h('span', { class: 'ojlabel' }, 'Your judgment'),
-        radios(`${idp}-${key}`, JUDGE6, cur, (v) => { d.order_judgments = { ...(d.order_judgments || {}), [key]: v };
+        titled(radios(`${idp}-${key}`, JUDGE6, cur, (v) => { d.order_judgments = { ...(d.order_judgments || {}), [key]: v };
           const p = { [`order_judgments/${key}`]: v }; if (v !== 'harmful' && d.order_flags?.[key]) { p[`order_flags/${key}`] = null; delete d.order_flags[key]; }
-          save(p); draw(); }),
+          save(p); draw(); })),
         cur === 'harmful' ? h('div', { class: 'chips', role: 'group', 'aria-label': 'What is wrong (optional)' }, h('span', { class: 'small muted' }, 'What is wrong (optional)'),
           FLAGS.map(([f, label]) => h('button', { type: 'button', class: `chip${flags[f] ? ' on' : ''}`, 'aria-pressed': String(!!flags[f]), onclick: () => {
             const on = !flags[f]; d.order_flags = { ...(d.order_flags || {}), [key]: { ...flags, [f]: on || undefined } };

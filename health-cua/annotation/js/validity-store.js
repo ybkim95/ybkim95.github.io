@@ -17,9 +17,9 @@
 //   claims/{blockId}/{uid}      when a rater took the block (written once by that rater)
 //   current/{uid}               the block the rater works on; items and cases of that block are readable
 // The model, interface and grader verdict of an item are never uploaded, so no call here can return them.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=71e99d9aa7';
-import { emailKey, withTimeout } from './ui.js?v=71e99d9aa7';
-import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=71e99d9aa7';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as ROOT } from './config.js?v=b68fded186';
+import { emailKey, withTimeout } from './ui.js?v=b68fded186';
+import { VALIDITY_DEMO as DEMO } from './validity-demo.js?v=b68fded186';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 
@@ -95,6 +95,18 @@ async function firebaseStore(emulator) {
     current: () => val(`current/${user.uid}`).catch(denied),
     blocksAndClaims: async () => ({ blocks: (await val('blocks')) || {}, claims: (await val('claims')) || {} }),
     takeBlock: (b) => withTimeout(D.update(D.ref(db, ROOT), { [`claims/${b}/${user.uid}`]: now(), [`current/${user.uid}`]: b })),
+    // fixed assignment: this physician's number, taken once from a counter in a transaction (numbers are never shared), and its plan
+    async assignment() {
+      const mine = await val(`assign/${user.uid}`);
+      if (mine !== null) return mine;
+      const t = await withTimeout(D.runTransaction(r('assignNext'), (n) => (n || 0) + 1));
+      const k = t.snapshot.val() - 1;
+      await withTimeout(D.set(r(`assign/${user.uid}`), k));
+      return k;
+    },
+    plan: (k) => val(`plan/${k}`),
+    // the adjudicator finds the physicians who rated an item through their numbers and plans
+    assignments: async () => ({ assign: (await val('assign').catch(() => null)) || {}, plans: (await val('plan').catch(() => null)) || {} }),
     // study team
     async adminData() {
       const [invites, slots, ratings, adjudications, profiles, raters, config] = await Promise.all(

@@ -1,16 +1,16 @@
 // Study team page (admin.html): applications arrive live; one click approves a physician for the episode review (Study B) or rejects;
 // block progress and the JSON download. (2026-11-06: the site serves Study B only; Study A' keeps its code and database root.) The database rules let only the addresses in
 // hcua_validity/admins (and hcua_task_review/admins for Study A') read or write any of this.
-import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=71e99d9aa7';
-import { COUNTRIES } from './countries.js?v=71e99d9aa7';
-import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=71e99d9aa7';
+import { FIREBASE_CONFIG, VALIDITY_ROOT as V } from './config.js?v=b68fded186';
+import { COUNTRIES } from './countries.js?v=b68fded186';
+import { h, toast, confirmBox, fmtTime, emailKey, GOOGLE_ICON, withTimeout, themeButton, connectionView, brand, profileMenu } from './ui.js?v=b68fded186';
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.14.1';
 const app = document.getElementById('app');
 const COUNTRY = Object.fromEntries(COUNTRIES);
 const STAGE = { attending: 'Attending or consultant', fellow: 'Fellow', resident: 'Resident', other: 'Other' };
 let A; let D; let auth; let db; let user = null;
-let apps = {}; let decisions = {};
+let apps = {}; let decisions = {}; let PROG = {};  // uid -> { rated, of } from the fixed assignment
 
 async function init() {
   const local = ['localhost', '127.0.0.1'].includes(location.hostname) && new URLSearchParams(location.search).has('emulator');
@@ -64,55 +64,59 @@ function applicationsCard() {
       } }, 'Undo');
     return h('tr', {}, h('td', {}, h('strong', {}, a.name), h('div', { class: 'small muted' }, a.email)), h('td', {}, d ? status : actions, d ? actions : null),
       h('td', {}, a.specialty), h('td', {}, STAGE[a.stage] || a.stage), h('td', { class: 'nw' }, a.yearsPractice ?? ''), h('td', {}, a.place),
-      h('td', { title: a.country || '' }, COUNTRY[a.country] || a.country || ''), h('td', { class: 'nw small' }, a.appliedAt ? fmtTime(a.appliedAt) : ''));
+      h('td', { title: a.country || '' }, COUNTRY[a.country] || a.country || ''), h('td', { class: 'nw num' }, PROG[uid] ? `${PROG[uid].rated} of ${PROG[uid].of}` : d?.status === 'approved' ? 'not opened' : ''),
+      h('td', { class: 'nw small' }, a.appliedAt ? fmtTime(a.appliedAt) : ''));
   });
   const waiting = Object.keys(apps).filter((u) => !decisions[u]).length;
   return h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', {}, h('div', { class: 'eyebrow' }, 'Applications'), h('h1', { style: { margin: 0 } }, `${waiting} waiting`)),
     h('span', { class: 'muted small' }, 'Updates live. An approved physician starts at once.')),
-  h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Physician', 'Decision', 'Specialty', 'Stage', 'Years', 'Institution', 'Country', 'Applied'].map((x) => h('th', {}, x)))),
-    h('tbody', {}, rows.length ? rows : h('tr', {}, h('td', { colspan: 8, class: 'muted' }, 'No applications yet.'))))));
+  h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Physician', 'Decision', 'Specialty', 'Stage', 'Years', 'Institution', 'Country', 'Rated', 'Applied'].map((x) => h('th', {}, x)))),
+    h('tbody', {}, rows.length ? rows : h('tr', {}, h('td', { colspan: 9, class: 'muted' }, 'No applications yet.'))))));
 }
 
-async function progressCard(root, kind, title, unit) {
-  const [blocks, claims, ratings] = await Promise.all(['blocks', 'claims', 'ratings'].map((p) => val(`${root}/${p}`).catch(() => null)));
-  const done = (uid, ids) => ids.every((i) => ratings?.[uid]?.[i]?.submittedAt);
-  const perItem = {};  // submitted ratings per item
-  const rows = Object.entries(blocks || {}).sort().map(([b, v]) => {
-    const ids = Object.keys(v[kind] || {}); const who = Object.keys(claims?.[b] || {}); const fin = who.filter((u) => done(u, ids));
-    for (const i of ids) perItem[i] = who.filter((u) => ratings?.[u]?.[i]?.submittedAt).length;
-    return h('tr', {}, h('td', { class: 'num' }, b), h('td', { class: 'num' }, String(ids.length)), h('td', { class: 'num' }, String(who.length)), h('td', { class: 'num' }, String(fin.length)));
-  });
-  const twice = Object.values(perItem).filter((n) => n >= 2).length; const once = Object.values(perItem).filter((n) => n === 1).length;
-  const taken = Object.keys(blocks || {}).filter((b) => Object.keys(claims?.[b] || {}).length).length;
-  return h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', {}, h('div', { class: 'eyebrow' }, title), h('h2', { style: { margin: 0 } }, `${twice} of ${Object.keys(perItem).length} ${unit} rated by two physicians`), h('div', { class: 'small muted' }, `${once} rated by one so far. A case counts once two physicians have rated it.`)),
-    h('button', { class: 'small', onclick: async () => {
-      const nodes = root === V ? ['config', 'applicants', 'decisions', 'blocks', 'claims', 'current', 'profiles', 'ratings', 'adjudications', 'invites', 'slots', 'raters'] : ['config', 'blocks', 'claims', 'current', 'profiles', 'ratings', 'invites', 'slots'];
+
+
+const download = (root) => h('button', { class: 'small', onclick: async () => {
+      const nodes = root === V ? ['config', 'applicants', 'decisions', 'assign', 'plan', 'strata', 'design', 'blocks', 'claims', 'current', 'profiles', 'ratings', 'adjudications', 'invites', 'slots', 'raters'] : ['config', 'blocks', 'claims', 'current', 'profiles', 'ratings', 'invites', 'slots'];
       const data = { exportedAt: new Date().toISOString(), ...Object.fromEntries(await Promise.all(nodes.map(async (p) => [p, await val(`${root}/${p}`)]))) };
       const a = h('a', { href: URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' })), download: `${root}-export-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '')}.json` });
       document.body.append(a); a.click(); a.remove();
-    } }, 'Download all (JSON)')),
-  h('details', {}, h('summary', { class: 'small' }, `Show all ${rows.length} blocks (${taken} taken)`),
-    h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Block', unit[0].toUpperCase() + unit.slice(1), 'Taken by', 'Finished by'].map((x) => h('th', {}, x)))), h('tbody', {}, rows)))));
-}
+    } }, 'Download all (JSON)');
 
-// the number of cases asked of each physician (config/goalCases, 40 when unset): physicians see 'N of 40 rated' and a thanks at the goal
-async function goalCard() {
-  const now = Number(await val(`${V}/config/goalCases`).catch(() => null)) || 40;
-  const input = h('input', { type: 'number', min: 8, max: 160, step: 1, value: now, style: { width: '90px' }, 'aria-label': 'Cases per physician' });
-  const save = h('button', { class: 'small', onclick: async () => {
-    const n = Number(input.value);
-    if (!Number.isInteger(n) || n < 8 || n > 160) return toast('A whole number from 8 to 160.', 'bad');
-    try { await withTimeout(D.set(ref(`${V}/config/goalCases`), n)); toast(`Goal set to ${n} cases.`); } catch (e) { toast(e.message, 'bad'); }
-  } }, 'Save');
-  return h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Study goal'),
-    h('div', { class: 'row' }, h('label', { class: 'small' }, 'Cases per physician '), input, save),
-    h('p', { class: 'small muted', style: { margin: 0 } }, 'Physicians see how many they have rated against this number. Cases beyond it are still welcome.'));
+// Fixed assignment: coverage by stratum (opaque codes S1 to S8; the key is private) and the anchors every physician rates
+async function coverageCard() {
+  const [assign, plans, ratings, strata, design] = await Promise.all(['assign', 'plan', 'ratings', 'strata', 'design'].map((p) => val(`${V}/${p}`).catch(() => null)));
+  const sub = (uid, i) => !!ratings?.[uid]?.[i]?.submittedAt;
+  const uids = Object.keys(assign || {}); PROG = {};
+  const anchors = new Set(Object.values(design?.anchors || {}));
+  const median = (xs) => { const s = [...xs].sort((x, y) => x - y); return s.length ? (s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2) : null; };
+  for (const u of uids) { const its = Object.keys(plans?.[assign[u]]?.items || {}); const done = its.filter((i) => sub(u, i));
+    PROG[u] = { rated: done.length, of: its.length, anchors: done.filter((i) => anchors.has(i)).length, minutes: median(done.map((i) => (ratings[u][i].activeMs || 0) / 60000)) }; }
+  const times = {}; for (const i of Object.keys(strata || {})) times[i] = Object.keys(ratings || {}).filter((u) => sub(u, i)).length;
+  const codes = [...new Set(Object.values(strata || {}))].sort();
+  const row = (label, ids) => { const n = (f) => String(ids.filter(f).length); return h('tr', {}, h('td', {}, label), h('td', { class: 'num' }, String(ids.length)),
+    h('td', { class: 'num' }, n((i) => times[i] === 0)), h('td', { class: 'num' }, n((i) => times[i] === 1)), h('td', { class: 'num' }, n((i) => times[i] >= 2))); };
+  const nonAnchor = (s) => Object.keys(strata || {}).filter((i) => strata[i] === s && !anchors.has(i));
+  const all = Object.keys(strata || {}).filter((i) => !anchors.has(i));
+  const finished = uids.filter((u) => PROG[u].rated >= PROG[u].of && PROG[u].of).length;
+  const need = Math.max(0, Math.ceil((all.length - new Set(uids.flatMap((u) => Object.keys(plans?.[assign[u]]?.items || {}))).size + anchors.size) / 24));
+  return h('div', { class: 'card stack' }, h('div', { class: 'spread' }, h('div', { class: 'eyebrow' }, 'Coverage'), download(V)),
+    h('h2', { style: { margin: 0 } }, `${uids.length} physicians assigned, ${finished} finished`),
+    h('p', { class: 'small muted', style: { margin: 0 } }, `Each physician rates 36: the ${anchors.size} anchor cases and 24 of their own. About ${need} more physicians would give every case one rating.`),
+    h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Own cases by stratum', 'Cases', 'Rated 0 times', 'Once', 'Twice or more'].map((x) => h('th', {}, x)))),
+      h('tbody', {}, codes.map((s) => row(s, nonAnchor(s))), row('All', all)))),
+    h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Anchor', 'Stratum', 'Rated by'].map((x) => h('th', {}, x)))),
+      h('tbody', {}, [...anchors].map((i) => h('tr', {}, h('td', { class: 'mono' }, i), h('td', {}, strata?.[i] || ''), h('td', { class: 'num' }, `${times[i] || 0} of ${uids.length}`)))))),
+    h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Physician', 'Number', 'Rated', 'Anchors', 'Median minutes per case'].map((x) => h('th', {}, x)))),
+      h('tbody', {}, uids.sort((x, y) => assign[x] - assign[y]).map((u) => h('tr', {}, h('td', {}, apps[u]?.name || u), h('td', { class: 'num' }, String(assign[u])),
+        h('td', { class: 'num' }, `${PROG[u].rated} of ${PROG[u].of}`), h('td', { class: 'num' }, `${PROG[u].anchors} of ${anchors.size}`), h('td', { class: 'num' }, PROG[u].minutes === null ? '' : PROG[u].minutes.toFixed(1))))))));
 }
 
 async function render() {
   const progress = h('div', { class: 'stack' }, h('p', { class: 'muted' }, 'Loading progress…'));
   shell(applicationsCard(), progress);
-  const cards = [await progressCard(V, 'items', 'Progress', 'cases'), await goalCard()];
+  const cards = [await coverageCard()];
+  app.querySelector('.card')?.replaceWith(applicationsCard());  // now with each physician's progress
   progress.replaceChildren(...cards, h('div', { class: 'row' }, h('button', { class: 'small', onclick: render }, 'Refresh progress')));
 }
 

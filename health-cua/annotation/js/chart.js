@@ -1,5 +1,5 @@
 // The patient chart, in the modules the study EHR shows: summary, problems, medications, results, vitals, notes, procedures.
-import { h, md, fmtDate } from './ui.js?v=71e99d9aa7';
+import { h, md, fmtDate } from './ui.js?v=b68fded186';
 
 const TABS = [['summary', 'Summary'], ['problems', 'Problems'], ['medications', 'Medications'], ['labs', 'Results'], ['vitals', 'Vitals'],
   ['notes', 'Notes'], ['procedures', 'Procedures']];

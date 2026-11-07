@@ -1,14 +1,14 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=71e99d9aa7';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND, orderKind } from './ui.js?v=71e99d9aa7';
-import { caseLayout, deptOf, lowerName, unitText } from './chart.js?v=71e99d9aa7';
-import { COUNTRIES } from './countries.js?v=71e99d9aa7';
-import { startTour } from './tour.js?v=71e99d9aa7';
+import { createStore } from './validity-store.js?v=b68fded186';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, brand, profileMenu, BRAND, orderKind } from './ui.js?v=b68fded186';
+import { caseLayout, deptOf, lowerName, unitText } from './chart.js?v=b68fded186';
+import { COUNTRIES } from './countries.js?v=b68fded186';
+import { startTour } from './tour.js?v=b68fded186';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)
-let ADJ = null;  // adjudicator: { ratings: {itemId: {rater: rating}} }, the raters of an item being the slot roster or the physicians who took its block
-let online = true; const savedListeners = new Set(); let PROGRESS = null; let SPAN = null; let GOAL = null;  // GOAL: cases asked of each physician (config/goalCases, 40 if unset)  // SPAN.before: cases in this rater's earlier blocks  // { done, total } of the rater's current block, for the account menu
+let ADJ = null;  // adjudicator: { ratings: {itemId: {rater: rating}} }, the raters of an item being the slot roster or the physicians whose plan holds it
+let online = true; const savedListeners = new Set(); let PROGRESS = null; let GOAL = null;  // GOAL: cases asked of each physician (config/goalCases, 36 if unset)  // SPAN.before: cases in this rater's earlier blocks  // { done, total } of the rater's current block, for the account menu
 
 // Version B-4.3 (2026-11-04, after a physician's end-to-end test, before any rating): the B-4.2 questions; typed answers are merged and
 // saved on leaving a box and before submit, which writes the full answer set; tests and referrals show a priority other than routine
@@ -92,7 +92,7 @@ function topbar(extra = []) {
   };
   savedListeners.clear(); savedListeners.add(setStatus); status.hidden = online;
   const lines = [['Study', SLOT?.role === 'adjudicator' ? 'Episode review, adjudication' : 'Episode review'],
-    ...(ME.block && PROGRESS && GOAL ? [['Rated', h('span', {}, `${PROGRESS.rated} of ${GOAL}`, goalBar(PROGRESS.rated))]] : [])];
+    ...(ME.plan && PROGRESS ? [['Rated', h('span', {}, `${PROGRESS.rated} of ${quota()}`, goalBar(PROGRESS.rated))]] : [])];
   const links = [...(SLOT ? [[SLOT.role === 'adjudicator' ? 'All cases' : 'My cases', '#/items']] : []), ...(ME.admin ? [['Study team', 'admin.html']] : [])];
   return h('div', {}, S.mode === 'demo' ? h('div', { class: 'demo-banner' }, 'Demo: invented items, stored only in this browser. Nothing here is part of the study.') : null,
     h('header', { class: 'topbar' }, brand(), h('span', { class: 'grow' }), ...extra, ME.user && SLOT ? status : null, themeButton(),
@@ -123,7 +123,7 @@ function signinView(msg) {
 const CONTACT = 'ybkim95@media.mit.edu';
 const INFO = `**About the study.** AI agents completed clinical inbox tasks in a simulated electronic health record. You review what an agent left in the chart (its orders, stopped medications, messages and signed note) and judge it as you would a colleague's work. All patients are synthetic.
 
-**Time.** Sets of 8 cases, about an hour each. Do one set or several. Your work saves as you go.
+**Time.** 36 cases, about 4 to 5 hours in total. You can stop and come back, your work saves as you go.
 
 **Contact.** ${CONTACT}`;
 const STAGES = [['attending', 'Attending or consultant'], ['fellow', 'Fellow'], ['resident', 'Resident'], ['other', 'Other']];
@@ -182,59 +182,38 @@ function rejectedView() {
     h('p', {}, 'The study team could not include this account in the review.'), h('p', { class: 'small muted' }, h('strong', {}, 'Contact.'), ` ${CONTACT}`)));
 }
 
-async function takeNextBlock() {
-  const { blocks, claims } = await S.blocksAndClaims();
-  const b = nextBlock(blocks, claims, ME.user.uid);
-  if (!b) return false;
-  await S.takeBlock(b);
-  ME.block = b; SLOT = blockSlot(blocks[b], 'items'); SPAN = null;
-  return true;
+// Fixed assignment (owner's design, 2026-11-07): every physician rates the 36 cases of their plan (tools/validity_assign.py): 12 anchor
+// cases that every physician rates and 24 of their own, in a fixed order balanced along the way. The physician's number comes from a counter the first
+// time they open the site after approval. One list, 'Case N of 36', and a final screen; no sets are visible.
+async function loadPlan() {
+  ME.k = await S.assignment();
+  const plan = await S.plan(ME.k);
+  SLOT = { role: 'rater', items: Object.fromEntries(Object.entries(plan?.items || {}).map(([id, pos]) => [id, { pos }])) };
+  ME.plan = !!plan;
 }
+const quota = () => Object.keys(SLOT?.items || {}).length || GOAL;
 
-// a thin bar of the cases rated against the study goal
-const goalBar = (n) => h('div', { class: 'goalbar', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': GOAL, 'aria-valuenow': Math.min(n, GOAL), 'aria-label': 'Cases rated' },
-  h('div', { style: { width: `${Math.min(100, (100 * n) / Math.max(GOAL, 1))}%` } }));
-
-// after a set of 8: how many cases in all, the goal, and 8 more or stop (the set is a block internally; physicians never see the word)
-function setDoneView() {
-  const rated = PROGRESS?.rated ?? 0; const reached = rated >= GOAL;
-  const more = h('button', { class: 'primary', onclick: tracked(async () => {
-    more.disabled = true;
-    if (await takeNextBlock()) { location.hash = '#/'; route(); } else allDoneView();
-  }) }, 'Continue with 8 more cases');
-  page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('div', { class: 'eyebrow' }, `${rated} of ${GOAL} cases rated`), goalBar(rated), h('h1', {}, 'Thank you'),
-    h('p', {}, `You have rated ${rated} case${rated === 1 ? '' : 's'} in total. ${reached ? `That reaches the study goal of ${GOAL} cases. Extra cases are welcome.` : `The study goal is ${GOAL} cases.`}`),
-    h('p', { class: 'muted' }, 'Each further set is 8 cases and takes about an hour. Your ratings are saved.'),
-    h('div', { class: 'row' }, more, h('a', { class: 'quiet-link', href: 'javascript:void 0', onclick: stoppedView }, 'Stop here'))));
-}
-
-function stoppedView() {
-  page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('h1', {}, 'Thank you'),
-    h('p', {}, 'Your ratings are saved. You can close this page.'),
-    h('p', { class: 'muted' }, `To rate more cases later, come back with the same Google account (${ME.user.email}).`)));
-}
+// a thin bar of the cases rated against the quota
+const goalBar = (n) => h('div', { class: 'goalbar', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': quota(), 'aria-valuenow': Math.min(n, quota()), 'aria-label': 'Cases rated' },
+  h('div', { style: { width: `${Math.min(100, (100 * n) / Math.max(quota(), 1))}%` } }));
 
 function allDoneView() {
-  page(h('div', { class: 'card stack', style: { maxWidth: '560px' } }, h('h1', {}, 'Thank you'), h('p', {}, 'You have rated every case available in the study. Your ratings are saved.')));
+  const rated = PROGRESS?.rated ?? 0;
+  page(h('div', { class: 'card stack', style: { maxWidth: '520px' } }, h('h1', {}, 'All done. Thank you.'),
+    h('p', {}, `You rated ${rated} case${rated === 1 ? '' : 's'}. Your ratings are saved.`),
+    h('div', { class: 'row' }, h('button', { onclick: async () => { await S.signOut(); location.hash = '#/'; } }, 'Sign out'))));
 }
 
 async function recruitRoute() {
   if (!ME.decision) { const a = await S.applicant(); return a ? waitingView(a) : applyView(); /* never redirect from here: the team page sends non-admins back, so a redirect could loop */ }
   if (ME.decision.status !== 'approved') return rejectedView();
-  const cur = await S.current();  // read each time: a set the study team released must not stay in this page's memory
-  if (cur !== ME.block) { ME.block = cur; SLOT = null; SPAN = null; }
-  if (GOAL === null) GOAL = Number((await S.config().catch(() => null))?.goalCases) || 40;
-  if (!ME.block && !(await takeNextBlock())) return allDoneView();
-  if (!SLOT || !SPAN) {
-    const { blocks, claims } = await S.blocksAndClaims(); if (!SLOT) SLOT = blockSlot(blocks[ME.block], 'items');
-    const mine = Object.keys(claims || {}).filter((b) => claims[b]?.[ME.user.uid] && b !== ME.block).sort((x, y) => claims[x][ME.user.uid] - claims[y][ME.user.uid]);
-    SPAN = { before: mine.reduce((n, b) => n + Object.keys(blocks[b]?.items || {}).length, 0) };
-  }
+  if (GOAL === null) GOAL = Number((await S.config().catch(() => null))?.goalCases) || 36;
+  if (!ME.plan) await loadPlan();
   const [, kind, arg] = location.hash.split('/');
   if (kind === 'item' && arg) return itemView(arg);
   const step = await nextStep();
   if (kind === 'items') return queueView();
-  if (step.kind === 'done') return setDoneView();
+  if (step.kind === 'done') return allDoneView();
   history.replaceState(null, '', `#/item/${step.id}`); return itemView(step.id);  // straight into the next item, no list in between
 }
 
@@ -399,11 +378,11 @@ async function nextStep() {
 function itemLabel(it) {
   const items = orderedItems(); const training = items.filter((i) => i.training); const main = items.filter((i) => !i.training);
   if (SLOT.pilot) return `Pilot item ${items.findIndex((i) => i.id === it.id) + 1} of ${items.length}`;
-  if (ME.block && SPAN) return `Case ${SPAN.before + main.findIndex((i) => i.id === it.id) + 1} of ${SPAN.before + main.length}`;  // counted over all of this rater's blocks
+  if (ME.plan) return `Case ${main.findIndex((i) => i.id === it.id) + 1} of ${quota()}`;
   return it.training ? `Training case ${training.findIndex((i) => i.id === it.id) + 1} of ${training.length}` : `Case ${main.findIndex((i) => i.id === it.id) + 1} of ${main.length}`;
 }
 
-// My cases: the block as an EHR worklist (patient, message, status), the current case highlighted.
+// My cases: all of this physician's assigned cases as an EHR worklist (patient, message, status), the current case highlighted.
 async function queueView() {
   const step = await nextStep();
   const items = orderedItems();
@@ -417,12 +396,10 @@ async function queueView() {
       h('td', {}, m ? m.subject : '', m ? h('small', {}, `${m.category || ''} · from ${m.sender || ''}`) : null), h('td', { class: 'nw' }, status), h('td', { class: 'nw' }, open));
   });
   // a case that cannot be read means this page holds a set the study team has released: start again from the database
-  if (info.some((x) => !x.p) && (await S.current().catch(() => null)) !== ME.block) { ME.block = null; SLOT = null; SPAN = null; return route(); }
   const rated = PROGRESS?.rated ?? done;
-  page(h('div', { class: 'worklist' }, h('div', { class: 'headrow' }, h('h2', {}, 'My cases'),
-    h('span', { class: 'meta' }, GOAL ? `${rated} of ${GOAL} rated` : `${done} of ${items.length} submitted`), h('span', { class: 'grow' }),
+  page(h('div', { class: 'worklist' }, h('div', { class: 'headrow' }, h('h2', {}, ME.plan ? `My cases · ${rated} of ${quota()}` : 'My cases'), h('span', { class: 'grow' }),
     step.kind === 'item' ? h('a', { class: 'btn primary small', href: `#/item/${step.id}` }, step.ratings[step.id] ? 'Continue' : 'Open the next case') : null),
-  GOAL ? goalBar(rated) : null, info.some((x) => !x.p) ? h('p', { class: 'problems small' }, 'Some case details could not be loaded. Reload the page to try again.') : null,
+  ME.plan ? goalBar(rated) : null, info.some((x) => !x.p) ? h('p', { class: 'problems small' }, 'Some case details could not be loaded. Reload the page to try again.') : null,
   h('div', { class: 'gridwrap' }, h('table', { class: 'grid' }, h('thead', {}, h('tr', {}, ['#', 'Patient', 'Message', 'Status', ''].map((x) => h('th', {}, x)))), h('tbody', {}, rows))),
   h('p', { class: 'meta' }, 'Cases open in a fixed order. Your work saves as you go. Submitting a case locks it.')), true);
 }
@@ -526,11 +503,10 @@ async function loadAdjudication() {
   if (ADJ) return ADJ;
   const roster = {};
   for (const s of Object.keys(SLOT.raters || {})) roster[s] = await S.roster(s);
-  const { claims } = await S.blocksAndClaims();
+  const { assign, plans } = SLOT.raters ? { assign: {}, plans: {} } : await S.assignments();
   const ratings = {};
   await Promise.all(orderedItems().map(async (it) => {
-    const block = SLOT.raters ? null : (await S.item(it.id))?.block;
-    const uids = block ? Object.keys(claims[block] || {}) : Object.values(roster).filter(Boolean);
+    const uids = SLOT.raters ? Object.values(roster).filter(Boolean) : Object.entries(assign).filter(([, k]) => plans[k]?.items?.[it.id] !== undefined).map(([u]) => u);
     ratings[it.id] = Object.fromEntries(await Promise.all(uids.map(async (uid) => [uid, await S.otherRating(uid, it.id)])));
   }));
   ADJ = { ratings };
@@ -696,7 +672,7 @@ async function boot() {
   let unwatch = null;
   S.onAuth(async (u) => {
     if (unwatch) { unwatch(); unwatch = null; }
-    ME = { user: u, admin: false, invite: null, decision: undefined, block: null }; SLOT = null; ADJ = null; SPAN = null;
+    ME = { user: u, admin: false, invite: null, decision: undefined, block: null }; SLOT = null; ADJ = null;
     try {
       if (u) {
         const me = await S.me();

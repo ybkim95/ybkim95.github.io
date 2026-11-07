@@ -1,5 +1,5 @@
 // The patient chart, in the modules the study EHR shows: summary, problems, medications, results, vitals, notes, procedures.
-import { h, md, fmtDate } from './ui.js?v=2503f1c9a7';
+import { h, md, fmtDate } from './ui.js?v=71e99d9aa7';
 
 const TABS = [['summary', 'Summary'], ['problems', 'Problems'], ['medications', 'Medications'], ['labs', 'Results'], ['vitals', 'Vitals'],
   ['notes', 'Notes'], ['procedures', 'Procedures']];
@@ -20,7 +20,7 @@ const range = (r) => (has(r.low) && has(r.high) ? `${num(r.low)}–${num(r.high)
 
 // Display only (the chart data are unchanged): vital names and units as clinicians write them, blood pressure as one reading,
 // at most one decimal for vitals, dates as Jan 24, 2024 18:54.
-const VITAL_NAMES = [[/^pain severity\b.*/i, 'Pain'], [/^blood pressure panel\b.*/i, 'BP'], [/^oxygen saturation\b.*/i, 'SpO2'],
+const VITAL_NAMES = [[/^left eye intraocular pressure$/i, 'IOP, left'], [/^right eye intraocular pressure$/i, 'IOP, right'], [/^pain severity\b.*/i, 'Pain'], [/^blood pressure( panel\b.*)?$/i, 'BP'], [/^oxygen saturation\b.*/i, 'SpO2'],
   [/^body height\b.*/i, 'Height'], [/^body weight\b.*/i, 'Weight'], [/^body temperature\b.*/i, 'Temp'], [/^body mass index\b.*/i, 'BMI'],
   [/^heart rate\b.*/i, 'Pulse'], [/^respiratory rate\b.*/i, 'Resp'], [/^head occipital-frontal circumference\b.*/i, 'Head circumference']];  // one short name per vital everywhere
 const UNITS = [[/\{copies\}/g, 'copies'], [/\[IU\]/g, 'IU'], [/\[HPF\]/g, 'HPF'], [/\{1\.73_m2\}|1\.73m2/g, '1.73 m²'], [/\bug\//g, 'µg/'], [/\bumol\//g, 'µmol/'], [/mm\[Hg\]/g, 'mmHg'], [/^Cel$/, '°C'], [/^\[degF\]$/, '°F'], [/kg\/m2/g, 'kg/m²'], [/10\*3\/uL/g, '×10³/µL'], [/10\*6\/uL/g, '×10⁶/µL'], [/\buL\b/g, 'µL'], [/\{[^}]*\}/g, '']];
@@ -32,7 +32,8 @@ export const unitText = (t) => String(t ?? '').replace(/\[(IU|iU)\]/g, 'IU').rep
 const withUnit = (v, u) => { const x = cleanUnit(u); return `${v ?? ''}${x && !/^[/%°]/.test(x) ? ' ' : ''}${x}`.trim(); };  // 4/10, 94%, 37.2°C
 export function fmtStamp(s) { const m = String(s || '').match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})/); return m ? `${fmtDate(m[1])} ${m[2]}` : fmtDate(s); }
 const bpOf = (v) => { const m = String(v).match(/diastolic[^\d]*([\d.]+)[^;]*;\s*systolic[^\d]*([\d.]+)/i) || String(v).match(/systolic[^\d]*([\d.]+)[^;]*;\s*diastolic[^\d]*([\d.]+)/i);
-  if (!m) return null; return /^diastolic/i.test(String(v).trim()) ? `${m[2]}/${m[1]}` : `${m[1]}/${m[2]}`; };
+  if (!m) return null; const [a, b] = [m[1], m[2]].map((x) => Math.round(Number(x)));  // blood pressure in whole mmHg
+  return /^diastolic/i.test(String(v).trim()) ? `${b}/${a}` : `${a}/${b}`; };
 export function tidyVitals(rows) {
   const out = []; const bp = {};
   for (const r of rows || []) {
@@ -47,7 +48,7 @@ export function tidyVitals(rows) {
     if (name === 'Pain' && !unit) unit = '/10';
     out.push({ ...r, text: name, value, unit });
   }
-  for (const r of Object.values(bp)) { out.push({ ...r, value: `${r._bp.s ?? '–'}/${r._bp.d ?? '–'}` }); delete r._bp; }
+  for (const r of Object.values(bp)) { out.push({ ...r, value: [r._bp.s, r._bp.d].map((x) => (x === undefined ? '–' : Math.round(Number(x)))).join('/') }); delete r._bp; }
   return out.sort((a, b) => String(a.date).localeCompare(String(b.date)));
 }
 
@@ -156,9 +157,9 @@ const RANGES = [['all', 'All dates'], ['30', 'Last 30 days'], ['182', 'Last 6 mo
 const shortVital = (t) => t;
 // display precision of a result, fixed per test with trailing zeros kept (6.0 %, 0.70 mg/dL) as a laboratory reports it; flags use the raw
 // value and the raw value is in the tooltip. Names are those of labName below.
-const PREC = [[/^(Total cholesterol|LDL cholesterol|HDL cholesterol|Triglycerides|Glucose|Fasting glucose|Platelets|Sodium|Chloride|Bicarbonate|ALT|AST|ALP|GGT|LDH|Ferritin|eGFR.*|BUN|CK|PDW|ESR|Erythrocyte sedimentation rate|CD4 count|HIV-1 RNA \(viral load\)|Albumin\/creatinine ratio, urine|Testosterone, total.*|Fibrinogen|IgA|IgE|IgG|Complement C3|Complement C4|Haptoglobin|hCG, serum.*|Iron|Iron binding capacity|Transferrin saturation|Vitamin B12|25-hydroxyvitamin D|PTH, intact|Calprotectin, stool|Ceruloplasmin|Troponin I, high sensitivity|Fecal immunochemical test|Urine WBC|Urine RBC|Urine epithelial cells|Urine glucose|Urine protein|Urine ketones)$/i, 0],
-  [/^(WBC|Hemoglobin|Hematocrit|MCV|MCH|MCHC|RDW|MPV|Albumin|Protein, total|Potassium|Calcium|Magnesium|Phosphate|C reactive protein|C-reactive protein|Hemoglobin A1c|INR|aPTT|Total bilirubin|Direct bilirubin|Indirect bilirubin|Urine bilirubin|Lactate|Neutrophils, absolute|Lymphocytes, absolute|Prolactin|LH|FSH|Folate|Bile acids, total|Tissue transglutaminase IgA|Reticulocytes|Carbamazepine|Urine pH|(Neutrophils|Lymphocytes|Monocytes|Eosinophils|Basophils)\/100 leukocytes)$/i, 1],
-  [/^(RBC|Creatinine|TSH|Free T4|Monocytes, absolute|Eosinophils, absolute|Basophils, absolute|Methylmalonic acid|Prostate specific antigen|Protein\/creatinine ratio, urine|QuantiFERON.*)$/i, 2],
+const PREC = [[/^(Total cholesterol|LDL cholesterol|HDL cholesterol|Triglycerides|Glucose|Fasting glucose|Platelets|Sodium|Chloride|Bicarbonate|ALT|AST|ALP|GGT|LDH|Ferritin|eGFR.*|BUN|CK|PDW|ESR|Erythrocyte sedimentation rate|CD4 count|HIV-1 RNA \(viral load\)|Albumin\/creatinine ratio, urine|Testosterone, total.*|Fibrinogen|IgA|IgE|IgG|Complement C3|Complement C4|Haptoglobin|hCG, serum.*|Iron|Iron binding capacity|Transferrin saturation|Vitamin B12|25-hydroxyvitamin D|PTH, intact|Calprotectin, stool|Ceruloplasmin|Rheumatoid factor|Anti-CCP antibody|Troponin I, high sensitivity|Fecal immunochemical test|Urine WBC|Urine RBC|Urine epithelial cells|Urine glucose|Urine protein|Urine ketones)$/i, 0],
+  [/^(WBC|Hemoglobin|Hematocrit|MCV|MCH|MCHC|RDW|MPV|Albumin|Protein, total|Potassium|Calcium|Magnesium|Phosphate|C reactive protein|C-reactive protein|Hemoglobin A1c|INR|aPTT|Total bilirubin|Direct bilirubin|Indirect bilirubin|Urine bilirubin|Lactate|Neutrophils, absolute|Lymphocytes, absolute|Prolactin|LH|FSH|Folate|Bile acids, total|Tissue transglutaminase IgA|Reticulocytes|Carbamazepine|Urine pH|Hemoglobin A2|Uric acid|Globulin|(Neutrophils|Lymphocytes|Monocytes|Eosinophils|Basophils)\/100 leukocytes)$/i, 1],
+  [/^(RBC|Creatinine|TSH|Free T4|Monocytes, absolute|Eosinophils, absolute|Basophils, absolute|Methylmalonic acid|Prostate specific antigen|D-dimer|Protein\/creatinine ratio, urine|QuantiFERON.*)$/i, 2],
   [/^Urine specific gravity$/i, 3]];
 export const shown = (r) => { const v = Number(r.value); if (r.value === '' || r.value === null || Number.isNaN(v) || typeof r.value === 'string' && !/^-?[\d.]+$/.test(r.value)) return r.value ?? '';
   const d = PREC.find(([re]) => re.test(r.text))?.[1];
@@ -170,11 +171,11 @@ const SHORT = [[/^C[- ]reactive protein$/i, 'CRP'], [/^Hemoglobin A1c$/i, 'HbA1c
   [/^LDL cholesterol$/i, 'LDL-C'], [/^HDL cholesterol$/i, 'HDL-C'], [/^Triglycerides$/i, 'TG'], [/^Platelets$/i, 'Plt'], [/^Total cholesterol$/i, 'TC'], [/^Hemoglobin$/i, 'Hgb'],
   [/^Hematocrit$/i, 'Hct'], [/^Potassium$/i, 'K'], [/^Sodium$/i, 'Na'], [/^Chloride$/i, 'Cl'], [/^Bicarbonate$/i, 'CO2'], [/^BUN$/i, 'BUN'], [/^Albumin$/i, 'Alb'], [/^Alkaline phosphatase|^ALP$/i, 'ALP'], [/^Creatinine$/i, 'Creat'],
   [/^Magnesium$/i, 'Mg'], [/^Phosphate$/i, 'Phos'], [/^Protein, total$/i, 'T. protein'], [/^Erythrocyte sedimentation rate$|^ESR$/i, 'ESR'], [/^Tobacco smoking status$/i, 'Tobacco'],
-  [/^Prostate specific antigen$/i, 'PSA'], [/^Vitamin B12$/i, 'B12'], [/^25-hydroxyvitamin D$/i, '25-OH D'], [/^Methylmalonic acid$/i, 'MMA'], [/^PTH, intact$/i, 'PTH'], [/^Folate$/i, 'Folate'],
+  [/^Prostate specific antigen$/i, 'PSA'], [/^Vitamin B12$/i, 'B12'], [/^25-hydroxyvitamin D$/i, 'Vit D'], [/^Methylmalonic acid$/i, 'MMA'], [/^PTH, intact$/i, 'PTH'], [/^Folate$/i, 'Folate'],
   [/^GGT$/i, 'GGT'], [/^LDH$/i, 'LDH'], [/^Troponin I, high sensitivity$/i, 'hs-TnI'], [/^Testosterone, total.*/i, 'Testost.'], [/^Iron binding capacity$/i, 'TIBC'], [/^Transferrin saturation$/i, 'TSAT'],
   [/^Fasting glucose$/i, 'FPG'], [/^Haptoglobin$/i, 'Hapto'], [/^Complement C([34])$/i, 'C$1'], [/^hCG, serum.*/i, 'hCG'], [/^Bile acids, total$/i, 'Bile acids'], [/^Tissue transglutaminase IgA$/i, 'tTG-IgA'],
   [/^Calprotectin, stool$/i, 'Calpro'], [/^Fecal immunochemical test$/i, 'FIT'], [/^Ceruloplasmin$/i, 'Cerulo'], [/^Carbamazepine$/i, 'CBZ'], [/^Reticulocytes$/i, 'Retic'],
-  [/^CD4 count$/i, 'CD4'], [/^HIV-1 RNA.*/i, 'HIV VL'], [/^Albumin\/creatinine ratio, urine$/i, 'UACR'], [/^Protein\/creatinine ratio, urine$/i, 'UPCR'],
+  [/^CD4 count$/i, 'CD4'], [/^Rheumatoid factor$/i, 'RF'], [/^Anti-CCP antibody$/i, 'Anti-CCP'], [/^Hemoglobin A2$/i, 'HbA2'], [/^HIV-1 RNA.*/i, 'HIV VL'], [/^Albumin\/creatinine ratio, urine$/i, 'UACR'], [/^Protein\/creatinine ratio, urine$/i, 'UPCR'],
   [/^Neutrophils, absolute$/i, 'ANC'], [/^Lymphocytes, absolute$/i, 'ALC'], [/^(Monocytes|Eosinophils|Basophils), absolute$/i, (m, x) => `${CELL[x]}, abs`],
   [/^(Neutrophils|Lymphocytes|Monocytes|Eosinophils|Basophils)\/100 leukocytes$/i, (m, x) => `${CELL[x]} %`],
   [/^QuantiFERON-TB Gold Plus (TB[12]) antigen minus nil$/i, '$1−nil'], [/^QuantiFERON-TB Gold Plus nil$/i, 'QFT nil'],
@@ -240,6 +241,8 @@ const ALIAS = [[/^Hemoglobin A1c\/Hemoglobin\.total.*/i, 'Hemoglobin A1c'], [/^C
   [/^(Glucose \(fasting\)|Fasting glucose)$/i, 'Fasting glucose'], [/^(Bile acids total|Bile acids, total)$/i, 'Bile acids, total'], [/^Immunoglobulin A$/i, 'IgA'], [/^IgE, total$/i, 'IgE'],
   [/^Absolute neutrophil count$|^Neutrophils$/i, 'Neutrophils, absolute'], [/^Lymphocytes$/i, 'Lymphocytes, absolute'], [/^(Monocytes|Basophils)$/i, '$1, absolute'],
   [/^Eosinophils$/i, 'Eosinophils, absolute'],
+  [/^Cholesterol in LDL.*/i, 'LDL cholesterol'], [/^Microalbumin\/Creatinine.*Urine/i, 'Albumin/creatinine ratio, urine'], [/^Iron saturation$/i, 'Transferrin saturation'],
+  [/^(Cyclic citrullinated peptide Ab|Anti-CCP antibody)$/i, 'Anti-CCP antibody'], [/^Protein \[Mass\/volume\] in Serum or Plasma$/i, 'Protein, total'],
   [/^CD3\+CD4\+ \(T4 helper\) cells$|^CD4 cells$|^CD4\+ T cells$/i, 'CD4 count'], [/^HIV 1 RNA.*/i, 'HIV-1 RNA (viral load)']];
 export const labName = (t) => { const raw = String(t || ''); const s = raw.replace(/\s*\[[^\]]*\]/g, '').replace(/\s+by\s.*$/i, '').replace(/\s+(in|of) (Serum or Plasma|Serum|Plasma|Blood|Platelet poor plasma)$/i, '').trim();
   const a = ALIAS.find(([re]) => re.test(s) || re.test(raw)); return a ? (a[0].test(s) ? s : raw).replace(a[0], a[1]) : s; };
@@ -371,7 +374,7 @@ export function ehrChart(c, { onView, task = true } = {}) {
   const link = (text, onclick) => h('a', { href: 'javascript:void 0', onclick }, text);
 
   const side = h('aside', { class: 'sidebar' },
-    h('h2', {}, 'Vitals'), latestVitals.length ? h('table', { class: 'mini' }, h('tbody', {}, latestVitals.filter((v) => !/circumference/i.test(v.text)).map((v) => h('tr', {}, h('th', {}, v.text), h('td', {}, String(v.value ?? ''), h('span', { class: 'u' }, ` ${cleanUnit(v.unit)}`)), h('td', { class: 'when' }, ago(v.date, now)))))) : h('div', { class: 'none' }, 'None recorded'),
+    h('h2', {}, 'Vitals'), latestVitals.length ? h('table', { class: 'mini' }, h('tbody', {}, latestVitals.filter((v) => !/circumference/i.test(v.text)).map((v) => h('tr', {}, h('th', { title: v.text }, v.text), h('td', { title: `${v.value ?? ''} ${cleanUnit(v.unit)}` }, String(v.value ?? ''), /^[%°/]/.test(cleanUnit(v.unit)) ? h('span', { class: 'u glued' }, cleanUnit(v.unit)) : h('span', { class: cleanUnit(v.unit).length <= 3 ? 'u glued' : 'u' }, ` ${cleanUnit(v.unit)}`)), h('td', { class: 'when' }, ago(v.date, now)))))) : h('div', { class: 'none' }, 'None recorded'),
     h('h2', {}, 'Key results'), latestLabs.length ? h('table', { class: 'mini kr' }, h('tbody', {}, latestLabs.slice(0, 8).map((r) => h('tr', {}, h('th', { title: r.full }, shortLab(r.text)), h('td', {}, val(r)), h('td', { class: 'when' }, ago(r.date, now)))))) : h('div', { class: 'none' }, 'None recorded'),
     h('h2', {}, 'Problems', h('span', { class: 'n' }, String(activeProblems.length))), activeProblems.length ? h('ul', { class: 'plain' }, activeProblems.map((r) => h('li', {}, link(r.text, () => openProblem(r))))) : h('div', { class: 'none' }, 'None'),
     h('h2', {}, 'Medications', h('span', { class: 'n' }, String(activeMeds.length))), activeMeds.length ? h('ul', { class: 'plain' }, activeMeds.map((r) => h('li', { title: r.text }, link(medName(r.text), () => openMed(r))))) : h('div', { class: 'none' }, 'None'),

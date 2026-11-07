@@ -1,7 +1,7 @@
 // A short guided tour of the review screen: the page is dimmed except the parts a step describes, and a small popover sits beside them
 // (never over them) with Back, Next and Skip tour. The tour only scrolls and highlights. It never clicks anything, so no answer and no
 // view record changes. Esc closes it, the arrow keys step through it and Tab stays inside the popover.
-import { h } from './ui.js?v=2503f1c9a7';
+import { h } from './ui.js?v=71e99d9aa7';
 
 const INSET = 3; // a highlight sits just inside its part, so two parts that touch never share or overlap an outline
 const PAD = 0;

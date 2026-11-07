@@ -559,10 +559,15 @@ button.linkish { background: none; border: 0; padding: 0; font-weight: 600; text
 .tour-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); }
 .tour-actions { display: flex; justify-content: flex-end; gap: 8px; }
 .tour-pop button:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
-.howto .tour-again { float: right; margin-top: 9px; }
+.howto .tour-again-row { padding: 0 0 10px; }
 .goalbar { height: 4px; background: var(--line-2); border-radius: 99px; overflow: hidden; margin-top: 4px; min-width: 80px; }
 .goalbar > div { height: 100%; background: var(--accent); }
 .worklist .goalbar { margin: 0 0 12px; }
 .quiet-link { color: var(--muted); font-size: 13px; align-self: center; }
 .otable tr.groupnote td { color: var(--muted); font-size: 12px; padding: 2px 12px 6px; border-bottom: 1px solid var(--line-2); }
 .sidebar table.kr .u.glued { display: inline !important; }
+/* sidebar tables: the value and the time take their natural width and never clip; the name takes what is left and ellipsizes */
+.sidebar table.mini { table-layout: auto; }
+.sidebar table.mini th, .sidebar table.kr th { width: 100%; max-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar table.mini td, .sidebar table.kr td:not(.when), .sidebar table.mini td.when { width: 1%; white-space: nowrap; overflow: visible; }
+@media (max-width: 1640px) { .sidebar table.mini .u:not(.glued) { display: none; } }  /* units in the tooltip when the sidebar is narrow */

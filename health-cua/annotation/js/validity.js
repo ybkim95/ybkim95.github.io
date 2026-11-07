@@ -1,9 +1,9 @@
 // Study B: blinded review of what an AI agent left in the record. Raters rate items; the adjudicator settles disagreements.
-import { createStore } from './validity-store.js?v=b326457fff';
-import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND, orderKind } from './ui.js?v=b326457fff';
-import { caseLayout, deptOf, lowerName } from './chart.js?v=b326457fff';
-import { COUNTRIES } from './countries.js?v=b326457fff';
-import { startTour } from './tour.js?v=b326457fff';
+import { createStore } from './validity-store.js?v=fd7c6acd2e';
+import { h, md, toast, confirmBox, radios, fmtTime, fmtDate, emailKey, EMAIL_RE, GOOGLE_ICON, textSaver, withTimeout, humanDates, activeTimer, themeButton, connectionView, nextBlock, blockSlot, brand, profileMenu, BRAND, orderKind } from './ui.js?v=fd7c6acd2e';
+import { caseLayout, deptOf, lowerName } from './chart.js?v=fd7c6acd2e';
+import { COUNTRIES } from './countries.js?v=fd7c6acd2e';
+import { startTour } from './tour.js?v=fd7c6acd2e';
 
 const app = document.getElementById('app');
 let S; let ME = { user: null, admin: false, invite: null, decision: undefined, block: null }; let SLOT = null;  // block: the rater's current block (open recruitment)

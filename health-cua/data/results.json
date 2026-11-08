@@ -1805,5 +1805,91 @@
     "tasks": 150
    }
   }
+ },
+ "tasks": {
+  "sets": [
+   {
+    "key": "official",
+    "n": 39
+   },
+   {
+    "key": "standard",
+    "n": 94
+   },
+   {
+    "key": "hard",
+    "n": 38
+   },
+   {
+    "key": "expert",
+    "n": 14
+   },
+   {
+    "key": "workflow",
+    "n": 20
+   },
+   {
+    "key": "confirm",
+    "n": 150
+   }
+  ],
+  "fields": [
+   {
+    "field": "Primary care, internal medicine",
+    "n": 104
+   },
+   {
+    "field": "Infectious disease",
+    "n": 39
+   },
+   {
+    "field": "Endocrinology",
+    "n": 36
+   },
+   {
+    "field": "Haematology, oncology",
+    "n": 32
+   },
+   {
+    "field": "Cardiology",
+    "n": 26
+   },
+   {
+    "field": "Hepatology",
+    "n": 24
+   },
+   {
+    "field": "Neurology, psychiatry",
+    "n": 19
+   },
+   {
+    "field": "Dermatology, allergy",
+    "n": 18
+   },
+   {
+    "field": "Nephrology, urology",
+    "n": 17
+   },
+   {
+    "field": "Rheumatology",
+    "n": 14
+   },
+   {
+    "field": "Obstetrics, gynaecology",
+    "n": 12
+   },
+   {
+    "field": "Pulmonology",
+    "n": 7
+   },
+   {
+    "field": "Otolaryngology",
+    "n": 7
+   }
+  ]
+ },
+ "astra_confirm": {
+  "api": 42.2,
+  "gui": 85.1
  }
 }

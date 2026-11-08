@@ -1,17 +1,11 @@
-// Theme, BibTeX copy, the leaderboard and the finding charts. Every number comes from data/results.json (site_build_data.py).
+// Coverflow, video modal, BibTeX copy, leaderboard, findings, grader and task charts. Numbers come from data/results.json.
 const q = (s, r = document) => r.querySelector(s);
 const h = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
-const pct = (v) => (v == null ? '–' : v.toFixed(1));
-const signed = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(1);
+const fx = (v) => v.toFixed(1);
+const sgn = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(1);
 const neg = (v) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(1);
-
-// Theme toggle. Storage can be unavailable, so the page works without it.
-q('#theme').onclick = () => {
-  const root = document.documentElement;
-  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-  root.dataset.theme = dark ? 'light' : 'dark';
-  try { localStorage.setItem('theme', root.dataset.theme); } catch (e) { /* no storage */ }
-};
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const LOGO = { Anthropic: 'anthropic', Google: 'google', OpenAI: 'openai', Alibaba: 'alibaba', 'XLANG Lab': 'xlang' };
 
 document.querySelectorAll('[data-copy]').forEach((b) => {
   const label = b.textContent;
@@ -23,160 +17,188 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   };
 });
 
+// Video loads only when the modal opens.
+(() => {
+  const dlg = q('#video-modal'), v = q('#video');
+  q('#watch').onclick = () => { if (!v.src) v.src = v.dataset.src; dlg.showModal(); v.play().catch(() => {}); };
+  q('.close', dlg).onclick = () => dlg.close();
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener('close', () => v.pause());
+})();
+
+// ------------------------------------------------------------------ coverflow
+(() => {
+  const S = 'assets/demo/sr259/', C = 'assets/cover/';
+  const items = [
+    { img: S + 'gui/26072ffcd16d0fed.webp', cap: 'Our GUI, ordering amoxicillin' },
+    { img: S + 'openmrs/1c0ccbf0d226998b.webp', cap: 'OpenMRS, the same order from its catalogue' },
+    { api: true, cap: 'API, the same order as one tool call' },
+    { img: C + 'sr153_gui_step17.webp', cap: 'Our GUI, a scanned outside laboratory report' },
+    { img: C + 'sr153_gui_step72.webp', cap: 'Our GUI, reviewing an order before signing' },
+    { img: S + 'gui/e805453b35c908db.webp', cap: 'Our GUI, writing the note' },
+    { img: S + 'openmrs/b5f5b2d0614eaf6b.webp', cap: 'OpenMRS, the visit note' },
+    { img: C + 'sr153_gui_step80.webp', cap: 'Our GUI, scheduling a follow up test' },
+  ];
+  const stage = q('#cover-stage'), cap = q('#cover-cap');
+  const els = items.map((it, k) => {
+    const b = h('button', 'cv');
+    b.type = 'button'; b.setAttribute('aria-label', it.cap);
+    if (it.api) {
+      b.classList.add('api-card');
+      b.innerHTML = '<span class="api-top"><i></i><i></i><i></i>FHIR tool call</span><code><b>fhir_medication_request_create</b>(\n'
+        + '  patient_reference = "Patient/sr-259",\n  medication_display = "Amoxicillin 500 MG Oral Capsule",\n'
+        + '  dose_value = 500, dose_unit = "mg",\n  frequency_text = "Three times daily (every 8 hours)",\n  duration_value = 14, duration_unit = "d"\n)</code>'
+        + '<span class="api-res">→ MedicationRequest created, authored 2024-06-03</span>';
+    } else {
+      b.innerHTML = `<img src="${it.img}" alt="" loading="${k < 3 ? 'eager' : 'lazy'}" width="1200" height="750">`;
+    }
+    b.onclick = () => { go(k); };
+    stage.append(b);
+    return b;
+  });
+  let cur = 0, timer = null;
+  function go(k) {
+    cur = (k + items.length) % items.length;
+    els.forEach((e, j) => {
+      let o = j - cur;
+      if (o > items.length / 2) o -= items.length;
+      if (o < -items.length / 2) o += items.length;
+      const a = Math.abs(o);
+      e.style.transform = `translateX(${o * 44}%) translateZ(${-a * 140}px) rotateY(${-o * 24}deg) scale(${1 - a * 0.06})`;
+      e.style.opacity = a > 2 ? 0 : 1 - a * 0.22;
+      e.style.zIndex = 10 - a;
+      e.tabIndex = o === 0 ? 0 : -1;
+      e.classList.toggle('on', o === 0);
+    });
+    cap.textContent = items[cur].cap;
+  }
+  const play = () => { if (!reducedMotion && !timer) timer = setInterval(() => go(cur + 1), 3200); };
+  const pause = () => { clearInterval(timer); timer = null; };
+  stage.addEventListener('mouseenter', pause); stage.addEventListener('mouseleave', play);
+  stage.addEventListener('focusin', pause); stage.addEventListener('focusout', play);
+  stage.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') go(cur + 1); if (e.key === 'ArrowLeft') go(cur - 1); });
+  go(0); play();
+})();
+
 fetch('data/results.json').then((r) => r.json()).then((R) => {
   board(R.leaderboard);
   findings(R);
-}).catch(() => { q('#board tbody').innerHTML = '<tr><td colspan="7">The results could not be loaded.</td></tr>'; });
+  grader(R.grader);
+  donuts(R.tasks);
+}).catch(() => { q('#lb').textContent = 'The results could not be loaded.'; });
+
+// One bar with its 95% whisker and value. v in percent.
+const bar = (cls, v, ci, label) => {
+  const b = h('div', 'bar ' + cls);
+  b.innerHTML = `<span class="track"><i class="fill" style="width:${v}%"></i>${ci ? `<i class="ci" style="left:${ci[0]}%;width:${ci[1] - ci[0]}%"></i>` : ''}</span><span class="val">${label ?? Math.round(v) + '%'}</span>`;
+  return b;
+};
 
 // ------------------------------------------------------------------ leaderboard
 function board(rows) {
-  const st = { metric: 'p1', grader: 'orig', sort: 'best', dir: -1 };
-  const key = () => (st.grader === 'orig' ? 'p1' : 's2') + (st.metric === 'all3' ? '_all3' : '');
-  const val = (r, col) => {
-    const k = key();
-    if (col === 'api') return r.api ? r.api[k].mean : null;
-    if (col === 'gui') return r.gui[k].mean;
-    if (col === 'delta') return r.delta ? r.delta[k].mean : null;
-    if (col === 'cost') return r.cost ? (r.cost.api + r.cost.gui) / 2 : null;
-    if (col === 'model') return r.model;
-    return Math.max(r.gui[k].mean, r.api ? r.api[k].mean : -1);
-  };
-  document.querySelectorAll('.seg').forEach((g) => g.addEventListener('click', (e) => {
-    const b = e.target.closest('button'); if (!b) return;
-    st[g.dataset.key] = b.dataset.v;
-    g.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-    draw();
-  }));
-  document.querySelectorAll('#board th[data-sort]').forEach((th) => {
-    th.tabIndex = 0;
-    const go = () => { const c = th.dataset.sort; st.dir = st.sort === c ? -st.dir : c === 'model' || c === 'cost' ? 1 : -1; st.sort = c; draw(); };
-    th.onclick = go; th.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } };
-  });
-
+  let key = 'p1';
+  const box = q('#lb');
+  const best = (r) => Math.max(r.gui[key].mean, r.api ? r.api[key].mean : -1);
   function draw() {
-    const k = key();
-    const sorted = [...rows].sort((a, b) => {
-      const x = val(a, st.sort), y = val(b, st.sort);
-      if (x == null) return 1; if (y == null) return -1;
-      return (typeof x === 'string' ? x.localeCompare(y) : x - y) * st.dir;
+    box.innerHTML = '';
+    [...rows].sort((a, b) => best(b) - best(a)).forEach((r) => {
+      const row = h('div', 'lb-row');
+      row.tabIndex = 0; row.setAttribute('role', 'button'); row.setAttribute('aria-expanded', 'false');
+      row.innerHTML = `<div class="who"><img src="assets/logos/${LOGO[r.maker]}.png" alt="${r.maker}" width="22" height="22"><span>${r.model}</span>${r.open ? '<em>Open weights</em>' : ''}</div>`;
+      const bars = h('div', 'bars');
+      if (r.api) bars.append(bar('api', r.api[key].mean, r.api[key].ci, fx(r.api[key].mean)));
+      bars.append(bar('gui', r.gui[key].mean, r.gui[key].ci, fx(r.gui[key].mean)));
+      row.append(bars);
+      const d = r.delta && r.delta[key];
+      const more = (d ? `API minus GUI ${sgn(d.mean)} points (95% CI ${neg(d.ci[0])} to ${neg(d.ci[1])}).` : 'Run through the GUI only.')
+        + (r.cost ? ` Cost per episode $${r.cost.api.toFixed(2)} through the API and $${r.cost.gui.toFixed(2)} through the GUI.` : '');
+      row.append(h('p', 'more', more));
+      const toggle = () => { const open = row.classList.toggle('open'); row.setAttribute('aria-expanded', String(open)); };
+      row.onclick = toggle;
+      row.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } };
+      box.append(row);
     });
-    const best = (col) => Math.max(...rows.map((r) => val(r, col) ?? -1));
-    const bApi = best('api'), bGui = best('gui');
-    const tb = q('#board tbody'); tb.innerHTML = '';
-    sorted.forEach((r, i) => {
-      const a = val(r, 'api'), g = val(r, 'gui'), d = r.delta && r.delta[k];
-      const tr = h('tr');
-      tr.append(h('td', 'rank', String(i + 1)));
-      tr.append(h('td', 'model', `<b>${r.model}</b><small>${r.maker}${r.open ? ' <span class="badge">Open weights</span>' : ''}</small>`));
-      tr.append(h('td', 'num api' + (a === bApi ? ' best' : ''), pct(a)));
-      tr.append(h('td', 'num gui' + (g === bGui ? ' best' : ''), pct(g)));
-      const lo = a == null ? g : Math.min(a, g), hi = a == null ? g : Math.max(a, g);
-      tr.append(h('td', 'chart', `<span class="db"><i class="ln" style="left:${lo}%;width:${hi - lo}%"></i>`
-        + (a == null ? '' : `<i class="pt api" style="left:${a}%" title="API ${pct(a)}"></i>`) + `<i class="pt gui" style="left:${g}%" title="GUI ${pct(g)}"></i></span>`));
-      tr.append(h('td', 'num delta' + (d && (d.ci[0] > 0 || d.ci[1] < 0) ? ' sig' : ''),
-        d ? `${signed(d.mean)}<small>${neg(d.ci[0])} to ${neg(d.ci[1])}</small>` : '<span class="na">GUI only</span>'));
-      tr.append(h('td', 'num cost', r.cost ? `$${r.cost.api.toFixed(2)}<small>$${r.cost.gui.toFixed(2)} GUI</small>` : '–'));
-      tb.append(tr);
-    });
-    document.querySelectorAll('#board th[data-sort]').forEach((th) => th.setAttribute('aria-sort',
-      th.dataset.sort === st.sort ? (st.dir > 0 ? 'ascending' : 'descending') : 'none'));
-    q('#board-foot').textContent = (st.metric === 'p1' ? 'pass@1, the expected success of one attempt, ' : 'pass³, the share of tasks solved on all three attempts, ')
-      + 'in percent over 39 tasks under the ' + (st.grader === 'orig' ? 'original grader of PhysicianBench, the preregistered primary outcome. ' : 'revised grader. ')
-      + 'API minus GUI is the paired difference in points with its 95% interval, in green when the interval excludes zero. '
-      + 'Cost per episode is at list prices on the day of each study, API above and GUI below. Models are ranked by the better of the two interfaces.';
   }
+  document.querySelectorAll('.lb-head .seg button').forEach((b) => b.onclick = () => {
+    key = b.dataset.v;
+    document.querySelectorAll('.lb-head .seg button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    draw();
+  });
   draw();
 }
 
-// ------------------------------------------------------------------ charts
-// One horizontal bar chart in HTML so text stays readable at every width. rows: {label, sub, segs: [{v, c, t}], ci, text}
-function bars(el, rows, { legend, max = 100, label } = {}) {
-  el.setAttribute('aria-label', label || '');
-  const box = h('div', 'bars');
-  let grp = h('div', 'bgroup'); box.append(grp);
-  rows.forEach((r) => {
-    if (r.head) { if (grp.childNodes.length) { grp = h('div', 'bgroup'); box.append(grp); } grp.append(h('div', 'bhead', r.head)); return; }
-    const row = h('div', 'brow');
-    row.append(h('span', 'blab', r.label + (r.sub ? `<small>${r.sub}</small>` : '')));
-    const tr = h('span', 'btrack');
-    let x = 0;
-    r.segs.forEach((s) => {
-      const w = 100 * s.v / max;
-      const seg = h('i', 'seg-' + s.c, w >= 9 && r.segs.length > 1 ? Math.round(s.v) : '');
-      seg.style.left = x + '%'; seg.style.width = w + '%'; seg.title = s.t || '';
-      tr.append(seg); x += w;
-    });
-    if (r.ci) { const c = h('b', 'ci'); c.style.left = 100 * r.ci[0] / max + '%'; c.style.width = 100 * (r.ci[1] - r.ci[0]) / max + '%'; tr.append(c); }
-    row.append(tr, h('span', 'bval', r.text ?? ''));
-    grp.append(row);
+// ------------------------------------------------------------------ findings and grader
+function pair(el, groups) {
+  groups.forEach(([name, rows]) => {
+    const g = h('div', 'pair');
+    g.append(h('p', 'pname', name));
+    rows.forEach(([cls, lab, v, ci]) => { const b = bar(cls, v, ci); b.prepend(h('span', 'blab', lab)); g.append(b); });
+    el.append(g);
   });
-  if (legend) {
-    const lg = h('div', 'legend');
-    legend.forEach(([c, t]) => lg.append(h('span', null, `<i class="seg-${c}"></i>${t}`)));
-    el.append(lg);
-  }
-  el.append(box);
 }
-const one = (label, v, c, ci, sub) => ({ label, sub, segs: [{ v, c }], ci, text: v.toFixed(0) + '%' });
 
 function findings(R) {
   const c = R.confirmation;
-  q('#f-equiv').textContent = `On 150 held out synthetic tasks it succeeded on ${c.sonnet.api.toFixed(0)}% of attempts through the API and ${c.sonnet.gui.toFixed(0)}% through the GUI. `
-    + `The difference of ${c.sonnet.gui_minus_api.toFixed(0)} points (90% CI ${c.sonnet.ci90[0]} to ${c.sonnet.ci90[1]}) lies inside the preregistered margin of 10 points. `
-    + `Gemini 3.5 Flash-Lite fell from ${c.flashlite.api.toFixed(0)}% to ${c.flashlite.gui.toFixed(0)}% through the GUI.`;
-  bars(q('#c-equiv'), [
-    { head: 'Claude Sonnet 5.5' }, one('API', c.sonnet.api, 'api'), one('GUI', c.sonnet.gui, 'gui'),
-    { head: 'Gemini 3.5 Flash-Lite' }, one('API', c.flashlite.api, 'api'), one('GUI', c.flashlite.gui, 'gui'),
-  ], { label: 'Success on the confirmation set through each interface' });
-
-  const m = R.memory;
-  bars(q('#c-memory'), [
-    one('GUI', m['S-GUI-last3'].mean, 'gui', m['S-GUI-last3'].ci, 'last 3 screenshots'),
-    one('GUI', m['S-GUI-last3-notes'].mean, 'gui', m['S-GUI-last3-notes'].ci, 'last 3 screenshots and notes'),
-    one('GUI', m['S-GUI-full'].mean, 'gui', m['S-GUI-full'].ci, 'full history'),
-    one('API', m['S-FHIR-full'].mean, 'api', m['S-FHIR-full'].ci, 'full history'),
-  ], { label: 'Success of Claude Sonnet 5.5 on the consultation tasks under each memory setting, with 95% intervals' });
-
-  const om = [];
-  R.openmrs.forEach((r) => {
-    om.push({ head: r.model });
-    om.push(one('API', r.api.mean, 'api', r.api.ci), one('Our GUI', r.our_gui.mean, 'gui', r.our_gui.ci), one('OpenMRS', r.gui_b_v2.mean, 'openmrs', r.gui_b_v2.ci));
-  });
-  bars(q('#c-openmrs'), om, { legend: [['api', 'API'], ['gui', 'Our GUI'], ['openmrs', 'OpenMRS']], label: 'Success on the first attempt at 106 held out tasks through the API, our GUI and OpenMRS, with 95% intervals' });
-  q('#c-openmrs').classList.add('cols');
-
-  const fm = [];
-  ['Claude Opus 5.5', 'Claude Sonnet 5.5', 'Gemini 4 Argon', 'GPT-6.1 Sol', 'GPT-6 Luna', 'Gemini 3.5 Flash-Lite'].forEach((name) => {
-    fm.push({ head: name });
-    ['API', 'GUI'].forEach((ui) => {
-      const f = R.failures[`${name}, ${ui}`];
-      fm.push({ label: ui, segs: [{ v: f.p1, c: 'ok', t: 'Success' }, { v: f.missing, c: 'signed', t: 'Signed, incomplete or wrong' },
-        { v: f.uncommitted, c: 'draft', t: 'Drafted, not signed' }, { v: f.none, c: 'none', t: 'No order' }] });
-    });
-  });
-  bars(q('#c-fail'), fm, { legend: [['ok', 'Success'], ['signed', 'Signed, incomplete or wrong'], ['draft', 'Drafted, not signed'], ['none', 'No order']],
-    label: 'How every episode ended on the consultation tasks, by model and interface, in percent of 117 episodes' });
-  q('#c-fail').classList.add('cols');
-
-  const rl = [], ct = R.reliability.consultation_tasks;
-  ['Claude Opus 5.5', 'Claude Sonnet 5.5', 'Gemini 4 Argon', 'Gemini 3.5 Flash-Lite'].forEach((name) => {
-    rl.push({ head: name });
-    ['API', 'GUI'].forEach((ui) => {
-      const v = ct[`${name}, ${ui}`], n = v.tasks;
-      rl.push({ label: ui, segs: [{ v: 100 * v['3'] / n, c: 'ok', t: 'All three attempts' }, { v: 100 * v['12'] / n, c: 'signed', t: 'One or two' },
-        { v: 100 * v['0'] / n, c: 'none', t: 'None' }] });
-    });
-  });
-  bars(q('#c-rel'), rl, { legend: [['ok', 'Solved on all three attempts'], ['signed', 'On one or two'], ['none', 'On none']],
-    label: 'Share of the 39 consultation tasks solved on all three attempts, on one or two, or on none' });
-  q('#c-rel').classList.add('cols');
-
-  const gr = [];
-  R.grader.forEach((g) => {
-    gr.push({ head: g.label });
-    gr.push({ label: 'Original', segs: [{ v: 100 * g.original[0] / g.original[1], c: 'orig' }], text: `${g.original[0]}/${g.original[1]}` });
-    gr.push({ label: 'Revised', segs: [{ v: 100 * g.revised[0] / g.revised[1], c: 'rev' }], text: `${g.revised[0]}/${g.revised[1]}` });
-  });
-  bars(q('#c-grader'), gr, { label: 'Error rates of the original and the revised grader on scripted controls without a model' });
+  pair(q('#c-equiv'), [['Claude Sonnet 5.5', [['api', 'API', c.sonnet.api], ['gui', 'GUI', c.sonnet.gui]]],
+    ['Gemini 3.5 Flash-Lite', [['api', 'API', c.flashlite.api], ['gui', 'GUI', c.flashlite.gui]]]]);
+  pair(q('#c-openmrs'), R.openmrs.slice(0, 3).map((r) => [r.model, [['gui', 'Our GUI', r.our_gui.mean, r.our_gui.ci], ['openmrs', 'OpenMRS', r.gui_b_v2.mean, r.gui_b_v2.ci]]]));
+  q('#astra-api').textContent = Math.round(R.astra_confirm.api) + '%';
+  q('#astra-gui').textContent = Math.round(R.astra_confirm.gui) + '%';
 }
 
+function grader(rows) {
+  const el = q('#c-grader');
+  el.innerHTML = '<p class="key"><i class="sw orig"></i>Benchmark\'s own checks <i class="sw rev"></i>Our revised checks</p>';
+  const label = { 'Equivalent order rejected': 'Equivalent orders rejected', 'Tenfold dose accepted': 'Tenfold doses accepted',
+    'Script ordering everything passed': 'A script ordering everything passed', 'Same 15 tests on every task passed': 'The same 15 tests on every task passed' };
+  rows.filter((r) => label[r.label]).forEach((r) => {
+    const g = h('div', 'pair');
+    g.append(h('p', 'pname', label[r.label]));
+    g.append(bar('orig', 100 * r.original[0] / r.original[1], null, `${r.original[0]} of ${r.original[1]}`));
+    g.append(bar('rev', 100 * r.revised[0] / r.revised[1], null, `${r.revised[0]} of ${r.revised[1]}`));
+    el.append(g);
+  });
+}
+
+// ------------------------------------------------------------------ task donuts
+const ICON = {
+  official: '<path d="M6 3v6a4 4 0 0 0 8 0V3"/><path d="M10 13v3a4 4 0 0 0 8 0v-2"/><circle cx="18" cy="12" r="2"/>',
+  standard: '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/>',
+  hard: '<path d="M3 20l6-10 4 6 3-4 5 8z"/>',
+  expert: '<circle cx="9" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M4 20c0-3 2.5-5 5-5s5 2 5 5M11 20c0-3 2.5-5 5-5s5 2 5 5"/>',
+  workflow: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',
+  confirm: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+};
+const SETS = { official: ['Consultations', 'Real specialist consultations on deidentified records'], standard: ['Standard', 'Synthetic patients, task types of the consultations'],
+  hard: ['Hard', 'A decisive fact hidden, corrected or computed'], expert: ['Expert twins', 'Pairs that differ in one fact a specialist rule turns into different orders'],
+  workflow: ['Workflow', 'Long visits with several problems and orders'], confirm: ['Held out', 'Written after all other studies and used only to confirm them'] };
+
+function donuts(T) {
+  const setColors = ['#1a73e8', '#188038', '#34a853', '#81c995', '#f9ab00', '#9aa0a6'];
+  donut(q('#d-sets'), 'By source', T.sets.map((s, k) => ({ n: s.n, label: SETS[s.key][0], detail: SETS[s.key][1], color: setColors[k], icon: ICON[s.key] })));
+  const blues = T.fields.map((_, k) => `hsl(217 ${80 - k * 3}% ${38 + k * 4.4}%)`);
+  donut(q('#d-fields'), 'By field', T.fields.map((f, k) => ({ n: f.n, label: f.field, color: blues[k] })));
+}
+
+function donut(fig, title, segs) {
+  const total = segs.reduce((s, x) => s + x.n, 0);
+  let off = 0;
+  const arcs = segs.map((s, k) => {
+    const a = `<circle class="arc" data-k="${k}" cx="100" cy="100" r="78" pathLength="${total}" stroke="${s.color}" stroke-dasharray="${s.n - 0.6} ${total - s.n + 0.6}" stroke-dashoffset="${-off}" tabindex="0" aria-label="${s.label}, ${s.n} tasks"/>`;
+    off += s.n; return a;
+  }).join('');
+  fig.innerHTML = `<div class="donut"><svg viewBox="0 0 200 200" role="img" aria-label="${title}">${arcs}</svg>`
+    + `<div class="center"><b>${total}</b><span>${title}</span></div></div>`
+    + `<ul class="legend">${segs.map((s, k) => `<li data-k="${k}" tabindex="-1">${s.icon ? `<svg class="ic" viewBox="0 0 24 24" style="color:${s.color}">${s.icon}</svg>` : `<i style="background:${s.color}"></i>`}<span>${s.label}</span><b>${s.n}</b></li>`).join('')}</ul>`;
+  const center = q('.center', fig);
+  const set = (k) => {
+    fig.querySelectorAll('.arc').forEach((a) => a.classList.toggle('dim', k != null && +a.dataset.k !== k));
+    fig.querySelectorAll('.legend li').forEach((l) => l.classList.toggle('on', +l.dataset.k === k));
+    center.innerHTML = k == null ? `<b>${total}</b><span>${title}</span>` : `<b>${segs[k].n}</b><span>${segs[k].label}</span>${segs[k].detail ? `<small>${segs[k].detail}</small>` : ''}`;
+  };
+  fig.querySelectorAll('.arc, .legend li').forEach((e) => {
+    const k = +e.dataset.k;
+    e.addEventListener('mouseenter', () => set(k)); e.addEventListener('focus', () => set(k)); e.addEventListener('click', () => set(k));
+  });
+  fig.addEventListener('mouseleave', () => set(null));
+}

@@ -7,7 +7,7 @@
 <meta name="description" content="Health-CUA gives an AI agent the same clinical task on the same patient record through the EHR's API or through the screens that clinicians use, and grades the orders and notes it leaves in the record.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Health-CUA: Evaluating Clinical Computer Using Agents in Electronic Health Records">
-<meta property="og:description" content="355 clinical tasks, 17 models, two interfaces on one record and a second EHR. Leaderboard, episode replays and grader controls.">
+<meta property="og:description" content="355 clinical tasks, 17 models, the API and the screen on one record, and a second EHR.">
 <meta property="og:url" content="https://ybkim95.github.io/health-cua/">
 <meta property="og:image" content="https://ybkim95.github.io/health-cua/assets/brand/og-card.png">
 <meta property="og:image:width" content="1200">
@@ -16,7 +16,8 @@
 <meta name="twitter:title" content="Health-CUA">
 <meta name="twitter:description" content="Can AI agents do clinical work through the screens that clinicians use? 355 tasks, 17 models, API and GUI on one record.">
 <meta name="twitter:image" content="https://ybkim95.github.io/health-cua/assets/brand/og-card.png">
-<meta name="theme-color" content="#fbfaf7">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131314" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="https://ybkim95.github.io/health-cua/">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
@@ -25,78 +26,44 @@
 <link rel="manifest" href="site.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script>try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
-if (document.visibilityState === 'visible') document.documentElement.classList.add('anim'); // entrance animation only for a visible page, never stuck hidden</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
   <a class="brand" href="#"><img src="assets/brand/logo-96.png" alt="" width="28" height="28">Health-CUA</a>
   <nav aria-label="Sections">
-    <a href="#demo">Replay</a>
+    <a href="#replay">Replay</a>
     <a href="#leaderboard">Leaderboard</a>
     <a href="#findings">Findings</a>
     <a href="#grader">Grader</a>
     <a href="#tasks">Tasks</a>
     <a href="#cite">Cite</a>
   </nav>
-  <button id="theme" class="icon-btn" type="button" aria-label="Switch between light and dark mode"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 0 0 14z" fill="currentColor"/></svg></button>
 </header>
 
 <main id="main">
 <section class="hero">
-  <picture class="hero-logo"><source srcset="assets/brand/logo-512.webp" type="image/webp"><img src="assets/brand/logo-192.png" alt="Health-CUA logo, a cursor clicking" width="132" height="132"></picture>
-  <p class="eyebrow">Clinical computer using agents</p>
+  <img class="hero-logo" src="assets/brand/logo-192.png" srcset="assets/brand/logo-512.webp 2x" alt="Health-CUA logo, a cursor clicking" width="112" height="112">
   <h1>Health-CUA</h1>
-  <p class="subtitle">Evaluating Clinical Computer Using Agents in Electronic Health Records</p>
   <!-- placeholder: author list and affiliations -->
-  <p class="pitch">An AI agent gets the same clinical task on the same patient record, once through the EHR's API and once through the screens that clinicians use. A grader reads the orders and the note it leaves in the record.</p>
+  <p class="subtitle">AI agents doing clinical work in the EHR, through its API and through its screens</p>
   <div class="buttons">
-    <a class="btn primary" aria-disabled="true" title="The preprint link appears here once it is posted">Paper <small>soon</small></a>
-    <a class="btn" aria-disabled="true" title="The code is released with the paper"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0a8 8 0 0 0-2.5 15.6c.4 0 .5-.2.5-.4v-1.5c-2.2.5-2.7-1-2.7-1-.4-.9-.9-1.2-.9-1.2-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.3 1.9.9 2.4.7 0-.5.3-.9.5-1.1-1.8-.2-3.6-.9-3.6-4 0-.9.3-1.6.8-2.1-.1-.2-.4-1 .1-2.1 0 0 .7-.2 2.2.8a7.5 7.5 0 0 1 4 0c1.5-1 2.2-.8 2.2-.8.4 1.1.2 1.9.1 2.1.5.6.8 1.3.8 2.1 0 3.1-1.9 3.8-3.6 4 .3.3.6.8.6 1.5v2.2c0 .2.1.5.6.4A8 8 0 0 0 8 0z"/></svg>Code <small>soon</small></a>
+    <a class="btn" href="https://github.com/ybkim95/health-cua"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0a8 8 0 0 0-2.5 15.6c.4 0 .5-.2.5-.4v-1.5c-2.2.5-2.7-1-2.7-1-.4-.9-.9-1.2-.9-1.2-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.3 1.9.9 2.4.7 0-.5.3-.9.5-1.1-1.8-.2-3.6-.9-3.6-4 0-.9.3-1.6.8-2.1-.1-.2-.4-1 .1-2.1 0 0 .7-.2 2.2.8a7.5 7.5 0 0 1 4 0c1.5-1 2.2-.8 2.2-.8.4 1.1.2 1.9.1 2.1.5.6.8 1.3.8 2.1 0 3.1-1.9 3.8-3.6 4 .3.3.6.8.6 1.5v2.2c0 .2.1.5.6.4A8 8 0 0 0 8 0z"/></svg>Code</a>
+    <button class="btn primary" type="button" id="watch"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>Watch 1-min overview</button>
     <a class="btn" href="#leaderboard">Leaderboard</a>
-    <button class="btn" type="button" data-copy="bibtex">Copy BibTeX</button>
   </div>
-  <ul class="stats" aria-label="The benchmark in numbers">
-    <li><b>355</b><span>clinical tasks</span></li>
-    <li><b>17</b><span>models</span></li>
-    <li><b>2</b><span>interfaces on one record</span></li>
-    <li><b>2</b><span>EHRs</span></li>
-    <li><b>3</b><span>attempts per task</span></li>
-  </ul>
-  <p class="news"><time datetime="2026-11-07">7 Nov 2026</time> Leaderboard with 15 models on the consultation tasks, including GPT-6 Astra</p>
-</section>
-
-<section id="idea" class="band">
-  <div class="idea">
-    <div>
-      <p class="kicker">The idea</p>
-  <h2>One task, one record, two ways in</h2>
-      <p class="lead">Hospitals offer an agent two standard ways into the electronic health record. It can call the FHIR API, which reads the record as text and places an order with one call. Or it can operate the graphical user interface from screenshots with mouse and keyboard, which needs no vendor's API and works wherever a clinician can work.</p>
-      <p class="lead">Health-CUA puts both on one FHIR server. The agent sees the same chart, one rule decides for both interfaces when an order or a note counts as entered, and one grader reads the final record.</p>
-    </div>
-    <figure class="plate">
-      <img src="assets/fig/overview.png" alt="An agent receives a referral in the clinical inbox and completes it on the same record through the EHR screens or through FHIR tool calls. The grader checks the final record." width="1575" height="578" loading="lazy">
-    </figure>
+  <div class="cover" id="cover" aria-roledescription="carousel" aria-label="Screens from synthetic tasks">
+    <div class="cover-stage" id="cover-stage"></div>
+    <p class="cover-cap" id="cover-cap" aria-live="polite"></p>
   </div>
 </section>
 
-<section id="demo">
-  <p class="kicker">Replay</p>
-  <h2>Watch one task three ways</h2>
-  <p class="lead">Claude Sonnet 5.5 solves the same synthetic task through the API, through our GUI and through OpenMRS, an open source EHR that we did not design. Step through the episodes in sync, or press play.</p>
-  <div class="task">
-    <div>
-      <p class="label">The request</p>
-      <blockquote><b>Expanding rash after tick bite.</b> Expanding red patch at the site of a tick bite from 9 days ago, with fatigue and headache, in a patient taking isotretinoin for acne. Seen today, please complete the assessment and treatment plan.</blockquote>
-    </div>
-    <div>
-      <p class="label">Why it is not routine</p>
-      <p>Doxycycline is the usual first choice for early Lyme disease, but together with isotretinoin it can raise intracranial pressure. A safe plan uses another antibiotic, such as amoxicillin, and the note has to say why.</p>
-    </div>
-  </div>
+<section id="replay">
+  <h2>One task, three ways in</h2>
+  <p class="lead">Claude Sonnet 5.5 treats early Lyme disease in a patient on isotretinoin through the API, our EHR screens and OpenMRS.</p>
+  <p class="request"><b>The request</b> Expanding red patch at the site of a tick bite from 9 days ago, in a patient taking isotretinoin for acne. Please complete the assessment and treatment plan.</p>
 
   <div class="viewer" id="viewer" tabindex="0" aria-label="Episode viewer. Use the left and right arrow keys to step through the episode.">
     <div class="pane api">
@@ -128,138 +95,68 @@ if (document.visibilityState === 'visible') document.documentElement.classList.a
       </div>
     </div>
   </div>
-
-  <div class="outcome">
-    <h3>The final record</h3>
-    <div class="outcome-grid" id="outcome-grid"></div>
-  </div>
+  <div class="outcome" id="outcome-grid"></div>
 </section>
 
 <section id="leaderboard" class="band">
-  <p class="kicker">Results</p>
   <h2>Leaderboard</h2>
-  <p class="lead">Success on the 39 consultation tasks, adapted from real consultations between primary care physicians and specialists. Each model ran three attempts per task through each interface on the same records.</p>
-  <div class="toolbar" role="group" aria-label="Leaderboard options">
-    <div class="seg" data-key="metric">
-      <button type="button" data-v="p1" aria-pressed="true">pass@1</button>
-      <button type="button" data-v="all3" aria-pressed="false">pass<sup>3</sup></button>
+  <p class="lead">Fifteen models on 39 real specialist consultations, each task attempted three times through each interface.</p>
+  <div class="lb-head">
+    <div class="seg" role="group" aria-label="Measure">
+      <button type="button" data-v="p1" aria-pressed="true">Success rate</button>
+      <button type="button" data-v="p1_all3" aria-pressed="false">Solved on all 3 attempts</button>
     </div>
-    <div class="seg" data-key="grader">
-      <button type="button" data-v="orig" aria-pressed="true">Original grader</button>
-      <button type="button" data-v="rev" aria-pressed="false">Revised grader</button>
-    </div>
+    <span class="key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</span>
   </div>
-  <div class="table-wrap">
-    <table class="board" id="board">
-      <thead><tr>
-        <th scope="col" class="rank">#</th>
-        <th scope="col" data-sort="model">Model</th>
-        <th scope="col" data-sort="api" class="num">API</th>
-        <th scope="col" data-sort="gui" class="num">GUI</th>
-        <th scope="col" class="chart"><span class="axis"><i>0</i><i>50</i><i>100</i></span></th>
-        <th scope="col" data-sort="delta" class="num">API minus GUI</th>
-        <th scope="col" data-sort="cost" class="num cost">Cost per episode</th>
-      </tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-  <p class="foot" id="board-foot"></p>
+  <div class="lb" id="lb"></div>
+  <p class="caption">Percent of tasks with 95% intervals, graded by the benchmark's preregistered checks. Select a model for details.</p>
 </section>
 
 <section id="findings">
-  <p class="kicker">Findings</p>
   <h2>What we found</h2>
   <div class="cards">
     <article class="card">
-      <p class="kicker">Equivalence on held out tasks</p>
-      <h3>Claude Sonnet 5.5 is equivalent across the two interfaces</h3>
-      <p id="f-equiv"></p>
-      <div class="chart" id="c-equiv" role="img"></div>
+      <h3>Frontier models do about as well on screen as through the API</h3>
+      <div class="viz" id="c-equiv"></div>
+      <p>On 150 held out tasks Claude Sonnet 5.5 is equivalent within 10 points, while smaller models fall behind.</p>
     </article>
     <article class="card">
-      <p class="kicker">Memory</p>
-      <h3>How much the agent remembers decides GUI success</h3>
-      <p>With only its last three screenshots, the default of Anthropic's reference computer use agent, Claude Sonnet 5.5 runs out of actions in every GUI episode. With its full history it succeeds on 69% of tasks, within 3 points of its API agent. Working notes that the agent rewrites in each action raise it only to 9%.</p>
-      <div class="chart" id="c-memory" role="img"></div>
+      <h3>Memory decides whether a screen agent succeeds</h3>
+      <div class="big"><span>1%</span><i>→</i><span>69%</span></div>
+      <p>Claude Sonnet 5.5 through the GUI with its last three screenshots, and with its full history.</p>
     </article>
-    <article class="card wide">
-      <p class="kicker">A second EHR</p>
-      <h3>Agents complete fewer tasks in OpenMRS</h3>
-      <p>On the 106 held out tasks that OpenMRS can grade, the frontier models lost 15 to 19 points against our GUI. The same work took more actions, and every order had to be found in a catalogue of about 8,900 drugs and 2,900 tests, imaging studies, procedures and referrals.</p>
-      <div class="chart" id="c-openmrs" role="img"></div>
+    <article class="card">
+      <h3>A second EHR costs 15 to 19 points</h3>
+      <div class="viz" id="c-openmrs"></div>
+      <p>The same held out tasks in OpenMRS, an open source EHR that we did not design.</p>
     </article>
-    <article class="card wide">
-      <p class="kicker">Failure modes</p>
-      <h3>The interface shapes which mistakes an agent makes</h3>
-      <p>The frontier models fail mostly by signing orders that miss a required one, through either interface. Smaller models more often place no order at all, and each of them does so more often through the GUI.</p>
-      <div class="chart" id="c-fail" role="img"></div>
-    </article>
-    <article class="card wide">
-      <p class="kicker">Reliability</p>
-      <h3>Agents fail the same tasks again</h3>
-      <p>Share of the consultation tasks solved on all three attempts, on one or two, or on none. Failures concentrate on particular tasks. Through the GUI, Claude Sonnet 5.5 solved 23 of the 39 tasks on every attempt and 8 on none.</p>
-      <div class="chart" id="c-rel" role="img"></div>
+    <article class="card">
+      <h3>The screen prevents some mistakes and causes others</h3>
+      <div class="big"><span id="astra-api"></span><i>→</i><span id="astra-gui"></span></div>
+      <p>GPT-6 Astra on 30 held out tasks, API then GUI, whose forms block its extra orders and misaddressed replies.</p>
     </article>
   </div>
 </section>
 
 <section id="grader" class="band">
-  <div class="split">
-    <div>
-      <p class="kicker">Grading</p>
-  <h2>Can you trust the grader?</h2>
-      <p class="lead">Before analysing any model, we ran scripted controls through the same harness and grader. The original grader of the consultation tasks rejected about half of the clinically equivalent orders and passed a script that ordered all 77 tests and referrals of any answer key without reading the chart.</p>
-      <p class="lead">The revised grader accepts every alternative consistent with current guidelines, with a dose range for each medication, and fails an episode with an order that is wrong for the patient or with too many extra orders. A judge from another model family agreed with it on 95% of 130 control orders.</p>
-    </div>
-    <div class="chart" id="c-grader" role="img"></div>
-  </div>
+  <h2>Testing the grader</h2>
+  <p class="lead">Scripted orders showed that the benchmark's own checks rejected half of the equivalent orders and passed a script that ordered everything, so we revised them.</p>
+  <div class="viz grader" id="c-grader"></div>
 </section>
 
 <section id="tasks">
-  <p class="kicker">Benchmark</p>
-  <h2>The tasks</h2>
-  <p class="lead">Each task starts as a request in the clinician's inbox. The agent must find the right item among requests about other patients, read the chart, order medications with dose and frequency, order tests and referrals, write and sign a note and close the item.</p>
-  <div class="sets">
-    <div class="set"><b>39</b><h3>Consultation tasks</h3><p>Real consultations between primary care physicians and specialists from PhysicianBench, run on deidentified records.</p></div>
-    <div class="set"><b>166</b><h3>Synthetic tasks</h3><p>Synthetic patients and charts that anyone can inspect, in four tiers.</p>
-      <ul class="tiers"><li><span>94</span>standard</li><li><span>38</span>hard</li><li><span>14</span>expert twins</li><li><span>20</span>workflow</li></ul></div>
-    <div class="set"><b>150</b><h3>Confirmation set</h3><p>Held out tasks written after all other studies, frozen by hash and used only to test preregistered claims.</p></div>
-    <div class="set"><b>106</b><h3>OpenMRS tasks</h3><p>Confirmation tasks whose required orders all have an intended item in the OpenMRS catalogue.</p></div>
+  <h2>355 tasks</h2>
+  <p class="lead">Real consultations and synthetic patients across 13 fields of medicine, with 150 tasks held out to confirm the results.</p>
+  <div class="donuts">
+    <figure class="donut-card" id="d-sets"></figure>
+    <figure class="donut-card" id="d-fields"></figure>
   </div>
-  <dl class="tierdefs">
-    <dt>Hard</dt><dd>A decisive fact hides in an older note, a value is corrected later, a calculation is needed or several problems combine.</dd>
-    <dt>Expert twins</dt><dd>Two tasks share a patient but differ in one fact that a specialist dosing rule turns into different orders.</dd>
-    <dt>Workflow</dt><dd>Long visits with two or three problems, at least four orders and a test to schedule within a window of days.</dd>
-  </dl>
-  <p class="meta">The tasks cover 17 specialties. In eight tasks the correct answer is to place no order.</p>
-</section>
-
-<section id="release" class="band">
-  <p class="kicker">Release</p>
-  <h2>What we release with the paper</h2>
-  <ul class="release">
-    <li><b>The environment</b><span>The FHIR server snapshot, the GUI, the API tools and the harness that runs both, with one action function for every model.</span></li>
-    <li><b>Synthetic tasks</b><span>The 166 synthetic tasks and the 150 held out tasks, on synthetic patients, under CC BY 4.0.</span></li>
-    <li><b>Graders and controls</b><span>The grading specifications and the scripts that enter correct, missing, equivalent and excessive orders.</span></li>
-    <li><b>Results</b><span>Aggregate results for every figure and table, with the analysis code.</span></li>
-  </ul>
-  <p class="meta">The consultation tasks run on PhysicianBench records, which are available from their authors under their terms.</p>
-</section>
-
-<section id="faq">
-  <p class="kicker">Questions</p>
-  <h2>Common questions</h2>
-  <details><summary>Why compare an API agent with a GUI agent?</summary><p>The FHIR API that certified EHRs offer reads the record but need not support placing orders, and access differs between vendors. A GUI agent could work in any EHR that a clinician can use. Running both on one record with one grader shows what the interface itself costs.</p></details>
-  <details><summary>What counts as success?</summary><p>An episode succeeds when every required check on the final record passes and no harm event occurs, such as an order for another patient, a duplicate order or a claim of completion while work is unsigned. The grader reads the record, not the agent's messages.</p></details>
-  <details><summary>What do pass@1 and pass<sup>3</sup> mean?</summary><p>pass@1 is the expected success of one attempt. pass<sup>3</sup> is the share of tasks solved on all three attempts, which shows whether an agent can be relied on to finish a task it has solved before.</p></details>
-  <details><summary>Are the patients real?</summary><p>Every patient shown on this page is synthetic. The consultation tasks use deidentified records that stay on our servers, and only aggregate results leave them.</p></details>
 </section>
 
 <section id="cite" class="band">
-  <p class="kicker">Cite</p>
-  <h2>Citation</h2>
+  <h2>Cite</h2>
   <div class="bib">
-    <button class="btn small" type="button" data-copy="bibtex">Copy</button>
+    <button class="btn small" type="button" data-copy="bibtex">Copy BibTeX</button>
 <pre id="bibtex">@article{kim2026healthcua,
   title   = {Health-CUA: Evaluating Clinical Computer Using Agents
              in Electronic Health Records},
@@ -268,11 +165,16 @@ if (document.visibilityState === 'visible') document.documentElement.classList.a
   year    = {2026}
 }</pre>
   </div>
-  <p class="meta">Last updated <time datetime="2026-11-07">7 November 2026</time></p>
 </section>
 </main>
 
-<footer><span class="fbrand"><img src="assets/brand/logo-96.png" alt="" width="20" height="20">Health-CUA</span><span>Every patient on this page is synthetic.</span><a href="#">Back to top</a></footer>
+<footer><span class="fbrand"><img src="assets/brand/logo-96.png" alt="" width="20" height="20">Health-CUA</span><span>Every patient shown here is synthetic.</span></footer>
+
+<dialog id="video-modal" aria-label="One minute overview">
+  <button class="close" type="button" aria-label="Close">×</button>
+  <video id="video" controls playsinline preload="none" poster="assets/video/overview-poster.jpg" data-src="assets/video/overview.mp4" width="1920" height="1080"></video>
+</dialog>
+
 <script src="viewer.js" defer></script>
 <script src="app.js" defer></script>
 </body>

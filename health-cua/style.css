@@ -272,3 +272,10 @@ dialog video { display: block; width: 100%; height: auto; border-radius: 16px; }
 .legend li span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 600px) { .donut-card { grid-template-columns: minmax(0, 1fr); } .donut-card .donut { width: 220px; height: 220px; } }
 @media (max-width: 600px) { .bib .btn { position: static; margin-bottom: 10px; } }
+
+/* donut tooltip */
+.donut-card { position: relative; }
+.tip { position: absolute; z-index: 5; max-width: 220px; padding: 6px 10px; border-radius: 8px; background: var(--ink); color: var(--bg); font-size: .78rem; line-height: 1.35; box-shadow: var(--shadow); pointer-events: none; }
+.tip[hidden] { display: none; }
+.center span { font-size: .9rem; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+footer { justify-content: center; }

@@ -181,36 +181,53 @@ const ICON = {
   workflow: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',
   confirm: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
 };
-const SETS = { official: ['Consultations', 'Real specialist consultations on deidentified records'], standard: ['Standard', 'Synthetic patients, same kinds of task as the consultations'],
-  hard: ['Hard', 'A key fact is hidden, corrected later or needs a calculation'], expert: ['Expert twins', 'Pairs that differ in one fact that changes the right orders'],
-  workflow: ['Workflow', 'Long visits with several problems and orders'], confirm: ['Held out', 'Written last and used only to confirm the results'] };
+const SETS = { official: ['Consultations', 'Real specialist consultations on deidentified records'], standard: ['Standard', 'Synthetic patients, same kinds of task'],
+  hard: ['Hard', 'Hidden facts, late corrections or calculations'], expert: ['Expert twins', 'Twin cases that differ in one decisive fact'],
+  workflow: ['Workflow', 'Long visits with several problems and orders'], confirm: ['Held out', 'Written last, used only to confirm results'] };
 
 function donuts(T) {
   const setColors = ['#1a73e8', '#188038', '#34a853', '#81c995', '#f9ab00', '#9aa0a6'];
   donut(q('#d-sets'), 'By source', T.sets.map((s, k) => ({ n: s.n, label: SETS[s.key][0], detail: SETS[s.key][1], color: setColors[k], icon: ICON[s.key] })));
   const blues = T.fields.map((_, k) => `hsl(217 ${80 - k * 3}% ${38 + k * 4.4}%)`);
-  donut(q('#d-fields'), 'By field', T.fields.map((f, k) => ({ n: f.n, label: f.field, color: blues[k] })));
+  donut(q('#d-fields'), 'By field', T.fields.map((f, k) => {
+    const long = f.field.split(' ').length > 3;  // the centre holds at most three words
+    return { n: f.n, label: f.field, short: long ? f.field.split(',')[0] : null, color: blues[k],
+      detail: `${long ? f.field + ', ' : ''}${Math.round(100 * f.n / 355)}% of all tasks` };
+  }));
 }
 
 function donut(fig, title, segs) {
   const total = segs.reduce((s, x) => s + x.n, 0);
   let off = 0;
   const arcs = segs.map((s, k) => {
+    s.mid = (off + s.n / 2) / total;  // midpoint of the arc, as a fraction of the ring from 12 o'clock
     const a = `<circle class="arc" data-k="${k}" cx="100" cy="100" r="78" pathLength="${total}" stroke="${s.color}" stroke-dasharray="${s.n - 0.6} ${total - s.n + 0.6}" stroke-dashoffset="${-off}" tabindex="0" aria-label="${s.label}, ${s.n} tasks"/>`;
     off += s.n; return a;
   }).join('');
   fig.innerHTML = `<div class="donut"><svg viewBox="0 0 200 200" role="img" aria-label="${title}">${arcs}</svg>`
     + `<div class="center"><b>${total}</b><span>${title}</span></div></div>`
-    + `<ul class="legend">${segs.map((s, k) => `<li data-k="${k}" tabindex="-1">${s.icon ? `<svg class="ic" viewBox="0 0 24 24" style="color:${s.color}">${s.icon}</svg>` : `<i style="background:${s.color}"></i>`}<span>${s.label}</span><b>${s.n}</b></li>`).join('')}</ul>`;
-  const center = q('.center', fig);
-  const set = (k) => {
+    + `<ul class="legend">${segs.map((s, k) => `<li data-k="${k}" tabindex="-1">${s.icon ? `<svg class="ic" viewBox="0 0 24 24" style="color:${s.color}">${s.icon}</svg>` : `<i style="background:${s.color}"></i>`}<span>${s.label}</span><b>${s.n}</b></li>`).join('')}</ul>`
+    + '<div class="tip" role="tooltip" hidden></div>';
+  const center = q('.center', fig), tip = q('.tip', fig);
+  const set = (k, from) => {
     fig.querySelectorAll('.arc').forEach((a) => a.classList.toggle('dim', k != null && +a.dataset.k !== k));
     fig.querySelectorAll('.legend li').forEach((l) => l.classList.toggle('on', +l.dataset.k === k));
-    center.innerHTML = k == null ? `<b>${total}</b><span>${title}</span>` : `<b>${segs[k].n}</b><span>${segs[k].label}</span>${segs[k].detail ? `<small>${segs[k].detail}</small>` : ''}`;
+    if (k == null) { center.innerHTML = `<b>${total}</b><span>${title}</span>`; tip.hidden = true; return; }
+    const s = segs[k];
+    center.innerHTML = `<b>${s.n}</b><span>${s.short || s.label}</span>`;
+    tip.textContent = s.detail; tip.hidden = false;
+    // place the card next to the legend row, or just outside the ring at the arc's midpoint
+    const box = fig.getBoundingClientRect();
+    let x, y;
+    if (from && from.tagName === 'LI') { const r = from.getBoundingClientRect(); x = r.left - box.left; y = r.top - box.top - tip.offsetHeight - 6; }
+    else { const d = q('.donut', fig).getBoundingClientRect(), a = 2 * Math.PI * s.mid, R = d.width / 2 + 6;
+      x = d.left - box.left + d.width / 2 + Math.sin(a) * R; y = d.top - box.top + d.height / 2 - Math.cos(a) * R - tip.offsetHeight / 2; }
+    tip.style.left = Math.max(8, Math.min(box.width - tip.offsetWidth - 8, x)) + 'px';
+    tip.style.top = Math.max(8, y) + 'px';
   };
   fig.querySelectorAll('.arc, .legend li').forEach((e) => {
     const k = +e.dataset.k;
-    e.addEventListener('mouseenter', () => set(k)); e.addEventListener('focus', () => set(k)); e.addEventListener('click', () => set(k));
+    e.addEventListener('mouseenter', () => set(k, e)); e.addEventListener('focus', () => set(k, e)); e.addEventListener('click', () => set(k, e));
   });
   fig.addEventListener('mouseleave', () => set(null));
 }

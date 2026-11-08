@@ -163,11 +163,10 @@ input[type=range] { flex: 1; accent-color: var(--blue); min-width: 80px; }
 .more { grid-column: 1 / -1; margin: 0; max-height: 0; overflow: hidden; color: var(--ink2); font-size: .88rem; transition: max-height .3s, margin .3s; }
 .lb-row.open .more { max-height: 4em; margin-top: 8px; }
 @media (hover: hover) { .lb-row:hover .more { max-height: 4em; margin-top: 8px; } .lb-row:hover { background: color-mix(in srgb, var(--surface) 60%, transparent); } }
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .bars .fill, .viz .fill { animation: grow linear both; animation-timeline: view(); animation-range: entry 10% cover 30%; transform-origin: left; }
-    @keyframes grow { from { transform: scaleX(0); } }
-  }
+/* bars grow once when their chart comes into view (class set by app.js), never tied to scroll position */
+@media (prefers-reduced-motion: no-preference) {
+  .anim-bars .bars .fill, .anim-bars .viz .fill { transform: scaleX(0); transform-origin: left; transition: transform .9s cubic-bezier(.2,.7,.2,1), width .7s cubic-bezier(.2,.7,.2,1); }
+  .anim-bars .bars.in .fill, .anim-bars .viz.in .fill { transform: none; }
 }
 
 /* findings */

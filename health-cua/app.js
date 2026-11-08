@@ -214,3 +214,12 @@ function donut(fig, title, segs) {
   });
   fig.addEventListener('mouseleave', () => set(null));
 }
+
+// One-shot bar growth: each chart animates fully once it is a fifth in view.
+(() => {
+  if (!('IntersectionObserver' in window)) return;
+  document.documentElement.classList.add('anim-bars');
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold: 0.2});
+  const watch = () => document.querySelectorAll('.bars:not(.in), .viz:not(.in)').forEach(el => io.observe(el));
+  watch(); ['#lb', '#findings', '#grader'].forEach(sel => { const el = document.querySelector(sel); if (el) new MutationObserver(watch).observe(el, {childList: true, subtree: true}); });
+})();

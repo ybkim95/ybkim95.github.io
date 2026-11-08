@@ -5463,9 +5463,13 @@
     "Claude Sonnet 5.5",
     "Gemini 4 Argon"
    ],
-   "missing": 156,
-   "uncommitted": 1,
-   "none": 58
+   "failed": 215,
+   "signed": 156,
+   "unsigned": 2,
+   "stopped": 36,
+   "timeout": 12,
+   "unable": 9,
+   "claimed": 189
   },
   {
    "group": "Smaller models",
@@ -5474,9 +5478,13 @@
     "GPT-6 Luna",
     "Gemini 3.5 Flash-Lite"
    ],
-   "missing": 150,
-   "uncommitted": 8,
-   "none": 354
+   "failed": 512,
+   "signed": 150,
+   "unsigned": 14,
+   "stopped": 226,
+   "timeout": 34,
+   "unable": 88,
+   "claimed": 352
   }
  ]
 }

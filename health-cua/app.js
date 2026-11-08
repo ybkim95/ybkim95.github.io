@@ -81,7 +81,7 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   go(0); play();
 })();
 
-fetch('data/results.json?v=202611081224').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611081427').then((r) => r.json()).then((R) => {
   board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
@@ -318,7 +318,7 @@ function donut(fig, title, segs, unit = 'tasks') {
     visible = e.isIntersecting;
     if (!visible) { run++; return; }
     if (!clips) {
-      fetch(BASEF + 'clips.json?v=202611081224').then((r) => r.json()).then((d) => {
+      fetch(BASEF + 'clips.json?v=202611081427').then((r) => r.json()).then((d) => {
         clips = d;
         stage = makeStage(shot, BASEF);
         q('#fail-tabs').innerHTML = d.map((c, k) => `<button type="button" role="tab" aria-selected="${k === 0}">${c.tab}</button>`).join('');
@@ -331,9 +331,18 @@ function donut(fig, title, segs, unit = 'tasks') {
 
 // How failed episodes ended, frontier and smaller models, API and GUI pooled (the paper's failure figure, consultation tasks).
 function failStats(G) {
-  const cats = [['missing', 'Signed, incomplete', 'Orders signed, a required one missing', '#F2B3AE', 0],
-    ['uncommitted', 'Drafted only', 'Order drafted but never signed', '#D64541', null], ['none', 'No order', 'No order placed at all', '#c9cdd3', 1]];
-  G.forEach((g, j) => donut(q('#fs' + j), g.group, cats.map(([k, label, detail, color, tab]) => ({
-    n: g[k], label, color, detail: `${detail}, ${g[k]} of ${g.missing + g.uncommitted + g.none} failed episodes`,
-    pick: tab == null ? null : () => window.showFail && window.showFail(tab) })), 'failed episodes'));
+  const cats = [['signed', 'Signed orders but missed or got one wrong', 'Signed, but wrong', 'Signed its orders, but a required one was missing or wrong', '#F2B3AE', 0],
+    ['unsigned', 'Left orders unsigned', 'Unsigned', 'Drafted an order and never signed it', '#D64541', null],
+    ['stopped', 'Stopped without ordering', 'Stopped', 'Ended the task as done without placing any order', '#9AA0A8', 1],
+    ['timeout', 'Ran out of actions', 'Out of actions', 'Used up its action budget before placing any order', '#C9CDD3', 2],
+    ['unable', 'Said it could not be done', 'Said impossible', 'Said the task could not be done, without placing any order', '#6B6B70', null]];
+  const facts = [(g) => `In ${g.claimed} of ${g.failed} failures, the agent still said the task was done.`,
+    (g) => `In ${g.stopped} of ${g.failed} failures, the agent said it was done without placing a single order.`];
+  G.forEach((g, j) => {
+    const fig = q('#fs' + j);
+    donut(fig, g.group, cats.map(([k, label, short, detail, color, tab]) => ({
+      n: g[k], label, short, color, detail: `${detail}. ${g[k]} of ${g.failed} failed episodes.`,
+      pick: tab == null ? null : () => window.showFail && window.showFail(tab) })), 'failed episodes');
+    fig.insertAdjacentHTML('beforeend', `<figcaption>${facts[j](g)}</figcaption>`);
+  });
 }

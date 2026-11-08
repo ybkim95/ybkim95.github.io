@@ -357,3 +357,12 @@ footer { justify-content: center; }
 @media (max-width: 600px) { .donut-card.mini .donut { width: 112px; height: 112px; } .donut-card.mini .center { inset: 22px; } .donut-card.mini { padding: 12px; } .donut-card.mini .legend li { padding: 3px 4px; gap: 6px; } }
 .donut-card.mini { min-width: 0; }
 @media (max-width: 600px) { .donut-card.mini .legend { font-size: .72rem; } .donut-card.mini .legend li i { width: 8px; height: 8px; } }
+.donut-card.mini .legend li span { white-space: normal; line-height: 1.3; }
+.donut-card.mini figcaption { color: var(--ink); font-size: .84rem; line-height: 1.4; text-align: left; width: 100%; }
+.fail-grid { grid-template-columns: 340px minmax(0, 1fr); }
+.donut-card.mini { grid-template-columns: 104px minmax(0, 1fr); align-items: center; justify-items: stretch; gap: 8px 12px; }
+.donut-card.mini .donut { width: 104px; height: 104px; } .donut-card.mini .center { inset: 20px; } .donut-card.mini .center b { font-size: 1.1rem; } .donut-card.mini .center span { font-size: .62rem; line-height: 1.2; }
+.donut-card.mini .legend li { padding: 2px 6px; gap: 8px; }
+.donut-card.mini figcaption { grid-column: 1 / -1; }
+@media (max-width: 900px) { .fail-grid { grid-template-columns: minmax(0, 1fr); } .fail-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .fail-stats { grid-template-columns: minmax(0, 1fr); } .donut-card.mini .donut { width: 104px; height: 104px; } .donut-card.mini .center { inset: 20px; } }

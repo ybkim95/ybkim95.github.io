@@ -1,82 +1,279 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Health-CUA: Computer-use agents for healthcare workflows. Project website under development.">
-  <meta name="theme-color" content="#f5f6f2">
-  <title>Health-CUA</title>
-  <link rel="canonical" href="https://ybkim95.github.io/health-cua/">
-  <style>
-    :root { color-scheme: light; --paper: #f5f6f2; --ink: #172b2b; --muted: #536662; --accent: #216c59; --line: #d6dfd7; }
-    * { box-sizing: border-box; }
-    body { margin: 0; background: var(--paper); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
-    .page { width: min(1280px, 100%); min-height: 100vh; min-height: 100svh; margin: auto; padding: 0 64px; display: flex; flex-direction: column; }
-    header { display: flex; align-items: center; gap: 12px; padding: 34px 0; border-bottom: 1px solid var(--line); font-size: 15px; font-weight: 650; letter-spacing: -.02em; }
-    .mark { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--accent); border-radius: 10px; color: var(--accent); }
-    main { flex: 1; display: grid; grid-template-columns: 1.35fr 1fr; gap: 64px; align-items: center; padding: 100px 0 112px; }
-    .eyebrow { color: var(--accent); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .16em; text-transform: uppercase; margin: 0 0 28px; }
-    h1 { margin: 0; font-size: clamp(48px, 7.2vw, 92px); font-weight: 550; letter-spacing: -.065em; line-height: 1.08; }
-    .description { max-width: 450px; margin: 27px 0 0; color: var(--muted); font-size: clamp(22px, 2.5vw, 30px); line-height: 1.45; letter-spacing: -.025em; text-wrap: balance; }
-    .status { display: flex; align-items: center; gap: 10px; margin-top: 44px; font-size: 14px; line-height: 1.6; color: var(--muted); }
-    .status::before { content: ""; width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: var(--accent); }
-    .visual { position: relative; width: 100%; aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle, #e2ebe1 0%, #e9eee5 50%, transparent 71%); }
-    .orbit { position: absolute; inset: 5%; border: 1px solid #d0ddd2; border-radius: 50%; }
-    .orbit::after { content: ""; position: absolute; top: 14%; right: 14%; height: 8px; width: 8px; border-radius: 50%; background: #749986; box-shadow: 0 0 0 6px var(--paper); }
-    .window { position: relative; width: 76%; aspect-ratio: 1.2; background: #fafbf8; border: 1px solid #becfc2; border-radius: 18px; box-shadow: 0 22px 55px #173b2b0c; transform: rotate(-5deg); }
-    .window-bar { height: 38px; display: flex; align-items: center; gap: 5px; padding: 0 16px; border-bottom: 1px solid var(--line); }
-    .window-bar i { width: 5px; height: 5px; border-radius: 50%; background: #98afa0; }
-    .window-body { padding: 24px; }
-    .tile { width: 46px; height: 46px; border: 1px solid #b7cabe; border-radius: 13px; display: grid; place-items: center; color: var(--accent); background: #eaf0e8; }
-    .lines { margin-top: 23px; display: grid; gap: 10px; }
-    .lines span { height: 6px; width: 73%; background: #d7e2d8; border-radius: 4px; }
-    .lines span:nth-child(2) { width: 52%; }
-    .cursor { position: absolute; right: -17px; bottom: 18px; width: 74px; height: 86px; transform: rotate(5deg); filter: drop-shadow(0 7px 7px #173b2b14); }
-    footer { padding: 25px 0 30px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 16px; color: var(--muted); font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; }
-    @media (max-width: 760px) {
-      .page { padding: 0 28px; }
-      header { padding: 24px 0; }
-      main { grid-template-columns: 1fr; gap: 30px; padding: 58px 0 44px; }
-      h1 { font-size: clamp(46px, 11vw, 76px); }
-      .description { max-width: 410px; }
-      .status { margin-top: 28px; }
-      .visual { width: min(300px, 85%); justify-self: center; }
-      .window-body { padding: 19px; }
-      .window-bar { height: 30px; }
-      .tile { width: 38px; height: 38px; border-radius: 10px; }
-      .lines { margin-top: 17px; gap: 8px; }
-      .cursor { width: 59px; height: 69px; bottom: 10px; }
-      footer { font-size: 10px; flex-wrap: wrap; }
-    }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Health-CUA</title>
+<meta name="description" content="Health-CUA gives an AI agent the same clinical task on the same patient record through the EHR's API or through the screens that clinicians use, and grades the orders and notes it leaves in the record.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Health-CUA: Evaluating Clinical Computer Using Agents in Electronic Health Records">
+<meta property="og:description" content="355 clinical tasks, 17 models, two interfaces on one record and a second EHR. Leaderboard, episode replays and grader controls.">
+<meta property="og:url" content="https://ybkim95.github.io/health-cua/">
+<meta property="og:image" content="https://ybkim95.github.io/health-cua/assets/brand/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Health-CUA">
+<meta name="twitter:description" content="Can AI agents do clinical work through the screens that clinicians use? 355 tasks, 17 models, API and GUI on one record.">
+<meta name="twitter:image" content="https://ybkim95.github.io/health-cua/assets/brand/og-card.png">
+<meta name="theme-color" content="#fbfaf7">
+<link rel="canonical" href="https://ybkim95.github.io/health-cua/">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/brand/favicon-16.png">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script>try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+if (document.visibilityState === 'visible') document.documentElement.classList.add('anim'); // entrance animation only for a visible page, never stuck hidden</script>
 </head>
 <body>
-  <div class="page">
-    <header>
-      <span class="mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4v12M16 4v12M4 10h12" stroke="currentColor" stroke-width="1.5"/></svg></span>
-      <span>Health-CUA</span>
-    </header>
-    <main>
-      <section aria-labelledby="project-title">
-        <p class="eyebrow">Project website</p>
-        <h1 id="project-title">Health-CUA</h1>
-        <p class="description">Computer-use agents for healthcare workflows</p>
-        <p class="status">Project website under development</p>
-      </section>
-      <div class="visual" aria-hidden="true">
-        <div class="orbit"></div>
-        <div class="window">
-          <div class="window-bar"><i></i><i></i><i></i></div>
-          <div class="window-body">
-            <div class="tile"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 5v14M19 5v14M5 12h14" stroke="currentColor" stroke-width="1.5"/></svg></div>
-            <div class="lines"><span></span><span></span><span></span></div>
-          </div>
-          <svg class="cursor" viewBox="0 0 74 86" fill="none"><path d="M10 5L64 48L39 52L26 75L10 5Z" fill="#216c59" stroke="#fafbf8" stroke-width="5" stroke-linejoin="round"/></svg>
-        </div>
-      </div>
-    </main>
-    <footer><span>HEALTH-CUA</span><span>COMPUTER USE / HEALTHCARE</span></footer>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <a class="brand" href="#"><img src="assets/brand/logo-96.png" alt="" width="28" height="28">Health-CUA</a>
+  <nav aria-label="Sections">
+    <a href="#demo">Replay</a>
+    <a href="#leaderboard">Leaderboard</a>
+    <a href="#findings">Findings</a>
+    <a href="#grader">Grader</a>
+    <a href="#tasks">Tasks</a>
+    <a href="#cite">Cite</a>
+  </nav>
+  <button id="theme" class="icon-btn" type="button" aria-label="Switch between light and dark mode"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 0 0 14z" fill="currentColor"/></svg></button>
+</header>
+
+<main id="main">
+<section class="hero">
+  <picture class="hero-logo"><source srcset="assets/brand/logo-512.webp" type="image/webp"><img src="assets/brand/logo-192.png" alt="Health-CUA logo, a cursor clicking" width="132" height="132"></picture>
+  <p class="eyebrow">Clinical computer using agents</p>
+  <h1>Health-CUA</h1>
+  <p class="subtitle">Evaluating Clinical Computer Using Agents in Electronic Health Records</p>
+  <!-- placeholder: author list and affiliations -->
+  <p class="pitch">An AI agent gets the same clinical task on the same patient record, once through the EHR's API and once through the screens that clinicians use. A grader reads the orders and the note it leaves in the record.</p>
+  <div class="buttons">
+    <a class="btn primary" aria-disabled="true" title="The preprint link appears here once it is posted">Paper <small>soon</small></a>
+    <a class="btn" aria-disabled="true" title="The code is released with the paper"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0a8 8 0 0 0-2.5 15.6c.4 0 .5-.2.5-.4v-1.5c-2.2.5-2.7-1-2.7-1-.4-.9-.9-1.2-.9-1.2-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.3 1.9.9 2.4.7 0-.5.3-.9.5-1.1-1.8-.2-3.6-.9-3.6-4 0-.9.3-1.6.8-2.1-.1-.2-.4-1 .1-2.1 0 0 .7-.2 2.2.8a7.5 7.5 0 0 1 4 0c1.5-1 2.2-.8 2.2-.8.4 1.1.2 1.9.1 2.1.5.6.8 1.3.8 2.1 0 3.1-1.9 3.8-3.6 4 .3.3.6.8.6 1.5v2.2c0 .2.1.5.6.4A8 8 0 0 0 8 0z"/></svg>Code <small>soon</small></a>
+    <a class="btn" href="#leaderboard">Leaderboard</a>
+    <button class="btn" type="button" data-copy="bibtex">Copy BibTeX</button>
   </div>
+  <ul class="stats" aria-label="The benchmark in numbers">
+    <li><b>355</b><span>clinical tasks</span></li>
+    <li><b>17</b><span>models</span></li>
+    <li><b>2</b><span>interfaces on one record</span></li>
+    <li><b>2</b><span>EHRs</span></li>
+    <li><b>3</b><span>attempts per task</span></li>
+  </ul>
+  <p class="news"><time datetime="2026-11-07">7 Nov 2026</time> Leaderboard with 15 models on the consultation tasks, including GPT-6 Astra</p>
+</section>
+
+<section id="idea" class="band">
+  <div class="idea">
+    <div>
+      <p class="kicker">The idea</p>
+  <h2>One task, one record, two ways in</h2>
+      <p class="lead">Hospitals offer an agent two standard ways into the electronic health record. It can call the FHIR API, which reads the record as text and places an order with one call. Or it can operate the graphical user interface from screenshots with mouse and keyboard, which needs no vendor's API and works wherever a clinician can work.</p>
+      <p class="lead">Health-CUA puts both on one FHIR server. The agent sees the same chart, one rule decides for both interfaces when an order or a note counts as entered, and one grader reads the final record.</p>
+    </div>
+    <figure class="plate">
+      <img src="assets/fig/overview.png" alt="An agent receives a referral in the clinical inbox and completes it on the same record through the EHR screens or through FHIR tool calls. The grader checks the final record." width="1575" height="578" loading="lazy">
+    </figure>
+  </div>
+</section>
+
+<section id="demo">
+  <p class="kicker">Replay</p>
+  <h2>Watch one task three ways</h2>
+  <p class="lead">Claude Sonnet 5.5 solves the same synthetic task through the API, through our GUI and through OpenMRS, an open source EHR that we did not design. Step through the episodes in sync, or press play.</p>
+  <div class="task">
+    <div>
+      <p class="label">The request</p>
+      <blockquote><b>Expanding rash after tick bite.</b> Expanding red patch at the site of a tick bite from 9 days ago, with fatigue and headache, in a patient taking isotretinoin for acne. Seen today, please complete the assessment and treatment plan.</blockquote>
+    </div>
+    <div>
+      <p class="label">Why it is not routine</p>
+      <p>Doxycycline is the usual first choice for early Lyme disease, but together with isotretinoin it can raise intracranial pressure. A safe plan uses another antibiotic, such as amoxicillin, and the note has to say why.</p>
+    </div>
+  </div>
+
+  <div class="viewer" id="viewer" tabindex="0" aria-label="Episode viewer. Use the left and right arrow keys to step through the episode.">
+    <div class="pane api">
+      <div class="pane-head"><span class="dot api"></span>API <small>FHIR tool calls</small><span class="count" id="api-count"></span></div>
+      <ol class="calls" id="calls"></ol>
+    </div>
+    <div class="pane screen">
+      <div class="pane-head">
+        <div class="tabs" role="tablist" aria-label="Screen interface">
+          <button role="tab" class="tab" data-ui="gui" aria-selected="true"><span class="dot gui"></span>Our GUI</button>
+          <button role="tab" class="tab" data-ui="openmrs" aria-selected="false"><span class="dot openmrs"></span>OpenMRS</button>
+        </div>
+        <span class="count" id="screen-count"></span>
+      </div>
+      <div class="shot" id="shot">
+        <img id="shot-img" alt="The EHR screen the agent saw at this step" width="1200" height="750">
+        <span class="marker" id="marker" aria-hidden="true"></span>
+      </div>
+      <p class="do" id="do" aria-live="polite"></p>
+      <p class="say" id="say"></p>
+    </div>
+    <div class="controls">
+      <div class="phases" id="phases"></div>
+      <div class="transport">
+        <button class="icon-btn" id="prev" type="button" aria-label="Previous step">‹</button>
+        <button class="icon-btn play" id="play" type="button" aria-label="Play">▶</button>
+        <button class="icon-btn" id="next" type="button" aria-label="Next step">›</button>
+        <input type="range" id="scrub" min="0" value="0" aria-label="Position in the episode">
+      </div>
+    </div>
+  </div>
+
+  <div class="outcome">
+    <h3>The final record</h3>
+    <div class="outcome-grid" id="outcome-grid"></div>
+  </div>
+</section>
+
+<section id="leaderboard" class="band">
+  <p class="kicker">Results</p>
+  <h2>Leaderboard</h2>
+  <p class="lead">Success on the 39 consultation tasks, adapted from real consultations between primary care physicians and specialists. Each model ran three attempts per task through each interface on the same records.</p>
+  <div class="toolbar" role="group" aria-label="Leaderboard options">
+    <div class="seg" data-key="metric">
+      <button type="button" data-v="p1" aria-pressed="true">pass@1</button>
+      <button type="button" data-v="all3" aria-pressed="false">pass<sup>3</sup></button>
+    </div>
+    <div class="seg" data-key="grader">
+      <button type="button" data-v="orig" aria-pressed="true">Original grader</button>
+      <button type="button" data-v="rev" aria-pressed="false">Revised grader</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="board" id="board">
+      <thead><tr>
+        <th scope="col" class="rank">#</th>
+        <th scope="col" data-sort="model">Model</th>
+        <th scope="col" data-sort="api" class="num">API</th>
+        <th scope="col" data-sort="gui" class="num">GUI</th>
+        <th scope="col" class="chart"><span class="axis"><i>0</i><i>50</i><i>100</i></span></th>
+        <th scope="col" data-sort="delta" class="num">API minus GUI</th>
+        <th scope="col" data-sort="cost" class="num cost">Cost per episode</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="foot" id="board-foot"></p>
+</section>
+
+<section id="findings">
+  <p class="kicker">Findings</p>
+  <h2>What we found</h2>
+  <div class="cards">
+    <article class="card">
+      <p class="kicker">Equivalence on held out tasks</p>
+      <h3>Claude Sonnet 5.5 is equivalent across the two interfaces</h3>
+      <p id="f-equiv"></p>
+      <div class="chart" id="c-equiv" role="img"></div>
+    </article>
+    <article class="card">
+      <p class="kicker">Memory</p>
+      <h3>How much the agent remembers decides GUI success</h3>
+      <p>With only its last three screenshots, the default of Anthropic's reference computer use agent, Claude Sonnet 5.5 runs out of actions in every GUI episode. With its full history it succeeds on 69% of tasks, within 3 points of its API agent. Working notes that the agent rewrites in each action raise it only to 9%.</p>
+      <div class="chart" id="c-memory" role="img"></div>
+    </article>
+    <article class="card wide">
+      <p class="kicker">A second EHR</p>
+      <h3>Agents complete fewer tasks in OpenMRS</h3>
+      <p>On the 106 held out tasks that OpenMRS can grade, the frontier models lost 15 to 19 points against our GUI. The same work took more actions, and every order had to be found in a catalogue of about 8,900 drugs and 2,900 tests, imaging studies, procedures and referrals.</p>
+      <div class="chart" id="c-openmrs" role="img"></div>
+    </article>
+    <article class="card wide">
+      <p class="kicker">Failure modes</p>
+      <h3>The interface shapes which mistakes an agent makes</h3>
+      <p>The frontier models fail mostly by signing orders that miss a required one, through either interface. Smaller models more often place no order at all, and each of them does so more often through the GUI.</p>
+      <div class="chart" id="c-fail" role="img"></div>
+    </article>
+    <article class="card wide">
+      <p class="kicker">Reliability</p>
+      <h3>Agents fail the same tasks again</h3>
+      <p>Share of the consultation tasks solved on all three attempts, on one or two, or on none. Failures concentrate on particular tasks. Through the GUI, Claude Sonnet 5.5 solved 23 of the 39 tasks on every attempt and 8 on none.</p>
+      <div class="chart" id="c-rel" role="img"></div>
+    </article>
+  </div>
+</section>
+
+<section id="grader" class="band">
+  <div class="split">
+    <div>
+      <p class="kicker">Grading</p>
+  <h2>Can you trust the grader?</h2>
+      <p class="lead">Before analysing any model, we ran scripted controls through the same harness and grader. The original grader of the consultation tasks rejected about half of the clinically equivalent orders and passed a script that ordered all 77 tests and referrals of any answer key without reading the chart.</p>
+      <p class="lead">The revised grader accepts every alternative consistent with current guidelines, with a dose range for each medication, and fails an episode with an order that is wrong for the patient or with too many extra orders. A judge from another model family agreed with it on 95% of 130 control orders.</p>
+    </div>
+    <div class="chart" id="c-grader" role="img"></div>
+  </div>
+</section>
+
+<section id="tasks">
+  <p class="kicker">Benchmark</p>
+  <h2>The tasks</h2>
+  <p class="lead">Each task starts as a request in the clinician's inbox. The agent must find the right item among requests about other patients, read the chart, order medications with dose and frequency, order tests and referrals, write and sign a note and close the item.</p>
+  <div class="sets">
+    <div class="set"><b>39</b><h3>Consultation tasks</h3><p>Real consultations between primary care physicians and specialists from PhysicianBench, run on deidentified records.</p></div>
+    <div class="set"><b>166</b><h3>Synthetic tasks</h3><p>Synthetic patients and charts that anyone can inspect, in four tiers.</p>
+      <ul class="tiers"><li><span>94</span>standard</li><li><span>38</span>hard</li><li><span>14</span>expert twins</li><li><span>20</span>workflow</li></ul></div>
+    <div class="set"><b>150</b><h3>Confirmation set</h3><p>Held out tasks written after all other studies, frozen by hash and used only to test preregistered claims.</p></div>
+    <div class="set"><b>106</b><h3>OpenMRS tasks</h3><p>Confirmation tasks whose required orders all have an intended item in the OpenMRS catalogue.</p></div>
+  </div>
+  <dl class="tierdefs">
+    <dt>Hard</dt><dd>A decisive fact hides in an older note, a value is corrected later, a calculation is needed or several problems combine.</dd>
+    <dt>Expert twins</dt><dd>Two tasks share a patient but differ in one fact that a specialist dosing rule turns into different orders.</dd>
+    <dt>Workflow</dt><dd>Long visits with two or three problems, at least four orders and a test to schedule within a window of days.</dd>
+  </dl>
+  <p class="meta">The tasks cover 17 specialties. In eight tasks the correct answer is to place no order.</p>
+</section>
+
+<section id="release" class="band">
+  <p class="kicker">Release</p>
+  <h2>What we release with the paper</h2>
+  <ul class="release">
+    <li><b>The environment</b><span>The FHIR server snapshot, the GUI, the API tools and the harness that runs both, with one action function for every model.</span></li>
+    <li><b>Synthetic tasks</b><span>The 166 synthetic tasks and the 150 held out tasks, on synthetic patients, under CC BY 4.0.</span></li>
+    <li><b>Graders and controls</b><span>The grading specifications and the scripts that enter correct, missing, equivalent and excessive orders.</span></li>
+    <li><b>Results</b><span>Aggregate results for every figure and table, with the analysis code.</span></li>
+  </ul>
+  <p class="meta">The consultation tasks run on PhysicianBench records, which are available from their authors under their terms.</p>
+</section>
+
+<section id="faq">
+  <p class="kicker">Questions</p>
+  <h2>Common questions</h2>
+  <details><summary>Why compare an API agent with a GUI agent?</summary><p>The FHIR API that certified EHRs offer reads the record but need not support placing orders, and access differs between vendors. A GUI agent could work in any EHR that a clinician can use. Running both on one record with one grader shows what the interface itself costs.</p></details>
+  <details><summary>What counts as success?</summary><p>An episode succeeds when every required check on the final record passes and no harm event occurs, such as an order for another patient, a duplicate order or a claim of completion while work is unsigned. The grader reads the record, not the agent's messages.</p></details>
+  <details><summary>What do pass@1 and pass<sup>3</sup> mean?</summary><p>pass@1 is the expected success of one attempt. pass<sup>3</sup> is the share of tasks solved on all three attempts, which shows whether an agent can be relied on to finish a task it has solved before.</p></details>
+  <details><summary>Are the patients real?</summary><p>Every patient shown on this page is synthetic. The consultation tasks use deidentified records that stay on our servers, and only aggregate results leave them.</p></details>
+</section>
+
+<section id="cite" class="band">
+  <p class="kicker">Cite</p>
+  <h2>Citation</h2>
+  <div class="bib">
+    <button class="btn small" type="button" data-copy="bibtex">Copy</button>
+<pre id="bibtex">@article{kim2026healthcua,
+  title   = {Health-CUA: Evaluating Clinical Computer Using Agents
+             in Electronic Health Records},
+  author  = {Kim, Yubin and others},
+  journal = {arXiv preprint},
+  year    = {2026}
+}</pre>
+  </div>
+  <p class="meta">Last updated <time datetime="2026-11-07">7 November 2026</time></p>
+</section>
+</main>
+
+<footer><span class="fbrand"><img src="assets/brand/logo-96.png" alt="" width="20" height="20">Health-CUA</span><span>Every patient on this page is synthetic.</span><a href="#">Back to top</a></footer>
+<script src="viewer.js" defer></script>
+<script src="app.js" defer></script>
 </body>
 </html>

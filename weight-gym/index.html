@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Weight-Gym</title>
-<meta name="description" content="Weight-Gym hands a frontier model a small neural network that fails after deployment, and measures whether it can find the fault inside and repair it on a fixed budget.">
+<meta name="description" content="We plant a fault in a small neural network and ask frontier models to find it and fix it.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Weight-Gym: Can an AI find what is broken inside another AI?">
-<meta property="og:description" content="Frontier models repair a fault once told where it is. Left to find it themselves, they almost never find a backdoor.">
+<meta property="og:title" content="Weight-Gym: Can AI find what is broken inside another AI?">
+<meta property="og:description" content="Told where a fault is, frontier models fix it. Left alone, they almost never find a backdoor.">
 <meta property="og:url" content="https://ybkim95.github.io/weight-gym/">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Weight-Gym">
-<meta name="twitter:description" content="Can an AI find what is broken inside another AI, and fix it?">
+<meta name="twitter:description" content="Can AI find what is broken inside another AI?">
 <meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="https://ybkim95.github.io/weight-gym/">
@@ -19,132 +19,107 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
-  <a class="brand" href="#"><img src="favicon.svg" alt="" width="24" height="24">Weight-Gym</a>
+  <a class="brand" href="#"><img src="favicon.svg" alt="" width="24" height="24"><span class="brand-name">Weight-Gym</span></a>
   <nav aria-label="Sections">
-    <a href="#setup">Setup</a>
     <a href="#findings">Findings</a>
     <a href="#leaderboard">Leaderboard</a>
-    <a href="#inside">Inside a model</a>
     <a href="#method">Method</a>
+    <a href="#cite">Cite</a>
   </nav>
 </header>
 
 <main id="main">
 <section class="hero">
   <div class="hero-text">
-    <p class="eyebrow">A gym for diagnosing and repairing neural networks</p>
     <h1>Weight-Gym</h1>
-    <p class="subtitle">Can an AI find what is broken inside another AI, and fix it?</p>
-    <p class="hero-lead">We hand a frontier model a small neural network that fails after deployment and tell it nothing else. It can probe the network, read and edit its weights, and retrain it, on a fixed budget. Then we test the repaired network on data it never saw.</p>
-    <!-- placeholder: author list and affiliations -->
+    <p class="subtitle">Can AI find what is broken inside another AI?</p>
+    <p class="hero-lead">We plant a fault in a small neural network and ask frontier models to find it and fix it.</p>
     <div class="buttons">
-      <a class="btn primary" href="#findings">See the findings</a>
+      <a class="btn primary" href="#findings">Findings</a>
       <a class="btn" href="#leaderboard">Leaderboard</a>
-      <a class="btn" href="#inside">Look inside a model</a>
     </div>
   </div>
   <figure class="mosaic-card">
-    <div class="mosaic-head">
-      <span><b>Every hidden unit</b> of one broken classifier</span>
-      <button class="chip" type="button" id="reveal-hero" aria-pressed="false">Show the backdoor</button>
-    </div>
-    <div class="mosaic" id="mosaic" role="img" aria-label="64 small heatmaps, one per hidden unit, showing which input pixels each unit listens to"></div>
-    <figcaption id="mosaic-cap">Each tile is one unit's 144 input weights drawn as a 12×12 image, blue positive and red negative. Somewhere in here is a trigger that makes the model answer <i>x</i> for any image. Can you spot it?</figcaption>
+    <div class="mosaic" id="mosaic" role="img" aria-label="64 small heatmaps, one per hidden unit of a backdoored network"></div>
+    <figcaption><span id="mosaic-cap">The 64 hidden units of a backdoored network. Three of them carry the trigger.</span>
+      <button class="chip" type="button" id="reveal-hero" aria-pressed="false">Show them</button></figcaption>
   </figure>
 </section>
 
 <section class="stats" aria-label="Headline numbers">
-  <div class="stat"><b id="s-found">0 / 60</b><span id="s-found-l">backdoors identified by Gemini 3.8 Flash without a hint</span></div>
-  <div class="stat"><b id="s-gain">+0.55</b><span id="s-gain-l">recovery gained when told the fault type and location</span></div>
-  <div class="stat"><b id="s-bb">1 of 4</b><span id="s-bb-l">models that can act on that hint without touching the weights</span></div>
+  <div class="stat"><b id="s-found">0</b><span id="s-found-l">backdoors found by Gemini 3.8 Flash in 60 tries</span></div>
+  <div class="stat"><b id="s-gain">0.24 → 0.79</b><span>its repair score, before and after being told where the fault is</span></div>
 </section>
 
 <section id="setup">
-  <h2>The setup in one minute</h2>
-  <p class="lead">Think of a mechanic handed a car that “acts up sometimes”. Weight-Gym measures two things separately: finding the fault, and fixing it.</p>
+  <h2>How it works</h2>
   <ol class="steps">
-    <li><span class="step-n">1</span><h3>We break a network</h3><p>A 144→64→10 network learns to tell twelve-by-twelve shapes apart. We plant one fault that the training data does not reveal: a <b>backdoor</b> (a small patch or faint pattern that forces one answer), or a <b>shortcut</b> (the network reads one pixel instead of the shape).</p></li>
-    <li><span class="step-n">2</span><h3>An AI investigates</h3><p>The model under test writes Python against the broken network for up to 15 turns. It gets 500 clean training images, 400 gradient steps, 50,000 forward passes, and at most 1,000 changed weights.</p></li>
-    <li><span class="step-n">3</span><h3>We grade the repair</h3><p>The repaired network is scored on deployment data it never saw. <b>Recovery 0</b> means no better than the broken network; <b>1</b> means as good as one trained on clean data. Before submitting, the AI also names the fault.</p></li>
+    <li><span class="step-n">1</span><p><b>Break.</b> We plant a hidden fault in a small image classifier.</p></li>
+    <li><span class="step-n">2</span><p><b>Investigate.</b> The model gets 15 turns of Python to inspect, edit and retrain it.</p></li>
+    <li><span class="step-n">3</span><p><b>Grade.</b> We test on held-out data. 0 is still broken, 1 is as good as a clean network.</p></li>
   </ol>
 
   <div class="matrix-wrap">
     <div class="matrix-head">
-      <h3>Two switches, four conditions</h3>
+      <h3>We vary two things</h3>
       <div class="chips" id="matrix-models" role="tablist" aria-label="Model"></div>
     </div>
     <div class="matrix" id="matrix">
       <div class="mx-corner"></div>
-      <div class="mx-col"><b>No hint</b><span>told only that the model underperforms</span></div>
-      <div class="mx-col"><b>Hint</b><span>told the fault type and where it is</span></div>
-      <div class="mx-row"><i class="sw bb"></i><b>Black-box</b><span>can run and retrain the model</span></div>
+      <div class="mx-col"><b>Not told</b></div>
+      <div class="mx-col"><b>Told where the fault is</b></div>
+      <div class="mx-row"><i class="sw bb"></i><b>Can't see weights</b></div>
       <div class="mx-cell" data-c="blackbox"></div>
       <div class="mx-cell" data-c="blackbox+hint"></div>
-      <div class="mx-row"><i class="sw in"></i><b>Internal</b><span>can also read and edit the weights</span></div>
+      <div class="mx-row"><i class="sw in"></i><b>Can see weights</b></div>
       <div class="mx-cell" data-c="internal"></div>
       <div class="mx-cell" data-c="internal+hint"></div>
     </div>
-    <p class="caption">Mean recovery on 15 hidden-fault tasks, three runs each, with 95% intervals. The no-hint column is the real task; the hint column shows what is left once the finding is done for the model.</p>
+    <p class="caption">Repair score, averaged over 15 tasks and 3 runs each, with 95% intervals.</p>
   </div>
 </section>
 
 <section id="findings" class="band">
-  <h2>What we found</h2>
-  <p class="lead">Seeing the weights does not help models find a hidden fault. It does help some of them fix one they have been told about.</p>
+  <h2>Findings</h2>
+  <p class="lead">Told where a fault is, models can fix it. Left alone, they almost never find a backdoor.</p>
   <div class="cards">
     <article class="card wide">
-      <p class="card-k">Finding 1</p>
-      <h3>Finding is the bottleneck: backdoors go undiagnosed</h3>
-      <p>Share of runs where the model named the right fault type, without a hint. Every model spots the shortcut pixel; almost none ever name a backdoor, even though “patch backdoor” is on the list they choose from.</p>
-      <div class="viz" id="c-diag"></div>
+      <h3>Finding is the hard part</h3>
+      <p>Each dot is a model. Told where a backdoor is, most of them repair it. On their own, the best found one in 11 of 60 runs. All four do find the simpler shortcut pixel, in 22 to 28 of 30 runs.</p>
+      <div class="viz" id="c-scatter"></div>
     </article>
     <article class="card">
-      <p class="card-k">Finding 2</p>
-      <h3>Told where, they can fix it</h3>
-      <p>Recovery with internal access, before and after the hint.</p>
-      <div class="viz" id="c-hint"></div>
-      <p class="key"><i class="dot hollow in"></i>no hint <i class="dot in"></i>hint</p>
-    </article>
-    <article class="card">
-      <p class="card-k">Finding 3</p>
-      <h3>Weaker models need the weights to act on a diagnosis</h3>
-      <p>Recovery with the hint, without and with weight access.</p>
+      <h3>Seeing the weights helps with the repair</h3>
+      <p>Repair score when told where the fault is.</p>
       <div class="viz" id="c-access"></div>
-      <p class="key"><i class="dot bb"></i>black-box <i class="dot in"></i>internal</p>
+      <p class="key"><i class="dot bb"></i>can't see weights <i class="dot in"></i>can see weights</p>
     </article>
-    <article class="card wide story" id="story">
-      <p class="card-k">A near miss</p>
-      <h3>The weights pointed straight at the trigger. The model talked itself out of it.</h3>
+    <article class="card">
+      <h3>One agent trained the model itself</h3>
+      <div class="big"><span>0</span><small>of 400 gradient steps used</small></div>
+      <p>Given the weights, Gemini 3.8 Flash wrote its own training loop in numpy and fixed the model without touching its budget. Weight edits are now capped at 1,000 per run.</p>
+    </article>
+    <article class="card wide story">
+      <h3>A near miss</h3>
       <div class="story-grid">
         <ol class="story-steps">
-          <li><b>Two units look odd.</b> Gemini 3.8 Flash ranks hidden units by how noisy their input weights are. Units 38 and 61 stand out.</li>
-          <li><b>Both feed the class <i>x</i>.</b> It follows their outgoing weights: they push the <i>x</i> output harder than any other unit.</li>
-          <li><b>It tests the pixels they watch.</b> Lighting pixels 116, 126, 138 and 140 turns <b>59%</b> of other images into <i>x</i>. Those are four of the trigger's five lit pixels.</li>
-          <li><b>It drops the lead.</b> Reasoning that a trigger is “typically a small localized block”, it searches 2×2 squares instead, finds little, and moves on.</li>
-          <li><b>It reports <code>weight_noise</code></b> and fine-tunes. Recovery: <b>0.00</b>.</li>
+          <li>Gemini 3.8 Flash found units 38 and 61, which feed the class <i>x</i>.</li>
+          <li>It lit the four pixels they read. 59% of other images flipped to <i>x</i>.</li>
+          <li>It expected a 2×2 square trigger, searched for one, and found none.</li>
+          <li>It reported "weight noise". Repair score: 0.00.</li>
         </ol>
         <figure class="story-fig">
           <div class="pair">
             <div><div class="grid12" id="story-found"></div><p>Pixels it tested</p></div>
             <div><div class="grid12" id="story-true"></div><p>The real trigger</p></div>
           </div>
-          <figcaption>Filled: the trigger's lit pixels; outlined: the rest of its 3×3 stamp; ringed: the one the model missed. One of 30 no-hint runs on patch backdoors. The usual failure is less dramatic: models never test for a trigger at all.</figcaption>
+          <figcaption>It found four of the trigger's five lit pixels. The ringed one is the pixel it missed.</figcaption>
         </figure>
-      </div>
-    </article>
-    <article class="card wide gaming">
-      <p class="card-k">An aside</p>
-      <div class="gaming-grid">
-        <div class="big"><span>0</span><small>of 400 gradient steps used</small></div>
-        <div>
-          <h3>Given the weights, one agent wrote its own trainer</h3>
-          <p>In an early version, Gemini 3.8 Flash read the weights, wrote a training loop in numpy, and pushed the result back. It fixed the model while spending none of its gradient budget. Nobody told it to. Weight edits are now capped at 1,000 changed parameters, so internal access buys surgical edits, not free compute. Evaluations of AI doing AI research need this kind of guardrail.</p>
-        </div>
       </div>
     </article>
   </div>
@@ -152,29 +127,34 @@
 
 <section id="leaderboard">
   <h2>Leaderboard</h2>
-  <p class="lead">Mean recovery on the 15 hidden-fault tasks, three runs per task. The full task is <b>Internal, no hint</b>; the other conditions take away weight access or give away the diagnosis.</p>
   <div class="lb-head">
-    <div class="seg" id="lb-cond" role="group" aria-label="Condition"></div>
-    <label class="toggle"><input type="checkbox" id="lb-base" checked> Show baselines</label>
+    <div class="seg" id="lb-task" role="group" aria-label="Task">
+      <button type="button" data-v="" aria-pressed="true">Find and fix</button>
+      <button type="button" data-v="+hint" aria-pressed="false">Fix only (told where)</button>
+    </div>
+    <div class="seg" id="lb-access" role="group" aria-label="Access">
+      <button type="button" data-v="internal" aria-pressed="true"><i class="dot in"></i>Can see weights</button>
+      <button type="button" data-v="blackbox" aria-pressed="false"><i class="dot bb"></i>Can't see weights</button>
+    </div>
   </div>
   <div class="lb" id="lb" role="table" aria-label="Leaderboard"></div>
-  <p class="caption">Bars span 95% bootstrap intervals over tasks. <b>Found</b> is the share of no-hint runs that named the right fault type. Baselines use no language model: tuned fine-tuning on the clean images, and a ten-line heuristic that zeroes outlier input pixels and revives dead units before fine-tuning.</p>
+  <p class="caption">15 hidden-fault tasks, 3 runs each. Lines show 95% intervals. Baselines use no language model. Most intervals overlap, so treat close ranks as ties. Hover a row for the score on each fault.</p>
 </section>
 
 <section id="inside" class="band">
   <h2>Look inside a broken model</h2>
-  <p class="lead">This is what a model with internal access can see. Each fault leaves a trace in the weights. Try to find it before you reveal it.</p>
+  <p class="lead">This is what a model sees when it can read the weights. Try to spot the fault.</p>
   <div class="explorer">
     <div class="ex-tabs" id="ex-tabs" role="tablist" aria-label="Fault"></div>
     <div class="ex-body">
       <div class="ex-maps">
-        <figure><div class="grid12 big" id="ex-toward"></div><figcaption>How much each input pixel pushes toward the target class, through the hidden layer</figcaption></figure>
-        <figure><div class="units" id="ex-units"></div><figcaption>The eight hidden units that push hardest toward the target class</figcaption></figure>
+        <figure><div class="grid12 big" id="ex-toward"></div><figcaption>How much each pixel pushes the network toward the backdoor's answer</figcaption></figure>
+        <figure><div class="units" id="ex-units"></div><figcaption>The eight hidden units that push hardest</figcaption></figure>
       </div>
       <div class="ex-side">
         <h3 id="ex-title"></h3>
         <p id="ex-desc"></p>
-        <button class="btn small" type="button" id="ex-reveal" aria-pressed="false">Reveal the fault</button>
+        <button class="btn small" type="button" id="ex-reveal" aria-pressed="false">Show the fault</button>
         <p class="ex-truth" id="ex-truth" hidden></p>
         <div class="ex-models" id="ex-models"></div>
       </div>
@@ -184,40 +164,37 @@
 
 <section id="method">
   <h2>Method</h2>
-  <div class="facts">
-    <div><h3>Networks</h3><p>A two-layer network (144 → 64 → 10) trained on synthetic 12×12 shapes in ten classes. Each task is one broken network plus 500 clean training images.</p></div>
-    <div><h3>Hidden faults</h3><p>Patch backdoor, blended backdoor and shortcut pixel, five seeds each. A seed is kept only if the clean network beats the broken one by 0.15 on deployment data, a rule fixed before any model was run.</p></div>
-    <div><h3>Agent</h3><p>The model writes one Python block per turn, run in a sandbox with numpy and an <code>env</code> object, for up to 15 turns. It ends by naming the fault from a fixed list of six.</p></div>
-    <div><h3>Budget</h3><p>400 gradient steps, 50,000 forward passes and 1,000 changed weights per episode, the same in every condition.</p></div>
-    <div><h3>Hints</h3><p>The fault type and its location only: the trigger pixels or pattern, or the shortcut pixel. An earlier hint also described the deployment shift; it inflated black-box scores and was removed.</p></div>
-    <div><h3>Scoring</h3><p>Recovery = (repaired − broken) / (clean − broken) accuracy on deployment data. It can exceed 1 for backdoors, where the trigger also hurts the clean network.</p></div>
-  </div>
+  <dl class="facts">
+    <div><dt>Network</dt><dd>144 → 64 → 10, trained on 12×12 shapes in ten classes.</dd></div>
+    <div><dt>Faults</dt><dd>Patch backdoor, blended backdoor and shortcut pixel, five tasks each.</dd></div>
+    <div><dt>Budget</dt><dd>15 turns, 500 clean images, 400 gradient steps, 50,000 forward passes and 1,000 weight edits.</dd></div>
+    <div><dt>Hint</dt><dd>The fault type and its location. Nothing about how to fix it.</dd></div>
+    <div><dt>Score</dt><dd>(repaired − broken) / (clean − broken) accuracy on held-out data. It can pass 1 on backdoors, because the trigger also confuses the clean network.</dd></div>
+    <div><dt>Runs</dt><dd>3 per task and setting. Intervals come from resampling tasks.</dd></div>
+  </dl>
   <div class="limits">
     <h3>Limits</h3>
     <ul>
-      <li>The networks are small and the data synthetic. Whether the gap between finding and fixing holds for real models is the next question.</li>
-      <li>Fifteen hidden-fault tasks, three runs each. Intervals are wide where models are inconsistent.</li>
-      <li>Faults are planted, not grown. Networks that fail during ordinary training may look different inside.</li>
-      <li>Models run with their default settings and the same prompt. Open models are served with vLLM in bfloat16.</li>
-      <li>Qwen3.5 27B thinks at length: 56 of its 180 episodes overflowed a 32K context and were rerun with 128K.</li>
+      <li>The networks are small and the data is synthetic.</li>
+      <li>The faults are planted. Networks that break during normal training may look different inside.</li>
+      <li>Open models run in vLLM at bfloat16. 56 of Qwen3.5 27B's 180 runs overflowed a 32K context and were rerun at 128K.</li>
     </ul>
   </div>
 </section>
 
 <section id="cite" class="band">
   <h2>Cite</h2>
-  <!-- placeholder: authors and acknowledgements -->
   <pre class="bib"><code>@misc{weightgym2026,
-  title  = {Weight-Gym: Can an AI Find What Is Broken Inside Another AI?},
-  author = {Kim, Yubin},
+  title  = {Weight-Gym: Can AI Find What Is Broken Inside Another AI?},
+  author = {Kim, Yubin and Park, Chanwoo},
   year   = {2026},
   url    = {https://ybkim95.github.io/weight-gym/}
 }</code></pre>
-  <p class="caption">Prompted by <i>Sparks of Weight-Space Programming</i>, whose models repaired networks after being told what to fix. Weight-Gym asks whether they can find it first.</p>
+  <p class="caption">Inspired by <i>Sparks of Weight-Space Programming</i>, where models repaired networks after being told what to fix.</p>
 </section>
 </main>
 
 <div class="tip" id="tip" role="tooltip" hidden></div>
-<script src="app.js?v=2"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>

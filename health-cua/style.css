@@ -161,7 +161,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); min-width: 80px; }
 .ci::before { left: 0; } .ci::after { right: 0; }
 .val { font-size: .84rem; color: var(--ink2); font-variant-numeric: tabular-nums; text-align: right; }
 .more { grid-column: 1 / -1; margin: 0; max-height: 0; overflow: hidden; color: var(--ink2); font-size: .88rem; transition: max-height .3s, margin .3s; }
-.lb-row.open .more { max-height: 4em; margin-top: 8px; }
+.lb-row.open .more { max-height: 9em; margin-top: 8px; }
 @media (hover: hover) { .lb-row:hover .more { max-height: 4em; margin-top: 8px; } .lb-row:hover { background: color-mix(in srgb, var(--surface) 60%, transparent); } }
 /* bars grow once when their chart comes into view (class set by app.js), never tied to scroll position */
 @media (prefers-reduced-motion: no-preference) {
@@ -279,3 +279,32 @@ dialog video { display: block; width: 100%; height: auto; border-radius: 16px; }
 .tip[hidden] { display: none; }
 .center span { font-size: .9rem; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 footer { justify-content: center; }
+
+/* round 5: row details, quiet caption, failure clips */
+.more p { margin: 0 0 4px; } .more .setup { color: var(--ink3); font-size: .82rem; }
+@media (hover: hover) { .lb-row:hover .more { max-height: 9em; } }
+.caption.quiet { color: var(--ink3); font-size: .8rem; margin-top: 4px; }
+.caption.quiet a { color: var(--ink2); }
+.fails { margin-top: 56px; }
+.fails h3 { font-size: 1.35rem; margin-bottom: 14px; }
+.fail-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.fail-tabs button { border: 1px solid var(--line); background: var(--card); color: var(--ink2); font: 500 .9rem var(--sans); padding: 7px 14px; border-radius: 999px; cursor: pointer; }
+.fail-tabs button[aria-selected="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.clip { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.clip-stage { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--card); }
+.clip-stage .shot { border-bottom: 0; }
+.clip-stage .shot[hidden], .clip-calls[hidden] { display: none; }
+.skipchip { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); z-index: 7; padding: 5px 12px; border-radius: 999px; background: var(--ink); color: var(--bg); font-size: .8rem; opacity: 0; transition: opacity .25s; pointer-events: none; }
+.skipchip.on { opacity: .92; }
+.clip-calls { list-style: none; margin: 0; padding: 14px; height: 0; min-height: 420px; overflow-y: auto; font: .8rem/1.5 var(--mono); }
+.clip-calls li { display: grid; grid-template-columns: 2em minmax(0, 1fr); column-gap: 6px; padding: 3px 6px; border-radius: 6px; }
+.clip-calls li small { grid-column: 2; color: var(--ink3); font: .74rem var(--sans); }
+.clip-calls li.create { background: color-mix(in srgb, var(--gui) 14%, transparent); }
+.clip-calls li.create code { font-weight: 600; }
+.clip-calls .n { color: var(--ink3); }
+.clip-side p { margin: 0 0 10px; }
+.clip-model { font-weight: 500; }
+.clip-cap { color: var(--ink2); }
+.clip-check { color: var(--red); font-size: .9rem; }
+.clip-count { color: var(--ink3); font-size: .84rem; font-variant-numeric: tabular-nums; }
+@media (max-width: 900px) { .clip { grid-template-columns: minmax(0, 1fr); gap: 14px; } .clip-calls { min-height: 300px; } }

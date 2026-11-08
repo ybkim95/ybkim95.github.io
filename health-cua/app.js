@@ -81,7 +81,7 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   go(0); play();
 })();
 
-fetch('data/results.json?v=202611072248').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611072328').then((r) => r.json()).then((R) => {
   board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
@@ -95,9 +95,22 @@ const bar = (cls, v, ci, label) => {
   return b;
 };
 
+// How each model ran (paper, Section 4): provider route, reasoning effort where set, and memory in each interface.
+function setup(m) {
+  const hist = 'the API agent keeps 200,000 characters of tool output, the GUI agent its full history';
+  if (m.startsWith('Claude')) return 'Anthropic API, full history through both interfaces.';
+  if (m.startsWith('Gemini')) return `Vertex AI, default sampling, ${hist}.`;
+  if (m === 'GPT-6 Astra') return `OpenRouter with OpenAI as provider, medium reasoning effort, ${hist}.`;
+  if (m.startsWith('GPT')) return `OpenAI API, low reasoning effort, ${hist}.`;
+  if (m.startsWith('OpenCUA')) return 'Our servers, its own harness with the last three screenshots.';
+  if (m.startsWith('Qwen')) return 'Our servers, the API agent keeps 200,000 characters of tool output, the GUI agent every screenshot until its 65,536 token window is full.';
+  if (m.startsWith('MedGemma')) return 'Our servers, the API agent keeps 200,000 characters of tool output, the GUI agent every screenshot within its 131,072 token window.';
+  return '';
+}
+
 // ------------------------------------------------------------------ leaderboard
 function board(rows, cats) {
-  let key = 'p1', cat = 'Overall';
+  let key = 's2', cat = 'Overall';
   const box = q('#lb');
   const arms = (r) => (cat === 'Overall' ? { api: r.api, gui: r.gui } : r.cats[cat]);
   const best = (r) => { const a = arms(r); return Math.max(a.gui[key].mean, a.api ? a.api[key].mean : -1); };
@@ -124,7 +137,9 @@ function board(rows, cats) {
       const gap = !d ? '' : Math.abs(d.mean) < 0.05 ? 'No gap between the two. ' : `${d.mean > 0 ? 'API' : 'GUI'} ahead by ${fx(Math.abs(d.mean))} points (95% CI ${neg(d.ci[0])} to ${neg(d.ci[1])}). `;
       const more = r.api ? gap + (r.cost ? `One episode costs $${r.cost.api.toFixed(2)} through the API and $${r.cost.gui.toFixed(2)} on screen.` : '')
         : 'Tested on screen only.';
-      row.append(h('p', 'more', more || `${A.api ? 'API ' + fx(A.api[key].mean) + ', ' : ''}GUI ${fx(A.gui[key].mean)}`));
+      const det = h('div', 'more');
+      det.append(h('p', null, more || `${A.api ? 'API ' + fx(A.api[key].mean) + ', ' : ''}GUI ${fx(A.gui[key].mean)}`), h('p', 'setup', 'Setup: ' + setup(r.model)));
+      row.append(det);
       const toggle = () => { const open = row.classList.toggle('open'); row.setAttribute('aria-expanded', String(open)); };
       row.onclick = toggle;
       row.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } };
@@ -144,18 +159,17 @@ function pair(el, groups) {
   groups.forEach(([name, rows]) => {
     const g = h('div', 'pair');
     g.append(h('p', 'pname', name));
-    rows.forEach(([cls, lab, v, ci]) => { const b = bar(cls, v, ci); b.prepend(h('span', 'blab', lab)); g.append(b); });
+    rows.forEach(([cls, lab, v, ci, text]) => { const b = bar(cls, v, ci, text); b.prepend(h('span', 'blab', lab)); g.append(b); });
     el.append(g);
   });
 }
 
 function findings(R) {
   const c = R.confirmation;
-  pair(q('#c-equiv'), [['Claude Sonnet 5.5', [['api', 'API', c.sonnet.api], ['gui', 'GUI', c.sonnet.gui]]],
-    ['Gemini 3.5 Flash-Lite', [['api', 'API', c.flashlite.api], ['gui', 'GUI', c.flashlite.gui]]]]);
+  pair(q('#c-equiv'), R.confirm_frontier.map((r) => [r.model, [['api', 'API', r.api], ['gui', 'GUI', r.gui]]]));
+  const per = (v) => ({ v: 25 * v, label: `${v.toFixed(1)}` });  // bars on a 0 to 4 scale
+  pair(q('#c-extra'), R.extra_orders.map((r) => [r.model, [['api', 'API', per(r.api).v, null, per(r.api).label], ['gui', 'GUI', per(r.gui).v, null, per(r.gui).label]]]));
   pair(q('#c-openmrs'), R.openmrs.slice(0, 3).map((r) => [r.model, [['gui', 'Our GUI', r.our_gui.mean, r.our_gui.ci], ['openmrs', 'OpenMRS', r.gui_b_v2.mean, r.gui_b_v2.ci]]]));
-  q('#astra-api').textContent = Math.round(R.astra_confirm.api) + '%';
-  q('#astra-gui').textContent = Math.round(R.astra_confirm.gui) + '%';
 }
 
 function grader(rows) {
@@ -239,4 +253,75 @@ function donut(fig, title, segs) {
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold: 0.2});
   const watch = () => document.querySelectorAll('.bars:not(.in), .viz:not(.in)').forEach(el => io.observe(el));
   watch(); ['#lb', '#findings', '#grader'].forEach(sel => { const el = document.querySelector(sel); if (el) new MutationObserver(watch).observe(el, {childList: true, subtree: true}); });
+})();
+
+// ------------------------------------------------------------------ failure clips
+// Short stretches of synthetic-task episodes, loaded when the block first comes into view and played only while it is visible.
+(() => {
+  const root = q('#fails');
+  if (!root) return;
+  const BASEF = 'assets/fails/';
+  let clips, cur = 0, run = 0, stage, visible = false;
+  const shot = q('#clip-shot'), calls = q('#clip-calls'), chip = q('#skipchip');
+  const say = (id, t) => { q(id).textContent = t; };
+  function select(k) {
+    cur = k; run++;
+    q('#fail-tabs').querySelectorAll('button').forEach((b, j) => b.setAttribute('aria-selected', String(j === k)));
+    const c = clips[k];
+    say('#clip-model', `${c.model} · ${c.interface}`); say('#clip-cap', c.caption); say('#clip-check', c.check);
+    const api = !c.frames;
+    shot.hidden = api; calls.hidden = !api; chip.classList.remove('on');
+    if (api) { calls.innerHTML = ''; say('#clip-count', `${c.calls.length} tool calls`); }
+    else { stage.show(c.frames[0]); say('#clip-count', `Action ${c.frames[0].n} of ${c.actions}`); }
+    if (visible && !reducedMotion) play(run).catch(() => {});
+  }
+  async function play(t) {
+    const alive = () => t === run, wait = (ms) => stage.wait(ms, alive), c = clips[cur];
+    for (;;) {
+      if (!c.frames) {  // API clip: each call types in as it fires, orders in bold
+        calls.innerHTML = ''; let orders = 0;
+        for (const x of c.calls) {
+          const li = h('li', x.create ? 'create' : '');
+          li.innerHTML = `<span class="n">${x.n}</span><code></code>${x.what ? `<small>${x.what}</small>` : ''}`;
+          calls.append(li); calls.scrollTop = calls.scrollHeight;
+          const code = q('code', li);
+          for (let j = 1; j <= x.tool.length; j += 3) { code.textContent = x.tool.slice(0, j); await wait(14); }
+          code.textContent = x.tool;
+          if (x.create) orders++;
+          say('#clip-count', `${orders} order${orders === 1 ? '' : 's'} placed`);
+          await wait(x.create ? 650 : 380);
+        }
+        await wait(3200); continue;
+      }
+      const F = c.frames;
+      stage.show(F[0]);
+      if (c.skipped_before) { chip.textContent = `${c.skipped_before} earlier actions skipped`; chip.classList.add('on'); await wait(1400); chip.classList.remove('on'); }
+      for (let j = 0; j < F.length - 1; j++) {
+        const f = F[j]; if (f.skip) continue;
+        say('#clip-count', `Action ${f.n} of ${c.actions}`);
+        await stage.act(f, alive);
+        let next = F[j + 1];
+        if (next.skip) { chip.textContent = `${next.skip} actions later`; chip.classList.add('on'); next = F[j + 2]; j++; }
+        await stage.crossfade(next, alive);
+        stage.show(next, [F[j + 2]]);
+        if (chip.classList.contains('on')) { await wait(900); chip.classList.remove('on'); }
+        await wait(160);
+      }
+      say('#clip-count', `Ended after ${c.actions} actions`);
+      await wait(2600);
+    }
+  }
+  new IntersectionObserver(([e]) => {
+    visible = e.isIntersecting;
+    if (!visible) { run++; return; }
+    if (!clips) {
+      fetch(BASEF + 'clips.json?v=202611072328').then((r) => r.json()).then((d) => {
+        clips = d;
+        stage = makeStage(shot, BASEF);
+        q('#fail-tabs').innerHTML = d.map((c, k) => `<button type="button" role="tab" aria-selected="${k === 0}">${c.tab}</button>`).join('');
+        q('#fail-tabs').onclick = (ev) => { const b = ev.target.closest('button'); if (b) select([...b.parentNode.children].indexOf(b)); };
+        select(0);
+      });
+    } else select(cur);
+  }, { threshold: 0.3 }).observe(root);
 })();

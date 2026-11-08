@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611072248">
+<link rel="stylesheet" href="style.css?v=202611072328">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -98,40 +98,58 @@
 
 <section id="leaderboard" class="band">
   <h2>Leaderboard</h2>
-  <p class="lead">Fifteen models on 39 real specialist consultations, three attempts per task through each interface.</p>
+  <p class="lead">Fifteen models on 39 consultations adapted from real specialist referrals, three attempts per task through each interface.</p>
   <div class="lb-head">
     <div class="cats" id="cats" role="tablist" aria-label="Task category"></div>
     <div class="seg" role="group" aria-label="Measure">
-      <button type="button" data-v="p1" aria-pressed="true" title="Average success over the three attempts at each task">pass@1</button>
-      <button type="button" data-v="p1_all3" aria-pressed="false" title="Share of tasks solved on all three attempts">pass<sup>3</sup></button>
+      <button type="button" data-v="s2" aria-pressed="true" title="Average success over the three attempts at each task">pass@1</button>
+      <button type="button" data-v="s2_all3" aria-pressed="false" title="Share of tasks solved on all three attempts">pass<sup>3</sup></button>
     </div>
   </div>
   <div class="lb"><p class="key lb-key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</p><div id="lb"></div></div>
-  <p class="caption">Percent of tasks, with 95% intervals. Select a model for details.</p>
+  <p class="caption">Scored with our revised checks, which no ordering script can pass. Percent of tasks, with 95% intervals. Select a model for details.</p>
+  <p class="caption quiet">Evaluated October to November 2026 · <a href="https://github.com/ybkim95/health-cua#readme">How to submit</a></p>
 </section>
 
 <section id="findings">
   <h2>What we found</h2>
   <div class="cards">
     <article class="card">
-      <h3>Frontier models do about as well on screen as through the API</h3>
+      <h3>On screen, frontier models do as well as through the API, or better</h3>
       <div class="viz" id="c-equiv"></div>
       <p class="note">150 held out tasks</p>
     </article>
     <article class="card">
-      <h3>Memory decides whether a screen agent succeeds</h3>
+      <h3>Three screenshots are not enough</h3>
       <div class="big"><span>1%</span><i>→</i><span>69%</span></div>
-      <p class="note">Claude Sonnet 5.5 on screen, last 3 screenshots against full history</p>
+      <p class="note">Claude Sonnet 5.5, Anthropic's default of three screenshots against full history</p>
     </article>
     <article class="card">
       <h3>A second EHR costs 15 to 19 points</h3>
       <div class="viz" id="c-openmrs"></div>
     </article>
     <article class="card">
-      <h3>The screen prevents some mistakes and causes others</h3>
-      <div class="big"><span id="astra-api"></span><i>→</i><span id="astra-gui"></span></div>
-      <p class="note">GPT-6 Astra, API against GUI, 30 held out tasks</p>
+      <h3>On screen, agents order fewer tests they do not need</h3>
+      <div class="viz" id="c-extra"></div>
+      <p class="note">Reasonable extra orders per episode on the 39 consultations</p>
     </article>
+  </div>
+
+  <div class="fails" id="fails">
+    <h3>How agents fail</h3>
+    <div class="fail-tabs" id="fail-tabs" role="tablist" aria-label="Failure"></div>
+    <div class="clip">
+      <div class="clip-stage">
+        <div class="shot" id="clip-shot"><img alt="The EHR screen the agent saw" width="1200" height="750"><span class="skipchip" id="skipchip"></span></div>
+        <ol class="clip-calls" id="clip-calls" hidden></ol>
+      </div>
+      <div class="clip-side">
+        <p class="clip-model" id="clip-model"></p>
+        <p class="clip-cap" id="clip-cap"></p>
+        <p class="clip-check" id="clip-check"></p>
+        <p class="clip-count" id="clip-count"></p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -172,7 +190,7 @@
   <video id="video" controls playsinline preload="none" poster="assets/video/overview-poster.jpg" data-src="assets/video/overview.mp4" width="1920" height="1080"></video>
 </dialog>
 
-<script src="viewer.js?v=202611072248" defer></script>
-<script src="app.js?v=202611072248" defer></script>
+<script src="viewer.js?v=202611072328" defer></script>
+<script src="app.js?v=202611072328" defer></script>
 </body>
 </html>

@@ -8,14 +8,13 @@ const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls)
 const BASE = 'assets/demo/sr259/';
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-let D, ui = 'gui', i = 0, run = 0, playing = false, userPaused = false, ptr = { x: 50, y: 50 }, apiShown = -1;
+let D, S, ui = 'gui', i = 0, run = 0, playing = false, userPaused = false, apiShown = -1;
 
-fetch(BASE + 'episode.json?v=202611072248').then((r) => r.json()).then((d) => { D = d; init(); })
+fetch(BASE + 'episode.json?v=202611072328').then((r) => r.json()).then((d) => { D = d; init(); })
   .catch(() => { $('do').textContent = 'The episode could not be loaded.'; });
 
 const frames = (name) => D.interfaces[name].frames;
 const indicesOf = (list, phase, skipLast) => list.map((f, k) => (f.phase === phase && !(skipLast && k === list.length - 1) ? k : -1)).filter((k) => k >= 0);
-const sleep = (ms, token) => new Promise((res, rej) => setTimeout(() => (token === run ? res() : rej(new Error('stopped'))), ms / SPEED));
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 // Position of the screen episode within its phase, so the API pane can follow.
@@ -32,9 +31,7 @@ function locate(list, w, hasFinalFrame) {
 }
 
 function init() {
-  const shot = $('shot');
-  shot.insertAdjacentHTML('beforeend', '<img class="layer next" alt="" aria-hidden="true"><span class="ripple"></span><span class="bubble"></span><span class="keycap"></span><span class="wheel"></span>'
-    + '<svg class="pointer" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5v17.2l4.4-4.2 2.9 6.6 2.6-1.1-2.8-6.5 6.1-.3z"/></svg>');
+  S = makeStage($('shot'), BASE);
   buildCalls(); buildPhases(); buildOutcome();
   document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => { userPaused = true; stop(); setUi(t.dataset.ui); }));
   $('prev').onclick = () => { userPaused = true; stop(); show(i - 1); };
@@ -105,19 +102,11 @@ function show(k) {
   const m = frames(ui);
   i = Math.max(0, Math.min(m.length - 1, k));
   const f = m[i];
-  const cur = $('shot-img');
-  cur.src = BASE + f.img;
-  [m[i + 1], m[i + 2]].forEach((n) => { if (n) new Image().src = BASE + n.img; });
-  if (f.x != null) { ptr = { x: f.x, y: f.y }; }
-  place(ptr);
-  sq('.pointer').style.opacity = f.do ? 1 : 0;
-  ['bubble', 'keycap', 'wheel'].forEach((c) => sq('.' + c).classList.remove('on'));
+  S.show(f, [m[i + 1], m[i + 2]]);
   caption(f);
   sync();
 }
 
-const sq = (s) => $('shot').querySelector(s);
-function place(p) { const s = sq('.pointer'); s.style.left = p.x + '%'; s.style.top = p.y + '%'; }
 function caption(f) {
   const doEl = $('do');
   doEl.textContent = '';
@@ -157,93 +146,108 @@ function start() {
 function stop() {
   run++; playing = false;
   $('play').textContent = '▶'; $('play').setAttribute('aria-label', 'Play');
-  ['bubble', 'keycap', 'wheel'].forEach((c) => sq('.' + c).classList.remove('on'));
+  S.clear();
 }
 
 async function loop(token) {
+  const alive = () => token === run, sleep = (ms) => S.wait(ms, alive);
   for (;;) {
     const m = frames(ui);
     if (i >= m.length - 1) {  // end of this interface: rest, then play the other one from the start
-      await sleep(2200, token);
+      await sleep(2200);
       ui = ui === 'gui' ? 'openmrs' : 'gui';
       document.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.ui === ui)));
-      show(0); await sleep(600, token); continue;
+      show(0); await sleep(600); continue;
     }
-    await act(m[i], token);
-    await crossfade(m[i + 1], token);
+    await S.act(m[i], alive);
+    await S.crossfade(m[i + 1], alive);
     i++; show(i);
-    await sleep(160, token);
+    await sleep(160);
   }
 }
 
-// Glide the pointer to the action point, then press, type, scroll or press a key as the step records.
-async function act(f, token) {
-  const target = f.x != null ? { x: f.x, y: f.y } : ptr;
-  await glide(target, token);
-  const kind = (f.do || '').split(' ')[0];
-  if (kind === 'Click' || kind === 'Select') {
-    const p = sq('.pointer'), r = sq('.ripple');
-    r.style.left = target.x + '%'; r.style.top = target.y + '%';
-    p.classList.add('press'); r.classList.remove('go'); void r.offsetWidth; r.classList.add('go');
-    await sleep(170, token); p.classList.remove('press'); await sleep(200, token);
-  } else if (kind === 'Type') {
-    const m = f.do.match(/“(.*)”/), text = m ? m[1].replace(/ …$/, '') : '';
-    const b = sq('.bubble');
-    b.style.left = Math.min(target.x, 62) + '%'; b.style.top = target.y + '%';
-    b.textContent = ''; b.classList.add('on');
-    const per = Math.max(12, Math.min(55, 1500 / Math.max(1, text.length)));
-    for (let c = 1; c <= text.length; c++) { b.textContent = text.slice(0, c); await sleep(per, token); }
-    await sleep(250, token);
-    if (/press Enter/.test(f.do)) await key('Enter', target, token);
-    b.classList.remove('on');
-  } else if (kind === 'Scroll') {
-    const w = sq('.wheel');
-    w.style.left = target.x + '%'; w.style.top = target.y + '%'; w.classList.add('on');
-    $('shot-img').classList.add('scrolling'); await sleep(520, token);
-    $('shot-img').classList.remove('scrolling'); w.classList.remove('on');
-  } else if (kind === 'Press') {
-    await key(f.do.replace('Press ', ''), target, token);
-  } else {
-    await sleep(300, token);
+// A screenshot stage with a pointer that replays recorded actions (glide, press, type, scroll, keys). The main player and the
+// failure clips each own one. alive() turns false when playback stops, which cancels any step in flight.
+function makeStage(shot, base) {
+  shot.insertAdjacentHTML('beforeend', '<img class="layer next" alt="" aria-hidden="true"><span class="ripple"></span><span class="bubble"></span><span class="keycap"></span><span class="wheel"></span>'
+    + '<svg class="pointer" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5v17.2l4.4-4.2 2.9 6.6 2.6-1.1-2.8-6.5 6.1-.3z"/></svg>');
+  const sq = (s) => shot.querySelector(s), img = shot.querySelector('img:not(.layer)');
+  let ptr = { x: 50, y: 50 };
+  const wait = (ms, alive) => new Promise((res, rej) => setTimeout(() => (alive() ? res() : rej(new Error('stopped'))), ms / SPEED));
+  const place = (p) => { const e = sq('.pointer'); e.style.left = p.x + '%'; e.style.top = p.y + '%'; };
+  const clear = () => ['bubble', 'keycap', 'wheel'].forEach((c) => sq('.' + c).classList.remove('on'));
+  function show(f, preload = []) {
+    img.src = base + f.img;
+    preload.forEach((n) => { if (n && n.img) new Image().src = base + n.img; });
+    if (f.x != null) ptr = { x: f.x, y: f.y };
+    place(ptr); sq('.pointer').style.opacity = f.do ? 1 : 0; clear();
   }
-}
-
-async function key(name, at, token) {
-  const k = sq('.keycap');
-  k.textContent = name; k.style.left = Math.min(at.x, 85) + '%'; k.style.top = at.y + '%';
-  k.classList.add('on'); await sleep(450, token); k.classList.remove('on');
-}
-
-function glide(to, token) {
-  const from = { ...ptr }, d = Math.hypot(to.x - from.x, to.y - from.y);
-  const dur = (reduced ? 0 : Math.min(900, 380 + d * 9)) / SPEED;
-  return new Promise((res, rej) => {
-    const t0 = performance.now();
-    const frame = (now) => {
-      if (token !== run) return rej(new Error('stopped'));
-      const t = dur ? Math.min(1, (now - t0) / dur) : 1, e = ease(t);
-      // a slight arc, as a hand moves a mouse
-      ptr = { x: from.x + (to.x - from.x) * e, y: from.y + (to.y - from.y) * e - Math.sin(Math.PI * e) * Math.min(4, d / 12) };
-      place(ptr);
-      t < 1 ? requestAnimationFrame(frame) : (ptr = { ...to }, res());
-    };
-    requestAnimationFrame(frame);
-  });
-}
-
-function crossfade(nextFrame, token) {
-  if (!nextFrame) return Promise.resolve();
-  const n = sq('.layer.next');
-  return new Promise((res, rej) => {
-    n.onload = () => {
-      n.onload = null; n.classList.add('in');
-      setTimeout(() => {
-        if (token !== run) { n.classList.remove('in'); return rej(new Error('stopped')); }
-        $('shot-img').src = n.src;  // the faded-in layer becomes the base, then the layer resets without a flash
-        requestAnimationFrame(() => { n.classList.remove('in'); res(); });
-      }, 340 / SPEED);
-    };
-    n.src = BASE + nextFrame.img;
-    if (n.complete && n.naturalWidth) n.onload();
-  });
+  function glide(to, alive) {
+    const from = { ...ptr }, d = Math.hypot(to.x - from.x, to.y - from.y);
+    const dur = (reduced ? 0 : Math.min(900, 380 + d * 9)) / SPEED;
+    return new Promise((res, rej) => {
+      const t0 = performance.now();
+      const frame = (now) => {
+        if (!alive()) return rej(new Error('stopped'));
+        const t = dur ? Math.min(1, (now - t0) / dur) : 1, e = ease(t);
+        // a slight arc, as a hand moves a mouse
+        ptr = { x: from.x + (to.x - from.x) * e, y: from.y + (to.y - from.y) * e - Math.sin(Math.PI * e) * Math.min(4, d / 12) };
+        place(ptr);
+        t < 1 ? requestAnimationFrame(frame) : (ptr = { ...to }, res());
+      };
+      requestAnimationFrame(frame);
+    });
+  }
+  async function key(name, at, alive) {
+    const k = sq('.keycap');
+    k.textContent = name; k.style.left = Math.min(at.x, 85) + '%'; k.style.top = at.y + '%';
+    k.classList.add('on'); await wait(450, alive); k.classList.remove('on');
+  }
+  async function act(f, alive) {
+    const target = f.x != null ? { x: f.x, y: f.y } : ptr;
+    await glide(target, alive);
+    const kind = (f.do || '').split(' ')[0];
+    if (kind === 'Click' || kind === 'Select' || kind === 'Double') {
+      const p = sq('.pointer'), r = sq('.ripple');
+      r.style.left = target.x + '%'; r.style.top = target.y + '%';
+      p.classList.add('press'); r.classList.remove('go'); void r.offsetWidth; r.classList.add('go');
+      await wait(170, alive); p.classList.remove('press'); await wait(200, alive);
+    } else if (kind === 'Type') {
+      const m = f.do.match(/“(.*)”/), text = m ? m[1].replace(/ …$/, '') : '';
+      const b = sq('.bubble');
+      b.style.left = Math.min(target.x, 62) + '%'; b.style.top = target.y + '%';
+      b.textContent = ''; b.classList.add('on');
+      const per = Math.max(12, Math.min(55, 1500 / Math.max(1, text.length)));
+      for (let c = 1; c <= text.length; c++) { b.textContent = text.slice(0, c); await wait(per, alive); }
+      await wait(250, alive);
+      if (/press Enter/.test(f.do)) await key('Enter', target, alive);
+      b.classList.remove('on');
+    } else if (kind === 'Scroll') {
+      const w = sq('.wheel');
+      w.style.left = target.x + '%'; w.style.top = target.y + '%'; w.classList.add('on');
+      img.classList.add('scrolling'); await wait(520, alive);
+      img.classList.remove('scrolling'); w.classList.remove('on');
+    } else if (kind === 'Press') {
+      await key(f.do.replace('Press ', ''), target, alive);
+    } else {
+      await wait(300, alive);
+    }
+  }
+  function crossfade(nextFrame, alive) {
+    if (!nextFrame) return Promise.resolve();
+    const n = sq('.layer.next');
+    return new Promise((res, rej) => {
+      n.onload = () => {
+        n.onload = null; n.classList.add('in');
+        setTimeout(() => {
+          if (!alive()) { n.classList.remove('in'); return rej(new Error('stopped')); }
+          img.src = n.src;  // the faded-in layer becomes the base, then the layer resets without a flash
+          requestAnimationFrame(() => { n.classList.remove('in'); res(); });
+        }, 340 / SPEED);
+      };
+      n.src = base + nextFrame.img;
+      if (n.complete && n.naturalWidth) n.onload();
+    });
+  }
+  return { show, act, crossfade, wait, clear };
 }

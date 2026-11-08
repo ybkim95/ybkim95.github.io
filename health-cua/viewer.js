@@ -10,7 +10,7 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 let D, S, ui = 'gui', i = 0, run = 0, playing = false, userPaused = false, apiShown = -1;
 
-fetch(BASE + 'episode.json?v=202611072328').then((r) => r.json()).then((d) => { D = d; init(); })
+fetch(BASE + 'episode.json?v=202611072332').then((r) => r.json()).then((d) => { D = d; init(); })
   .catch(() => { $('do').textContent = 'The episode could not be loaded.'; });
 
 const frames = (name) => D.interfaces[name].frames;

@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611081209">
+<link rel="stylesheet" href="style.css?v=202611081224">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -182,9 +182,9 @@
   <h2>Submit your model</h2>
   <p class="lead">Run your model on the same tasks, interfaces and grader, and send us the results.</p>
   <ol class="steps">
-    <li><b>Set up the environment</b><div class="cmd"><pre id="cmd1">git clone --recursive https://github.com/ybkim95/health-cua.git &amp;&amp; cd health-cua &amp;&amp; uv sync &amp;&amp; docker compose up -d --wait</pre><button class="btn small" type="button" data-copy="cmd1">Copy</button></div></li>
-    <li><b>Run the synthetic tasks through both interfaces</b><span>Set <code>OPENAI_BASE_URL</code> and <code>OPENAI_API_KEY</code> for an OpenAI compatible endpoint, or <a href="https://github.com/ybkim95/health-cua/blob/main/docs/adding-models.md">add your own agent</a>.</span><div class="cmd"><pre id="cmd2">uv run health-cua eval --model openai-compatible/&lt;your-model&gt; --surface both --tasks synthetic --repeats 3 --local</pre><button class="btn small" type="button" data-copy="cmd2">Copy</button></div></li>
-    <li><b>Send the results</b><span>Open an issue on the repository with the <code>results.json</code> of your run, the model name and how it was served.</span></li>
+    <li><b>Set up the environment</b><div class="cmd"><pre id="cmd1">git clone --recursive https://github.com/ybkim95/health-cua.git &amp;&amp; cd health-cua &amp;&amp; uv sync &amp;&amp; docker compose up -d --build --wait</pre><button class="btn small" type="button" data-copy="cmd1">Copy</button></div></li>
+    <li><b>Run your model</b><span>Set <code>OPENAI_BASE_URL</code> and <code>OPENAI_API_KEY</code> for an OpenAI compatible endpoint, or <a href="https://github.com/ybkim95/health-cua/blob/main/docs/adding-models.md">add your own agent</a>.</span><span>Smoke test, minutes and cents</span><div class="cmd"><pre id="cmd2">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks synthetic --limit 3 --repeats 1 --local --price-in &lt;USD per million input tokens&gt; --price-out &lt;USD per million output tokens&gt;</pre><button class="btn small" type="button" data-copy="cmd2">Copy</button></div><span>Full run for a submission</span><div class="cmd"><pre id="cmd3">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks synthetic --repeats 3 --local --price-in &lt;USD per million input tokens&gt; --price-out &lt;USD per million output tokens&gt;</pre><button class="btn small" type="button" data-copy="cmd3">Copy</button></div></li>
+    <li><b>Send the results</b><span>Open an issue with the <a href="https://github.com/ybkim95/health-cua/issues/new?template=submission.md">Submission template</a> and attach <code>results.json</code> from your run.</span></li>
   </ol>
   <p class="links"><a href="https://github.com/ybkim95/health-cua/blob/main/docs/submitting-results.md">Submission guide</a> · <a href="https://github.com/ybkim95/health-cua/blob/main/docs/adding-models.md">Add your own agent</a> · Questions or results: <a href="mailto:ybkim95@mit.edu">ybkim95@mit.edu</a></p>
   <p class="caption quiet">Models on the leaderboard were evaluated October to November 2026.</p>
@@ -212,7 +212,7 @@
   <video id="video" controls playsinline preload="none" poster="assets/video/overview-poster.jpg" data-src="assets/video/overview.mp4" width="1920" height="1080"></video>
 </dialog>
 
-<script src="viewer.js?v=202611081209" defer></script>
-<script src="app.js?v=202611081209" defer></script>
+<script src="viewer.js?v=202611081224" defer></script>
+<script src="app.js?v=202611081224" defer></script>
 </body>
 </html>

@@ -81,7 +81,7 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   go(0); play();
 })();
 
-fetch('data/results.json?v=202611081209').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611081224').then((r) => r.json()).then((R) => {
   board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
@@ -318,7 +318,7 @@ function donut(fig, title, segs, unit = 'tasks') {
     visible = e.isIntersecting;
     if (!visible) { run++; return; }
     if (!clips) {
-      fetch(BASEF + 'clips.json?v=202611081209').then((r) => r.json()).then((d) => {
+      fetch(BASEF + 'clips.json?v=202611081224').then((r) => r.json()).then((d) => {
         clips = d;
         stage = makeStage(shot, BASEF);
         q('#fail-tabs').innerHTML = d.map((c, k) => `<button type="button" role="tab" aria-selected="${k === 0}">${c.tab}</button>`).join('');

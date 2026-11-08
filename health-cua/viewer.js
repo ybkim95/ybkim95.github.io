@@ -11,7 +11,7 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 let D, S, ui = 'gui', i = 0, run = 0, playing = false, userPaused = false, apiShown = -1;
 
-fetch(ROOTDIR + 'episode.json?v=202611080110').then((r) => r.json()).then((d) => { D = d; init(); })
+fetch(ROOTDIR + 'episode.json?v=202611081209').then((r) => r.json()).then((d) => { D = d; init(); })
   .catch(() => { $('do').textContent = 'The episode could not be loaded.'; });
 
 const frames = (name) => D.interfaces[name].frames;
@@ -38,7 +38,8 @@ function locate(list, w, hasFinalFrame) {
 function init() {
   S = makeStage($('shot'), () => BASE);
   agents();
-  buildCalls(); buildPhases(); buildOutcome();
+  buildCalls(); buildPhases(); buildOutcome(); drawLanes();
+  addEventListener('resize', () => { clearTimeout(drawLanes.t); drawLanes.t = setTimeout(drawLanes, 200); });
   document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => { userPaused = true; stop(); setUi(t.dataset.ui); }));
   $('prev').onclick = () => { userPaused = true; stop(); show(i - 1); };
   $('next').onclick = () => { userPaused = true; stop(); show(i + 1); };
@@ -57,7 +58,7 @@ function init() {
 
 // Agent chips: each agent's episode of the same task loads when chosen; an interface it has no episode for is hidden.
 function agents() {
-  fetch(ROOTDIR + 'models.json?v=202611080110').then((r) => r.json()).then((list) => {
+  fetch(ROOTDIR + 'models.json?v=202611081209').then((r) => r.json()).then((list) => {
     MODELS = list; CACHE[''] = D;
     const box = $('agents');
     box.innerHTML = list.map((m, k) => `<button type="button" role="tab" aria-selected="${k === 0}" data-k="${m.key}">${m.model}</button>`).join('');
@@ -70,17 +71,64 @@ function agents() {
 }
 function pick(key) {
   stop(); userPaused = false;
-  const load = CACHE[key] ? Promise.resolve(CACHE[key]) : fetch(ROOTDIR + key + '/episode.json?v=202611080110').then((r) => r.json()).then((d) => (CACHE[key] = d));
+  const load = CACHE[key] ? Promise.resolve(CACHE[key]) : fetch(ROOTDIR + key + '/episode.json?v=202611081209').then((r) => r.json()).then((d) => (CACHE[key] = d));
   load.then((d) => {
     D = d; BASE = ROOTDIR + (key ? key + '/' : ''); apiShown = -1;
     $('calls').innerHTML = ''; $('outcome-grid').innerHTML = '';
-    buildCalls(); buildOutcome();
+    buildCalls(); buildOutcome(); drawLanes();
     document.querySelectorAll('.tab').forEach((t) => { t.hidden = !D.interfaces[t.dataset.ui]; });
     ui = D.interfaces.gui ? 'gui' : 'openmrs';
     document.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.ui === ui)));
     show(0);
     if (visible && !reduced) start();
   });
+}
+
+// Trajectory plot under the player: one segment per interface on a shared step scale, a row per chart section, dots coloured
+// by phase, a cursor at the current step. Clicking a dot moves the player there.
+const ROWS = ['Inbox', 'Summary', 'Problems', 'Medications', 'Results', 'Notes', 'Orders', 'Note writing', 'Sign'];
+const PH = ['Read the chart', 'Place the order', 'Write the note', 'Finish'];
+function drawLanes() {
+  const box = $('lanes'); if (!box || !D) return;
+  const G = ['api', 'gui', 'openmrs'].filter((n) => D.interfaces[n]).map((n) => ({ n, fr: D.interfaces[n].frames, len: D.interfaces[n].actions }));
+  const LW = 96, P = 15, TOP = 20, GAP = 22, total = G.reduce((s, g) => s + g.len, 0);
+  const unit = Math.max(6, (box.clientWidth - LW - GAP * (G.length - 1) - 8) / total);
+  let x = LW, out = '';
+  ROWS.forEach((r, k) => { out += `<text class="rl" x="${LW - 8}" y="${TOP + k * P + 4}">${r}</text><line class="grid" x1="${LW}" x2="100%" y1="${TOP + k * P}" y2="${TOP + k * P}"/>`; });
+  G.forEach((g) => {
+    g.x0 = x; g.w = g.len * unit;
+    const X = (f, k) => x + ((f.n || g.len) - 0.5) * unit, Y = (f) => TOP + ROWS.indexOf(f.sec) * P;
+    out += `<text class="gl" x="${x}" y="11">${NAMES[g.n]} <tspan>${g.len} ${g.n === 'api' ? 'calls' : 'actions'}</tspan></text>`;
+    out += `<polyline class="path" points="${g.fr.map((f, k) => X(f, k) + ',' + Y(f)).join(' ')}"/>`;
+    out += g.fr.map((f, k) => `<circle class="dot p${f.phase}" data-g="${g.n}" data-k="${k}" cx="${X(f, k)}" cy="${Y(f)}" r="3.2"><title>${NAMES[g.n]}, ${f.n ? (g.n === 'api' ? 'call ' : 'action ') + f.n : 'end'}: ${f.sec}</title></circle>`).join('');
+    out += `<line class="cur" id="cur-${g.n}" y1="${TOP - 6}" y2="${TOP + (ROWS.length - 1) * P + 6}"/>`;
+    x += g.w + GAP;
+  });
+  const W = x - GAP + 8, H = TOP + (ROWS.length - 1) * P + 10;
+  box.innerHTML = `<svg width="${W}" height="${H}" role="img" aria-label="Trajectory of ${D.model}: ${G.map((g) => `${NAMES[g.n]} ${g.len} steps`).join(', ')}">${out}</svg>`
+    + `<p class="lane-key">${PH.map((t, k) => `<span><i class="p${k}"></i>${t}</span>`).join('')}</p>`;
+  box.G = G; box.unit = unit;
+  box.querySelector('svg').onclick = (e) => {
+    const d = e.target.closest('.dot'); if (!d) return;
+    userPaused = true; stop();
+    const g = d.dataset.g, k = +d.dataset.k;
+    if (g === 'api') { const t = frames(ui).findIndex((f) => f.phase >= frames('api')[k].phase); show(t >= 0 ? t : 0); return; }
+    if (g !== ui) { ui = g; document.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.ui === ui))); }
+    show(k);
+  };
+  laneCursor(-1);
+}
+function laneCursor(a) {
+  const box = $('lanes'); if (!box || !box.G) return;
+  box.G.forEach((g) => {
+    const c = $('cur-' + g.n); if (!c) return;
+    const k = g.n === 'api' ? Math.min(a < 0 ? 0 : a, g.fr.length - 1) : g.n === ui ? i : -1;
+    if (k < 0) { c.style.display = 'none'; return; }
+    const f = g.fr[k], xx = g.x0 + ((f.n || g.len) - 0.5) * box.unit;
+    c.style.display = ''; c.setAttribute('x1', xx); c.setAttribute('x2', xx);
+  });
+  box.querySelectorAll('.dot.now').forEach((d) => d.classList.remove('now'));
+  const d = box.querySelector(`.dot[data-g="${ui}"][data-k="${i}"]`); if (d) d.classList.add('now');
 }
 
 function buildCalls() {
@@ -166,6 +214,7 @@ function sync() {
   const na = frames('api').length;
   $('api-count').textContent = a < na ? 'Call ' + frames('api')[a].n + ' of ' + D.interfaces.api.actions : D.interfaces.api.actions + ' calls';
   [...$('phases').children].forEach((b, k) => b.classList.toggle('on', k === where().phase));
+  laneCursor(a);
   const s = $('scrub');
   s.max = String(frames(ui).length - 1);
   s.value = String(i);

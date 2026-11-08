@@ -328,3 +328,32 @@ footer { justify-content: center; }
 .cmd .btn { position: absolute; top: 7px; right: 7px; }
 .links { color: var(--ink2); font-size: .92rem; margin: 0 0 6px; }
 @media (max-width: 600px) { .steps li { padding: 16px 14px 16px 50px; } .steps li::before { left: 14px; } .cmd pre { padding-right: 14px; padding-top: 44px; } }
+
+/* trajectory plot */
+.lanes { margin-top: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); padding: 12px 12px 6px; overflow-x: auto; }
+.lanes svg { display: block; font-family: var(--sans); }
+.lanes .rl { font-size: 10px; fill: var(--ink3); text-anchor: end; }
+.lanes .gl { font-size: 11px; font-weight: 500; fill: var(--ink); } .lanes .gl tspan { font-weight: 400; fill: var(--ink3); }
+.lanes .grid { stroke: var(--line); stroke-width: 1; }
+.lanes .path { fill: none; stroke: var(--ink3); stroke-width: 1; opacity: .35; }
+.lanes .dot { cursor: pointer; stroke: var(--card); stroke-width: 1; }
+.lanes .dot:hover { r: 5; }
+.lanes .dot.now { r: 5.5; stroke: var(--ink); stroke-width: 1.5; }
+.lanes .cur { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 2 2; opacity: .6; }
+.p0 { fill: #9aa0a6; background: #9aa0a6; } .p1 { fill: var(--blue); background: var(--blue); } .p2 { fill: #34a853; background: #34a853; } .p3 { fill: #f9ab00; background: #f9ab00; }
+.lane-key { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 6px 0 0; font-size: .76rem; color: var(--ink3); }
+.lane-key i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+
+/* failure statistics beside the clips */
+.fail-grid { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 28px; align-items: start; }
+.fail-stats { display: grid; gap: 12px; }
+.fail-stats .note { color: var(--ink2); font-size: .86rem; margin: 2px 0 0; }
+.donut-card.mini { grid-template-columns: 1fr; justify-items: center; gap: 10px; padding: 16px; }
+.donut-card.mini .donut { width: 132px; height: 132px; }
+.donut-card.mini .center { inset: 28px; } .donut-card.mini .center b { font-size: 1.35rem; } .donut-card.mini .center span { font-size: .72rem; white-space: normal; }
+.donut-card.mini .legend { width: 100%; font-size: .8rem; }
+.fail-main .clip { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+@media (max-width: 900px) { .fail-grid { grid-template-columns: minmax(0, 1fr); } .fail-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fail-stats .note { grid-column: 1 / -1; } }
+@media (max-width: 600px) { .donut-card.mini .donut { width: 112px; height: 112px; } .donut-card.mini .center { inset: 22px; } .donut-card.mini { padding: 12px; } .donut-card.mini .legend li { padding: 3px 4px; gap: 6px; } }
+.donut-card.mini { min-width: 0; }
+@media (max-width: 600px) { .donut-card.mini .legend { font-size: .72rem; } .donut-card.mini .legend li i { width: 8px; height: 8px; } }

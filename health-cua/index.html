@@ -7,7 +7,7 @@
 <meta name="description" content="Health-CUA gives an AI agent the same clinical task on the same patient record through the EHR's API or through the screens that clinicians use, and grades the orders and notes it leaves in the record.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Health-CUA: Evaluating Clinical Computer Using Agents in Electronic Health Records">
-<meta property="og:description" content="355 clinical tasks, 17 models, the API and the screen on one record, and a second EHR.">
+<meta property="og:description" content="355 clinical tasks, 17 models, the API and the screen on one record, and OpenMRS, a widely used open-source EHR.">
 <meta property="og:url" content="https://ybkim95.github.io/health-cua/">
 <meta property="og:image" content="https://ybkim95.github.io/health-cua/assets/brand/og-card.png">
 <meta property="og:image:width" content="1200">
@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611080110">
+<link rel="stylesheet" href="style.css?v=202611081209">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -60,7 +60,7 @@
 
 <section id="replay">
   <h2>Watch an agent work</h2>
-  <p class="lead">The same clinical request, handled through the API, through the EHR screens, and in OpenMRS.</p>
+  <p class="lead">The same clinical request, handled through the API, through the EHR screens, and in OpenMRS, a widely used open-source EHR.</p>
   <div class="agents" id="agents" role="tablist" aria-label="Agent"></div>
   <p class="request"><b>The request</b> A spreading red patch where a tick bit 9 days ago, in a patient taking isotretinoin for acne. Please assess and treat.</p>
 
@@ -94,12 +94,13 @@
       </div>
     </div>
   </div>
+  <div class="lanes" id="lanes"></div>
   <div class="outcome" id="outcome-grid"></div>
 </section>
 
 <section id="leaderboard" class="band">
   <h2>Leaderboard</h2>
-  <p class="lead">Fifteen models on 39 consultations adapted from real specialist referrals, three attempts per task through each interface.</p>
+  <p class="lead">Fifteen models on real specialist consultations from PhysicianBench, three attempts per task through each interface.</p>
   <div class="lb-head">
     <div class="cats" id="cats" role="tablist" aria-label="Task category"></div>
     <div class="seg" role="group" aria-label="Measure">
@@ -125,18 +126,25 @@
       <p class="note">Claude Sonnet 5.5, Anthropic's default of three screenshots against full history</p>
     </article>
     <article class="card">
-      <h3>A second EHR costs 15 to 19 points</h3>
+      <h3>In OpenMRS, success drops 15 to 19 points</h3>
       <div class="viz" id="c-openmrs"></div>
     </article>
     <article class="card">
       <h3>On screen, agents order fewer tests they do not need</h3>
       <div class="viz" id="c-extra"></div>
-      <p class="note">Reasonable extra orders per episode on the 39 consultations</p>
+      <p class="note">Reasonable extra orders per episode on 39 consultations from PhysicianBench</p>
     </article>
   </div>
 
   <div class="fails" id="fails">
     <h3>How agents fail</h3>
+    <div class="fail-grid">
+    <aside class="fail-stats">
+      <figure class="donut-card mini" id="fs0"></figure>
+      <figure class="donut-card mini" id="fs1"></figure>
+      <p class="note">Frontier models mostly sign incomplete orders. Smaller models mostly never order.</p>
+    </aside>
+    <div class="fail-main">
     <div class="fail-tabs" id="fail-tabs" role="tablist" aria-label="Failure"></div>
     <div class="clip">
       <div class="clip-stage">
@@ -149,6 +157,8 @@
         <p class="clip-check" id="clip-check"></p>
         <p class="clip-count" id="clip-count"></p>
       </div>
+    </div>
+    </div>
     </div>
   </div>
 </section>
@@ -202,7 +212,7 @@
   <video id="video" controls playsinline preload="none" poster="assets/video/overview-poster.jpg" data-src="assets/video/overview.mp4" width="1920" height="1080"></video>
 </dialog>
 
-<script src="viewer.js?v=202611080110" defer></script>
-<script src="app.js?v=202611080110" defer></script>
+<script src="viewer.js?v=202611081209" defer></script>
+<script src="app.js?v=202611081209" defer></script>
 </body>
 </html>

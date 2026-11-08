@@ -5454,5 +5454,29 @@
    "api": 2.9,
    "gui": 0.7
   }
+ ],
+ "fail_stats": [
+  {
+   "group": "Frontier models",
+   "models": [
+    "Claude Opus 5.5",
+    "Claude Sonnet 5.5",
+    "Gemini 4 Argon"
+   ],
+   "missing": 156,
+   "uncommitted": 1,
+   "none": 58
+  },
+  {
+   "group": "Smaller models",
+   "models": [
+    "Claude Haiku 5.5",
+    "GPT-6 Luna",
+    "Gemini 3.5 Flash-Lite"
+   ],
+   "missing": 150,
+   "uncommitted": 8,
+   "none": 354
+  }
  ]
 }

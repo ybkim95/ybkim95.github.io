@@ -81,11 +81,12 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   go(0); play();
 })();
 
-fetch('data/results.json?v=202611080110').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611081209').then((r) => r.json()).then((R) => {
   board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
   donuts(R.tasks);
+  failStats(R.fail_stats);
 }).catch(() => { q('#lb').textContent = 'The results could not be loaded.'; });
 
 // One bar with its 95% whisker and value. v in percent.
@@ -115,7 +116,7 @@ function board(rows, cats) {
   const arms = (r) => (cat === 'Overall' ? { api: r.api, gui: r.gui } : r.cats[cat]);
   const best = (r) => { const a = arms(r); return Math.max(a.gui[key].mean, a.api ? a.api[key].mean : -1); };
   const order = ['Overall', 'Workup', 'Prescribing', 'Treatment planning', 'Diagnosis'];
-  q('#cats').innerHTML = order.map((c) => `<button type="button" role="tab" data-c="${c}" aria-selected="${c === cat}" title="${c === 'Overall' ? 39 : cats[c]} tasks">${c}</button>`).join('');
+  q('#cats').innerHTML = order.map((c) => `<button type="button" role="tab" data-c="${c}" aria-selected="${c === cat}" title="${c === 'Overall' ? 39 : cats[c]} consultations">${c}</button>`).join('');
   q('#cats').onclick = (e) => {
     const b = e.target.closest('button'); if (!b) return;
     cat = b.dataset.c;
@@ -210,12 +211,12 @@ function donuts(T) {
   }));
 }
 
-function donut(fig, title, segs) {
+function donut(fig, title, segs, unit = 'tasks') {
   const total = segs.reduce((s, x) => s + x.n, 0);
   let off = 0;
   const arcs = segs.map((s, k) => {
     s.mid = (off + s.n / 2) / total;  // midpoint of the arc, as a fraction of the ring from 12 o'clock
-    const a = `<circle class="arc" data-k="${k}" cx="100" cy="100" r="78" pathLength="${total}" stroke="${s.color}" stroke-dasharray="${s.n - 0.6} ${total - s.n + 0.6}" stroke-dashoffset="${-off}" tabindex="0" aria-label="${s.label}, ${s.n} tasks"/>`;
+    const a = `<circle class="arc" data-k="${k}" cx="100" cy="100" r="78" pathLength="${total}" stroke="${s.color}" stroke-dasharray="${s.n - 0.6} ${total - s.n + 0.6}" stroke-dashoffset="${-off}" tabindex="0" aria-label="${s.label}, ${s.n} ${unit}"/>`;
     off += s.n; return a;
   }).join('');
   fig.innerHTML = `<div class="donut"><svg viewBox="0 0 200 200" role="img" aria-label="${title}">${arcs}</svg>`
@@ -241,7 +242,8 @@ function donut(fig, title, segs) {
   };
   fig.querySelectorAll('.arc, .legend li').forEach((e) => {
     const k = +e.dataset.k;
-    e.addEventListener('mouseenter', () => set(k, e)); e.addEventListener('focus', () => set(k, e)); e.addEventListener('click', () => set(k, e));
+    e.addEventListener('mouseenter', () => set(k, e)); e.addEventListener('focus', () => set(k, e));
+    e.addEventListener('click', () => { set(k, e); if (segs[k].pick) segs[k].pick(); });
   });
   fig.addEventListener('mouseleave', () => set(null));
 }
@@ -261,7 +263,8 @@ function donut(fig, title, segs) {
   const root = q('#fails');
   if (!root) return;
   const BASEF = 'assets/fails/';
-  let clips, cur = 0, run = 0, stage, visible = false;
+  let clips, cur = 0, run = 0, stage, visible = false, want = 0;
+  window.showFail = (k) => { want = k; if (clips) select(k); };  // the failure donuts open the matching clip
   const shot = q('#clip-shot'), calls = q('#clip-calls'), chip = q('#skipchip');
   const say = (id, t) => { q(id).textContent = t; };
   function select(k) {
@@ -315,13 +318,22 @@ function donut(fig, title, segs) {
     visible = e.isIntersecting;
     if (!visible) { run++; return; }
     if (!clips) {
-      fetch(BASEF + 'clips.json?v=202611080110').then((r) => r.json()).then((d) => {
+      fetch(BASEF + 'clips.json?v=202611081209').then((r) => r.json()).then((d) => {
         clips = d;
         stage = makeStage(shot, BASEF);
         q('#fail-tabs').innerHTML = d.map((c, k) => `<button type="button" role="tab" aria-selected="${k === 0}">${c.tab}</button>`).join('');
         q('#fail-tabs').onclick = (ev) => { const b = ev.target.closest('button'); if (b) select([...b.parentNode.children].indexOf(b)); };
-        select(0);
+        select(want);
       });
     } else select(cur);
   }, { threshold: 0.3 }).observe(root);
 })();
+
+// How failed episodes ended, frontier and smaller models, API and GUI pooled (the paper's failure figure, consultation tasks).
+function failStats(G) {
+  const cats = [['missing', 'Signed, incomplete', 'Orders signed, a required one missing', '#F2B3AE', 0],
+    ['uncommitted', 'Drafted only', 'Order drafted but never signed', '#D64541', null], ['none', 'No order', 'No order placed at all', '#c9cdd3', 1]];
+  G.forEach((g, j) => donut(q('#fs' + j), g.group, cats.map(([k, label, detail, color, tab]) => ({
+    n: g[k], label, color, detail: `${detail}, ${g[k]} of ${g.missing + g.uncommitted + g.none} failed episodes`,
+    pick: tab == null ? null : () => window.showFail && window.showFail(tab) })), 'failed episodes'));
+}

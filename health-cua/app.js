@@ -65,7 +65,8 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
       if (o < -items.length / 2) o += items.length;
       const a = Math.abs(o);
       e.style.transform = `translateX(${o * 44}%) translateZ(${-a * 140}px) rotateY(${-o * 24}deg) scale(${1 - a * 0.06})`;
-      e.style.opacity = a > 2 ? 0 : 1 - a * 0.22;
+      e.style.opacity = a > 2 ? 0 : 1;  // side cards stay opaque so they never show through each other; a veil dims them
+      e.style.setProperty('--dim', Math.min(a * 0.32, 0.7));
       e.style.zIndex = 10 - a;
       e.tabIndex = o === 0 ? 0 : -1;
       e.classList.toggle('on', o === 0);

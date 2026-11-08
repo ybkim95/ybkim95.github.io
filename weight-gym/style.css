@@ -225,3 +225,5 @@ section.band > * { max-width: 1072px; margin-left: auto; margin-right: auto; }
 }
 @media (max-width: 480px) { .brand-name { display: none; } .top nav { gap: 0; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+.btn svg { width: 16px; height: 16px; fill: currentColor; }
+.submit { margin: 20px 0 0; }

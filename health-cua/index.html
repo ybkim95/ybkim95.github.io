@@ -99,15 +99,14 @@
 <section id="leaderboard" class="band">
   <h2>Leaderboard</h2>
   <p class="lead">Fifteen models on 39 real specialist consultations, three attempts per task through each interface.</p>
-  <div class="cats" id="cats" role="tablist" aria-label="Task category"></div>
   <div class="lb-head">
+    <div class="cats" id="cats" role="tablist" aria-label="Task category"></div>
     <div class="seg" role="group" aria-label="Measure">
       <button type="button" data-v="p1" aria-pressed="true" title="Average success over the three attempts at each task">pass@1</button>
       <button type="button" data-v="p1_all3" aria-pressed="false" title="Share of tasks solved on all three attempts">pass<sup>3</sup></button>
     </div>
-    <span class="key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</span>
   </div>
-  <div class="lb" id="lb"></div>
+  <div class="lb"><p class="key lb-key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</p><div id="lb"></div></div>
   <p class="caption">Percent of tasks, with 95% intervals. Select a model for details.</p>
 </section>
 
@@ -143,7 +142,7 @@
 </section>
 
 <section id="tasks">
-  <h2>355 tasks</h2>
+  <h2>Tasks</h2>
   <p class="lead">Real consultations and synthetic patients across 13 fields of medicine, with 150 tasks kept aside to confirm the results.</p>
   <div class="donuts">
     <figure class="donut-card" id="d-sets"></figure>
@@ -155,22 +154,22 @@
   <h2>Cite</h2>
   <div class="bib">
     <button class="btn small" type="button" data-copy="bibtex">Copy BibTeX</button>
-<pre id="bibtex">@article{kim2026healthcua,
-  title   = {Health-CUA: Evaluating Clinical Computer Using Agents
-             in Electronic Health Records},
-  author  = {Kim, Yubin and others},
-  journal = {arXiv preprint},
-  year    = {2026}
+<pre id="bibtex">@misc{kim2026healthcua,
+  title        = {Health-CUA: Evaluating Clinical Computer Using Agents in Electronic Health Records},
+  author       = {Kim, Yubin and others},
+  year         = {2026},
+  howpublished = {\url{https://ybkim95.github.io/health-cua/}}
 }</pre>
   </div>
 </section>
 </main>
 
 <footer><span class="fbrand"><img src="assets/brand/logo-96.png" alt="" width="20" height="20">Health-CUA</span><span>Every patient shown here is synthetic.</span></footer>
+<p class="legal">© 2026 The Health-CUA authors · Code <a href="https://github.com/ybkim95/health-cua/blob/main/LICENSE">Apache 2.0</a> · Synthetic tasks <a href="https://github.com/ybkim95/health-cua/blob/main/DATA_LICENSE.md">CC BY 4.0</a> · <a href="https://github.com/ybkim95/health-cua">GitHub</a></p>
 
 <dialog id="video-modal" aria-label="Overview video">
   <button class="close" type="button" aria-label="Close">×</button>
-  <video id="video" controls playsinline preload="none" poster="assets/video/overview-poster.jpg" data-src="assets/video/overview.mp4" width="1920" height="1080"><track kind="captions" srclang="en" label="English" src="assets/video/overview.vtt"></video>
+  <video id="video" controls playsinline preload="none" poster="assets/video/overview-poster.jpg" data-src="assets/video/overview.mp4" width="1920" height="1080"></video>
 </dialog>
 
 <script src="viewer.js" defer></script>

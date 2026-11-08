@@ -102,7 +102,7 @@ function board(rows, cats) {
   const arms = (r) => (cat === 'Overall' ? { api: r.api, gui: r.gui } : r.cats[cat]);
   const best = (r) => { const a = arms(r); return Math.max(a.gui[key].mean, a.api ? a.api[key].mean : -1); };
   const order = ['Overall', 'Workup', 'Prescribing', 'Treatment planning', 'Diagnosis'];
-  q('#cats').innerHTML = order.map((c) => `<button type="button" role="tab" data-c="${c}" aria-selected="${c === cat}">${c}${c === 'Overall' ? '' : ` <span>${cats[c]}</span>`}</button>`).join('');
+  q('#cats').innerHTML = order.map((c) => `<button type="button" role="tab" data-c="${c}" aria-selected="${c === cat}" title="${c === 'Overall' ? 39 : cats[c]} tasks">${c}</button>`).join('');
   q('#cats').onclick = (e) => {
     const b = e.target.closest('button'); if (!b) return;
     cat = b.dataset.c;

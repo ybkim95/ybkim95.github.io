@@ -257,3 +257,18 @@ dialog video { display: block; width: 100%; height: auto; border-radius: 16px; }
 @media (prefers-color-scheme: dark) { .cats button[aria-selected="true"] { color: #131314; } .cats button[aria-selected="true"] span { color: rgba(19,19,20,.7); } }
 .seg sup { font-size: .7em; line-height: 0; }
 .card p.note { color: var(--ink3); font-size: .84rem; }
+
+/* round 4: tabs and metric on one row, quiet legend, wider tasks, legal line */
+#leaderboard .lb-head { flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+#leaderboard .cats { margin: 0; }
+.lb-key { justify-content: flex-end; font-size: .78rem; color: var(--ink3); margin: 6px 0 2px; display: flex; }
+#tasks { max-width: 1168px; }
+.donut-card { grid-template-columns: 240px minmax(0, 1fr); gap: 48px; padding: 32px; }
+.legal { text-align: center; color: var(--ink3); font-size: .78rem; margin: 0; padding: 16px 16px 28px; border-top: 1px solid var(--line); }
+.legal a { color: var(--ink2); text-decoration: none; } .legal a:hover { text-decoration: underline; }
+@media (max-width: 600px) { .donut-card { grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 20px; } }
+.donut-card { grid-template-columns: 200px minmax(0, 1fr); gap: 40px; }
+.donut-card .donut { width: 200px; height: 200px; }
+.legend li span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 600px) { .donut-card { grid-template-columns: minmax(0, 1fr); } .donut-card .donut { width: 220px; height: 220px; } }
+@media (max-width: 600px) { .bib .btn { position: static; margin-bottom: 10px; } }

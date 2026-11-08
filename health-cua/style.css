@@ -246,3 +246,15 @@ dialog video { display: block; width: 100%; height: auto; border-radius: 16px; }
 
 /* the OpenAI mark is black, so it turns light on the dark theme */
 @media (prefers-color-scheme: dark) { img[src$="openai.png"] { filter: invert(1); } }
+
+/* round 3: narrower leaderboard with category tabs, wider findings, short notes */
+#leaderboard > * { max-width: 900px; }
+#findings { max-width: 1168px; }
+.cats { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px auto 14px; }
+.cats button { border: 1px solid var(--line); background: var(--card); color: var(--ink2); font: 500 .9rem var(--sans); padding: 7px 14px; border-radius: 999px; cursor: pointer; }
+.cats button span { color: var(--ink3); font-weight: 400; margin-left: 2px; }
+.cats button[aria-selected="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
+.cats button[aria-selected="true"] span { color: rgba(255,255,255,.75); }
+@media (prefers-color-scheme: dark) { .cats button[aria-selected="true"] { color: #131314; } .cats button[aria-selected="true"] span { color: rgba(19,19,20,.7); } }
+.seg sup { font-size: .7em; line-height: 0; }
+.card p.note { color: var(--ink3); font-size: .84rem; }

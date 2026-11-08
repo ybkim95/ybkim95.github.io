@@ -31,9 +31,9 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   const S = 'assets/demo/sr259/', C = 'assets/cover/';
   const items = [
     { img: S + 'gui/26072ffcd16d0fed.webp', cap: 'Our GUI, ordering amoxicillin' },
-    { img: S + 'openmrs/1c0ccbf0d226998b.webp', cap: 'OpenMRS, the same order from its catalogue' },
+    { img: S + 'openmrs/1c0ccbf0d226998b.webp', cap: 'OpenMRS, the same order' },
     { api: true, cap: 'API, the same order as one tool call' },
-    { img: C + 'sr153_gui_step17.webp', cap: 'Our GUI, a scanned outside laboratory report' },
+    { img: C + 'sr153_gui_step17.webp', cap: 'Our GUI, a scanned lab report' },
     { img: C + 'sr153_gui_step72.webp', cap: 'Our GUI, reviewing an order before signing' },
     { img: S + 'gui/e805453b35c908db.webp', cap: 'Our GUI, writing the note' },
     { img: S + 'openmrs/b5f5b2d0614eaf6b.webp', cap: 'OpenMRS, the visit note' },
@@ -82,7 +82,7 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
 })();
 
 fetch('data/results.json').then((r) => r.json()).then((R) => {
-  board(R.leaderboard);
+  board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
   donuts(R.tasks);
@@ -96,24 +96,35 @@ const bar = (cls, v, ci, label) => {
 };
 
 // ------------------------------------------------------------------ leaderboard
-function board(rows) {
-  let key = 'p1';
+function board(rows, cats) {
+  let key = 'p1', cat = 'Overall';
   const box = q('#lb');
-  const best = (r) => Math.max(r.gui[key].mean, r.api ? r.api[key].mean : -1);
+  const arms = (r) => (cat === 'Overall' ? { api: r.api, gui: r.gui } : r.cats[cat]);
+  const best = (r) => { const a = arms(r); return Math.max(a.gui[key].mean, a.api ? a.api[key].mean : -1); };
+  const order = ['Overall', 'Workup', 'Prescribing', 'Treatment planning', 'Diagnosis'];
+  q('#cats').innerHTML = order.map((c) => `<button type="button" role="tab" data-c="${c}" aria-selected="${c === cat}">${c}${c === 'Overall' ? '' : ` <span>${cats[c]}</span>`}</button>`).join('');
+  q('#cats').onclick = (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    cat = b.dataset.c;
+    q('#cats').querySelectorAll('button').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+    draw();
+  };
   function draw() {
     box.innerHTML = '';
     [...rows].sort((a, b) => best(b) - best(a)).forEach((r) => {
+      const A = arms(r);
       const row = h('div', 'lb-row');
       row.tabIndex = 0; row.setAttribute('role', 'button'); row.setAttribute('aria-expanded', 'false');
-      row.innerHTML = `<div class="who"><img src="assets/logos/${LOGO[r.maker]}.png" alt="${r.maker}" width="22" height="22"><span>${r.model}</span>${r.open ? '<em>Open weights</em>' : ''}</div>`;
+      row.innerHTML = `<div class="who"><img src="assets/logos/${LOGO[r.maker]}.png" alt="" width="22" height="22"><span>${r.model}</span>${r.open ? '<em>Open weights</em>' : ''}</div>`;
       const bars = h('div', 'bars');
-      if (r.api) bars.append(bar('api', r.api[key].mean, r.api[key].ci, fx(r.api[key].mean)));
-      bars.append(bar('gui', r.gui[key].mean, r.gui[key].ci, fx(r.gui[key].mean)));
+      if (A.api) bars.append(bar('api', A.api[key].mean, A.api[key].ci, fx(A.api[key].mean)));
+      bars.append(bar('gui', A.gui[key].mean, A.gui[key].ci, fx(A.gui[key].mean)));
       row.append(bars);
-      const d = r.delta && r.delta[key];
-      const more = (d ? `API minus GUI ${sgn(d.mean)} points (95% CI ${neg(d.ci[0])} to ${neg(d.ci[1])}).` : 'Run through the GUI only.')
-        + (r.cost ? ` Cost per episode $${r.cost.api.toFixed(2)} through the API and $${r.cost.gui.toFixed(2)} through the GUI.` : '');
-      row.append(h('p', 'more', more));
+      const d = cat === 'Overall' && r.delta && r.delta[key];
+      const gap = !d ? '' : Math.abs(d.mean) < 0.05 ? 'No gap between the two. ' : `${d.mean > 0 ? 'API' : 'GUI'} ahead by ${fx(Math.abs(d.mean))} points (95% CI ${neg(d.ci[0])} to ${neg(d.ci[1])}). `;
+      const more = r.api ? gap + (r.cost ? `One episode costs $${r.cost.api.toFixed(2)} through the API and $${r.cost.gui.toFixed(2)} on screen.` : '')
+        : 'Tested on screen only.';
+      row.append(h('p', 'more', more || `${A.api ? 'API ' + fx(A.api[key].mean) + ', ' : ''}GUI ${fx(A.gui[key].mean)}`));
       const toggle = () => { const open = row.classList.toggle('open'); row.setAttribute('aria-expanded', String(open)); };
       row.onclick = toggle;
       row.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } };
@@ -150,7 +161,7 @@ function findings(R) {
 function grader(rows) {
   const el = q('#c-grader');
   el.innerHTML = '<p class="key"><i class="sw orig"></i>Benchmark\'s own checks <i class="sw rev"></i>Our revised checks</p>';
-  const label = { 'Equivalent order rejected': 'Equivalent orders rejected', 'Tenfold dose accepted': 'Tenfold doses accepted',
+  const label = { 'Equivalent order rejected': 'Correct alternatives rejected', 'Tenfold dose accepted': 'Tenfold doses accepted',
     'Script ordering everything passed': 'A script ordering everything passed', 'Same 15 tests on every task passed': 'The same 15 tests on every task passed' };
   rows.filter((r) => label[r.label]).forEach((r) => {
     const g = h('div', 'pair');
@@ -170,9 +181,9 @@ const ICON = {
   workflow: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',
   confirm: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
 };
-const SETS = { official: ['Consultations', 'Real specialist consultations on deidentified records'], standard: ['Standard', 'Synthetic patients, task types of the consultations'],
-  hard: ['Hard', 'A decisive fact hidden, corrected or computed'], expert: ['Expert twins', 'Pairs that differ in one fact a specialist rule turns into different orders'],
-  workflow: ['Workflow', 'Long visits with several problems and orders'], confirm: ['Held out', 'Written after all other studies and used only to confirm them'] };
+const SETS = { official: ['Consultations', 'Real specialist consultations on deidentified records'], standard: ['Standard', 'Synthetic patients, same kinds of task as the consultations'],
+  hard: ['Hard', 'A key fact is hidden, corrected later or needs a calculation'], expert: ['Expert twins', 'Pairs that differ in one fact that changes the right orders'],
+  workflow: ['Workflow', 'Long visits with several problems and orders'], confirm: ['Held out', 'Written last and used only to confirm the results'] };
 
 function donuts(T) {
   const setColors = ['#1a73e8', '#188038', '#34a853', '#81c995', '#f9ab00', '#9aa0a6'];

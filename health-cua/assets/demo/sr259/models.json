@@ -1,0 +1,1 @@
+[{"key":"","model":"Claude Sonnet 5.5","interfaces":["api","gui","openmrs"]},{"key":"opus","model":"Claude Opus 5.5","interfaces":["api","gui","openmrs"]},{"key":"argon","model":"Gemini 4 Argon","interfaces":["api","gui","openmrs"]},{"key":"flashlite","model":"Gemini 3.5 Flash-Lite","interfaces":["api","gui","openmrs"]}]

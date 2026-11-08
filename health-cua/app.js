@@ -30,14 +30,14 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
 (() => {
   const S = 'assets/demo/sr259/', C = 'assets/cover/';
   const items = [
-    { img: S + 'gui/26072ffcd16d0fed.webp', cap: 'Our GUI, ordering amoxicillin' },
+    { img: S + 'gui/26072ffcd16d0fed.webp', cap: 'GUI, ordering amoxicillin' },
     { img: S + 'openmrs/1c0ccbf0d226998b.webp', cap: 'OpenMRS, the same order' },
     { api: true, cap: 'API, the same order as one tool call' },
-    { img: C + 'sr153_gui_step17.webp', cap: 'Our GUI, a scanned lab report' },
-    { img: C + 'sr153_gui_step72.webp', cap: 'Our GUI, reviewing an order before signing' },
-    { img: S + 'gui/e805453b35c908db.webp', cap: 'Our GUI, writing the note' },
+    { img: C + 'sr153_gui_step17.webp', cap: 'GUI, a scanned lab report' },
+    { img: C + 'sr153_gui_step72.webp', cap: 'GUI, reviewing an order before signing' },
+    { img: S + 'gui/e805453b35c908db.webp', cap: 'GUI, writing the note' },
     { img: S + 'openmrs/b5f5b2d0614eaf6b.webp', cap: 'OpenMRS, the visit note' },
-    { img: C + 'sr153_gui_step80.webp', cap: 'Our GUI, scheduling a follow up test' },
+    { img: C + 'sr153_gui_step80.webp', cap: 'GUI, scheduling a follow up test' },
   ];
   const stage = q('#cover-stage'), cap = q('#cover-cap');
   const els = items.map((it, k) => {
@@ -81,7 +81,7 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   go(0); play();
 })();
 
-fetch('data/results.json?v=202611072332').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611080110').then((r) => r.json()).then((R) => {
   board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
@@ -169,7 +169,7 @@ function findings(R) {
   pair(q('#c-equiv'), R.confirm_frontier.map((r) => [r.model, [['api', 'API', r.api], ['gui', 'GUI', r.gui]]]));
   const per = (v) => ({ v: 25 * v, label: `${v.toFixed(1)}` });  // bars on a 0 to 4 scale
   pair(q('#c-extra'), R.extra_orders.map((r) => [r.model, [['api', 'API', per(r.api).v, null, per(r.api).label], ['gui', 'GUI', per(r.gui).v, null, per(r.gui).label]]]));
-  pair(q('#c-openmrs'), R.openmrs.slice(0, 3).map((r) => [r.model, [['gui', 'Our GUI', r.our_gui.mean, r.our_gui.ci], ['openmrs', 'OpenMRS', r.gui_b_v2.mean, r.gui_b_v2.ci]]]));
+  pair(q('#c-openmrs'), R.openmrs.slice(0, 3).map((r) => [r.model, [['gui', 'GUI', r.our_gui.mean, r.our_gui.ci], ['openmrs', 'OpenMRS', r.gui_b_v2.mean, r.gui_b_v2.ci]]]));
 }
 
 function grader(rows) {
@@ -315,7 +315,7 @@ function donut(fig, title, segs) {
     visible = e.isIntersecting;
     if (!visible) { run++; return; }
     if (!clips) {
-      fetch(BASEF + 'clips.json?v=202611072332').then((r) => r.json()).then((d) => {
+      fetch(BASEF + 'clips.json?v=202611080110').then((r) => r.json()).then((d) => {
         clips = d;
         stage = makeStage(shot, BASEF);
         q('#fail-tabs').innerHTML = d.map((c, k) => `<button type="button" role="tab" aria-selected="${k === 0}">${c.tab}</button>`).join('');

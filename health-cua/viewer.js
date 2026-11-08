@@ -1,16 +1,17 @@
 // Episode player: one synthetic task through the API, our GUI and OpenMRS. A pointer replays each recorded action on the
 // screenshots (glide, press, type, scroll, keys), the API pane follows by phase, and playback starts when the player is in view.
 const PHASES = ['Read the chart', 'Place the order', 'Write the note', 'Finish'];
-const NAMES = { api: 'API', gui: 'Our GUI', openmrs: 'OpenMRS' };
+const NAMES = { api: 'API', gui: 'GUI', openmrs: 'OpenMRS' };
 const SPEED = +new URLSearchParams(location.search).get('speed') || 1;  // the overview video plays faster
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-const BASE = 'assets/demo/sr259/';
+const ROOTDIR = 'assets/demo/sr259/';
+let BASE = ROOTDIR, MODELS = [], CACHE = {}, visible = false;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 let D, S, ui = 'gui', i = 0, run = 0, playing = false, userPaused = false, apiShown = -1;
 
-fetch(BASE + 'episode.json?v=202611072332').then((r) => r.json()).then((d) => { D = d; init(); })
+fetch(ROOTDIR + 'episode.json?v=202611080110').then((r) => r.json()).then((d) => { D = d; init(); })
   .catch(() => { $('do').textContent = 'The episode could not be loaded.'; });
 
 const frames = (name) => D.interfaces[name].frames;
@@ -27,11 +28,16 @@ function where() {
 function locate(list, w, hasFinalFrame) {
   if (w.end) return hasFinalFrame ? list.length - 1 : list.length;
   const ks = indicesOf(list, w.phase, hasFinalFrame);
+  if (!ks.length) {  // this interface has no step in that phase: stay at its last step before it
+    const before = list.map((f, k) => (f.phase <= w.phase ? k : -1)).filter((k) => k >= 0);
+    return before.length ? before[before.length - 1] : 0;
+  }
   return ks[Math.min(ks.length - 1, Math.floor(w.frac * ks.length))];
 }
 
 function init() {
-  S = makeStage($('shot'), BASE);
+  S = makeStage($('shot'), () => BASE);
+  agents();
   buildCalls(); buildPhases(); buildOutcome();
   document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => { userPaused = true; stop(); setUi(t.dataset.ui); }));
   $('prev').onclick = () => { userPaused = true; stop(); show(i - 1); };
@@ -45,8 +51,36 @@ function init() {
   show(0);
   // Autoplay in view, never with reduced motion or after the reader took control.
   if (!reduced && 'IntersectionObserver' in window) {
-    new IntersectionObserver(([e]) => { if (e.isIntersecting && !userPaused) start(); else if (!e.isIntersecting) stop(); }, { threshold: 0.35 }).observe($('viewer'));
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible && !userPaused) start(); else if (!visible) stop(); }, { threshold: 0.35 }).observe($('viewer'));
   }
+}
+
+// Agent chips: each agent's episode of the same task loads when chosen; an interface it has no episode for is hidden.
+function agents() {
+  fetch(ROOTDIR + 'models.json?v=202611080110').then((r) => r.json()).then((list) => {
+    MODELS = list; CACHE[''] = D;
+    const box = $('agents');
+    box.innerHTML = list.map((m, k) => `<button type="button" role="tab" aria-selected="${k === 0}" data-k="${m.key}">${m.model}</button>`).join('');
+    box.onclick = (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      box.querySelectorAll('button').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+      pick(b.dataset.k);
+    };
+  }).catch(() => {});
+}
+function pick(key) {
+  stop(); userPaused = false;
+  const load = CACHE[key] ? Promise.resolve(CACHE[key]) : fetch(ROOTDIR + key + '/episode.json?v=202611080110').then((r) => r.json()).then((d) => (CACHE[key] = d));
+  load.then((d) => {
+    D = d; BASE = ROOTDIR + (key ? key + '/' : ''); apiShown = -1;
+    $('calls').innerHTML = ''; $('outcome-grid').innerHTML = '';
+    buildCalls(); buildOutcome();
+    document.querySelectorAll('.tab').forEach((t) => { t.hidden = !D.interfaces[t.dataset.ui]; });
+    ui = D.interfaces.gui ? 'gui' : 'openmrs';
+    document.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.ui === ui)));
+    show(0);
+    if (visible && !reduced) start();
+  });
 }
 
 function buildCalls() {
@@ -171,14 +205,14 @@ async function loop(token) {
 function makeStage(shot, base) {
   shot.insertAdjacentHTML('beforeend', '<img class="layer next" alt="" aria-hidden="true"><span class="ripple"></span><span class="bubble"></span><span class="keycap"></span><span class="wheel"></span>'
     + '<svg class="pointer" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5v17.2l4.4-4.2 2.9 6.6 2.6-1.1-2.8-6.5 6.1-.3z"/></svg>');
-  const sq = (s) => shot.querySelector(s), img = shot.querySelector('img:not(.layer)');
+  const sq = (s) => shot.querySelector(s), img = shot.querySelector('img:not(.layer)'), B = typeof base === 'function' ? base : () => base;
   let ptr = { x: 50, y: 50 };
   const wait = (ms, alive) => new Promise((res, rej) => setTimeout(() => (alive() ? res() : rej(new Error('stopped'))), ms / SPEED));
   const place = (p) => { const e = sq('.pointer'); e.style.left = p.x + '%'; e.style.top = p.y + '%'; };
   const clear = () => ['bubble', 'keycap', 'wheel'].forEach((c) => sq('.' + c).classList.remove('on'));
   function show(f, preload = []) {
-    img.src = base + f.img;
-    preload.forEach((n) => { if (n && n.img) new Image().src = base + n.img; });
+    img.src = B() + f.img;
+    preload.forEach((n) => { if (n && n.img) new Image().src = B() + n.img; });
     if (f.x != null) ptr = { x: f.x, y: f.y };
     place(ptr); sq('.pointer').style.opacity = f.do ? 1 : 0; clear();
   }
@@ -245,7 +279,7 @@ function makeStage(shot, base) {
           requestAnimationFrame(() => { n.classList.remove('in'); res(); });
         }, 340 / SPEED);
       };
-      n.src = base + nextFrame.img;
+      n.src = B() + nextFrame.img;
       if (n.complete && n.naturalWidth) n.onload();
     });
   }

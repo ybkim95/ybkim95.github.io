@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611072332">
+<link rel="stylesheet" href="style.css?v=202611080110">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -59,8 +59,9 @@
 </section>
 
 <section id="replay">
-  <h2>One task, three ways in</h2>
-  <p class="lead">Claude Sonnet 5.5 treats early Lyme disease in a patient on isotretinoin, through the API, our screens and OpenMRS.</p>
+  <h2>Watch an agent work</h2>
+  <p class="lead">The same clinical request, handled through the API, through the EHR screens, and in OpenMRS.</p>
+  <div class="agents" id="agents" role="tablist" aria-label="Agent"></div>
   <p class="request"><b>The request</b> A spreading red patch where a tick bit 9 days ago, in a patient taking isotretinoin for acne. Please assess and treat.</p>
 
   <div class="viewer" id="viewer" tabindex="0" aria-label="Episode viewer. Use the left and right arrow keys to step through the episode.">
@@ -71,7 +72,7 @@
     <div class="pane screen">
       <div class="pane-head">
         <div class="tabs" role="tablist" aria-label="Screen interface">
-          <button role="tab" class="tab" data-ui="gui" aria-selected="true"><span class="dot gui"></span>Our GUI</button>
+          <button role="tab" class="tab" data-ui="gui" aria-selected="true"><span class="dot gui"></span>GUI</button>
           <button role="tab" class="tab" data-ui="openmrs" aria-selected="false"><span class="dot openmrs"></span>OpenMRS</button>
         </div>
         <span class="count" id="screen-count"></span>
@@ -107,12 +108,11 @@
     </div>
   </div>
   <div class="lb"><p class="key lb-key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</p><div id="lb"></div></div>
-  <p class="caption">Scored with our revised checks, which no ordering script can pass. Percent of tasks, with 95% intervals. Select a model for details.</p>
-  <p class="caption quiet">Evaluated October to November 2026 · <a href="https://github.com/ybkim95/health-cua/blob/main/docs/submitting-results.md">How to submit</a></p>
+  <div class="lb-foot"><p class="caption">Revised checks, 95% intervals. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
 </section>
 
 <section id="findings">
-  <h2>What we found</h2>
+  <h2>Findings</h2>
   <div class="cards">
     <article class="card">
       <h3>On screen, frontier models do as well as through the API, or better</h3>
@@ -168,7 +168,19 @@
   </div>
 </section>
 
-<section id="cite" class="band">
+<section id="submit" class="band">
+  <h2>Submit your model</h2>
+  <p class="lead">Run your model on the same tasks, interfaces and grader, and send us the results.</p>
+  <ol class="steps">
+    <li><b>Set up the environment</b><div class="cmd"><pre id="cmd1">git clone --recursive https://github.com/ybkim95/health-cua.git &amp;&amp; cd health-cua &amp;&amp; uv sync &amp;&amp; docker compose up -d --wait</pre><button class="btn small" type="button" data-copy="cmd1">Copy</button></div></li>
+    <li><b>Run the synthetic tasks through both interfaces</b><span>Set <code>OPENAI_BASE_URL</code> and <code>OPENAI_API_KEY</code> for an OpenAI compatible endpoint, or <a href="https://github.com/ybkim95/health-cua/blob/main/docs/adding-models.md">add your own agent</a>.</span><div class="cmd"><pre id="cmd2">uv run health-cua eval --model openai-compatible/&lt;your-model&gt; --surface both --tasks synthetic --repeats 3 --local</pre><button class="btn small" type="button" data-copy="cmd2">Copy</button></div></li>
+    <li><b>Send the results</b><span>Open an issue on the repository with the <code>results.json</code> of your run, the model name and how it was served.</span></li>
+  </ol>
+  <p class="links"><a href="https://github.com/ybkim95/health-cua/blob/main/docs/submitting-results.md">Submission guide</a> · <a href="https://github.com/ybkim95/health-cua/blob/main/docs/adding-models.md">Add your own agent</a> · Questions or results: <a href="mailto:ybkim95@mit.edu">ybkim95@mit.edu</a></p>
+  <p class="caption quiet">Models on the leaderboard were evaluated October to November 2026.</p>
+</section>
+
+<section id="cite">
   <h2>Cite</h2>
   <div class="bib">
     <button class="btn small" type="button" data-copy="bibtex">Copy BibTeX</button>
@@ -190,7 +202,7 @@
   <video id="video" controls playsinline preload="none" poster="assets/video/overview-poster.jpg" data-src="assets/video/overview.mp4" width="1920" height="1080"></video>
 </dialog>
 
-<script src="viewer.js?v=202611072332" defer></script>
-<script src="app.js?v=202611072332" defer></script>
+<script src="viewer.js?v=202611080110" defer></script>
+<script src="app.js?v=202611080110" defer></script>
 </body>
 </html>

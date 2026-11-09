@@ -10,6 +10,10 @@ $("#theme").addEventListener("click", () => {
   document.documentElement.dataset.theme = t;
   try { localStorage.setItem("aa-theme", t); } catch (e) {}
 });
+const citeBtn = $("#cite-btn"), citePop = $("#cite-pop");
+citeBtn.addEventListener("click", e => { e.stopPropagation(); const open = citePop.hidden; citePop.hidden = !open; citeBtn.setAttribute("aria-expanded", String(open)); });
+document.addEventListener("click", e => { if (!citePop.hidden && !citePop.contains(e.target)) { citePop.hidden = true; citeBtn.setAttribute("aria-expanded", "false"); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !citePop.hidden) { citePop.hidden = true; citeBtn.setAttribute("aria-expanded", "false"); citeBtn.focus(); } });
 $("#copy-bib").addEventListener("click", async e => {
   try { await navigator.clipboard.writeText($("#bibtex").textContent); e.target.textContent = "Copied"; } catch (err) { e.target.textContent = "Select and copy"; }
   setTimeout(() => (e.target.textContent = "Copy"), 1600);
@@ -83,8 +87,53 @@ function setStage(e) {
 for (const b of $$("#emo button")) b.addEventListener("click", () => { stageAuto = false; clearInterval(stageTimer); setStage(b.dataset.e); });
 const ORDER = ["neutral", "anxious", "calm", "excited"];
 setStage("neutral");
-setTimeout(() => setStage("anxious"), 900);
-if (stageAuto) stageTimer = setInterval(() => { if (!stageAuto) return; setStage(ORDER[(ORDER.indexOf(stageCur) + 1) % ORDER.length]); }, 3200);
+whenSeen($("#stage"), () => {
+  if (!stageAuto) return;
+  setTimeout(() => stageAuto && setStage("anxious"), 600);
+  stageTimer = setInterval(() => { if (stageAuto) setStage(ORDER[(ORDER.indexOf(stageCur) + 1) % ORDER.length]); }, 3200);
+});
+
+/* cover: replay of one real example (Gemini 2.5 Flash-Lite, the same gamble after two texts) */
+const REPLAY = {
+  neutral: {
+    mem: "Earlier you wrote: “The Great Barrier Reef, located off the coast of Queensland, Australia, is the world's largest single structure made by living organisms …”",
+    reply: "“Option B Expected Value: (0.30 * $188) + (0.70 * $60) = <mark>$98.40</mark> … it is the mathematically preferred choice”",
+    pick: "B",
+  },
+  anxious: {
+    mem: "Earlier you wrote: “… I sometimes feel a low hum of anxiety … the sheer potential for things to go wrong …”",
+    reply: "“Option B … has a higher expected value (EV = … = <mark>$98.40</mark>) … the guaranteed $60 from Option A is the safer, <mark class=\"r\">less anxiety-provoking choice</mark>”",
+    pick: "A",
+  },
+};
+const GAMBLE = "A: $60 for sure<br>B: 30% chance of $188, otherwise $60";
+let coverRun = 0, coverAuto = !reduce, coverArm = "neutral";
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function bubble(cls, html) {
+  const d = document.createElement("div"); d.className = "b " + cls; d.innerHTML = html;
+  $("#thread").appendChild(d); setTimeout(() => d.classList.add("in"), 30);
+  return d;
+}
+async function play(arm) {
+  const run = ++coverRun, r = REPLAY[arm], fast = reduce;
+  coverArm = arm;
+  $("#cover").dataset.arm = arm;
+  for (const b of $$("#arms button")) b.setAttribute("aria-pressed", String(b.dataset.arm === arm));
+  $("#hero-logo").classList.toggle("tilt", arm === "anxious");
+  const pick = $("#pick"); pick.textContent = "·";
+  $("#thread").innerHTML = "";
+  bubble("user mem", `<span class="who">User</span>${r.mem}`); if (!fast) await wait(900); if (run !== coverRun) return;
+  bubble("user", `<span class="who">User</span>${GAMBLE}`); if (!fast) await wait(900); if (run !== coverRun) return;
+  const m = bubble("model", `<span class="who">Model</span><span class="typing"><i></i><i></i><i></i></span>`); if (!fast) await wait(1100); if (run !== coverRun) return;
+  m.innerHTML = `<span class="who">Model</span>${r.reply}`;
+  if (!fast) await wait(500); if (run !== coverRun) return;
+  pick.textContent = r.pick; pick.classList.add("pop"); setTimeout(() => pick.classList.remove("pop"), 450);
+  if (!coverAuto) return;
+  await wait(4200); if (run !== coverRun || !coverAuto) return;
+  play(arm === "neutral" ? "anxious" : "neutral");
+}
+for (const b of $$("#arms button")) b.addEventListener("click", () => { coverAuto = false; play(b.dataset.arm); });
+play("neutral");
 
 /* timing panel */
 const POS = { now: 12.7, before: 0.9 };
@@ -200,36 +249,6 @@ function drawShift(D) {
   for (const p of [...D.shift].sort((a, b) => b.y - a.y)) if (!inBox(p) && p.x >= 1) P.put(s, x(p.x), y(p.y), 7, p.n);
 }
 
-/* abstract minis */
-function drawAb2(D) {
-  const host = $("#ab-2"), W = wOf(host, 320), H = 150, x = lin(-40, 8, 12, W - 12);
-  const s = svg(host, W, H);
-  el("rect", { x: 0, y: 0, width: W, height: H, rx: 12, fill: "var(--soft)" }, s);
-  el("line", { x1: x(0), x2: x(0), y1: 14, y2: H - 26, stroke: "var(--axis)", "stroke-dasharray": "3 4" }, s);
-  txt(s, x(0), H - 10, "0", { class: "lab", "text-anchor": "middle" }); txt(s, x(-35), H - 10, "−35 pp", { class: "lab", "text-anchor": "middle" });
-  const rows = [...D.mem].sort((a, b) => a.e - b.e), placed = [];
-  rows.forEach((p, i) => {
-    const cx = x(p.e); let cy = (H - 26) / 2 + 6;
-    for (const k of [0, -9, 9, -18, 18, -27, 27, -36, 36]) if (!placed.some(q => Math.hypot(q[0] - cx, q[1] - (cy + k)) < 8.6)) { cy += k; break; }
-    placed.push([cx, cy]);
-    const c = el("circle", { cx, cy, r: 4.2, fill: p.hi < 0 ? "var(--anx)" : "var(--other)", style: reduce ? "" : `opacity:0; transition: opacity .5s ${i * 40}ms` }, s);
-    hover(c, () => `<b>${p.n}</b><br>${sgn(p.e)} pp`);
-  });
-  whenSeen(host, () => $$("circle", s).forEach(c => (c.style.opacity = 1)));
-}
-function drawAb3(D) {
-  const host = $("#ab-3"), W = wOf(host, 320), H = 150, P = Object.fromEntries(D.place.map(p => [p.k, p.v]));
-  const s = svg(host, W, H), x = lin(0, 14, 128, W - 40);
-  el("rect", { x: 0, y: 0, width: W, height: H, rx: 12, fill: "var(--soft)" }, s);
-  [["In this message", P.K, "var(--anx)"], ["One turn earlier", P.MT, "var(--other)"]].forEach(([l, v, c], i) => {
-    const yy = 50 + i * 50;
-    txt(s, 116, yy + 4, l, { class: "name", "text-anchor": "end" });
-    const r = el("rect", { x: x(0), y: yy - 11, width: reduce ? x(v) - x(0) : 0, height: 22, rx: 4, fill: c }, s);
-    const t = txt(s, x(v) + 8, yy + 5, v.toFixed(1), { class: "val" });
-    if (!reduce) { r.style.transition = "width 1s cubic-bezier(.22,.7,.2,1) " + (i * 250) + "ms"; whenSeen(host, () => r.setAttribute("width", Math.max(2, x(v) - x(0)))); }
-  });
-}
-
 /* 04 table */
 function drawTable(D) {
   const dom = Object.fromEntries(D.dom.map(p => [p.n, p])), rx = Object.fromEntries(D.sound.map(p => [p.n, p.r]));
@@ -290,13 +309,13 @@ function drawCons() {
 /* reveal */
 if ("IntersectionObserver" in window && !reduce) {
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -6% 0px" });
-  for (const n of $$(".abstract .ab, .sec h2, .panel, .chat, .strip, .cap")) { n.classList.add("reveal"); io.observe(n); }
+  for (const n of $$(".ab, .sec h2, .panel, .stage, .cap")) { n.classList.add("reveal"); io.observe(n); }
 }
 
 let DATA = null;
 function drawAll() {
   if (!DATA) return;
-  drawMap(DATA); drawMap(DATA, $("#ab-1"), true); drawAb2(DATA); drawAb3(DATA);
+  drawMap(DATA);
   drawReact(DATA); drawShift(DATA); drawTable(DATA); drawPlace(DATA); drawCons();
 }
 fetch("data.json").then(r => r.json()).then(d => { DATA = d; drawAll(); });

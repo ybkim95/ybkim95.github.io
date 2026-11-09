@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,300..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
 <script>try { const t = localStorage.getItem("aa-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
-<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -67,15 +67,15 @@
   <h2>Replies follow the user's mood</h2>
   <div class="duo">
     <div class="panel">
-      <p class="pt">How closely a reply follows the tone of the message</p>
+      <p class="pt">Replies follow the tone of the message, 40 models</p>
       <div class="viz" id="c-react" role="img" aria-label="Valence reactivity of 40 models by model family"></div>
     </div>
     <div class="panel">
-      <p class="pt">Mood shift and change in choices, 14 models</p>
+      <p class="pt">Larger mood shifts, larger changes in choices, 14 models</p>
       <div class="viz" id="c-shift" role="img" aria-label="Mood shift against change in risky choices, 14 models"></div>
     </div>
   </div>
-  <p class="cap">Models whose mood moved more also changed their choices more, mostly within one model family.</p>
+  <p class="cap">At 0 a reply would ignore the tone of the message. Models whose mood moved more also changed their choices more, mostly within one model family.</p>
 </section>
 
 <section id="example" class="sec">
@@ -135,15 +135,15 @@
       <tbody></tbody>
     </table>
   </div>
-  <p class="cap">Lines are 95% intervals. Grey bars are not clearly different from zero. † This model's stories failed the quality check.</p>
+  <p class="cap">Dots are estimates and lines are 95% intervals. Grey marks are not clearly different from zero. † This model's stories failed the quality check.</p>
 </section>
 
 <section id="where" class="sec">
   <h2>Only a story in the same message changed choices</h2>
-  <div class="panel narrow">
+  <div class="panel">
     <div class="viz" id="c-place" role="img" aria-label="Average emotion effect by where the story appears"></div>
   </div>
-  <p class="cap">Average change in choices, 12 models, in percentage points.</p>
+  <p class="cap">Average change in choices across 12 models.</p>
 </section>
 
 </div>
@@ -165,6 +165,6 @@
 <footer>&copy; 2026 The Affective Alignment authors</footer>
 <div class="tip" id="tip" role="tooltip"></div>
 <script src="mark.js?v=2" defer></script>
-<script src="app.js?v=12" defer></script>
+<script src="app.js?v=14" defer></script>
 </body>
 </html>

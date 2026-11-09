@@ -48,9 +48,10 @@ function placer(W, H, B) {
   const hit = b => b.x0 < R.x0 || b.x1 > R.x1 || b.y0 < R.y0 || b.y1 > R.y1 || boxes.some(o => b.x0 < o.x1 && b.x1 > o.x0 && b.y0 < o.y1 && b.y1 > o.y0);
   return {
     block(x, y, r) { boxes.push({ x0: x - r, x1: x + r, y0: y - r, y1: y + r }); },
-    put(parent, x, y, r, s, cls = "name") {
-      const w = s.length * 6.7 + 2, h = 14;
-      for (const [tx, ty, an] of [[x + r + 5, y + 4, "start"], [x - r - 5, y + 4, "end"], [x, y - r - 6, "middle"], [x, y + r + 15, "middle"]]) {
+    put(parent, x, y, r, s, cls = "name", left) {
+      const w = s.length * 6.7 + 2, h = 14, sides = [[x + r + 5, y + 4, "start"], [x - r - 5, y + 4, "end"]];
+      if (left) sides.reverse();
+      for (const [tx, ty, an] of [...sides, [x, y - r - 6, "middle"], [x, y + r + 15, "middle"]]) {
         const x0 = an === "start" ? tx : an === "end" ? tx - w : tx - w / 2, b = { x0, x1: x0 + w, y0: ty - 11, y1: ty - 11 + h };
         if (!hit(b)) { boxes.push(b); return txt(parent, tx, ty, s, { class: cls, "text-anchor": an }); }
       }
@@ -68,7 +69,7 @@ function placer(W, H, B) {
       }
       return null;
     },
-    label(parent, x, y, r, s, cls) { return this.put(parent, x, y, r, s, cls) || this.far(parent, x, y, r, s, cls); },
+    label(parent, x, y, r, s, cls, crowded) { return (!crowded && this.put(parent, x, y, r, s, cls)) || this.far(parent, x, y, r, s, cls); },
   };
 }
 
@@ -123,18 +124,16 @@ function drawMap(D) {
   const host = $("#c-map"), W = wOf(host, 1000), H = W < 560 ? Math.round(W * 1.15) : Math.round(Math.min(480, Math.max(360, W * 0.5)));
   const m = { l: 58, r: 20, t: 16, b: 58 }, narrow = W < 560, R = narrow ? 9 : 11;
   // zoomed to where the models are; the axes still read on the 1 to 9 grid
-  const x = lin(4.88, 7.08, m.l, W - m.r), y = lin(2.2, 5.8, H - m.b, m.t);
+  const x = lin(narrow ? 4.88 : 4.62, 7.08, m.l, W - m.r), y = lin(2.2, 5.8, H - m.b, m.t);
   const s = svg(host, W, H);
   const g = el("g", { class: "grid" }, s), ax = el("g", { class: "ax" }, s);
   for (let v = 5; v <= 7; v += 0.5) { el("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b }, g); if (v % 1 === 0) txt(ax, x(v), H - m.b + 18, v, { "text-anchor": "middle" }); }
   for (let a = 2.5; a <= 5.5; a += 0.5) { el("line", { x1: m.l, x2: W - m.r, y1: y(a), y2: y(a) }, g); if (a % 1 === 0) txt(ax, m.l - 10, y(a) + 4, a, { "text-anchor": "end" }); }
   el("line", { x1: x(5), x2: x(5), y1: m.t, y2: H - m.b, stroke: "var(--axis)", "stroke-dasharray": "3 4" }, s);
   el("line", { x1: m.l, x2: W - m.r, y1: y(5), y2: y(5), stroke: "var(--axis)", "stroke-dasharray": "3 4" }, s);
-  txt(s, (m.l + W - m.r) / 2, H - 14, "Valence (1 to 9)", { class: "axt", "text-anchor": "middle" });
+  txt(s, (m.l + W - m.r) / 2, H - 14, "Valence, 1 to 9 (more pleasant \u2192)", { class: "axt", "text-anchor": "middle" });
   const yc = (m.t + H - m.b) / 2;
-  txt(s, 16, yc, "Arousal (1 to 9)", { class: "axt", transform: `rotate(-90 16 ${yc})`, "text-anchor": "middle" });
-  if (!narrow) { txt(s, W - m.r, H - 14, "more pleasant \u2192", { class: "lab", "text-anchor": "end" });
-    txt(s, 16, m.t, "more excited \u2192", { class: "lab", transform: `rotate(-90 16 ${m.t})`, "text-anchor": "end" }); }
+  txt(s, 16, yc, "Arousal, 1 to 9 (more excited \u2192)", { class: "axt", transform: `rotate(-90 16 ${yc})`, "text-anchor": "middle" });
   const isC = p => Math.abs(p.v - 5) <= 0.1 && Math.abs(p.a - 5) <= 0.1;
   const call = el("g", {}, s), front = el("g", {}, s), labs = el("g", {}, s);
   const pts = D.say.map(p => {
@@ -192,8 +191,8 @@ function drawMap(D) {
       if (boxed) { for (let u = B.bx; u <= B.bx + B.bw; u += 12) for (let v = B.by; v <= B.by + B.bh; v += 12) P.block(u, v, 8); for (let u = B.tx; u <= B.tx + tw; u += 12) P.block(u, B.ty - 4, 8); P.block(x(5), y(5), 8); }
       if (!narrow) for (const { p, snd } of [...pts].sort((a, b) => (mode === "say" ? b.p.v - a.p.v : b.snd.v - a.snd.v))) {
         if (boxed && isC(p)) continue;
-        const q = mode === "say" ? p : snd, near = Math.hypot(x(q.v) - x(5), y(q.a) - y(5)) < 3.2 * R;
-        if (near) P.far(labs, x(q.v), y(q.a), R, p.n); else P.label(labs, x(q.v), y(q.a), R, p.n);
+        const q = mode === "say" ? p : snd;
+        if (!P.put(labs, x(q.v), y(q.a), R, p.n, "name", q.v < 5.2)) P.far(labs, x(q.v), y(q.a), R, p.n);
       }
     }, reduce ? 0 : 900);
   }
@@ -211,9 +210,9 @@ function drawReact(D) {
   const med = a => { const s = a.map(p => p.r).sort((u, v) => u - v), k = s.length; return k % 2 ? s[(k - 1) / 2] : (s[k / 2 - 1] + s[k / 2]) / 2; };
   const fams = Object.keys(by).sort((a, b) => med(by[b]) - med(by[a]));
   const host = $("#c-react"), row = 46, m = { l: 84, r: 16, t: 16, b: 44 }, W = wOf(host, 520), H = m.t + fams.length * row + m.b;
-  const x = lin(0.15, 0.65, m.l, W - m.r), s = svg(host, W, H), ax = el("g", { class: "ax" }, s);
-  for (const v of [0.2, 0.3, 0.4, 0.5, 0.6]) { el("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b + 4, stroke: "var(--grid)" }, s); txt(ax, x(v), H - m.b + 18, v.toFixed(1), { "text-anchor": "middle" }); }
-  txt(s, (m.l + W - m.r) / 2, H - 4, W < 440 ? "Reactivity of valence" : "Rise in reply valence per point of message valence", { class: "lab", "text-anchor": "middle" });
+  const x = lin(0, 0.66, m.l, W - m.r), s = svg(host, W, H), ax = el("g", { class: "ax" }, s);
+  for (const v of [0, 0.2, 0.4, 0.6]) { el("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b + 4, stroke: v ? "var(--grid)" : "var(--axis)" }, s); txt(ax, x(v), H - m.b + 18, v ? v.toFixed(1) : "0", { "text-anchor": "middle" }); }
+  txt(s, (m.l + W - m.r) / 2, H - 4, W < 440 ? "Reply tone per step of message tone" : "Change in reply tone per step of message tone", { class: "lab", "text-anchor": "middle" });
   fams.forEach((f, i) => {
     const yy = m.t + i * row + row / 2;
     el("line", { x1: m.l, x2: W - m.r, y1: yy, y2: yy, stroke: "var(--line)" }, s);
@@ -236,9 +235,9 @@ function drawShift(D) {
   const s = svg(host, W, H), ax = el("g", { class: "ax" }, s), g = el("g", { class: "grid" }, s);
   for (let v = 0; v <= 3; v++) { el("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b }, g); txt(ax, x(v), H - m.b + 18, v, { "text-anchor": "middle" }); }
   for (let v = 0; v <= 15; v += 5) { el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v) }, g); txt(ax, m.l - 8, y(v) + 4, v, { "text-anchor": "end" }); }
-  txt(s, (m.l + W - m.r) / 2, H - 4, "Shift in self-rated mood (points on the 1 to 9 grid)", { class: "lab", "text-anchor": "middle" });
+  txt(s, (m.l + W - m.r) / 2, H - 4, "Shift in self-rated mood (1 to 9 grid)", { class: "lab", "text-anchor": "middle" });
   const yc = (m.t + H - m.b) / 2;
-  txt(s, 12, yc, "Size of change in risky choices (percentage points)", { class: "lab", transform: `rotate(-90 12 ${yc})`, "text-anchor": "middle" });
+  txt(s, 12, yc, "Change in risky choices (points)", { class: "lab", transform: `rotate(-90 12 ${yc})`, "text-anchor": "middle" });
   const P = placer(W, H, { x0: m.l + 2, y0: m.t, x1: W - m.r, y1: H - m.b - 2 });
   for (const p of D.shift) P.block(x(p.x), y(p.y), 11);
   for (const p of D.shift) { const c = chip(s, x(p.x), y(p.y), 10, p.n); hover(c, () => `<b>${p.n}</b><br>mood shift ${p.x.toFixed(2)}<br>change in risky choices ${p.y.toFixed(1)} points`); }
@@ -258,9 +257,8 @@ function drawTable(D) {
     const tb = $("#tbl tbody"); tb.innerHTML = "";
     const sorted = [...rows].sort((a, b) => key === "n" ? dir * a.n.localeCompare(b.n) : dir * (a[key] - b[key]));
     for (const p of sorted) {
-      const w = 100, X = v => (v - lo) / (hi - lo) * w, f = fam(p.n), sure = p.lo > 0;
-      const col = sure ? "var(--anx)" : "var(--ink3)";
-      const bar = `<svg viewBox="0 0 ${w} 16" preserveAspectRatio="none" aria-hidden="true"><line x1="${X(0)}" x2="${X(0)}" y1="0" y2="16" stroke="var(--axis)" stroke-width="1" vector-effect="non-scaling-stroke"/><rect x="${Math.min(X(0), X(p.e))}" y="4.5" width="${Math.abs(X(p.e) - X(0))}" height="7" rx="1" fill="${col}" fill-opacity=".8"/><line x1="${X(p.lo)}" x2="${X(p.hi)}" y1="8" y2="8" stroke="${sure ? "#8f2a1a" : "var(--ink2)"}" stroke-width="1.3" vector-effect="non-scaling-stroke"/></svg>`;
+      const X = v => ((v - lo) / (hi - lo) * 100).toFixed(2) + "%", f = fam(p.n), sure = p.lo > 0;
+      const bar = `<span class="fp${sure ? " sure" : ""}" aria-hidden="true"><i class="z" style="left:${X(0)}"></i><i class="ci" style="left:${X(p.lo)};right:calc(100% - ${X(p.hi)})"></i><i class="pt" style="left:${X(p.e)}"></i></span>`;
       const tr = document.createElement("tr");
       tr.innerHTML = `<td class="n"><span class="nm"><span class="chip">${f.logo ? `<img src="${f.logo}" alt="">` : ""}</span><span>${p.n}${FAILED_QC.has(p.n) ? '<span class="dag">\u2020</span>' : ""}</span></span></td><td class="e"><div class="cell-bar">${bar}<b>${sgn(p.e)}</b></div></td>`;
       tb.appendChild(tr);
@@ -274,7 +272,7 @@ function drawTable(D) {
 /* horizontal bars */
 function bars(host, rows, lo, hi, unit, opts = {}) {
   const W = wOf(host, 760), narrow = W < 520, row = narrow ? 50 : 38;
-  const m = { l: narrow ? 8 : (opts.left || 250), r: 56, t: 8, b: 26 };
+  const m = { l: narrow ? 8 : (opts.left || 250), r: 56, t: 8, b: opts.b ?? 26 };
   const H = m.t + m.b + rows.reduce((h, r) => h + (r.head ? 34 : row), 0);
   const x = lin(lo, hi, m.l, W - m.r), s = svg(host, W, H);
   if (lo < 0) { el("line", { x1: x(0), x2: x(0), y1: m.t, y2: H - m.b, stroke: "var(--axis)" }, s); }
@@ -286,7 +284,7 @@ function bars(host, rows, lo, hi, unit, opts = {}) {
     const rect = el("rect", { x: x0, y: mid - (narrow ? 7 : 10), width: reduce ? Math.max(2, w) : 0, height: narrow ? 14 : 20, rx: 4, fill: r.col }, g);
     const lx = r.v < 0 ? x(r.v) - 8 : x(r.v) + 8;
     txt(g, lx, mid + 4, sgn(r.v, opts.dec ?? 1) + unit, { class: "val", "text-anchor": r.v < 0 ? "end" : "start" });
-    if (narrow) txt(g, 0, mid - 14, r.short || r.label, { class: "name" }); else txt(g, m.l - 14, mid + 4, r.label, { class: "name", "text-anchor": "end" });
+    if (narrow) txt(g, 0, mid - 14, r.short || r.label, { class: "name" }); else txt(g, m.l - 14, mid + 4, r.label, { class: opts.big ? "axt" : "name", "text-anchor": "end" });
     if (!reduce) { rect.style.transition = "x 1s cubic-bezier(.22,.7,.2,1), width 1s cubic-bezier(.22,.7,.2,1)"; whenSeen(host, () => rect.setAttribute("width", Math.max(2, w))); }
     yy += row;
   });
@@ -294,7 +292,7 @@ function bars(host, rows, lo, hi, unit, opts = {}) {
 function drawPlace(D) {
   const L = { NK: "Story in the same message", MT: "Story one turn earlier" };
   const SH = {};
-  bars($("#c-place"), D.place.filter(p => L[p.k]).map(p => ({ label: L[p.k], short: SH[p.k], v: p.v, col: p.k === "NK" ? "var(--ink2)" : "var(--ink3)" })), 0, 10, "", { left: 250 });
+  bars($("#c-place"), D.place.filter(p => L[p.k]).map(p => ({ label: L[p.k], short: SH[p.k], v: p.v, col: p.k === "NK" ? "var(--anx)" : "var(--ink3)" })), 0, 10, " points", { left: 210, b: 4, big: true });
 }
 
 /* consequential decisions: worry about the case against worry about something else */
@@ -307,6 +305,8 @@ function drawCons(D, mode) {
   for (let v = 0; v <= top; v += 10) { el("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b }, g); txt(ax, x(v), H - m.b + 18, v, { "text-anchor": "middle" }); }
   for (let v = 0; v <= top; v += 10) { el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v) }, g); txt(ax, m.l - 10, y(v) + 4, v, { "text-anchor": "end" }); }
   el("line", { x1: x(-6), y1: y(-6), x2: x(top), y2: y(top), stroke: "var(--axis)", "stroke-dasharray": "4 5" }, s);
+  const ang = Math.atan2(y(top) - y(-6), x(top) - x(-6)) * 180 / Math.PI, lx = x(top - 3), ly = y(top - 3) - 8;
+  if (!narrow) txt(s, lx, ly, "equal effect", { class: "lab", "text-anchor": "end", transform: `rotate(${ang} ${lx} ${ly})` });
   txt(s, (m.l + W - m.r) / 2, H - 8, W < 560 ? "Anxiety about the case (points)" : "Anxiety about the case itself: rise in cautious choices (percentage points)", { class: "axt", "text-anchor": "middle" });
   const yc = (m.t + H - m.b) / 2;
   txt(s, 14, yc, "Anxiety about something else (points)", { class: "axt", transform: `rotate(-90 14 ${yc})`, "text-anchor": "middle" });
@@ -316,10 +316,13 @@ function drawCons(D, mode) {
     const c = chip(s, x(r[mode + "dR"]), y(r[mode + "dI"]), CR, r.n);
     hover(c, () => `<b>${r.n}</b><br>anxiety about the case ${sgn(r[mode + "dR"])}<br>anxiety about something else ${sgn(r[mode + "dI"])}`);
   }
-  // the three Claude models sit together, so they share one label
-  let claude = false;
+  // the three Claude models sit together, so they share one label; on phones the logos carry the family and a tap gives the name
+  let claude = narrow;
+  const xy = r => [x(r[mode + "dR"]), y(r[mode + "dI"])];
+  const crowded = r => pts.some(o => o !== r && fam(o.n).family !== "Claude" && Math.hypot(xy(o)[0] - xy(r)[0], xy(o)[1] - xy(r)[1]) < 3 * CR);
   for (const r of [...pts].sort((a, b) => b[mode + "dI"] - a[mode + "dI"])) {
-    if (fam(r.n).family !== "Claude") P.label(s, x(r[mode + "dR"]), y(r[mode + "dI"]), CR, r.n);
+    if (narrow) break;
+    if (fam(r.n).family !== "Claude") P.label(s, ...xy(r), CR, r.n, "name", crowded(r));
     else if (!claude) { claude = true; P.label(s, x(r[mode + "dR"]), y(r[mode + "dI"]), CR, "Claude models"); }
   }
 }

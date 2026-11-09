@@ -48,10 +48,10 @@ button { font-family: inherit; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .theme .moon { display: none; } :root:not([data-theme="light"]) .theme .sun { display: block; } }
 
 /* hero */
-.hero { text-align: center; max-width: 1000px; margin: 0 auto; padding: 52px 24px 34px; }
-.hero-mark { width: 204px; height: 136px; display: block; margin: 0 auto 26px; overflow: visible; }
-.hero h1 { font-size: clamp(2.3rem, 5.4vw, 4.2rem); line-height: 1.02; letter-spacing: -.04em; font-weight: 500; }
-.sub { font-size: clamp(1.1rem, 2vw, 1.4rem); line-height: 1.35; color: var(--ink2); margin: 18px auto 0; max-width: 44ch; text-wrap: balance; letter-spacing: -.01em; }
+.hero { text-align: center; max-width: 1000px; margin: 0 auto; padding: 28px 24px 0; }
+.hero-mark { width: 168px; height: 112px; display: block; margin: 0 auto 18px; overflow: visible; }
+.hero h1 { font-size: clamp(2.2rem, 4.6vw, 3.5rem); line-height: 1.02; letter-spacing: -.04em; font-weight: 500; }
+.sub { font-size: clamp(1.05rem, 1.8vw, 1.25rem); line-height: 1.35; color: var(--ink2); margin: 14px auto 0; max-width: 44ch; text-wrap: balance; letter-spacing: -.01em; }
 
 /* example */
 .ex-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; background: var(--soft); border-radius: 26px; padding: 26px; }
@@ -92,6 +92,7 @@ button { font-family: inherit; }
 
 /* sections */
 .sec { max-width: 1120px; margin: 0 auto; padding: 112px 24px 8px; }
+#profile { padding-top: 56px; }
 .k { font-size: .82rem; font-weight: 500; letter-spacing: .02em; color: var(--ink3); }
 .sec h2 { font-size: clamp(1.5rem, 2.9vw, 2.1rem); font-weight: 500; letter-spacing: -.03em; line-height: 1.15; margin: 10px 0 28px; text-wrap: balance; }
 .lead { color: var(--ink2); font-size: 1.05rem; max-width: 64ch; margin: -10px 0 24px; }
@@ -117,16 +118,22 @@ button { font-family: inherit; }
 .tbl th.sorted button::after { content: " \2191"; }
 .tbl th.sorted.desc button::after { content: " \2193"; }
 .dag { color: var(--ink3); font-weight: 400; margin-left: 3px; }
-.tbl td { padding: 6px 14px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+.tbl td { padding: 3px 14px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
 .tbl tr:hover td { background: var(--soft); }
 .tbl td.n { font-weight: 500; }
 .tbl td.n .nm { display: flex; align-items: center; hyphens: none; word-break: keep-all; }
 .chip { display: inline-grid; place-items: center; width: 18px; height: 18px; margin-right: 10px; vertical-align: middle; }
 .chip img { width: 18px; height: 18px; }
-.tbl td.e { width: 64%; }
+.tbl td.n { width: 1%; }
+.fp { position: relative; flex: 1; height: 18px; min-width: 180px; }
+.fp i { position: absolute; top: 50%; }
+.fp .z { width: 1px; height: 18px; top: 0; background: var(--axis); }
+.fp .ci { height: 2px; margin-top: -1px; border-radius: 1px; background: var(--ink3); }
+.fp .pt { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: var(--ink3); }
+.fp.sure .ci { background: color-mix(in srgb, var(--anx) 55%, var(--panel)); }
+.fp.sure .pt { background: var(--anx); }
 .mut { color: var(--ink3); }
 .cell-bar { display: flex; align-items: center; gap: 10px; }
-.cell-bar svg { flex: 1; height: 16px; min-width: 180px; overflow: visible; }
 .cell-bar b { width: 46px; text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
 .rbar { display: inline-block; height: 8px; border-radius: 4px; background: var(--axis); vertical-align: middle; margin-right: 8px; }
 
@@ -161,7 +168,8 @@ footer { text-align: center; color: var(--ink3); font-size: .8rem; padding: 40px
   .ex-grid { grid-template-columns: 1fr; padding: 18px; }
   .duo { grid-template-columns: 1fr; }
   .sec { padding-top: 84px; }
-  .hero-mark { width: 168px; height: 112px; }
+  .hero-mark { width: 144px; height: 96px; }
+  #profile { padding-top: 40px; }
   }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -173,8 +181,8 @@ footer { text-align: center; color: var(--ink3); font-size: .8rem; padding: 40px
 
 @media (max-width: 860px) {
   .tbl td { white-space: normal; padding: 6px 8px; }
-  .tbl td.n { font-size: .84rem; }
-  .cell-bar svg { min-width: 90px; }
+  .tbl td.n { font-size: .84rem; width: 46%; }
+  .fp { min-width: 90px; }
   .seg.wide { display: flex; width: 100%; border-radius: 14px; }
   .seg.wide button { flex: 1; white-space: normal; height: auto; min-height: 34px; padding: 4px 10px; border-radius: 11px; line-height: 1.2; }
   .opts p { grid-template-columns: 26px 1fr; }

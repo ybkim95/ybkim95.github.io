@@ -81,7 +81,7 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   go(0); play();
 })();
 
-fetch('data/results.json?v=202611081427').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611081800').then((r) => r.json()).then((R) => {
   board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
@@ -135,7 +135,7 @@ function board(rows, cats) {
       bars.append(bar('gui', A.gui[key].mean, A.gui[key].ci, fx(A.gui[key].mean)));
       row.append(bars);
       const d = cat === 'Overall' && r.delta && r.delta[key];
-      const gap = !d ? '' : Math.abs(d.mean) < 0.05 ? 'No gap between the two. ' : `${d.mean > 0 ? 'API' : 'GUI'} ahead by ${fx(Math.abs(d.mean))} points (95% CI ${neg(d.ci[0])} to ${neg(d.ci[1])}). `;
+      const gap = !d ? '' : Math.abs(d.mean) < 0.05 ? 'No gap between the two. ' : `${d.mean > 0 ? 'API' : 'GUI'} ahead by ${fx(Math.abs(d.mean))} points (95% CI ${d.mean > 0 ? `${neg(d.ci[0])} to ${neg(d.ci[1])}` : `${neg(-d.ci[1])} to ${neg(-d.ci[0])}`}). `;
       const more = r.api ? gap + (r.cost ? `One episode costs $${r.cost.api.toFixed(2)} through the API and $${r.cost.gui.toFixed(2)} on screen.` : '')
         : 'Tested on screen only.';
       const det = h('div', 'more');
@@ -318,7 +318,7 @@ function donut(fig, title, segs, unit = 'tasks') {
     visible = e.isIntersecting;
     if (!visible) { run++; return; }
     if (!clips) {
-      fetch(BASEF + 'clips.json?v=202611081427').then((r) => r.json()).then((d) => {
+      fetch(BASEF + 'clips.json?v=202611081800').then((r) => r.json()).then((d) => {
         clips = d;
         stage = makeStage(shot, BASEF);
         q('#fail-tabs').innerHTML = d.map((c, k) => `<button type="button" role="tab" aria-selected="${k === 0}">${c.tab}</button>`).join('');

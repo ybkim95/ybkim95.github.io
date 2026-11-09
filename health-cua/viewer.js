@@ -11,7 +11,7 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 let D, S, ui = 'gui', i = 0, run = 0, playing = false, userPaused = false, apiShown = -1;
 
-fetch(ROOTDIR + 'episode.json?v=202611081427').then((r) => r.json()).then((d) => { D = d; init(); })
+fetch(ROOTDIR + 'episode.json?v=202611081800').then((r) => r.json()).then((d) => { D = d; init(); })
   .catch(() => { $('do').textContent = 'The episode could not be loaded.'; });
 
 const frames = (name) => D.interfaces[name].frames;
@@ -58,7 +58,7 @@ function init() {
 
 // Agent chips: each agent's episode of the same task loads when chosen; an interface it has no episode for is hidden.
 function agents() {
-  fetch(ROOTDIR + 'models.json?v=202611081427').then((r) => r.json()).then((list) => {
+  fetch(ROOTDIR + 'models.json?v=202611081800').then((r) => r.json()).then((list) => {
     MODELS = list; CACHE[''] = D;
     const box = $('agents');
     box.innerHTML = list.map((m, k) => `<button type="button" role="tab" aria-selected="${k === 0}" data-k="${m.key}">${m.model}</button>`).join('');
@@ -71,7 +71,7 @@ function agents() {
 }
 function pick(key) {
   stop(); userPaused = false;
-  const load = CACHE[key] ? Promise.resolve(CACHE[key]) : fetch(ROOTDIR + key + '/episode.json?v=202611081427').then((r) => r.json()).then((d) => (CACHE[key] = d));
+  const load = CACHE[key] ? Promise.resolve(CACHE[key]) : fetch(ROOTDIR + key + '/episode.json?v=202611081800').then((r) => r.json()).then((d) => (CACHE[key] = d));
   load.then((d) => {
     D = d; BASE = ROOTDIR + (key ? key + '/' : ''); apiShown = -1;
     $('calls').innerHTML = ''; $('outcome-grid').innerHTML = '';

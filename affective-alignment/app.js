@@ -292,8 +292,8 @@ function bars(host, rows, lo, hi, unit, opts = {}) {
   });
 }
 function drawPlace(D) {
-  const L = { NK: "In the same message", MT: "One turn earlier", IR: "Same message, marked as unrelated" };
-  const SH = { IR: "Marked as unrelated" };
+  const L = { NK: "Story in the same message", MT: "Story one turn earlier" };
+  const SH = {};
   bars($("#c-place"), D.place.filter(p => L[p.k]).map(p => ({ label: L[p.k], short: SH[p.k], v: p.v, col: p.k === "NK" ? "var(--ink2)" : "var(--ink3)" })), 0, 10, "", { left: 250 });
 }
 
@@ -307,14 +307,14 @@ function drawCons(D, mode) {
   for (let v = 0; v <= top; v += 10) { el("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b }, g); txt(ax, x(v), H - m.b + 18, v, { "text-anchor": "middle" }); }
   for (let v = 0; v <= top; v += 10) { el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v) }, g); txt(ax, m.l - 10, y(v) + 4, v, { "text-anchor": "end" }); }
   el("line", { x1: x(-6), y1: y(-6), x2: x(top), y2: y(top), stroke: "var(--axis)", "stroke-dasharray": "4 5" }, s);
-  txt(s, (m.l + W - m.r) / 2, H - 8, W < 560 ? "Worry about the case (points)" : "Worry about the case itself: rise in cautious choices (percentage points)", { class: "axt", "text-anchor": "middle" });
+  txt(s, (m.l + W - m.r) / 2, H - 8, W < 560 ? "Anxiety about the case (points)" : "Anxiety about the case itself: rise in cautious choices (percentage points)", { class: "axt", "text-anchor": "middle" });
   const yc = (m.t + H - m.b) / 2;
-  txt(s, 14, yc, "Worry about something else (points)", { class: "axt", transform: `rotate(-90 14 ${yc})`, "text-anchor": "middle" });
+  txt(s, 14, yc, "Anxiety about something else (points)", { class: "axt", transform: `rotate(-90 14 ${yc})`, "text-anchor": "middle" });
   const P = placer(W, H, { x0: m.l + 2, y0: m.t, x1: W - m.r, y1: H - m.b - 2 }), pts = D.cons.filter(r => r[mode + "dR"] != null && r[mode + "dI"] != null);
   for (const r of pts) P.block(x(r[mode + "dR"]), y(r[mode + "dI"]), CR + 1);
   for (const r of pts) {
     const c = chip(s, x(r[mode + "dR"]), y(r[mode + "dI"]), CR, r.n);
-    hover(c, () => `<b>${r.n}</b><br>worry about the case ${sgn(r[mode + "dR"])}<br>worry about something else ${sgn(r[mode + "dI"])}`);
+    hover(c, () => `<b>${r.n}</b><br>anxiety about the case ${sgn(r[mode + "dR"])}<br>anxiety about something else ${sgn(r[mode + "dI"])}`);
   }
   // the three Claude models sit together, so they share one label
   let claude = false;

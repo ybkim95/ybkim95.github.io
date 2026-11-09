@@ -3,14 +3,17 @@
   "use strict";
   const HEX = { b: "#4285F4", r: "#EA4335", y: "#FBBC04", g: "#34A853" };
   // rows run from the front-left edge (y = 0) to the back edge (y = 1); columns from the left corner
-  const PAT = ["rybrbg", "bgbybr", "ybrbgb", "bbgbry", "rbbybb", "bgrbby"], PAT4 = ["rybg", "bgrb", "ybbr", "bryb"];
-  let CY = 0.48; const SEG = 6, W = 2 * Math.PI / 3.6;
+  const PAT = ["rybrbg", "bgbybr", "ybrbgb", "bbgbry", "rbbybb", "bgrbby"], PAT4 = ["rybg", "bgrb", "ybbr", "bryb"],
+        PAT8 = ["ygbbgrbb", "bbybybby", "gbbrbrbb", "brbbbbyr", "gbgbybgb", "ybybgbyr", "rgrbrbbg", "ybbbgyrb"];
+  let CY = 0.48; const SEG = 8, W = 2 * Math.PI / 3.6;
 
   function z(x, y, t) {
     const hill = 0.30 * Math.exp(-((x - 0.42) ** 2) / 0.14 - ((y - 1) ** 2) / 0.30);
     const lift = 0.09 + 0.10 * x * (1 - y) + 0.06 * y;
     const s = (x + y) / 2;                                // 0 at the left corner, 1 at the right corner
-    const flap = (0.15 + 0.85 * s) * (0.085 * Math.sin(2 * Math.PI * 1.1 * s - W * t) + 0.03 * Math.sin(2 * Math.PI * 2.2 * s - 1.7 * W * t + 0.8))
+    const flap = (0.15 + 0.85 * s) * (0.09 * Math.sin(2 * Math.PI * 1.15 * s - W * t)
+               + 0.035 * Math.sin(2 * Math.PI * 2.3 * s - 1.7 * W * t + 0.8)
+               + 0.016 * Math.sin(2 * Math.PI * 3.6 * s - 2.4 * W * t + 2.1))
                + 0.012 * Math.sin(2 * Math.PI * 0.8 * (x - y) - 0.8 * W * t);
     return lift + hill * (1 + 0.06 * Math.sin(W * t * 0.5)) + flap;
   }
@@ -28,7 +31,7 @@
 
   // one frame: tiles in drawing order (far first), each with its outline and a two-stop gradient
   function frame(t, n) {
-    n = n || 6;
+    n = n || 8;
     const tiles = [];
     for (let j = n - 1; j >= 0; j--) for (let i = 0; i < n; i++) {
       const x0 = i / n, y0 = j / n, d = 1 / n, pts = [];
@@ -36,7 +39,7 @@
       edge(x0, y0, x0 + d, y0); edge(x0 + d, y0, x0 + d, y0 + d); edge(x0 + d, y0 + d, x0, y0 + d); edge(x0, y0 + d, x0, y0);
       const cs = [[x0, y0], [x0 + d, y0], [x0 + d, y0 + d], [x0, y0 + d]].map(([x, y]) => ({ p: P(x, y, z(x, y, t)), k: light(x, y, t) }));
       const lo = cs.reduce((a, b) => (b.k < a.k ? b : a)), hi = cs.reduce((a, b) => (b.k > a.k ? b : a));
-      const pat = n === 4 ? PAT4 : PAT, hex = HEX[pat[Math.floor(j * pat.length / n)][Math.floor(i * pat.length / n)]];
+      const pat = n === 4 ? PAT4 : n === 8 ? PAT8 : PAT, hex = HEX[pat[Math.floor(j * pat.length / n)][Math.floor(i * pat.length / n)]];
       tiles.push({ d: "M" + pts.map(p => p[0].toFixed(4) + " " + p[1].toFixed(4)).join("L") + "Z",
         g: [hi.p[0], hi.p[1], lo.p[0], lo.p[1]], c: [mix(hex, hi.k), mix(hex, lo.k)], depth: (x0 - y0) });
     }
@@ -57,7 +60,7 @@
 
   // static SVG text, for the favicon and the social image
   function svgText(t, o) {
-    o = Object.assign({ n: 6, floor: true, stroke: "#202124", sw: 0.008, floorStroke: "#a9a69d", fsw: 0.005, id: "g", cy: 0.48 }, o);
+    o = Object.assign({ n: 8, floor: true, stroke: "#202124", sw: 0.008, floorStroke: "#a9a69d", fsw: 0.005, id: "g", cy: 0.48 }, o);
     CY = o.cy;
     const vb = box(o.floor), tiles = frame(t, o.n);
     CY = 0.48;
@@ -72,7 +75,7 @@
   // live mark inside an <svg>; it waves while on screen and holds still for reduced motion
   let uid = 0;
   function mount(host, o) {
-    o = Object.assign({ n: 6, floor: true, sw: 1.1, still: false }, o);
+    o = Object.assign({ n: 8, floor: true, sw: 0.8, still: false }, o);
     const NS = "http://www.w3.org/2000/svg", id = "mk" + (++uid) + "-";
     const mk = (tag, a, p) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
     host.setAttribute("viewBox", box(o.floor).join(" "));

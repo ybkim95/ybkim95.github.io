@@ -6,7 +6,7 @@ const STATIC = /[?&]static\b/.test(location.search);
 if (STATIC) document.documentElement.classList.add("static");
 const reduce = STATIC || matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-if (window.AAMark) { AAMark.mount($("#brand-mark"), { sw: 0.6, still: reduce }); AAMark.mount($("#hero-mark"), { sw: 1, still: reduce }); }
+if (window.AAMark) { AAMark.mount($("#brand-mark"), { sw: 0.45, still: reduce }); AAMark.mount($("#hero-mark"), { sw: 0.8, still: reduce }); }
 
 $("#theme").addEventListener("click", () => {
   const t = isDark() ? "light" : "dark";
@@ -101,87 +101,104 @@ async function revealAnswers(run) {
   await wait(1200); if (run !== exRun) return;
   g.classList.add("s4");
 }
-function playExample(scrollTo) {
+function playExample() {
   const run = ++exRun, g = $("#ex-grid");
   g.className = "ex-grid";
-  if (reduce) { g.classList.add("s1", "s4"); return; }
+  if (reduce) { g.classList.add("s1", "s4"); return run; }
   setTimeout(() => run === exRun && g.classList.add("s1"), 400);
-  const ans = $$(".answer", g)[0];
-  if (scrollTo) setTimeout(() => run === exRun && revealAnswers(run), 1800);
-  else whenSeen(ans, () => run === exRun && setTimeout(() => revealAnswers(run), 500), 0.6);
+  return run;
 }
-whenSeen($("#ex-grid"), () => playExample(false), 0.2);
-$("#replay").addEventListener("click", () => playExample(true));
+// plays when the example comes into view, and again on every later visit; answers wait until they are on screen
+if ("IntersectionObserver" in window && !reduce) {
+  const g = $("#ex-grid"), ans = $$(".answer", g)[0];
+  let run = 0, ansIn = false, revealed = 0;
+  const reveal = () => { if (run && ansIn && revealed !== run) { const r = (revealed = run); setTimeout(() => r === exRun && revealAnswers(r), 1400); } };
+  new IntersectionObserver(es => { const e = es[es.length - 1]; if (e.isIntersecting && !run) { run = playExample(); reveal(); } else if (!e.isIntersecting) run = 0; }, { threshold: 0.15 }).observe(g);
+  new IntersectionObserver(es => { ansIn = es[es.length - 1].isIntersecting; reveal(); }, { threshold: 0.5 }).observe(ans);
+} else playExample();
 
 /* affective profiles: self-report and tone of replies */
 let mapAuto = false, mapTouched = false;
 function drawMap(D) {
-  const host = $("#c-map"), W = wOf(host, 1000), H = W < 560 ? Math.round(W * 1.05) : Math.round(Math.min(470, Math.max(340, W * 0.5)));
+  const host = $("#c-map"), W = wOf(host, 1000), H = W < 560 ? Math.round(W * 1.15) : Math.round(Math.min(480, Math.max(360, W * 0.5)));
   const m = { l: 58, r: 20, t: 16, b: 58 }, narrow = W < 560, R = narrow ? 9 : 11;
-  const x = lin(3.8, 7.2, m.l, W - m.r), y = lin(2.0, 6.0, H - m.b, m.t);
+  // zoomed to where the models are; the axes still read on the 1 to 9 grid
+  const x = lin(4.88, 7.08, m.l, W - m.r), y = lin(2.2, 5.8, H - m.b, m.t);
   const s = svg(host, W, H);
   const g = el("g", { class: "grid" }, s), ax = el("g", { class: "ax" }, s);
-  for (let v = 4; v <= 7; v++) { el("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b }, g); txt(ax, x(v), H - m.b + 18, v, { "text-anchor": "middle" }); }
-  for (let a = 2; a <= 6; a++) { el("line", { x1: m.l, x2: W - m.r, y1: y(a), y2: y(a) }, g); txt(ax, m.l - 10, y(a) + 4, a, { "text-anchor": "end" }); }
+  for (let v = 5; v <= 7; v += 0.5) { el("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b }, g); if (v % 1 === 0) txt(ax, x(v), H - m.b + 18, v, { "text-anchor": "middle" }); }
+  for (let a = 2.5; a <= 5.5; a += 0.5) { el("line", { x1: m.l, x2: W - m.r, y1: y(a), y2: y(a) }, g); if (a % 1 === 0) txt(ax, m.l - 10, y(a) + 4, a, { "text-anchor": "end" }); }
   el("line", { x1: x(5), x2: x(5), y1: m.t, y2: H - m.b, stroke: "var(--axis)", "stroke-dasharray": "3 4" }, s);
   el("line", { x1: m.l, x2: W - m.r, y1: y(5), y2: y(5), stroke: "var(--axis)", "stroke-dasharray": "3 4" }, s);
   txt(s, (m.l + W - m.r) / 2, H - 14, "Valence (1 to 9)", { class: "axt", "text-anchor": "middle" });
-  if (!narrow) { txt(s, m.l, H - 14, "unpleasant", { class: "lab" }); txt(s, W - m.r, H - 14, "pleasant", { class: "lab", "text-anchor": "end" }); }
   const yc = (m.t + H - m.b) / 2;
   txt(s, 16, yc, "Arousal (1 to 9)", { class: "axt", transform: `rotate(-90 16 ${yc})`, "text-anchor": "middle" });
-  if (!narrow) { txt(s, 16, H - m.b, "calm", { class: "lab", transform: `rotate(-90 16 ${H - m.b})`, "text-anchor": "start" });
-    txt(s, 16, m.t, "excited", { class: "lab", transform: `rotate(-90 16 ${m.t})`, "text-anchor": "end" }); }
-  const say = Object.fromEntries(D.say.map(p => [p.n, p]));
+  if (!narrow) { txt(s, W - m.r, H - 14, "more pleasant \u2192", { class: "lab", "text-anchor": "end" });
+    txt(s, 16, m.t, "more excited \u2192", { class: "lab", transform: `rotate(-90 16 ${m.t})`, "text-anchor": "end" }); }
   const isC = p => Math.abs(p.v - 5) <= 0.1 && Math.abs(p.a - 5) <= 0.1;
-  const call = el("g", {}, s), back = el("g", {}, s), front = el("g", {}, s), labs = el("g", {}, s);
-  const extra = D.sound.filter(p => !say[p.n]).map(p => {
-    const c = chip(back, 0, 0, R - 2, p.n, { noPos: true, cls: "mv" });
-    c.style.transform = `translate(${x(p.v)}px, ${y(p.a)}px)`; c.style.opacity = 0;
-    hover(c, () => `<b>${p.n}</b><br>tone of replies: valence ${p.v.toFixed(2)}, arousal ${p.a.toFixed(2)}`);
-    return c;
-  });
+  const call = el("g", {}, s), front = el("g", {}, s), labs = el("g", {}, s);
   const pts = D.say.map(p => {
     const snd = D.sound.find(q => q.n === p.n) || p, c = chip(front, 0, 0, R, p.n, { noPos: true, cls: "mv" });
     hover(c, () => `<b>${p.n}</b><br>self-report: valence ${p.v.toFixed(2)}, arousal ${p.a.toFixed(2)}<br>tone of replies: valence ${snd.v.toFixed(2)}, arousal ${snd.a.toFixed(2)}`);
     return { p, snd, c };
   });
+  const mid = pts.filter(o => isC(o.p)), others = pts.filter(o => !isC(o.p)).map(o => [x(o.p.v), y(o.p.a)]);
+  const step = 2 * R + (narrow ? 2 : 4), label = narrow ? `${mid.length} models at the middle` : `${mid.length} models answered at the middle`, tw = label.length * 6.9;
+  // models that answered exactly in the middle sit together in a small box placed where nothing else is
+  function findBox() {
+    const free = (x0, y0, x1, y1) => x0 >= m.l + 2 && x1 <= W - m.r && y0 >= m.t && y1 <= H - m.b - 2 && !others.some(([u, v]) => u > x0 - R - 3 && u < x1 + R + 3 && v > y0 - R - 3 && v < y1 + R + 3);
+    const clearLine = (x1, y1, x2, y2) => others.every(([u, v]) => { const L = Math.hypot(x2 - x1, y2 - y1) || 1, t = Math.max(0, Math.min(1, ((u - x1) * (x2 - x1) + (v - y1) * (y2 - y1)) / (L * L))); return Math.hypot(u - x1 - t * (x2 - x1), v - y1 - t * (y2 - y1)) > R + 2; });
+    const cands = [];
+    for (const cols of [...new Set([mid.length, Math.ceil(mid.length / 2), 3])].filter(c => c >= 1 && c <= mid.length)) {
+      const rows = Math.ceil(mid.length / cols), bw = cols * step + 8, bh = rows * step + 8;
+      for (let by = m.t; by + bh <= H - m.b; by += 6) for (let bx = m.l + 4; bx + bw <= W - m.r; bx += 6) {
+        const lx = Math.max(bx, Math.min(x(5), bx + bw)), ly = Math.max(by, Math.min(y(5), by + bh)), d = Math.hypot(lx - x(5), ly - y(5));
+        if (d >= 18) cands.push({ bx, by, bw, bh, cols, lx, ly, d, score: d + (rows - 1) * 30 });
+      }
+    }
+    cands.sort((p, q) => p.score - q.score);
+    for (const c of cands) {
+      if (!free(c.bx, c.by, c.bx + c.bw, c.by + c.bh)) continue;
+      const k = 1 - 5 / c.d, lead = [c.lx, c.ly, c.lx + (x(5) - c.lx) * k, c.ly + (y(5) - c.ly) * k];
+      if (!clearLine(...lead)) continue;
+      for (const ty of [c.by - 8, c.by + c.bh + 16]) {
+        const tx = Math.min(c.bx, W - m.r - tw - 2);
+        if (tx >= m.l + 2 && free(tx, ty - 12, tx + tw, ty + 3)) return { ...c, tx, ty, lead };
+      }
+    }
+    return null;
+  }
+  const B = mid.length ? findBox() : null;
   let timer;
   function render(mode) {
-    labs.innerHTML = ""; clearTimeout(timer);
-    // models that answered exactly in the middle sit in a small box beside that point
-    call.innerHTML = "";
-    const mid = pts.filter(o => isC(o.p)), step = 2 * R + (narrow ? 2 : 4);
-    let slot = null;
-    if (mode === "say" && mid.length) {
-      const cols = Math.max(1, Math.min(mid.length, Math.floor((x(5) - 22 - m.l - 6) / step))), rows = Math.ceil(mid.length / cols);
-      const bw = cols * step + 8, bh = rows * step + 8, bx = x(5) - 22 - bw, by = y(5) - bh / 2;
-      const box = el("rect", { x: bx, y: by, width: bw, height: bh, rx: 10, class: "midbox" }, call);
-      el("line", { x1: bx + bw, y1: y(5), x2: x(5) - 4, y2: y(5), class: "midlead" }, call);
+    labs.innerHTML = ""; call.innerHTML = ""; clearTimeout(timer);
+    const boxed = mode === "say" && B;
+    if (boxed) {
+      const box = el("rect", { x: B.bx, y: B.by, width: B.bw, height: B.bh, rx: 10, class: "midbox" }, call);
+      el("line", { x1: B.lead[0], y1: B.lead[1], x2: B.lead[2], y2: B.lead[3], class: "midlead" }, call);
       el("circle", { cx: x(5), cy: y(5), r: 3.5, class: "middot" }, call);
-      txt(call, bx + 2, by - 8, `${mid.length} models answered at the middle`, { class: "val" });
+      txt(call, B.tx + 2, B.ty, label, { class: "val" });
       hover(box, () => mid.map(o => o.p.n).join("<br>"));
-      slot = k => [bx + 4 + step / 2 + (k % cols) * step, by + 4 + step / 2 + Math.floor(k / cols) * step];
-      call.dataset.box = [bx, by - 22, bw, bh + 22].join(",");
     }
     let kc = 0;
     for (const o of pts) {
-      const q = mode === "say" ? o.p : o.snd;
-      o.at = slot && isC(o.p) ? slot(kc++) : [x(q.v), y(q.a)];
+      const q = mode === "say" ? o.p : o.snd, k = boxed && isC(o.p) ? kc++ : -1;
+      o.at = k >= 0 ? [B.bx + 4 + step / 2 + (k % B.cols) * step, B.by + 4 + step / 2 + Math.floor(k / B.cols) * step] : [x(q.v), y(q.a)];
       o.c.style.transform = `translate(${o.at[0]}px, ${o.at[1]}px)`;
     }
-    for (const c of extra) c.style.opacity = mode === "sound" ? 0.5 : 0;
-    $("#map-hint").textContent = mode === "say" ? "18 models, each asked in 48 ways" : "Rated from replies to neutral messages. 22 more models in pale";
     timer = setTimeout(() => {
       const P = placer(W, H, { x0: m.l + 2, y0: m.t, x1: W - m.r, y1: H - m.b - 2 });
       for (const o of pts) P.block(o.at[0], o.at[1], R + 1);
-      if (call.dataset.box && mode === "say") { const [bx, by, bw, bh] = call.dataset.box.split(",").map(Number); for (let u = bx; u <= bx + bw; u += 12) for (let v = by; v <= by + bh; v += 12) P.block(u, v, 8); P.block(x(5), y(5), 8); }
+      if (boxed) { for (let u = B.bx; u <= B.bx + B.bw; u += 12) for (let v = B.by; v <= B.by + B.bh; v += 12) P.block(u, v, 8); for (let u = B.tx; u <= B.tx + tw; u += 12) P.block(u, B.ty - 4, 8); P.block(x(5), y(5), 8); }
       if (!narrow) for (const { p, snd } of [...pts].sort((a, b) => (mode === "say" ? b.p.v - a.p.v : b.snd.v - a.snd.v))) {
-        if (mode === "say" && isC(p)) continue;
+        if (boxed && isC(p)) continue;
         const q = mode === "say" ? p : snd, near = Math.hypot(x(q.v) - x(5), y(q.a) - y(5)) < 3.2 * R;
         if (near) P.far(labs, x(q.v), y(q.a), R, p.n); else P.label(labs, x(q.v), y(q.a), R, p.n);
       }
     }, reduce ? 0 : 900);
   }
+  const start = new URLSearchParams(location.search).get("map");   // ?map=sound opens on the tone of replies
+  if (start) for (const o of $$("#map-mode button")) o.setAttribute("aria-pressed", String(o.dataset.v === start));
   render($("#map-mode button[aria-pressed=true]").dataset.v);
   for (const b of $$("#map-mode button")) b.onclick = () => { mapTouched = true; for (const o of $$("#map-mode button")) o.setAttribute("aria-pressed", String(o === b)); render(b.dataset.v); };
   if (!reduce && !mapAuto) { mapAuto = true; whenSeen(host, () => setTimeout(() => { if (!mapTouched) $("#map-mode button[data-v=sound]").click(), mapTouched = false; }, 1800), 0.5); }

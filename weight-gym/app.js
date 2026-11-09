@@ -285,5 +285,18 @@
   // ---------- render, and re-render on theme change ----------
   function drawCharts() { scatter(); dumbbell(); drawLB(); }
   drawCharts();
-  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { drawMosaic(); drawCharts(); drawEx(); });
+  const redraw = () => { drawMosaic(); drawCharts(); drawEx(); };
+  const osDark = matchMedia("(prefers-color-scheme: dark)");
+  osDark.addEventListener("change", redraw);
+
+  // theme toggle: an explicit choice overrides the OS setting and is remembered per browser
+  const root = document.documentElement, themeBtn = $("#theme");
+  const isDark = () => (root.dataset.theme || (osDark.matches ? "dark" : "light")) === "dark";
+  const label = () => themeBtn.setAttribute("aria-label", isDark() ? "Switch to light mode" : "Switch to dark mode");
+  label();
+  themeBtn.addEventListener("click", () => {
+    root.dataset.theme = isDark() ? "light" : "dark";
+    try { localStorage.setItem("wg-theme", root.dataset.theme); } catch (e) {}
+    label(); redraw();
+  });
 })();

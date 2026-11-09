@@ -10,7 +10,7 @@
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #121212; --surface: #1a1a19; --card: #1f1f1e; --ink: #f0efec; --ink2: #c3c2b7; --ink3: #898781;
     --line: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
     --in: #3987e5; --bb: #d95926; --accent: #6da7ec;
@@ -18,6 +18,15 @@
     --shadow: 0 1px 2px rgba(0,0,0,.5);
   }
 }
+:root[data-theme="dark"] {
+  --bg: #121212; --surface: #1a1a19; --card: #1f1f1e; --ink: #f0efec; --ink2: #c3c2b7; --ink3: #898781;
+  --line: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+  --in: #3987e5; --bb: #d95926; --accent: #6da7ec;
+  --pos: 57,135,229; --neg: 230,103,103; --mid: #383835;
+  --shadow: 0 1px 2px rgba(0,0,0,.5);
+  color-scheme: dark;
+}
+:root[data-theme="light"] { color-scheme: light; }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 64px; }
@@ -41,6 +50,12 @@ section.band > * { max-width: 1072px; margin-left: auto; margin-right: auto; }
 .top nav { display: flex; gap: 4px; margin-left: auto; }
 .top nav a { color: var(--ink2); text-decoration: none; font-size: .92rem; padding: 6px 12px; border-radius: 999px; white-space: nowrap; }
 .top nav a:hover { background: var(--surface); color: var(--ink); }
+.theme { flex-shrink: 0; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: var(--card); color: var(--ink2); cursor: pointer; }
+.theme:hover { color: var(--ink); }
+.theme svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.theme .sun, :root[data-theme="dark"] .theme .moon { display: none; }
+:root[data-theme="dark"] .theme .sun { display: block; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .theme .moon { display: none; } :root:not([data-theme="light"]) .theme .sun { display: block; } }
 
 /* hero */
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: center; padding-top: 96px; padding-bottom: 56px; }

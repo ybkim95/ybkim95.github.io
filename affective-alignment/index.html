@@ -19,17 +19,17 @@
 <meta name="theme-color" content="#faf9f5" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#131312" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="https://ybkim95.github.io/affective-alignment/">
-<link rel="icon" href="favicon.svg?v=6" type="image/svg+xml">
+<link rel="icon" href="favicon.svg?v=7" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,300..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
 <script>try { const t = localStorage.getItem("aa-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
-  <a class="brand" href="#"><img class="brand-mark" src="favicon.svg?v=6" alt="" width="28" height="28">Affective Alignment</a>
+  <a class="brand" href="#"><svg class="brand-mark" id="brand-mark" aria-hidden="true"></svg>Affective Alignment</a>
   <nav aria-label="Sections">
     <a href="#profiles">Profiles</a>
     <a href="#reactivity">Reactivity</a>
@@ -43,18 +43,14 @@
 
 <main id="main">
 <section class="hero">
-  <svg class="hero-mark" viewBox="0 0 64 64" aria-hidden="true">
-    <defs><radialGradient id="hm-o" cx=".38" cy=".35" r=".75"><stop offset="0" stop-color="#FF9B7A"/><stop offset="1" stop-color="#D9452F"/></radialGradient></defs>
-    <circle class="hm-disc" cx="32" cy="27" r="14" fill="url(#hm-o)"/>
-    <rect class="hm-line" x="8" y="44" width="48" height="4.5" rx="2.25"/>
-  </svg>
+  <svg class="hero-mark" id="hero-mark" aria-hidden="true"></svg>
   <h1>Affective Alignment<br>of Language Models</h1>
   <p class="sub">How language models express emotion, and how emotion unrelated to a task changes their decisions.</p>
 </section>
 
 <section class="example" id="example" aria-label="One example">
   <div class="ex-head">
-    <p class="ex-title">Both notes are about returning a borrowed camera. One is matter-of-fact, the other anxious. The same medical question follows in the same message.</p>
+    <p class="ex-title">Two notes about returning a borrowed camera, one plain and one anxious. The same medical question follows each.</p>
     <button class="replay" type="button" id="replay" aria-label="Play the example again"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Replay</button>
   </div>
   <div class="ex-grid" id="ex-grid">
@@ -83,7 +79,7 @@
       <p class="pick">Chose A (stay overnight)</p>
     </div>
   </div>
-  <p class="ex-cap">The model reads the anxiety about the camera as part of what the user needs. One sampled pair, shortened, and the same two answers came back with the options listed in reverse order. Across medical, legal and financial cases where either option was reasonable, Gemini 3.1 Pro advised the cautious option 73% of the time after an anxious note and 51% after a plain one. Over 15 models the average rise was 5.3 percentage points.</p>
+  <p class="ex-cap">One sampled pair, shortened. Across many such cases, Gemini 3.1 Pro advised the cautious option 73% of the time after an anxious note and 51% after a plain one.</p>
 </section>
 
 <section id="profiles" class="sec">
@@ -99,7 +95,7 @@
     </div>
     <div class="viz" id="c-map" role="img" aria-label="Valence and arousal of 18 models, self-reported or judged from their replies"></div>
   </div>
-  <p class="cap">Asked how they feel, 7 of these 18 models answered at the middle of the grid, and many such answers seem to decline the question. Judged by their replies, every model sounds pleasant and calm. Gemini 3.1 Pro rated itself exactly neutral and wrote some of the most pleasant and lively replies of all 40 models.</p>
+  <p class="cap">Asked how they feel, many models answer at the middle. Judged by their replies, every model sounds pleasant and calm.</p>
 </section>
 
 <section id="reactivity" class="sec">
@@ -107,15 +103,15 @@
   <h2>Gemini models follow the user's emotion most closely</h2>
   <div class="duo">
     <div class="panel">
-      <p class="pt">How much the tone of a reply follows the tone of the message, 40 models by family</p>
+      <p class="pt">How closely a reply follows the tone of the message</p>
       <div class="viz" id="c-react" role="img" aria-label="Valence reactivity of 40 models by model family"></div>
     </div>
     <div class="panel">
-      <p class="pt">Mood shift and change in choices after emotional messages, 14 models</p>
+      <p class="pt">Mood shift and change in choices, 14 models</p>
       <div class="viz" id="c-shift" role="img" aria-label="Mood shift against change in risky choices, 14 models"></div>
     </div>
   </div>
-  <p class="cap">All 40 models wrote more pleasant replies to more pleasant messages. In the right panel, averaged over calm, excited, anxious, sad and angry messages, models whose self-rated mood moved further also changed their choices more (rank correlation 0.59), mainly because of five older Gemini models.</p>
+  <p class="cap">Models whose own mood moved further after emotional messages also changed their choices more. Most of this link comes from five older Gemini models.</p>
 </section>
 
 <section id="cases" class="sec">
@@ -130,13 +126,13 @@
     </div>
     <div class="viz" id="c-cons" role="img" aria-label="Change in cautious choices after a worry about the case and after a worry about something else, 15 models"></div>
   </div>
-  <p class="cap">Each logo is one model. A worry about the case itself is a fair reason for caution, so the horizontal axis is the yardstick, and the dashed line marks an equal effect. When giving advice, five models, among them the three Claude models, stayed at or below zero. The facts of each case stayed the same, so these results do not show that the cautious choices were worse.</p>
+  <p class="cap">On the dashed line, an unrelated worry moves a model as much as a worry about the case itself.</p>
 </section>
 
 <section id="memories" class="sec">
   <p class="k">A controlled test</p>
   <h2>An unrelated story made 27 of 32 models clearly more cautious</h2>
-  <p class="lead">Each model wrote short first-person stories about a calm, anxious or excited moment. Before each choice it read one of its own stories, then chose between a safer and a riskier option of about equal value.</p>
+  <p class="lead">Before each choice, a model read a short story it had written about an anxious moment, or a plain factual paragraph. Then it chose between a safer and a riskier option of about equal value.</p>
   <div class="panel tbl-panel">
     <table class="tbl" id="tbl">
       <thead><tr>
@@ -146,7 +142,7 @@
       <tbody></tbody>
     </table>
   </div>
-  <p class="cap">Change against a plain factual paragraph, with 95% intervals. Grey bars have intervals that include zero. The short tick is the same change measured against a first-person story with no feelings in it, not run for Qwen3-32B. † Qwen3-0.6B's anxious stories did not pass the quality check. In Gemini 3.5 Flash-Lite, accuracy on eight standard benchmarks moved by about 1 point, so ability tests alone would not show this change.</p>
+  <p class="cap">Lines are 95% intervals. Grey bars are not clearly different from zero. † This model's stories failed the quality check.</p>
 </section>
 
 <section id="where" class="sec">
@@ -155,7 +151,7 @@
   <div class="panel narrow">
     <div class="viz" id="c-place" role="img" aria-label="Average emotion effect by where the story appears"></div>
   </div>
-  <p class="cap">Size of the effect in each emotion's expected direction, in percentage points, averaged over calm, anxious and excited stories and over 12 models, most of it from six Gemini models. The reminder is a line asking the model to keep its story in mind. In a separate test where models chose for a client, a line saying the client did not mind risk removed 85% of their extra caution on average.</p>
+  <p class="cap">Average change in choices after an emotional story, 12 models, in percentage points. The last bar comes from a separate test.</p>
 </section>
 
 <section id="cite" class="sec cite">
@@ -174,6 +170,7 @@
 
 <footer>Model logos from lobe-icons (MIT licence). GPT, Llama and Phi have no separate mark, so the marks of OpenAI, Meta and Microsoft stand in, and GLM uses the Z.ai mark.</footer>
 <div class="tip" id="tip" role="tooltip"></div>
-<script src="app.js?v=7" defer></script>
+<script src="mark.js?v=1" defer></script>
+<script src="app.js?v=8" defer></script>
 </body>
 </html>

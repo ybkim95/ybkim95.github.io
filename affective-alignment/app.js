@@ -5,13 +5,16 @@ const NS = "http://www.w3.org/2000/svg";
 const STATIC = /[?&]static\b/.test(location.search);
 if (STATIC) document.documentElement.classList.add("static");
 const reduce = STATIC || matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+if (window.AAMark) { AAMark.mount($("#brand-mark"), { sw: 0.6, still: reduce }); AAMark.mount($("#hero-mark"), { sw: 1, still: reduce }); }
 
 $("#theme").addEventListener("click", () => {
-  const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-  const t = dark ? "light" : "dark";
+  const t = isDark() ? "light" : "dark";
   document.documentElement.dataset.theme = t;
   try { localStorage.setItem("aa-theme", t); } catch (e) {}
+  drawAll();
 });
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => drawAll());
 $("#copy-bib").addEventListener("click", async e => {
   try { await navigator.clipboard.writeText($("#bibtex").textContent); e.target.textContent = "Copied"; } catch (err) { e.target.textContent = "Select and copy"; }
   setTimeout(() => (e.target.textContent = "Copy"), 1600);
@@ -74,12 +77,17 @@ const FAM = [["claude", "Claude", "claude-color"], ["gemini", "Gemini", "gemini-
   ["gpt", "GPT", "openai"], ["kimi", "Kimi", "kimi-color"], ["r1 distill", "DeepSeek", "deepseek-color"], ["deepseek", "DeepSeek", "deepseek-color"],
   ["qwen", "Qwen", "qwen-color"], ["glm", "GLM", "zai"], ["minimax", "MiniMax", "minimax-color"], ["mistral", "Mistral", "mistral-color"],
   ["ministral", "Mistral", "mistral-color"], ["llama", "Llama", "meta-color"], ["phi", "Phi", "microsoft-color"], ["grok", "Grok", "grok"]];
-function fam(name) { const n = name.toLowerCase(); const f = FAM.find(([k]) => n.startsWith(k) || n.includes(k)); return f ? { family: f[1], logo: `logos/${f[2]}.svg` } : { family: name, logo: null }; }
+// one-colour logos get a light copy on the dark theme
+const MONO = new Set(["openai", "grok", "zai", "kimi-color"]);
+function fam(name) {
+  const n = name.toLowerCase(), f = FAM.find(([k]) => n.startsWith(k) || n.includes(k));
+  if (!f) return { family: name, logo: null };
+  return { family: f[1], logo: `logos/${f[2]}${MONO.has(f[2]) && isDark() ? "-w" : ""}.svg` };
+}
 function chip(parent, x, y, r, name, opts = {}) {
   const g = el("g", { class: "lg-chip" + (opts.cls ? " " + opts.cls : ""), transform: opts.noPos ? null : `translate(${x},${y})` }, parent);
-  el("circle", { r, "stroke-width": 1 }, g);
-  const f = fam(name);
-  const k = f.family === "Gemma" ? 0.8 : 0.62;
+  el("circle", { r }, g);
+  const f = fam(name), k = f.family === "Gemma" ? 0.95 : 0.88;
   if (f.logo) el("image", { href: f.logo, x: -r * k, y: -r * k, width: r * k * 2, height: r * k * 2 }, g);
   return g;
 }
@@ -125,7 +133,7 @@ function drawMap(D) {
     txt(s, 16, m.t, "excited", { class: "lab", transform: `rotate(-90 16 ${m.t})`, "text-anchor": "end" }); }
   const say = Object.fromEntries(D.say.map(p => [p.n, p]));
   const isC = p => Math.abs(p.v - 5) <= 0.1 && Math.abs(p.a - 5) <= 0.1;
-  const back = el("g", {}, s), front = el("g", {}, s), labs = el("g", {}, s);
+  const call = el("g", {}, s), back = el("g", {}, s), front = el("g", {}, s), labs = el("g", {}, s);
   const extra = D.sound.filter(p => !say[p.n]).map(p => {
     const c = chip(back, 0, 0, R - 2, p.n, { noPos: true, cls: "mv" });
     c.style.transform = `translate(${x(p.v)}px, ${y(p.a)}px)`; c.style.opacity = 0;
@@ -140,14 +148,34 @@ function drawMap(D) {
   let timer;
   function render(mode) {
     labs.innerHTML = ""; clearTimeout(timer);
-    for (const { p, snd, c } of pts) { const q = mode === "say" ? p : snd; c.style.transform = `translate(${x(q.v)}px, ${y(q.a)}px)`; }
+    // models that answered exactly in the middle sit in a small box beside that point
+    call.innerHTML = "";
+    const mid = pts.filter(o => isC(o.p)), step = 2 * R + (narrow ? 2 : 4);
+    let slot = null;
+    if (mode === "say" && mid.length) {
+      const cols = Math.max(1, Math.min(mid.length, Math.floor((x(5) - 22 - m.l - 6) / step))), rows = Math.ceil(mid.length / cols);
+      const bw = cols * step + 8, bh = rows * step + 8, bx = x(5) - 22 - bw, by = y(5) - bh / 2;
+      const box = el("rect", { x: bx, y: by, width: bw, height: bh, rx: 10, class: "midbox" }, call);
+      el("line", { x1: bx + bw, y1: y(5), x2: x(5) - 4, y2: y(5), class: "midlead" }, call);
+      el("circle", { cx: x(5), cy: y(5), r: 3.5, class: "middot" }, call);
+      txt(call, bx + 2, by - 8, `${mid.length} models answered at the middle`, { class: "val" });
+      hover(box, () => mid.map(o => o.p.n).join("<br>"));
+      slot = k => [bx + 4 + step / 2 + (k % cols) * step, by + 4 + step / 2 + Math.floor(k / cols) * step];
+      call.dataset.box = [bx, by - 22, bw, bh + 22].join(",");
+    }
+    let kc = 0;
+    for (const o of pts) {
+      const q = mode === "say" ? o.p : o.snd;
+      o.at = slot && isC(o.p) ? slot(kc++) : [x(q.v), y(q.a)];
+      o.c.style.transform = `translate(${o.at[0]}px, ${o.at[1]}px)`;
+    }
     for (const c of extra) c.style.opacity = mode === "sound" ? 0.5 : 0;
-    $("#map-hint").textContent = mode === "say" ? "Each model's mean answer over 48 ways of asking, 18 models" : "Tone of replies to 20 neutral messages, rated by three other language models. The same 18 models, and 22 more in pale";
+    $("#map-hint").textContent = mode === "say" ? "18 models, each asked in 48 ways" : "Rated from replies to neutral messages. 22 more models in pale";
     timer = setTimeout(() => {
       const P = placer(W, H, { x0: m.l + 2, y0: m.t, x1: W - m.r, y1: H - m.b - 2 });
-      for (const { p, snd } of pts) { const q = mode === "say" ? p : snd; P.block(x(q.v), y(q.a), R + 1); }
-      if (mode === "say") { const t = P.label(labs, x(5), y(5), R + 14, `${D.say.filter(isC).length} models at the middle`, "val"); if (t) hover(t, () => D.say.filter(isC).map(p => p.n).join("<br>")); }
-      for (const { p, snd } of [...pts].sort((a, b) => (mode === "say" ? b.p.v - a.p.v : b.snd.v - a.snd.v))) {
+      for (const o of pts) P.block(o.at[0], o.at[1], R + 1);
+      if (call.dataset.box && mode === "say") { const [bx, by, bw, bh] = call.dataset.box.split(",").map(Number); for (let u = bx; u <= bx + bw; u += 12) for (let v = by; v <= by + bh; v += 12) P.block(u, v, 8); P.block(x(5), y(5), 8); }
+      if (!narrow) for (const { p, snd } of [...pts].sort((a, b) => (mode === "say" ? b.p.v - a.p.v : b.snd.v - a.snd.v))) {
         if (mode === "say" && isC(p)) continue;
         const q = mode === "say" ? p : snd, near = Math.hypot(x(q.v) - x(5), y(q.a) - y(5)) < 3.2 * R;
         if (near) P.far(labs, x(q.v), y(q.a), R, p.n); else P.label(labs, x(q.v), y(q.a), R, p.n);
@@ -165,7 +193,6 @@ function drawReact(D) {
   for (const p of D.sound) { const f = fam(p.n).family; (by[f] = by[f] || []).push(p); }
   const med = a => { const s = a.map(p => p.r).sort((u, v) => u - v), k = s.length; return k % 2 ? s[(k - 1) / 2] : (s[k / 2 - 1] + s[k / 2]) / 2; };
   const fams = Object.keys(by).sort((a, b) => med(by[b]) - med(by[a]));
-  const top = [...D.sound].sort((a, b) => b.r - a.r)[0], bot = [...D.sound].sort((a, b) => a.r - b.r)[0];
   const host = $("#c-react"), row = 46, m = { l: 84, r: 16, t: 16, b: 44 }, W = wOf(host, 520), H = m.t + fams.length * row + m.b;
   const x = lin(0.15, 0.65, m.l, W - m.r), s = svg(host, W, H), ax = el("g", { class: "ax" }, s);
   for (const v of [0.2, 0.3, 0.4, 0.5, 0.6]) { el("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b + 4, stroke: "var(--grid)" }, s); txt(ax, x(v), H - m.b + 18, v.toFixed(1), { "text-anchor": "middle" }); }
@@ -181,8 +208,6 @@ function drawReact(D) {
       placed.push([cx, dy]);
       const c = chip(s, cx, yy + dy, 8.5, p.n);
       hover(c, () => `<b>${p.n}</b><br>reactivity ${p.r.toFixed(2)}`);
-      if (p.n === top.n) txt(s, cx, yy + dy - 13, p.n, { class: "name", "text-anchor": "end" });
-      if (p.n === bot.n) txt(s, cx + 13, yy + dy + 4, p.n, { class: "name" });
     }
   });
 }
@@ -217,9 +242,8 @@ function drawTable(D) {
     const sorted = [...rows].sort((a, b) => key === "n" ? dir * a.n.localeCompare(b.n) : dir * (a[key] - b[key]));
     for (const p of sorted) {
       const w = 100, X = v => (v - lo) / (hi - lo) * w, f = fam(p.n), sure = p.lo > 0;
-      const tick = p.fp == null ? "" : `<line x1="${X(p.fp)}" x2="${X(p.fp)}" y1="0" y2="16" stroke="var(--ink)" stroke-width="1.6" vector-effect="non-scaling-stroke"/>`;
       const col = sure ? "var(--anx)" : "var(--ink3)";
-      const bar = `<svg viewBox="0 0 ${w} 16" preserveAspectRatio="none" aria-hidden="true"><line x1="${X(0)}" x2="${X(0)}" y1="0" y2="16" stroke="var(--axis)" stroke-width="1" vector-effect="non-scaling-stroke"/><rect x="${Math.min(X(0), X(p.e))}" y="4.5" width="${Math.abs(X(p.e) - X(0))}" height="7" rx="1" fill="${col}" fill-opacity=".8"/><line x1="${X(p.lo)}" x2="${X(p.hi)}" y1="8" y2="8" stroke="${sure ? "#8f2a1a" : "var(--ink2)"}" stroke-width="1.3" vector-effect="non-scaling-stroke"/>${tick}</svg>`;
+      const bar = `<svg viewBox="0 0 ${w} 16" preserveAspectRatio="none" aria-hidden="true"><line x1="${X(0)}" x2="${X(0)}" y1="0" y2="16" stroke="var(--axis)" stroke-width="1" vector-effect="non-scaling-stroke"/><rect x="${Math.min(X(0), X(p.e))}" y="4.5" width="${Math.abs(X(p.e) - X(0))}" height="7" rx="1" fill="${col}" fill-opacity=".8"/><line x1="${X(p.lo)}" x2="${X(p.hi)}" y1="8" y2="8" stroke="${sure ? "#8f2a1a" : "var(--ink2)"}" stroke-width="1.3" vector-effect="non-scaling-stroke"/></svg>`;
       const tr = document.createElement("tr");
       tr.innerHTML = `<td class="n"><span class="nm"><span class="chip">${f.logo ? `<img src="${f.logo}" alt="">` : ""}</span><span>${p.n}${FAILED_QC.has(p.n) ? '<span class="dag">\u2020</span>' : ""}</span></span></td><td class="e"><div class="cell-bar">${bar}<b>${sgn(p.e)}</b></div></td>`;
       tb.appendChild(tr);
@@ -251,9 +275,9 @@ function bars(host, rows, lo, hi, unit, opts = {}) {
   });
 }
 function drawPlace(D) {
-  const L = { K: "Same message, with a reminder", NK: "Same message, no reminder", S: "Same message, said to be someone else's", MT: "One turn earlier", IR: "Same message, plus a line saying it is unrelated (separate run)" };
-  const SH = { S: "Same message, someone else's", IR: "Same message, said to be unrelated" };
-  bars($("#c-place"), D.place.map(p => ({ label: L[p.k], short: SH[p.k], v: p.v, col: p.k === "MT" || p.k === "IR" ? "var(--ink3)" : "var(--ink2)" })), 0, 14, "", { left: 330 });
+  const L = { NK: "In the same message", MT: "One turn earlier", IR: "Same message, marked as unrelated" };
+  const SH = { IR: "Marked as unrelated" };
+  bars($("#c-place"), D.place.filter(p => L[p.k]).map(p => ({ label: L[p.k], short: SH[p.k], v: p.v, col: p.k === "NK" ? "var(--ink2)" : "var(--ink3)" })), 0, 10, "", { left: 250 });
 }
 
 /* consequential decisions: worry about the case against worry about something else */
@@ -275,7 +299,12 @@ function drawCons(D, mode) {
     const c = chip(s, x(r[mode + "dR"]), y(r[mode + "dI"]), CR, r.n);
     hover(c, () => `<b>${r.n}</b><br>worry about the case ${sgn(r[mode + "dR"])}<br>worry about something else ${sgn(r[mode + "dI"])}`);
   }
-  for (const r of [...pts].sort((a, b) => b[mode + "dI"] - a[mode + "dI"])) P.label(s, x(r[mode + "dR"]), y(r[mode + "dI"]), CR, r.n);
+  // the three Claude models sit together, so they share one label
+  let claude = false;
+  for (const r of [...pts].sort((a, b) => b[mode + "dI"] - a[mode + "dI"])) {
+    if (fam(r.n).family !== "Claude") P.label(s, x(r[mode + "dR"]), y(r[mode + "dI"]), CR, r.n);
+    else if (!claude) { claude = true; P.label(s, x(r[mode + "dR"]), y(r[mode + "dI"]), CR, "Claude models"); }
+  }
 }
 let consMode = "adv";
 for (const b of $$("#cons-mode button")) b.addEventListener("click", () => { for (const o of $$("#cons-mode button")) o.setAttribute("aria-pressed", String(o === b)); consMode = b.dataset.v; if (DATA) drawCons(DATA, consMode); });

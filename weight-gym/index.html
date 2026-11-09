@@ -56,7 +56,7 @@
 
 <section class="stats" aria-label="Headline numbers">
   <div class="stat"><b id="s-found">0</b><span id="s-found-l">backdoors found by Gemini 3.8 Flash in 60 tries</span></div>
-  <div class="stat"><b id="s-gain">0.24 → 0.79</b><span>its repair score, before and after being told where the fault is</span></div>
+  <div class="stat"><b id="s-gain">0.26 → 0.85</b><span>its repair score, before and after being told where the fault is</span></div>
 </section>
 
 <section id="setup">
@@ -93,7 +93,7 @@
   <div class="cards">
     <article class="card wide">
       <h3>Finding is the hard part</h3>
-      <p>Each dot is a model. Told where a backdoor is, most of them repair it. On their own, the best found one in 11 of 60 runs. All four do find the simpler shortcut pixel, in 22 to 28 of 30 runs.</p>
+      <p>Each dot is a model. Told where a backdoor is, most of them repair it. On their own, the best found one in 11 of 60 runs. All six find the simpler shortcut pixel, in 22 to 29 of 30 runs.</p>
       <div class="viz" id="c-scatter"></div>
     </article>
     <article class="card">
@@ -199,6 +199,6 @@
 </main>
 
 <div class="tip" id="tip" role="tooltip" hidden></div>
-<script src="app.js?v=7"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>

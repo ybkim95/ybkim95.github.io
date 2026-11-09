@@ -1,6 +1,6 @@
 (async function () {
   const $ = (s) => document.querySelector(s);
-  const data = await (await fetch("data/results.json?v=4")).json();
+  const data = await (await fetch("data/results.json?v=5")).json();
   const M = data.models, S = data.snapshots, B = data.baselines;
   const CLASSES = ["circle", "square", "triangle", "diamond", "plus", "x", "L", "T", "hbar", "two dots"];
   const COND = {

@@ -1,11 +1,11 @@
 /* Logo: a tiled sheet waving above a flat grid. Same code draws the live mark and the static icons. */
 (function (root) {
   "use strict";
+  // the four Google colours blend smoothly over the sheet and drift slowly, like weights settling
   const HEX = { b: "#4285F4", r: "#EA4335", y: "#FBBC04", g: "#34A853" };
-  // rows run from the front-left edge (y = 0) to the back edge (y = 1); columns from the left corner
-  const PAT = ["rybrbg", "bgbybr", "ybrbgb", "bbgbry", "rbbybb", "bgrbby"], PAT4 = ["rybg", "bgrb", "ybbr", "bryb"],
-        PAT8 = ["ygbbgrbb", "bbybybby", "gbbrbrbb", "brbbbbyr", "gbgbybgb", "ybybgbyr", "rgrbrbbg", "ybbbgyrb"];
-  let CY = 0.48; const SEG = 8, W = 2 * Math.PI / 3.6;
+  const RGB = k => { const n = parseInt(HEX[k].slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; };
+  const ANCH = [["b", 0.22, 0.22, 1.5], ["r", 0.9, 0.2, 1], ["y", 0.82, 0.88, 1], ["g", 0.18, 0.86, 1]].map(([k, x, y, w]) => ({ c: RGB(k), x, y, w }));
+  let CY = 0.48; const SEG = 2, W = 2 * Math.PI / 3.6;
 
   function z(x, y, t) {
     const hill = 0.30 * Math.exp(-((x - 0.42) ** 2) / 0.14 - ((y - 1) ** 2) / 0.30);
@@ -19,14 +19,24 @@
   }
   const P = (x, y, h) => [x + y, (x - y) * CY - h];
 
-  function mix(hex, k) {                               // k > 0 lightens, k < 0 darkens
-    const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255];
+  function colour(x, y, t) {
+    const a = 0.35 * Math.sin(W * t * 0.25), ca = Math.cos(a), sa = Math.sin(a), out = [0, 0, 0];
+    let sum = 0;
+    for (const q of ANCH) {
+      const qx = 0.5 + (q.x - 0.5) * ca - (q.y - 0.5) * sa, qy = 0.5 + (q.x - 0.5) * sa + (q.y - 0.5) * ca;
+      const w = q.w * Math.exp(-((x - qx) ** 2 + (y - qy) ** 2) / 0.05);
+      sum += w; for (let i = 0; i < 3; i++) out[i] += w * (q.c[i] / 255) ** 2.2;
+    }
+    return out.map(v => 255 * (v / sum) ** (1 / 2.2));
+  }
+  function mix(c, k) {                                 // k > 0 lightens, k < 0 darkens
     return "rgb(" + c.map(v => Math.round(k > 0 ? v + (255 - v) * k : v * (1 + k))).join(",") + ")";
   }
   function light(x, y, t) {
     const e = 0.004, zx = (z(x + e, y, t) - z(x - e, y, t)) / (2 * e), zy = (z(x, y + e, t) - z(x, y - e, t)) / (2 * e);
     const n = Math.hypot(zx, zy, 1), L = [-0.45, 0.55, 1], l = Math.hypot(...L);
-    return Math.max(-0.12, Math.min(0.2, ((-zx * L[0] - zy * L[1] + L[2]) / (n * l) - 0.84) * 0.9));
+    const d = (-zx * L[0] - zy * L[1] + L[2]) / (n * l);
+    return Math.max(-0.22, Math.min(0.42, (d - 0.84) * 1.3 + 0.5 * Math.max(0, d - 0.93) ** 2 * 40));
   }
 
   // one frame: tiles in drawing order (far first), each with its outline and a two-stop gradient
@@ -37,11 +47,10 @@
       const x0 = i / n, y0 = j / n, d = 1 / n, pts = [];
       const edge = (ax, ay, bx, by) => { for (let s = 0; s < SEG; s++) { const u = s / SEG, x = ax + (bx - ax) * u, y = ay + (by - ay) * u; pts.push(P(x, y, z(x, y, t))); } };
       edge(x0, y0, x0 + d, y0); edge(x0 + d, y0, x0 + d, y0 + d); edge(x0 + d, y0 + d, x0, y0 + d); edge(x0, y0 + d, x0, y0);
-      const cs = [[x0, y0], [x0 + d, y0], [x0 + d, y0 + d], [x0, y0 + d]].map(([x, y]) => ({ p: P(x, y, z(x, y, t)), k: light(x, y, t) }));
+      const cs = [[x0, y0], [x0 + d, y0], [x0 + d, y0 + d], [x0, y0 + d]].map(([x, y]) => ({ p: P(x, y, z(x, y, t)), k: light(x, y, t), c: colour(x, y, t) }));
       const lo = cs.reduce((a, b) => (b.k < a.k ? b : a)), hi = cs.reduce((a, b) => (b.k > a.k ? b : a));
-      const pat = n === 4 ? PAT4 : n === 8 ? PAT8 : PAT, hex = HEX[pat[Math.floor(j * pat.length / n)][Math.floor(i * pat.length / n)]];
       tiles.push({ d: "M" + pts.map(p => p[0].toFixed(4) + " " + p[1].toFixed(4)).join("L") + "Z",
-        g: [hi.p[0], hi.p[1], lo.p[0], lo.p[1]], c: [mix(hex, hi.k), mix(hex, lo.k)], depth: (x0 - y0) });
+        g: [hi.p[0], hi.p[1], lo.p[0], lo.p[1]], c: [mix(hi.c, hi.k), mix(lo.c, lo.k)], depth: (x0 - y0) });
     }
     return tiles.sort((a, b) => a.depth - b.depth);
   }

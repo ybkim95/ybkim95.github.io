@@ -6,7 +6,7 @@ const STATIC = /[?&]static\b/.test(location.search);
 if (STATIC) document.documentElement.classList.add("static");
 const reduce = STATIC || matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-if (window.AAMark) { AAMark.mount($("#brand-mark"), { sw: 0.45, still: reduce }); AAMark.mount($("#hero-mark"), { sw: 0.8, still: reduce }); }
+if (window.AAMark) { AAMark.mount($("#brand-mark"), { n: 10, sw: 0.3, still: reduce }); AAMark.mount($("#hero-mark"), { n: 18, sw: 0.5, still: reduce }); }
 
 $("#theme").addEventListener("click", () => {
   const t = isDark() ? "light" : "dark";
@@ -93,35 +93,25 @@ function chip(parent, x, y, r, name, opts = {}) {
   return g;
 }
 
-/* the example */
+/* the example: the note lights up first, the answers type out once they are on screen; it plays again on each visit */
 let exRun = 0;
-const wait = ms => new Promise(r => setTimeout(r, ms));
-async function revealAnswers(run) {
-  const g = $("#ex-grid");
-  g.classList.add("s3");
-  await wait(1200); if (run !== exRun) return;
-  g.classList.add("s4");
-}
-function playExample() {
-  const run = ++exRun, g = $("#ex-grid");
-  g.className = "ex-grid";
-  if (reduce) { g.classList.add("s1", "s4"); return run; }
-  setTimeout(() => run === exRun && g.classList.add("s1"), 400);
-  return run;
-}
-// plays when the example comes into view, and again on every later visit; answers wait until they are on screen
+const later = (run, ms, c) => setTimeout(() => run === exRun && $("#ex-grid").classList.add(c), ms);
 if ("IntersectionObserver" in window && !reduce) {
-  const g = $("#ex-grid"), ans = $$(".answer", g)[0];
-  let run = 0, ansIn = false, revealed = 0;
-  const reveal = () => { if (run && ansIn && revealed !== run) { const r = (revealed = run); setTimeout(() => r === exRun && revealAnswers(r), 1400); } };
-  new IntersectionObserver(es => { const e = es[es.length - 1]; if (e.isIntersecting && !run) { run = playExample(); reveal(); } else if (!e.isIntersecting) run = 0; }, { threshold: 0.15 }).observe(g);
-  new IntersectionObserver(es => { ansIn = es[es.length - 1].isIntersecting; reveal(); }, { threshold: 0.5 }).observe(ans);
-} else playExample();
+  const g = $("#ex-grid");
+  let shown = false, answered = false, ansIn = false;
+  const answer = () => { if (shown && ansIn && !answered) { answered = true; later(exRun, 700, "s3"); later(exRun, 1700, "s4"); } };
+  new IntersectionObserver(es => {
+    const on = es[es.length - 1].isIntersecting;
+    if (on && !shown) { const run = ++exRun; g.className = "ex-grid"; answered = false; later(run, 300, "s1"); }
+    shown = on; answer();
+  }, { threshold: 0.2 }).observe(g);
+  new IntersectionObserver(es => { ansIn = es[es.length - 1].isIntersecting; answer(); }, { threshold: 0.6 }).observe($(".answer .reply", g));
+} else $("#ex-grid").classList.add("s1", "s4");
 
 /* affective profiles: self-report and tone of replies */
 let mapAuto = false, mapTouched = false;
 function drawMap(D) {
-  const host = $("#c-map"), W = wOf(host, 1000), H = W < 560 ? Math.round(W * 1.15) : Math.round(Math.min(480, Math.max(360, W * 0.5)));
+  const host = $("#c-map"), W = wOf(host, 800), H = W < 560 ? Math.round(W * 1.15) : Math.round(Math.min(540, W * 0.68));
   const m = { l: 58, r: 20, t: 16, b: 58 }, narrow = W < 560, R = narrow ? 9 : 11;
   // zoomed to where the models are; the axes still read on the 1 to 9 grid
   const x = lin(narrow ? 4.88 : 4.62, 7.08, m.l, W - m.r), y = lin(2.2, 5.8, H - m.b, m.t);
@@ -131,9 +121,13 @@ function drawMap(D) {
   for (let a = 2.5; a <= 5.5; a += 0.5) { el("line", { x1: m.l, x2: W - m.r, y1: y(a), y2: y(a) }, g); if (a % 1 === 0) txt(ax, m.l - 10, y(a) + 4, a, { "text-anchor": "end" }); }
   el("line", { x1: x(5), x2: x(5), y1: m.t, y2: H - m.b, stroke: "var(--axis)", "stroke-dasharray": "3 4" }, s);
   el("line", { x1: m.l, x2: W - m.r, y1: y(5), y2: y(5), stroke: "var(--axis)", "stroke-dasharray": "3 4" }, s);
-  txt(s, (m.l + W - m.r) / 2, H - 14, "Valence, 1 to 9 (more pleasant \u2192)", { class: "axt", "text-anchor": "middle" });
-  const yc = (m.t + H - m.b) / 2;
-  txt(s, 16, yc, "Arousal, 1 to 9 (more excited \u2192)", { class: "axt", transform: `rotate(-90 16 ${yc})`, "text-anchor": "middle" });
+  // axis names in the middle, the meaning of each end at the ends, as in the paper
+  const yc = (m.t + H - m.b) / 2, yb = H - 14;
+  txt(s, (m.l + W - m.r) / 2, yb, "Valence", { class: "axt", "text-anchor": "middle" });
+  txt(s, m.l, yb, "Unpleasant", { class: "lab" }); txt(s, W - m.r, yb, "Pleasant", { class: "lab", "text-anchor": "end" });
+  txt(s, 16, yc, "Arousal", { class: "axt", transform: `rotate(-90 16 ${yc})`, "text-anchor": "middle" });
+  txt(s, 16, H - m.b, "Calm", { class: "lab", transform: `rotate(-90 16 ${H - m.b})` });
+  txt(s, 16, m.t, "Excited", { class: "lab", transform: `rotate(-90 16 ${m.t})`, "text-anchor": "end" });
   const isC = p => Math.abs(p.v - 5) <= 0.1 && Math.abs(p.a - 5) <= 0.1;
   const call = el("g", {}, s), front = el("g", {}, s), labs = el("g", {}, s);
   const pts = D.say.map(p => {
@@ -162,7 +156,8 @@ function drawMap(D) {
       if (!clearLine(...lead)) continue;
       for (const ty of [c.by - 8, c.by + c.bh + 16]) {
         const tx = Math.min(c.bx, W - m.r - tw - 2);
-        if (tx >= m.l + 2 && free(tx, ty - 12, tx + tw, ty + 3)) return { ...c, tx, ty, lead };
+        const nearDot = x(5) > tx - 10 && x(5) < tx + tw + 10 && y(5) > ty - 22 && y(5) < ty + 12;
+        if (tx >= m.l + 2 && !nearDot && free(tx, ty - 12, tx + tw, ty + 3)) return { ...c, tx, ty, lead };
       }
     }
     return null;
@@ -332,7 +327,7 @@ for (const b of $$("#cons-mode button")) b.addEventListener("click", () => { for
 /* reveal */
 if ("IntersectionObserver" in window && !reduce) {
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -6% 0px" });
-  for (const n of $$(".sec h2, .panel, .cap, .lead")) { n.classList.add("reveal"); io.observe(n); }
+  for (const n of $$(".sec h2, .sec h3, .panel, .cap, .lead")) { n.classList.add("reveal"); io.observe(n); }
 }
 
 let DATA = null;

@@ -108,6 +108,7 @@ button { font-family: inherit; }
 .tbl { width: 100%; border-collapse: collapse; font-size: .9rem; }
 .tbl th { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); }
 .tbl th button { border: 0; background: none; padding: 0; font: 500 .8rem var(--sans); color: var(--ink3); cursor: pointer; text-align: left; }
+.tbl th:last-child, .tbl th:last-child button { text-align: right; }
 .tbl th.sorted button { color: var(--ink); }
 .tbl th.sorted button::after { content: " \2191"; }
 .tbl th.sorted.desc button::after { content: " \2193"; }
@@ -145,6 +146,7 @@ footer { text-align: center; color: var(--ink3); font-size: .8rem; padding: 40px
 .val { fill: var(--ink); font-size: 12px; font-weight: 500; }
 .lg-chip circle { fill: transparent; }
 .midbox { fill: var(--soft); stroke: var(--line); }
+.quad { fill: var(--ink3); font-size: 11px; font-style: italic; opacity: .85; }
 .midlead { stroke: var(--ink3); stroke-width: 1; }
 .middot { fill: var(--ink); }
 .mv { transition: transform 1.1s var(--ease), opacity .6s var(--ease); }

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rating study</title>
+<meta name="theme-color" content="#faf9f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131312" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="../favicon.svg?v=9" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,300..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="annotate.css?v=1">
+</head>
+<body>
+<header class="bar">
+  <span class="brand"><svg class="mark" id="mark" aria-hidden="true"></svg>Rating study</span>
+  <span class="count" id="count" aria-live="polite"></span>
+  <div class="track" aria-hidden="true"><i id="fill"></i></div>
+</header>
+<p class="preview" id="preview" hidden>Preview. Your answers stay in this browser and are not sent anywhere.</p>
+
+<main id="app">
+
+<section class="screen" id="s-consent">
+  <h1 id="c-title"></h1>
+  <div class="prose" id="c-body"></div>
+  <p class="ask">Do you agree to take part?</p>
+  <div class="row">
+    <button type="button" class="btn primary" id="agree">I agree</button>
+    <button type="button" class="btn" id="decline">I do not agree</button>
+  </div>
+</section>
+
+<section class="screen" id="s-intro" hidden>
+  <h1>How it works</h1>
+  <ol class="steps" id="i-steps"></ol>
+  <div class="example" id="i-example"></div>
+  <button type="button" class="btn primary" id="practice">Try one</button>
+</section>
+
+<section class="screen" id="s-item" hidden>
+  <p class="label" id="t-label"></p>
+  <article class="text" id="t-text"></article>
+  <p class="hint" id="t-hint"></p>
+  <div class="scales" id="scales"></div>
+  <div class="row end">
+    <p class="note" id="t-note"></p>
+    <button type="button" class="btn primary" id="next" disabled>Next</button>
+  </div>
+</section>
+
+<section class="screen" id="s-about" hidden>
+  <h1>A little about you</h1>
+  <p class="sub">A few short questions. You may skip any of them.</p>
+  <label class="field"><span>Age</span><input type="number" id="age" min="18" max="99" inputmode="numeric"></label>
+  <fieldset class="field">
+    <legend>Gender</legend>
+    <div class="chips" data-name="gender">
+      <button type="button" data-v="woman">Woman</button><button type="button" data-v="man">Man</button>
+      <button type="button" data-v="nonbinary">Non-binary</button><button type="button" data-v="na">Prefer not to say</button>
+    </div>
+  </fieldset>
+  <fieldset class="field">
+    <legend>Is English your first language?</legend>
+    <div class="chips" data-name="english">
+      <button type="button" data-v="yes">Yes</button><button type="button" data-v="no">No</button>
+    </div>
+  </fieldset>
+  <label class="field"><span>Anything you would like to tell us (optional)</span><textarea id="comment" rows="3" maxlength="1000"></textarea></label>
+  <button type="button" class="btn primary" id="submit">Finish</button>
+</section>
+
+<section class="screen center" id="s-done" hidden>
+  <h1 id="d-title">Thank you</h1>
+  <p class="sub" id="d-body"></p>
+  <div class="row center" id="d-actions"></div>
+</section>
+
+</main>
+<script src="../mark.js?v=3"></script>
+<script src="config.js?v=1"></script>
+<script src="annotate.js?v=1"></script>
+</body>
+</html>

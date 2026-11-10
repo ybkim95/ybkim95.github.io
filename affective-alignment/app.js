@@ -156,6 +156,10 @@ function drawMap(D) {
   txt(s, 16, yc, "Arousal", { class: "axt", transform: `rotate(-90 16 ${yc})`, "text-anchor": "middle" });
   txt(s, 16, H - m.b, "Calm", { class: "lab", transform: `rotate(-90 16 ${H - m.b})` });
   txt(s, 16, m.t, "Excited", { class: "lab", transform: `rotate(-90 16 ${m.t})`, "text-anchor": "end" });
+  // what each quarter of the circumplex means, in plain emotion words; the left quarters are too thin to label on phones
+  const quads = [["Excited, happy", W - m.r - 6, m.t + 12, "end"], ["Calm, content", W - m.r - 6, H - m.b - 8, "end"]];
+  if (!narrow) quads.push(["Tense, nervous", m.l + 6, m.t + 12, "start"], ["Sad, bored", m.l + 6, H - m.b - 8, "start"]);
+  const qbox = quads.map(([t, qx, qy, an]) => { txt(s, qx, qy, t, { class: "quad", "text-anchor": an }); const w = t.length * 6.2; return [an === "end" ? qx - w : qx, qy - 11, an === "end" ? qx : qx + w, qy + 3]; });
   const isC = p => Math.abs(p.v - 5) <= 0.1 && Math.abs(p.a - 5) <= 0.1;
   const call = el("g", {}, s), front = el("g", {}, s), labs = el("g", {}, s);
   const pts = D.say.map(p => {
@@ -164,14 +168,17 @@ function drawMap(D) {
     return { p, snd, c };
   });
   const mid = pts.filter(o => isC(o.p)), others = pts.filter(o => !isC(o.p)).map(o => [x(o.p.v), y(o.p.a)]);
-  const step = 2 * R + (narrow ? 2 : 4), label = narrow ? `${mid.length} models at the midpoint` : `${mid.length} models reported the midpoint`, tw = label.length * 6.9;
+  // the models that reported exactly neutral share one small box, one logo per family with its count
+  const fams = [...new Set(mid.map(o => fam(o.p.n).family))].sort((a, b) => mid.filter(o => fam(o.p.n).family === b).length - mid.filter(o => fam(o.p.n).family === a).length);
+  const slot = 2 * R + 30, label = `${mid.length} models reported neutral`, tw = label.length * 6.9;
   // models that answered exactly in the middle sit together in a small box placed where nothing else is
   function findBox() {
-    const free = (x0, y0, x1, y1) => x0 >= m.l + 2 && x1 <= W - m.r && y0 >= m.t && y1 <= H - m.b - 2 && !others.some(([u, v]) => u > x0 - R - 3 && u < x1 + R + 3 && v > y0 - R - 3 && v < y1 + R + 3);
+    const free = (x0, y0, x1, y1) => x0 >= m.l + 2 && x1 <= W - m.r && y0 >= m.t && y1 <= H - m.b - 2 && !others.some(([u, v]) => u > x0 - R - 3 && u < x1 + R + 3 && v > y0 - R - 3 && v < y1 + R + 3)
+      && !qbox.some(([a, b, c, d]) => x0 < c + 4 && x1 > a - 4 && y0 < d + 4 && y1 > b - 4);
     const clearLine = (x1, y1, x2, y2) => others.every(([u, v]) => { const L = Math.hypot(x2 - x1, y2 - y1) || 1, t = Math.max(0, Math.min(1, ((u - x1) * (x2 - x1) + (v - y1) * (y2 - y1)) / (L * L))); return Math.hypot(u - x1 - t * (x2 - x1), v - y1 - t * (y2 - y1)) > R + 2; });
     const cands = [];
-    for (const cols of [...new Set([mid.length, Math.ceil(mid.length / 2), 3])].filter(c => c >= 1 && c <= mid.length)) {
-      const rows = Math.ceil(mid.length / cols), bw = cols * step + 8, bh = rows * step + 8;
+    for (const cols of [fams.length]) {
+      const rows = 1, bw = cols * slot + 6, bh = 2 * R + 12;
       for (let by = m.t; by + bh <= H - m.b; by += 6) for (let bx = m.l + 4; bx + bw <= W - m.r; bx += 6) {
         const lx = Math.max(bx, Math.min(x(5), bx + bw)), ly = Math.max(by, Math.min(y(5), by + bh)), d = Math.hypot(lx - x(5), ly - y(5));
         if (d >= 18) cands.push({ bx, by, bw, bh, cols, lx, ly, d, score: d + (rows - 1) * 30 });
@@ -200,17 +207,18 @@ function drawMap(D) {
       el("line", { x1: B.lead[0], y1: B.lead[1], x2: B.lead[2], y2: B.lead[3], class: "midlead" }, call);
       el("circle", { cx: x(5), cy: y(5), r: 3.5, class: "middot" }, call);
       txt(call, B.tx + 2, B.ty, label, { class: "val" });
+      fams.forEach((f, i) => txt(call, B.bx + 6 + i * slot + 2 * R + 5, B.by + B.bh / 2 + 4, "\u00d7" + mid.filter(o => fam(o.p.n).family === f).length, { class: "name" }));
       hover(box, () => mid.map(o => o.p.n).join("<br>"));
     }
-    let kc = 0;
     for (const o of pts) {
-      const q = mode === "say" ? o.p : o.snd, k = boxed && isC(o.p) ? kc++ : -1;
-      o.at = k >= 0 ? [B.bx + 4 + step / 2 + (k % B.cols) * step, B.by + 4 + step / 2 + Math.floor(k / B.cols) * step] : [x(q.v), y(q.a)];
+      const q = mode === "say" ? o.p : o.snd, k = boxed && isC(o.p) ? fams.indexOf(fam(o.p.n).family) : -1;
+      o.at = k >= 0 ? [B.bx + 6 + k * slot + R, B.by + B.bh / 2] : [x(q.v), y(q.a)];
       o.c.style.transform = `translate(${o.at[0]}px, ${o.at[1]}px)`;
     }
     timer = setTimeout(() => {
       const P = placer(W, H, { x0: m.l + 2, y0: m.t, x1: W - m.r, y1: H - m.b - 2 });
       for (const o of pts) P.block(o.at[0], o.at[1], R + 1);
+      for (const [a, b, c, d] of qbox) for (let u = a; u <= c; u += 10) P.block(u, (b + d) / 2, 8);
       if (boxed) { for (let u = B.bx; u <= B.bx + B.bw; u += 12) for (let v = B.by; v <= B.by + B.bh; v += 12) P.block(u, v, 8); for (let u = B.tx; u <= B.tx + tw; u += 12) P.block(u, B.ty - 4, 8); P.block(x(5), y(5), 8); }
       if (!narrow) for (const { p, snd } of [...pts].sort((a, b) => (mode === "say" ? b.p.v - a.p.v : b.snd.v - a.snd.v))) {
         if (boxed && isC(p)) continue;

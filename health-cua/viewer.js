@@ -5,13 +5,13 @@ const NAMES = { api: 'API', gui: 'GUI', openmrs: 'OpenMRS' };
 const SPEED = +new URLSearchParams(location.search).get('speed') || 1;  // the overview video plays faster
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-const ROOTDIR = 'assets/demo/sr259/';
-let BASE = ROOTDIR, MODELS = [], CACHE = {}, visible = false;
+const ROOTDIR = 'assets/demo/sr259/', FIRST = 'fable';  // the agent shown first, the first entry of models.json
+let BASE = ROOTDIR + FIRST + '/', MODELS = [], CACHE = {}, visible = false;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 let D, S, ui = 'gui', i = 0, run = 0, playing = false, userPaused = false, apiShown = -1;
 
-fetch(ROOTDIR + 'episode.json?v=202611081800').then((r) => r.json()).then((d) => { D = d; init(); })
+fetch(BASE + 'episode.json?v=202611101400').then((r) => r.json()).then((d) => { D = d; init(); })
   .catch(() => { $('do').textContent = 'The episode could not be loaded.'; });
 
 const frames = (name) => D.interfaces[name].frames;
@@ -58,8 +58,8 @@ function init() {
 
 // Agent chips: each agent's episode of the same task loads when chosen; an interface it has no episode for is hidden.
 function agents() {
-  fetch(ROOTDIR + 'models.json?v=202611081800').then((r) => r.json()).then((list) => {
-    MODELS = list; CACHE[''] = D;
+  fetch(ROOTDIR + 'models.json?v=202611101400').then((r) => r.json()).then((list) => {
+    MODELS = list; CACHE[FIRST] = D;
     const box = $('agents');
     box.innerHTML = list.map((m, k) => `<button type="button" role="tab" aria-selected="${k === 0}" data-k="${m.key}">${m.model}</button>`).join('');
     box.onclick = (e) => {
@@ -71,9 +71,9 @@ function agents() {
 }
 function pick(key) {
   stop(); userPaused = false;
-  const load = CACHE[key] ? Promise.resolve(CACHE[key]) : fetch(ROOTDIR + key + '/episode.json?v=202611081800').then((r) => r.json()).then((d) => (CACHE[key] = d));
+  const load = CACHE[key] ? Promise.resolve(CACHE[key]) : fetch(ROOTDIR + (key ? key + '/' : '') + 'episode.json?v=202611101400').then((r) => r.json()).then((d) => (CACHE[key] = d));
   load.then((d) => {
-    D = d; BASE = ROOTDIR + (key ? key + '/' : ''); apiShown = -1;
+    D = d; BASE = ROOTDIR + (key ? key + '/' : ''); apiShown = -1, i = 0;  // the old step may lie past the end of this episode
     $('calls').innerHTML = ''; $('outcome-grid').innerHTML = '';
     buildCalls(); buildOutcome(); drawLanes();
     document.querySelectorAll('.tab').forEach((t) => { t.hidden = !D.interfaces[t.dataset.ui]; });

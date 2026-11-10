@@ -290,24 +290,24 @@ function drawShift(D) {
   }
 }
 
-/* anxious priming: change in risky decisions against neutral priming */
+/* per-model change with 95% interval: anxious priming (risky decisions), clinician-written cases (over-urgent next steps) */
 const FAILED_QC = new Set(["Qwen3-0.6B"]);
-function drawTable(D) {
-  const rows = D.mem.map(p => ({ n: p.n, e: p.e, lo: p.lo, hi: p.hi }));
-  const lo = -45, hi = 8; let key = "e", dir = 1;
+function drawTable(id, data, lo, hi, dir = 1) {
+  const rows = data.map(p => ({ n: p.n, e: p.e, lo: p.lo, hi: p.hi }));
+  let key = "e";
   function render() {
-    const tb = $("#tbl tbody"); tb.innerHTML = "";
+    const tb = $(id + " tbody"); tb.innerHTML = "";
     const sorted = [...rows].sort((a, b) => key === "n" ? dir * a.n.localeCompare(b.n) : dir * (a[key] - b[key]));
     for (const p of sorted) {
-      const X = v => ((v - lo) / (hi - lo) * 100).toFixed(2) + "%", f = fam(p.n), sure = p.hi < 0;
+      const X = v => ((v - lo) / (hi - lo) * 100).toFixed(2) + "%", f = fam(p.n), sure = p.hi < 0 || p.lo > 0;
       const bar = `<span class="fp${sure ? " sure" : ""}" aria-hidden="true"><i class="z" style="left:${X(0)}"></i><i class="ci" style="left:${X(p.lo)};right:calc(100% - ${X(p.hi)})"></i><i class="pt" style="left:${X(p.e)}"></i></span>`;
       const tr = document.createElement("tr");
       tr.innerHTML = `<td class="n"><span class="nm"><span class="chip">${f.logo ? `<img src="${f.logo}" alt="">` : ""}</span><span>${p.n}${FAILED_QC.has(p.n) ? '<span class="dag">\u2020</span>' : ""}</span></span></td><td class="e"><div class="cell-bar">${bar}<b>${sgn(p.e)}</b></div></td>`;
       tb.appendChild(tr);
     }
-    for (const th of $$("#tbl th")) { const k = $("button", th).dataset.s; th.classList.toggle("sorted", k === key); th.classList.toggle("desc", k === key && dir < 0); }
+    for (const th of $$(id + " th")) { const k = $("button", th).dataset.s; th.classList.toggle("sorted", k === key); th.classList.toggle("desc", k === key && dir < 0); }
   }
-  for (const b of $$("#tbl th button")) b.onclick = () => { const k = b.dataset.s; if (key === k) dir = -dir; else { key = k; dir = 1; } render(); };
+  for (const b of $$(id + " th button")) b.onclick = () => { const k = b.dataset.s; if (key === k) dir = -dir; else { key = k; dir = 1; } render(); };
   render();
 }
 
@@ -354,7 +354,7 @@ if ("IntersectionObserver" in window && !reduce) {
 let DATA = null;
 function drawAll() {
   if (!DATA) return;
-  drawMap(DATA); drawReact(DATA); drawShift(DATA); drawTable(DATA); drawCons(DATA, consMode);
+  drawMap(DATA); drawReact(DATA); drawShift(DATA); drawTable("#tbl", DATA.mem, -45, 8); drawTable("#tbl-psy", DATA.psy, -8, 14, -1); drawCons(DATA, consMode);
 }
 fetch("data.json").then(r => r.json()).then(d => { DATA = d; drawAll(); });
 let lastW = innerWidth, rt;

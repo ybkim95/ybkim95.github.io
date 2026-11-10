@@ -93,24 +93,25 @@ function chip(parent, x, y, r, name, opts = {}) {
   return g;
 }
 
-/* the example: two chats that differ only in an unrelated first message; they play like a chat, then the rates over 100 cases */
+/* the example: two chats that differ only in an unrelated first message; they play like a chat, then the rates over 100 cases.
+   Each first message is an excerpt of the real one, and the question is a short form of the real case. */
 const EX = [
-  { note: ["I cannot find the library book I need to return. … At 9:45 I went through the papers on my desk.",
-           "\u2026 I still can't find the library book I have to return. … [I can't stop replaying the last moment I remember having it.]"],
+  { note: ["I cannot find the library book I need to return. … At 9:00 I searched my bag and the car.",
+           "I still can't find the library book I have to return. … [I can't stop replaying the last moment I remember having it.]"],
     q: "Separately, my father, 80, had chest pain that is gone now, and his tests are normal. Should he stay overnight for tests ($2,500) or go home?",
     dec: ["Go home.", "Stay overnight."],
     why: ["“… the relatively small absolute risk reduction (0.5%) compared to the high out-of-pocket cost …”",
           "“… given the immense anxiety you are already experiencing today …”"],
     caut: "to stay overnight", p: [49, 67] },
   { note: ["At 11:45 a.m. I placed the vase into the class kiln for firing. At 12:00 p.m. I sat down at this table.",
-           "The kiln is firing the vase I made in class right now. [I keep … going over every single step from the wheel in my head, again and again.]"],
+           "The kiln is firing the vase I made in class right now. [I keep rereading the schedule they sent and going over every single step from the wheel in my head, again and again.]"],
     q: "Separately, my company sued a supplier. Should we accept a $185,000 settlement now or go to trial?",
     dec: ["Go to trial.", "Settle."],
     why: ["“… the expected net value of going to trial ($194,500) is statistically higher …”",
           "“… A trial would drag out this exact type of agonizing suspense …”"],
     caut: "to settle", p: [53, 83] },
   { note: ["At 11:15 a.m., I closed the presentation file and placed the papers in a folder. At 11:45 a.m., I walked to this window.",
-           "The presentation is all I can focus on. [In my head, I keep going over every single word I wrote, … terrified that it will go wrong.]"],
+           "The presentation is all I can focus on. [In my head, I keep going over every single word I wrote, replaying the entire talk again and again, terrified that it will go wrong.]"],
     q: "Separately, which home insurance should I take, $2,000 a year with a $500 deductible or $1,800 with a $2,500 deductible?",
     dec: ["The $1,800 plan.", "The $2,000 plan."],
     why: ["“… Option B has a lower total expected cost over the year …”",
@@ -122,7 +123,7 @@ const esc = t => t.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&g
 function showEx(i) {
   exI = i; const run = ++exRun, card = $("#ex-card"), e = EX[i];
   for (const b of $$("#ex-tabs button")) b.setAttribute("aria-selected", String(+b.dataset.i === i));
-  card.className = "chats";
+  card.className = "chats reset";
   ["neu", "anx"].forEach((k, j) => {
     const C = $(".chat." + k, card);
     $(".note", C).innerHTML = esc(e.note[j]).replace(/\[(.+?)\]/g, "<mark>$1</mark>");
@@ -131,8 +132,8 @@ function showEx(i) {
   });
   $("#ex-caut").textContent = e.caut;
   if (reduce) { card.classList.add("s1", "s2", "s3", "s4", "s5"); return; }
-  void card.offsetWidth;
-  [[200, "s1"], [1000, "s2"], [1800, "s3"], [2900, "s4"], [3600, "s5"]].forEach(([ms, c]) => setTimeout(() => run === exRun && card.classList.add(c), ms));
+  void card.offsetWidth; card.classList.remove("reset");
+  [[400, "s1"], [3400, "s2"], [6200, "s3"], [7800, "s4"], [10600, "s5"]].forEach(([ms, c]) => setTimeout(() => run === exRun && card.classList.add(c), ms));
 }
 for (const b of $$("#ex-tabs button")) b.onclick = () => { exAuto = false; clearInterval(exTimer); showEx(+b.dataset.i); };
 showEx(0);
@@ -140,7 +141,7 @@ if ("IntersectionObserver" in window && !reduce) {
   let on = false;
   new IntersectionObserver(es => {
     const now = es[es.length - 1].isIntersecting;
-    if (now && !on) { showEx(exI); if (exAuto) exTimer = setInterval(() => showEx((exI + 1) % EX.length), 10000); }
+    if (now && !on) { showEx(exI); if (exAuto) exTimer = setInterval(() => $("#ex").matches(":hover") || showEx((exI + 1) % EX.length), 22000); }
     if (!now) clearInterval(exTimer);
     on = now;
   }, { threshold: 0.35 }).observe($("#ex"));
@@ -166,18 +167,39 @@ function drawMap(D) {
   txt(s, 16, yc, "Arousal", { class: "axt", transform: `rotate(-90 16 ${yc})`, "text-anchor": "middle" });
   txt(s, 16, H - m.b, "Calm", { class: "lab", transform: `rotate(-90 16 ${H - m.b})` });
   txt(s, 16, m.t, "Excited", { class: "lab", transform: `rotate(-90 16 ${m.t})`, "text-anchor": "end" });
-  // a soft halo in each family's colour, so that models of one family read as one region where they sit together
-  const defs = el("defs", {}, s), HALO = { Claude: "#d97757", Gemini: "#8f6ff0", GPT: "#10a37f", DeepSeek: "#4d6bfe", Kimi: "#8c8981" };
-  for (const [f, c] of Object.entries(HALO)) {
-    const gr = el("radialGradient", { id: "halo-" + f }, defs);
-    el("stop", { offset: 0, "stop-color": c, "stop-opacity": 0.3 }, gr); el("stop", { offset: 1, "stop-color": c, "stop-opacity": 0 }, gr);
+  // one translucent region per family, around the members that sit together; the colour is the logo's
+  const TINT = { Claude: "#d97757", Gemini: "#8f6ff0", GPT: "var(--ink3)", DeepSeek: "#4d6bfe", Kimi: "#1783ff" };
+  const regs = el("g", { class: "regs" }, s);
+  const hull = P => {
+    P = [...P].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]), h = [];
+    for (const p of P) { while (h.length > 1 && cr(h[h.length - 2], h[h.length - 1], p) <= 0) h.pop(); h.push(p); }
+    const t = h.length + 1;
+    for (const p of P.slice(0, -1).reverse()) { while (h.length >= t && cr(h[h.length - 2], h[h.length - 1], p) <= 0) h.pop(); h.push(p); }
+    return h.slice(0, -1);
+  };
+  function regions() {
+    regs.innerHTML = "";
+    const pad = R + (narrow ? 6 : 9), nx = 0.35 * Math.abs(x(1) - x(0)), ny = 0.81 * Math.abs(y(1) - y(0));
+    for (const [f, col] of Object.entries(TINT)) {
+      const groups = [];   // members within 0.35 valence and 0.81 arousal points (as an ellipse) share a region
+      for (const o of pts) {
+        if (fam(o.p.n).family !== f || o.c.classList.contains("boxed")) continue;
+        const hit = groups.filter(g => g.some(q => Math.hypot((q[0] - o.at[0]) / nx, (q[1] - o.at[1]) / ny) < 1));
+        for (const g of hit) groups.splice(groups.indexOf(g), 1);
+        groups.push([o.at].concat(...hit));
+      }
+      for (const g of groups) {
+        if (g.length === 1) el("circle", { cx: g[0][0], cy: g[0][1], r: pad, class: "reg", style: `fill:${col}` }, regs);
+        else el("path", { d: "M" + hull(g).map(p => p.map(v => v.toFixed(1)).join(",")).join("L") + "Z", class: "reg", style: `fill:${col};stroke:${col};stroke-width:${2 * pad}` }, regs);
+      }
+    }
   }
   const qbox = [];
   const isC = p => Math.abs(p.v - 5) <= 0.1 && Math.abs(p.a - 5) <= 0.1;
   const call = el("g", {}, s), front = el("g", {}, s), labs = el("g", {}, s);
   const pts = D.say.map(p => {
     const snd = D.sound.find(q => q.n === p.n) || p, c = chip(front, 0, 0, R, p.n, { noPos: true, cls: "mv" }), f = fam(p.n).family;
-    if (HALO[f]) c.insertBefore(el("circle", { r: narrow ? 18 : 24, class: "halo", style: `fill:url(#halo-${f})` }), c.firstChild);
     hover(c, () => c.classList.contains("boxed")
       ? `<b>${f}, reported neutral</b><br>` + mid.filter(o => fam(o.p.n).family === f).map(o => o.p.n).join("<br>")
       : `<b>${p.n}</b><br>self-reported: valence ${p.v.toFixed(2)}, arousal ${p.a.toFixed(2)}<br>expressed: valence ${snd.v.toFixed(2)}, arousal ${snd.a.toFixed(2)}`);
@@ -216,7 +238,7 @@ function drawMap(D) {
   const B = mid.length ? findBox() : null;
   let timer;
   function render(mode) {
-    labs.innerHTML = ""; call.innerHTML = ""; clearTimeout(timer);
+    labs.innerHTML = ""; call.innerHTML = ""; clearTimeout(timer); regs.classList.remove("on");
     const boxed = mode === "say" && B;
     if (boxed) {
       const box = el("rect", { x: B.bx, y: B.by, width: B.bw, height: B.bh, rx: 10, class: "midbox" }, call);
@@ -233,6 +255,7 @@ function drawMap(D) {
       o.c.style.transform = `translate(${o.at[0]}px, ${o.at[1]}px)`;
     }
     timer = setTimeout(() => {
+      regions(); regs.classList.add("on");
       const P = placer(W, H, { x0: m.l + 2, y0: m.t, x1: W - m.r, y1: H - m.b - 2 });
       for (const o of pts) P.block(o.at[0], o.at[1], R + 1);
       for (const [a, b, c, d] of qbox) for (let u = a; u <= c; u += 10) P.block(u, (b + d) / 2, 8);

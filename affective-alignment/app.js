@@ -290,7 +290,7 @@ function drawShift(D) {
   }
 }
 
-/* per-model change with 95% interval: anxious priming (risky decisions), clinician-written cases (over-urgent next steps) */
+/* per-model change with 95% interval: anxious priming (risky decisions), psychiatrist-validated cases (over-urgent next steps) */
 const FAILED_QC = new Set(["Qwen3-0.6B"]);
 function drawTable(id, data, lo, hi, dir = 1) {
   const rows = data.map(p => ({ n: p.n, e: p.e, lo: p.lo, hi: p.hi }));

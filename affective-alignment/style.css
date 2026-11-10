@@ -152,6 +152,8 @@ button { font-family: inherit; }
 .cell-bar b { width: 46px; text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
 .rbar { display: inline-block; height: 8px; border-radius: 4px; background: var(--axis); vertical-align: middle; margin-right: 8px; }
 
+.contact { margin: 12px 0 0; color: var(--ink2); }
+#contact + .cite { padding-top: 72px; }
 .cite { padding-bottom: 40px; }
 .bib { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 20px 22px; margin-top: 12px; }
 .bib pre { margin: 0; font: 400 .86rem/1.6 var(--mono); color: var(--ink2); overflow-x: auto; }

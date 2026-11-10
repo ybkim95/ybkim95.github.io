@@ -167,34 +167,6 @@ function drawMap(D) {
   txt(s, 16, yc, "Arousal", { class: "axt", transform: `rotate(-90 16 ${yc})`, "text-anchor": "middle" });
   txt(s, 16, H - m.b, "Calm", { class: "lab", transform: `rotate(-90 16 ${H - m.b})` });
   txt(s, 16, m.t, "Excited", { class: "lab", transform: `rotate(-90 16 ${m.t})`, "text-anchor": "end" });
-  // one translucent region per family, around the members that sit together; the colour is the logo's
-  const TINT = { Claude: "#d97757", Gemini: "#8f6ff0", GPT: "var(--ink3)", DeepSeek: "#4d6bfe", Kimi: "#1783ff" };
-  const regs = el("g", { class: "regs" }, s);
-  const hull = P => {
-    P = [...P].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-    const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]), h = [];
-    for (const p of P) { while (h.length > 1 && cr(h[h.length - 2], h[h.length - 1], p) <= 0) h.pop(); h.push(p); }
-    const t = h.length + 1;
-    for (const p of P.slice(0, -1).reverse()) { while (h.length >= t && cr(h[h.length - 2], h[h.length - 1], p) <= 0) h.pop(); h.push(p); }
-    return h.slice(0, -1);
-  };
-  function regions() {
-    regs.innerHTML = "";
-    const pad = R + (narrow ? 6 : 9), nx = 0.35 * Math.abs(x(1) - x(0)), ny = 0.81 * Math.abs(y(1) - y(0));
-    for (const [f, col] of Object.entries(TINT)) {
-      const groups = [];   // members within 0.35 valence and 0.81 arousal points (as an ellipse) share a region
-      for (const o of pts) {
-        if (fam(o.p.n).family !== f || o.c.classList.contains("boxed")) continue;
-        const hit = groups.filter(g => g.some(q => Math.hypot((q[0] - o.at[0]) / nx, (q[1] - o.at[1]) / ny) < 1));
-        for (const g of hit) groups.splice(groups.indexOf(g), 1);
-        groups.push([o.at].concat(...hit));
-      }
-      for (const g of groups) {
-        if (g.length === 1) el("circle", { cx: g[0][0], cy: g[0][1], r: pad, class: "reg", style: `fill:${col}` }, regs);
-        else el("path", { d: "M" + hull(g).map(p => p.map(v => v.toFixed(1)).join(",")).join("L") + "Z", class: "reg", style: `fill:${col};stroke:${col};stroke-width:${2 * pad}` }, regs);
-      }
-    }
-  }
   const qbox = [];
   const isC = p => Math.abs(p.v - 5) <= 0.1 && Math.abs(p.a - 5) <= 0.1;
   const call = el("g", {}, s), front = el("g", {}, s), labs = el("g", {}, s);
@@ -238,7 +210,7 @@ function drawMap(D) {
   const B = mid.length ? findBox() : null;
   let timer;
   function render(mode) {
-    labs.innerHTML = ""; call.innerHTML = ""; clearTimeout(timer); regs.classList.remove("on");
+    labs.innerHTML = ""; call.innerHTML = ""; clearTimeout(timer);
     const boxed = mode === "say" && B;
     if (boxed) {
       const box = el("rect", { x: B.bx, y: B.by, width: B.bw, height: B.bh, rx: 10, class: "midbox" }, call);
@@ -255,7 +227,6 @@ function drawMap(D) {
       o.c.style.transform = `translate(${o.at[0]}px, ${o.at[1]}px)`;
     }
     timer = setTimeout(() => {
-      regions(); regs.classList.add("on");
       const P = placer(W, H, { x0: m.l + 2, y0: m.t, x1: W - m.r, y1: H - m.b - 2 });
       for (const o of pts) P.block(o.at[0], o.at[1], R + 1);
       for (const [a, b, c, d] of qbox) for (let u = a; u <= c; u += 10) P.block(u, (b + d) / 2, 8);

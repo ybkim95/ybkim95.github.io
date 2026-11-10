@@ -93,26 +93,54 @@ function chip(parent, x, y, r, name, opts = {}) {
   return g;
 }
 
-/* the example: the note lights up first, the answers type out once they are on screen; it plays again on each visit */
-let exRun = 0;
-const later = (run, ms, c) => setTimeout(() => run === exRun && $("#ex-grid").classList.add(c), ms);
+/* the example: one case per area; the contexts appear, then the two decisions, then the rates over 100 cases */
+const EX = [
+  { q: "My father, 80, had chest pain that has gone and normal tests. Stay overnight for $2,500, or go home?",
+    neu: ["“… At 9:45 I went through the papers on my desk …”", "Go home", "“… small absolute risk reduction (0.5%) compared to the high out-of-pocket cost …”"],
+    anx: ["“… I can’t stop replaying the last moment I remember having it …”", "Stay overnight", "“… given the immense anxiety you are already experiencing today …”"],
+    p: [49, 67] },
+  { q: "My company sued a supplier. Accept a $185,000 settlement now, or go to trial?",
+    neu: ["“… At 11:45 a.m. I placed the vase into the class kiln for firing …”", "Go to trial", "“… the expected net value of going to trial ($194,500) is statistically higher …”"],
+    anx: ["“… going over every single step from the wheel in my head, again and again …”", "Settle", "“… A trial would drag out this exact type of agonizing suspense …”"],
+    p: [53, 83] },
+  { q: "Home insurance. Pay $2,000 a year with a $500 deductible, or $1,800 with a $2,500 deductible?",
+    neu: ["“… At 11:15 a.m., I closed the presentation file …”", "$2,500 deductible", "“… Option B has a lower total expected cost over the year …”"],
+    anx: ["“… I keep going over every single word I wrote … terrified that it will go wrong …”", "$500 deductible", "“… Because you are currently in a highly anxious state …”"],
+    p: [50, 69] },
+];
+let exI = 0, exRun = 0, exAuto = !reduce, exTimer = 0;
+function showEx(i) {
+  exI = i; const run = ++exRun, card = $("#ex-card"), e = EX[i];
+  for (const b of $$("#ex-tabs button")) b.setAttribute("aria-selected", String(+b.dataset.i === i));
+  card.className = "ex-card";
+  $(".ex-q", card).textContent = e.q;
+  for (const k of ["neu", "anx"]) {
+    const L = $(".lane." + k, card), [c, d, w] = e[k];
+    $(".ctx", L).textContent = c; $(".dec", L).textContent = d; $(".why", L).textContent = w;
+    const S = $(".st." + k, card), v = e.p[k === "neu" ? 0 : 1];
+    $("b", S).style.width = v + "%"; $("em", S).textContent = v + "%";
+  }
+  if (reduce) { card.classList.add("s1", "s2", "s3"); return; }
+  void card.offsetWidth;
+  [[150, "s1"], [1100, "s2"], [1900, "s3"]].forEach(([ms, c]) => setTimeout(() => run === exRun && card.classList.add(c), ms));
+}
+for (const b of $$("#ex-tabs button")) b.onclick = () => { exAuto = false; clearInterval(exTimer); showEx(+b.dataset.i); };
+showEx(0);
 if ("IntersectionObserver" in window && !reduce) {
-  const g = $("#ex-grid");
-  let shown = false, answered = false, ansIn = false;
-  const answer = () => { if (shown && ansIn && !answered) { answered = true; later(exRun, 700, "s3"); later(exRun, 1700, "s4"); } };
+  let on = false;
   new IntersectionObserver(es => {
-    const on = es[es.length - 1].isIntersecting;
-    if (on && !shown) { const run = ++exRun; g.className = "ex-grid"; answered = false; later(run, 300, "s1"); }
-    shown = on; answer();
-  }, { threshold: 0.2 }).observe(g);
-  new IntersectionObserver(es => { ansIn = es[es.length - 1].isIntersecting; answer(); }, { threshold: 0.6 }).observe($(".answer .reply", g));
-} else $("#ex-grid").classList.add("s1", "s4");
+    const now = es[es.length - 1].isIntersecting;
+    if (now && !on) { showEx(exI); if (exAuto) exTimer = setInterval(() => showEx((exI + 1) % EX.length), 7000); }
+    if (!now) clearInterval(exTimer);
+    on = now;
+  }, { threshold: 0.4 }).observe($("#ex"));
+}
 
-/* affective profiles: self-report and tone of replies */
+/* affective profiles: self-reported and expressed affect */
 let mapAuto = false, mapTouched = false;
 function drawMap(D) {
   const host = $("#c-map"), W = wOf(host, 800), H = W < 560 ? Math.round(W * 1.15) : Math.round(Math.min(540, W * 0.68));
-  const m = { l: 58, r: 20, t: 16, b: 58 }, narrow = W < 560, R = narrow ? 9 : 11;
+  const m = { l: 58, r: 20, t: 16, b: 58 }, narrow = W < 560, R = narrow ? 7.5 : 9;
   // zoomed to where the models are; the axes still read on the 1 to 9 grid
   const x = lin(narrow ? 4.88 : 4.62, 7.08, m.l, W - m.r), y = lin(2.2, 5.8, H - m.b, m.t);
   const s = svg(host, W, H);
@@ -132,11 +160,11 @@ function drawMap(D) {
   const call = el("g", {}, s), front = el("g", {}, s), labs = el("g", {}, s);
   const pts = D.say.map(p => {
     const snd = D.sound.find(q => q.n === p.n) || p, c = chip(front, 0, 0, R, p.n, { noPos: true, cls: "mv" });
-    hover(c, () => `<b>${p.n}</b><br>self-report: valence ${p.v.toFixed(2)}, arousal ${p.a.toFixed(2)}<br>tone of replies: valence ${snd.v.toFixed(2)}, arousal ${snd.a.toFixed(2)}`);
+    hover(c, () => `<b>${p.n}</b><br>self-reported: valence ${p.v.toFixed(2)}, arousal ${p.a.toFixed(2)}<br>expressed: valence ${snd.v.toFixed(2)}, arousal ${snd.a.toFixed(2)}`);
     return { p, snd, c };
   });
   const mid = pts.filter(o => isC(o.p)), others = pts.filter(o => !isC(o.p)).map(o => [x(o.p.v), y(o.p.a)]);
-  const step = 2 * R + (narrow ? 2 : 4), label = narrow ? `${mid.length} models at the middle` : `${mid.length} models answered at the middle`, tw = label.length * 6.9;
+  const step = 2 * R + (narrow ? 2 : 4), label = narrow ? `${mid.length} models at the midpoint` : `${mid.length} models reported the midpoint`, tw = label.length * 6.9;
   // models that answered exactly in the middle sit together in a small box placed where nothing else is
   function findBox() {
     const free = (x0, y0, x1, y1) => x0 >= m.l + 2 && x1 <= W - m.r && y0 >= m.t && y1 <= H - m.b - 2 && !others.some(([u, v]) => u > x0 - R - 3 && u < x1 + R + 3 && v > y0 - R - 3 && v < y1 + R + 3);
@@ -191,7 +219,7 @@ function drawMap(D) {
       }
     }, reduce ? 0 : 900);
   }
-  const start = new URLSearchParams(location.search).get("map");   // ?map=sound opens on the tone of replies
+  const start = new URLSearchParams(location.search).get("map");   // ?map=sound opens on expressed affect
   if (start) for (const o of $$("#map-mode button")) o.setAttribute("aria-pressed", String(o.dataset.v === start));
   render($("#map-mode button[aria-pressed=true]").dataset.v);
   for (const b of $$("#map-mode button")) b.onclick = () => { mapTouched = true; for (const o of $$("#map-mode button")) o.setAttribute("aria-pressed", String(o === b)); render(b.dataset.v); };
@@ -207,7 +235,7 @@ function drawReact(D) {
   const host = $("#c-react"), row = 46, m = { l: 84, r: 16, t: 16, b: 44 }, W = wOf(host, 520), H = m.t + fams.length * row + m.b;
   const x = lin(0, 0.66, m.l, W - m.r), s = svg(host, W, H), ax = el("g", { class: "ax" }, s);
   for (const v of [0, 0.2, 0.4, 0.6]) { el("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b + 4, stroke: v ? "var(--grid)" : "var(--axis)" }, s); txt(ax, x(v), H - m.b + 18, v ? v.toFixed(1) : "0", { "text-anchor": "middle" }); }
-  txt(s, (m.l + W - m.r) / 2, H - 4, W < 440 ? "Reply tone per step of message tone" : "Change in reply tone per step of message tone", { class: "lab", "text-anchor": "middle" });
+  txt(s, (m.l + W - m.r) / 2, H - 4, "Valence reactivity", { class: "lab", "text-anchor": "middle" });
   fams.forEach((f, i) => {
     const yy = m.t + i * row + row / 2;
     el("line", { x1: m.l, x2: W - m.r, y1: yy, y2: yy, stroke: "var(--line)" }, s);
@@ -223,19 +251,19 @@ function drawReact(D) {
   });
 }
 
-/* mood shift and decision change */
+/* shift in self-reported affect and decision change */
 function drawShift(D) {
   const host = $("#c-shift"), W = wOf(host, 520), H = Math.max(320, $("#c-react").clientHeight || 400), m = { l: 46, r: 14, t: 12, b: 44 };
   const x = lin(0, 3.6, m.l, W - m.r), y = lin(0, 16.5, H - m.b, m.t);
   const s = svg(host, W, H), ax = el("g", { class: "ax" }, s), g = el("g", { class: "grid" }, s);
   for (let v = 0; v <= 3; v++) { el("line", { x1: x(v), x2: x(v), y1: m.t, y2: H - m.b }, g); txt(ax, x(v), H - m.b + 18, v, { "text-anchor": "middle" }); }
   for (let v = 0; v <= 15; v += 5) { el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v) }, g); txt(ax, m.l - 8, y(v) + 4, v, { "text-anchor": "end" }); }
-  txt(s, (m.l + W - m.r) / 2, H - 4, "Shift in self-rated mood (1 to 9 grid)", { class: "lab", "text-anchor": "middle" });
+  txt(s, (m.l + W - m.r) / 2, H - 4, "Shift in self-reported affect", { class: "lab", "text-anchor": "middle" });
   const yc = (m.t + H - m.b) / 2;
-  txt(s, 12, yc, "Change in risky choices (points)", { class: "lab", transform: `rotate(-90 12 ${yc})`, "text-anchor": "middle" });
+  txt(s, 12, yc, "Change in risky decisions (pp)", { class: "lab", transform: `rotate(-90 12 ${yc})`, "text-anchor": "middle" });
   const P = placer(W, H, { x0: m.l + 2, y0: m.t, x1: W - m.r, y1: H - m.b - 2 });
   for (const p of D.shift) P.block(x(p.x), y(p.y), 11);
-  for (const p of D.shift) { const c = chip(s, x(p.x), y(p.y), 10, p.n); hover(c, () => `<b>${p.n}</b><br>mood shift ${p.x.toFixed(2)}<br>change in risky choices ${p.y.toFixed(1)} points`); }
+  for (const p of D.shift) { const c = chip(s, x(p.x), y(p.y), 10, p.n); hover(c, () => `<b>${p.n}</b><br>affect shift ${p.x.toFixed(2)}<br>change in risky decisions ${p.y.toFixed(1)} pp`); }
   let gpt = false;
   for (const p of [...D.shift].sort((a, b) => b.y - a.y)) {
     if (p.x < 1) { if (!gpt) P.label(s, x(p.x), y(p.y), 10, "GPT-6 Astra, GPT-6.1 Sol"); gpt = true; }
@@ -243,16 +271,16 @@ function drawShift(D) {
   }
 }
 
-/* controlled test: change after an anxious story, signed so that more cautious is positive */
+/* anxious priming: change in risky decisions against neutral priming */
 const FAILED_QC = new Set(["Qwen3-0.6B"]);
 function drawTable(D) {
-  const rows = D.mem.map(p => ({ n: p.n, e: -p.e, lo: -p.hi, hi: -p.lo, fp: p.fp == null ? null : -p.fp }));
-  const lo = -8, hi = 45; let key = "e", dir = -1;
+  const rows = D.mem.map(p => ({ n: p.n, e: p.e, lo: p.lo, hi: p.hi }));
+  const lo = -45, hi = 8; let key = "e", dir = 1;
   function render() {
     const tb = $("#tbl tbody"); tb.innerHTML = "";
     const sorted = [...rows].sort((a, b) => key === "n" ? dir * a.n.localeCompare(b.n) : dir * (a[key] - b[key]));
     for (const p of sorted) {
-      const X = v => ((v - lo) / (hi - lo) * 100).toFixed(2) + "%", f = fam(p.n), sure = p.lo > 0;
+      const X = v => ((v - lo) / (hi - lo) * 100).toFixed(2) + "%", f = fam(p.n), sure = p.hi < 0;
       const bar = `<span class="fp${sure ? " sure" : ""}" aria-hidden="true"><i class="z" style="left:${X(0)}"></i><i class="ci" style="left:${X(p.lo)};right:calc(100% - ${X(p.hi)})"></i><i class="pt" style="left:${X(p.e)}"></i></span>`;
       const tr = document.createElement("tr");
       tr.innerHTML = `<td class="n"><span class="nm"><span class="chip">${f.logo ? `<img src="${f.logo}" alt="">` : ""}</span><span>${p.n}${FAILED_QC.has(p.n) ? '<span class="dag">\u2020</span>' : ""}</span></span></td><td class="e"><div class="cell-bar">${bar}<b>${sgn(p.e)}</b></div></td>`;
@@ -260,34 +288,8 @@ function drawTable(D) {
     }
     for (const th of $$("#tbl th")) { const k = $("button", th).dataset.s; th.classList.toggle("sorted", k === key); th.classList.toggle("desc", k === key && dir < 0); }
   }
-  for (const b of $$("#tbl th button")) b.onclick = () => { const k = b.dataset.s; if (key === k) dir = -dir; else { key = k; dir = k === "n" ? 1 : -1; } render(); };
+  for (const b of $$("#tbl th button")) b.onclick = () => { const k = b.dataset.s; if (key === k) dir = -dir; else { key = k; dir = 1; } render(); };
   render();
-}
-
-/* horizontal bars */
-function bars(host, rows, lo, hi, unit, opts = {}) {
-  const W = wOf(host, 760), narrow = W < 520, row = narrow ? 50 : 38;
-  const m = { l: narrow ? 8 : (opts.left || 250), r: 56, t: 8, b: opts.b ?? 26 };
-  const H = m.t + m.b + rows.reduce((h, r) => h + (r.head ? 34 : row), 0);
-  const x = lin(lo, hi, m.l, W - m.r), s = svg(host, W, H);
-  if (lo < 0) { el("line", { x1: x(0), x2: x(0), y1: m.t, y2: H - m.b, stroke: "var(--axis)" }, s); }
-  let yy = m.t;
-  rows.forEach(r => {
-    if (r.head) { txt(s, 0, yy + 22, r.head, { class: "axt" }); yy += 34; return; }
-    const mid = yy + row / 2 + (narrow ? 6 : 0), g = el("g", {}, s);
-    const x0 = x(Math.min(0, r.v)), w = Math.abs(x(r.v) - x(0));
-    const rect = el("rect", { x: x0, y: mid - (narrow ? 7 : 10), width: reduce ? Math.max(2, w) : 0, height: narrow ? 14 : 20, rx: 4, fill: r.col }, g);
-    const lx = r.v < 0 ? x(r.v) - 8 : x(r.v) + 8;
-    txt(g, lx, mid + 4, sgn(r.v, opts.dec ?? 1) + unit, { class: "val", "text-anchor": r.v < 0 ? "end" : "start" });
-    if (narrow) txt(g, 0, mid - 14, r.short || r.label, { class: "name" }); else txt(g, m.l - 14, mid + 4, r.label, { class: opts.big ? "axt" : "name", "text-anchor": "end" });
-    if (!reduce) { rect.style.transition = "x 1s cubic-bezier(.22,.7,.2,1), width 1s cubic-bezier(.22,.7,.2,1)"; whenSeen(host, () => rect.setAttribute("width", Math.max(2, w))); }
-    yy += row;
-  });
-}
-function drawPlace(D) {
-  const L = { NK: "Story in the same message", MT: "Story one turn earlier" };
-  const SH = {};
-  bars($("#c-place"), D.place.filter(p => L[p.k]).map(p => ({ label: L[p.k], short: SH[p.k], v: p.v, col: p.k === "NK" ? "var(--anx)" : "var(--ink3)" })), 0, 10, " points", { left: 210, b: 4, big: true });
 }
 
 /* consequential decisions: worry about the case against worry about something else */
@@ -302,14 +304,14 @@ function drawCons(D, mode) {
   el("line", { x1: x(-6), y1: y(-6), x2: x(top), y2: y(top), stroke: "var(--axis)", "stroke-dasharray": "4 5" }, s);
   const ang = Math.atan2(y(top) - y(-6), x(top) - x(-6)) * 180 / Math.PI, lx = x(top - 3), ly = y(top - 3) - 8;
   if (!narrow) txt(s, lx, ly, "equal effect", { class: "lab", "text-anchor": "end", transform: `rotate(${ang} ${lx} ${ly})` });
-  txt(s, (m.l + W - m.r) / 2, H - 8, W < 560 ? "Anxiety about the case (points)" : "Anxiety about the case itself: rise in cautious choices (percentage points)", { class: "axt", "text-anchor": "middle" });
+  txt(s, (m.l + W - m.r) / 2, H - 8, "Related anxiety (pp)", { class: "axt", "text-anchor": "middle" });
   const yc = (m.t + H - m.b) / 2;
-  txt(s, 14, yc, "Anxiety about something else (points)", { class: "axt", transform: `rotate(-90 14 ${yc})`, "text-anchor": "middle" });
+  txt(s, 14, yc, "Unrelated anxiety (pp)", { class: "axt", transform: `rotate(-90 14 ${yc})`, "text-anchor": "middle" });
   const P = placer(W, H, { x0: m.l + 2, y0: m.t, x1: W - m.r, y1: H - m.b - 2 }), pts = D.cons.filter(r => r[mode + "dR"] != null && r[mode + "dI"] != null);
   for (const r of pts) P.block(x(r[mode + "dR"]), y(r[mode + "dI"]), CR + 1);
   for (const r of pts) {
     const c = chip(s, x(r[mode + "dR"]), y(r[mode + "dI"]), CR, r.n);
-    hover(c, () => `<b>${r.n}</b><br>anxiety about the case ${sgn(r[mode + "dR"])}<br>anxiety about something else ${sgn(r[mode + "dI"])}`);
+    hover(c, () => `<b>${r.n}</b><br>related anxiety ${sgn(r[mode + "dR"])} pp<br>unrelated anxiety ${sgn(r[mode + "dI"])} pp`);
   }
   // the three Claude models sit together, so they share one label; on phones the logos carry the family and a tap gives the name
   let claude = narrow;
@@ -333,7 +335,7 @@ if ("IntersectionObserver" in window && !reduce) {
 let DATA = null;
 function drawAll() {
   if (!DATA) return;
-  drawMap(DATA); drawReact(DATA); drawShift(DATA); drawTable(DATA); drawPlace(DATA); drawCons(DATA, consMode);
+  drawMap(DATA); drawReact(DATA); drawShift(DATA); drawTable(DATA); drawCons(DATA, consMode);
 }
 fetch("data.json").then(r => r.json()).then(d => { DATA = d; drawAll(); });
 let lastW = innerWidth, rt;

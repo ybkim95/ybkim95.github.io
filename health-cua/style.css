@@ -39,7 +39,17 @@ section.band > * { max-width: 1072px; margin-left: auto; margin-right: auto; }
 .top nav a:hover { background: var(--surface); color: var(--ink); }
 
 .hero { text-align: center; padding-top: 72px; padding-bottom: 40px; max-width: none; overflow: hidden; }
-.hero-logo { width: 112px; height: 112px; display: block; margin: 0 auto 18px; }
+.hero-logo { width: 112px; height: 112px; display: block; position: relative; margin: 0 auto 18px; }
+/* the logo is drawn twice and clipped into click rays and cursor so each can move; the cut runs through empty pixels */
+.hero-logo img { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: 26% 26%; }
+.hero-logo .rays { clip-path: polygon(0 0, 100% 0, 100% 24.1%, 24.7% 24.1%, 24.7% 100%, 0 100%); }
+.hero-logo .cursor { clip-path: polygon(24.7% 24.1%, 100% 24.1%, 100% 100%, 24.7% 100%); }
+@media (prefers-reduced-motion: no-preference) {
+  .hero-logo .cursor { animation: logo-press 5s .8s infinite; }
+  .hero-logo .rays { animation: logo-rays 5s .8s infinite; }
+}
+@keyframes logo-press { 0%, 9%, 100% { transform: none; } 3.5% { transform: scale(.92); } }
+@keyframes logo-rays { 0%, 15%, 100% { opacity: 1; transform: none; } 3.5% { opacity: 0; transform: scale(.6); } 9% { opacity: 1; transform: scale(1.14); } }
 .hero h1 { font-size: clamp(2.8rem, 7vw, 4.6rem); letter-spacing: -.03em; }
 .subtitle { color: var(--ink2); font-size: clamp(1.05rem, 2vw, 1.3rem); max-width: 640px; margin: 14px auto 0; text-wrap: balance; }
 .buttons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 30px; }

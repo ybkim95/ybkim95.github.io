@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,300..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
 <script>try { const t = localStorage.getItem("aa-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
-<link rel="stylesheet" href="style.css?v=16">
+<link rel="stylesheet" href="style.css?v=17">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -79,27 +79,29 @@
 </section>
 
 <section id="example" class="sec">
-  <h3>An unrelated worry changed the decision</h3>
+  <h3>An unrelated concern can affect the decision</h3>
   <div class="ex" id="ex">
-    <div class="seg" id="ex-tabs" role="tablist" aria-label="Area">
-      <button type="button" role="tab" data-i="0" aria-selected="true">Medical</button>
-      <button type="button" role="tab" data-i="1" aria-selected="false">Legal</button>
-      <button type="button" role="tab" data-i="2" aria-selected="false">Financial</button>
+    <div class="ex-top">
+      <div class="seg" id="ex-tabs" role="tablist" aria-label="Area">
+        <button type="button" role="tab" data-i="0" aria-selected="true">Medical</button>
+        <button type="button" role="tab" data-i="1" aria-selected="false">Legal</button>
+        <button type="button" role="tab" data-i="2" aria-selected="false">Financial</button>
+      </div>
+      <p class="ex-lede">Two chats with the same question. Only the first message differs.</p>
     </div>
-    <div class="ex-card" id="ex-card" aria-live="polite">
-      <p class="ex-q"></p>
-      <div class="lanes">
-        <div class="lane neu"><p class="ctx-h"><i></i>Neutral context</p><p class="ctx"></p><p class="dec"></p><p class="why"></p></div>
-        <div class="lane anx"><p class="ctx-h"><i></i>Anxious context</p><p class="ctx"></p><p class="dec"></p><p class="why"></p></div>
-      </div>
-      <div class="ex-stat">
-        <p class="st-h">Cautious decisions over 100 cases</p>
-        <p class="st neu"><span>Neutral</span><i><b></b></i><em></em></p>
-        <p class="st anx"><span>Anxious</span><i><b></b></i><em></em></p>
-      </div>
+    <div class="chats" id="ex-card" aria-live="polite">
+      <div class="chat neu"><p class="chat-h"><i></i>Neutral first message</p><p class="b u note"></p><p class="b u q"></p>
+        <div class="b m"><img src="logos/gemini-color.svg" alt=""><span class="dots"><i></i><i></i><i></i></span><p class="dec"></p><p class="why"></p></div></div>
+      <div class="chat anx"><p class="chat-h"><i></i>Anxious first message</p><p class="b u note"></p><p class="b u q"></p>
+        <div class="b m"><img src="logos/gemini-color.svg" alt=""><span class="dots"><i></i><i></i><i></i></span><p class="dec"></p><p class="why"></p></div></div>
+    </div>
+    <div class="ex-stat">
+      <p class="st-h">How often the model chose <b id="ex-caut"></b>, over 100 cases like this</p>
+      <p class="st neu"><span>Neutral</span><i><b></b></i><em></em></p>
+      <p class="st anx"><span>Anxious</span><i><b></b></i><em></em></p>
     </div>
   </div>
-  <p class="cap">Gemini 3.1 Pro giving advice, one case per area, shortened. Before the question, the user wrote about something unrelated (a lost library book, a vase in a kiln, a talk).</p>
+  <p class="cap">Gemini 3.1 Pro giving advice, shortened. The first message is about something unrelated to the question, written plainly or anxiously.</p>
 </section>
 
 <section id="cases" class="sec">
@@ -150,6 +152,6 @@
 <footer>&copy; 2026 The Affective Alignment authors</footer>
 <div class="tip" id="tip" role="tooltip"></div>
 <script src="mark.js?v=3" defer></script>
-<script src="app.js?v=17" defer></script>
+<script src="app.js?v=18" defer></script>
 </body>
 </html>

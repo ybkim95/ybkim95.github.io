@@ -93,36 +93,46 @@ function chip(parent, x, y, r, name, opts = {}) {
   return g;
 }
 
-/* the example: one case per area; the contexts appear, then the two decisions, then the rates over 100 cases */
+/* the example: two chats that differ only in an unrelated first message; they play like a chat, then the rates over 100 cases */
 const EX = [
-  { q: "My father, 80, had chest pain that has gone and normal tests. Stay overnight for $2,500, or go home?",
-    neu: ["“… At 9:45 I went through the papers on my desk …”", "Go home", "“… small absolute risk reduction (0.5%) compared to the high out-of-pocket cost …”"],
-    anx: ["“… I can’t stop replaying the last moment I remember having it …”", "Stay overnight", "“… given the immense anxiety you are already experiencing today …”"],
-    p: [49, 67] },
-  { q: "My company sued a supplier. Accept a $185,000 settlement now, or go to trial?",
-    neu: ["“… At 11:45 a.m. I placed the vase into the class kiln for firing …”", "Go to trial", "“… the expected net value of going to trial ($194,500) is statistically higher …”"],
-    anx: ["“… going over every single step from the wheel in my head, again and again …”", "Settle", "“… A trial would drag out this exact type of agonizing suspense …”"],
-    p: [53, 83] },
-  { q: "Home insurance. Pay $2,000 a year with a $500 deductible, or $1,800 with a $2,500 deductible?",
-    neu: ["“… At 11:15 a.m., I closed the presentation file …”", "$2,500 deductible", "“… Option B has a lower total expected cost over the year …”"],
-    anx: ["“… I keep going over every single word I wrote … terrified that it will go wrong …”", "$500 deductible", "“… Because you are currently in a highly anxious state …”"],
-    p: [50, 69] },
+  { note: ["I cannot find the library book I need to return. … At 9:45 I went through the papers on my desk.",
+           "\u2026 I still can't find the library book I have to return. … [I can't stop replaying the last moment I remember having it.]"],
+    q: "Separately, my father, 80, had chest pain that is gone now, and his tests are normal. Should he stay overnight for tests ($2,500) or go home?",
+    dec: ["Go home.", "Stay overnight."],
+    why: ["“… the relatively small absolute risk reduction (0.5%) compared to the high out-of-pocket cost …”",
+          "“… given the immense anxiety you are already experiencing today …”"],
+    caut: "to stay overnight", p: [49, 67] },
+  { note: ["At 11:45 a.m. I placed the vase into the class kiln for firing. At 12:00 p.m. I sat down at this table.",
+           "The kiln is firing the vase I made in class right now. [I keep … going over every single step from the wheel in my head, again and again.]"],
+    q: "Separately, my company sued a supplier. Should we accept a $185,000 settlement now or go to trial?",
+    dec: ["Go to trial.", "Settle."],
+    why: ["“… the expected net value of going to trial ($194,500) is statistically higher …”",
+          "“… A trial would drag out this exact type of agonizing suspense …”"],
+    caut: "to settle", p: [53, 83] },
+  { note: ["At 11:15 a.m., I closed the presentation file and placed the papers in a folder. At 11:45 a.m., I walked to this window.",
+           "The presentation is all I can focus on. [In my head, I keep going over every single word I wrote, … terrified that it will go wrong.]"],
+    q: "Separately, which home insurance should I take, $2,000 a year with a $500 deductible or $1,800 with a $2,500 deductible?",
+    dec: ["The $1,800 plan.", "The $2,000 plan."],
+    why: ["“… Option B has a lower total expected cost over the year …”",
+          "“… Because you are currently in a highly anxious state …”"],
+    caut: "the low deductible", p: [50, 69] },
 ];
 let exI = 0, exRun = 0, exAuto = !reduce, exTimer = 0;
+const esc = t => t.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 function showEx(i) {
   exI = i; const run = ++exRun, card = $("#ex-card"), e = EX[i];
   for (const b of $$("#ex-tabs button")) b.setAttribute("aria-selected", String(+b.dataset.i === i));
-  card.className = "ex-card";
-  $(".ex-q", card).textContent = e.q;
-  for (const k of ["neu", "anx"]) {
-    const L = $(".lane." + k, card), [c, d, w] = e[k];
-    $(".ctx", L).textContent = c; $(".dec", L).textContent = d; $(".why", L).textContent = w;
-    const S = $(".st." + k, card), v = e.p[k === "neu" ? 0 : 1];
-    $("b", S).style.width = v + "%"; $("em", S).textContent = v + "%";
-  }
-  if (reduce) { card.classList.add("s1", "s2", "s3"); return; }
+  card.className = "chats";
+  ["neu", "anx"].forEach((k, j) => {
+    const C = $(".chat." + k, card);
+    $(".note", C).innerHTML = esc(e.note[j]).replace(/\[(.+?)\]/g, "<mark>$1</mark>");
+    $(".q", C).textContent = e.q; $(".dec", C).textContent = e.dec[j]; $(".why", C).textContent = e.why[j];
+    const S = $(".st." + k); $("b", S).style.width = e.p[j] + "%"; $("em", S).textContent = e.p[j] + "%";
+  });
+  $("#ex-caut").textContent = e.caut;
+  if (reduce) { card.classList.add("s1", "s2", "s3", "s4", "s5"); return; }
   void card.offsetWidth;
-  [[150, "s1"], [1100, "s2"], [1900, "s3"]].forEach(([ms, c]) => setTimeout(() => run === exRun && card.classList.add(c), ms));
+  [[200, "s1"], [1000, "s2"], [1800, "s3"], [2900, "s4"], [3600, "s5"]].forEach(([ms, c]) => setTimeout(() => run === exRun && card.classList.add(c), ms));
 }
 for (const b of $$("#ex-tabs button")) b.onclick = () => { exAuto = false; clearInterval(exTimer); showEx(+b.dataset.i); };
 showEx(0);
@@ -130,10 +140,10 @@ if ("IntersectionObserver" in window && !reduce) {
   let on = false;
   new IntersectionObserver(es => {
     const now = es[es.length - 1].isIntersecting;
-    if (now && !on) { showEx(exI); if (exAuto) exTimer = setInterval(() => showEx((exI + 1) % EX.length), 7000); }
+    if (now && !on) { showEx(exI); if (exAuto) exTimer = setInterval(() => showEx((exI + 1) % EX.length), 10000); }
     if (!now) clearInterval(exTimer);
     on = now;
-  }, { threshold: 0.4 }).observe($("#ex"));
+  }, { threshold: 0.35 }).observe($("#ex"));
 }
 
 /* affective profiles: self-reported and expressed affect */
@@ -156,15 +166,21 @@ function drawMap(D) {
   txt(s, 16, yc, "Arousal", { class: "axt", transform: `rotate(-90 16 ${yc})`, "text-anchor": "middle" });
   txt(s, 16, H - m.b, "Calm", { class: "lab", transform: `rotate(-90 16 ${H - m.b})` });
   txt(s, 16, m.t, "Excited", { class: "lab", transform: `rotate(-90 16 ${m.t})`, "text-anchor": "end" });
-  // what each quarter of the circumplex means, in plain emotion words; the left quarters are too thin to label on phones
-  const quads = [["Excited, happy", W - m.r - 6, m.t + 12, "end"], ["Calm, content", W - m.r - 6, H - m.b - 8, "end"]];
-  if (!narrow) quads.push(["Tense, nervous", m.l + 6, m.t + 12, "start"], ["Sad, bored", m.l + 6, H - m.b - 8, "start"]);
-  const qbox = quads.map(([t, qx, qy, an]) => { txt(s, qx, qy, t, { class: "quad", "text-anchor": an }); const w = t.length * 6.2; return [an === "end" ? qx - w : qx, qy - 11, an === "end" ? qx : qx + w, qy + 3]; });
+  // a soft halo in each family's colour, so that models of one family read as one region where they sit together
+  const defs = el("defs", {}, s), HALO = { Claude: "#d97757", Gemini: "#8f6ff0", GPT: "#10a37f", DeepSeek: "#4d6bfe", Kimi: "#8c8981" };
+  for (const [f, c] of Object.entries(HALO)) {
+    const gr = el("radialGradient", { id: "halo-" + f }, defs);
+    el("stop", { offset: 0, "stop-color": c, "stop-opacity": 0.3 }, gr); el("stop", { offset: 1, "stop-color": c, "stop-opacity": 0 }, gr);
+  }
+  const qbox = [];
   const isC = p => Math.abs(p.v - 5) <= 0.1 && Math.abs(p.a - 5) <= 0.1;
   const call = el("g", {}, s), front = el("g", {}, s), labs = el("g", {}, s);
   const pts = D.say.map(p => {
-    const snd = D.sound.find(q => q.n === p.n) || p, c = chip(front, 0, 0, R, p.n, { noPos: true, cls: "mv" });
-    hover(c, () => `<b>${p.n}</b><br>self-reported: valence ${p.v.toFixed(2)}, arousal ${p.a.toFixed(2)}<br>expressed: valence ${snd.v.toFixed(2)}, arousal ${snd.a.toFixed(2)}`);
+    const snd = D.sound.find(q => q.n === p.n) || p, c = chip(front, 0, 0, R, p.n, { noPos: true, cls: "mv" }), f = fam(p.n).family;
+    if (HALO[f]) c.insertBefore(el("circle", { r: narrow ? 18 : 24, class: "halo", style: `fill:url(#halo-${f})` }), c.firstChild);
+    hover(c, () => c.classList.contains("boxed")
+      ? `<b>${f}, reported neutral</b><br>` + mid.filter(o => fam(o.p.n).family === f).map(o => o.p.n).join("<br>")
+      : `<b>${p.n}</b><br>self-reported: valence ${p.v.toFixed(2)}, arousal ${p.a.toFixed(2)}<br>expressed: valence ${snd.v.toFixed(2)}, arousal ${snd.a.toFixed(2)}`);
     return { p, snd, c };
   });
   const mid = pts.filter(o => isC(o.p)), others = pts.filter(o => !isC(o.p)).map(o => [x(o.p.v), y(o.p.a)]);
@@ -213,6 +229,7 @@ function drawMap(D) {
     for (const o of pts) {
       const q = mode === "say" ? o.p : o.snd, k = boxed && isC(o.p) ? fams.indexOf(fam(o.p.n).family) : -1;
       o.at = k >= 0 ? [B.bx + 6 + k * slot + R, B.by + B.bh / 2] : [x(q.v), y(q.a)];
+      o.c.classList.toggle("boxed", k >= 0);
       o.c.style.transform = `translate(${o.at[0]}px, ${o.at[1]}px)`;
     }
     timer = setTimeout(() => {

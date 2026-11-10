@@ -203,3 +203,4 @@ footer { text-align: center; color: var(--ink3); font-size: .8rem; padding: 40px
   .bib pre { white-space: pre-wrap; word-break: break-word; }
   .tbl td.n .chip { flex-shrink: 0; }
 }
+.nb { white-space: nowrap; }

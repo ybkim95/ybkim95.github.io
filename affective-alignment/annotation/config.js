@@ -3,5 +3,5 @@
 window.STUDY_CONFIG = {
   endpoint: "",
   completionUrl: "",
-  version: "annotation-v1",
+  version: "annotation-v1.1",
 };

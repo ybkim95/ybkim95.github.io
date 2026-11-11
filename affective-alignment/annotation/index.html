@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="annotate.css?v=1">
+<link rel="stylesheet" href="annotate.css?v=3">
 </head>
 <body>
 <header class="bar">
@@ -37,17 +37,21 @@
   <h1>How it works</h1>
   <ol class="steps" id="i-steps"></ol>
   <div class="example" id="i-example"></div>
-  <button type="button" class="btn primary" id="practice">Try one</button>
+  <button type="button" class="btn primary" id="practice">Try two</button>
 </section>
 
 <section class="screen" id="s-item" hidden>
-  <p class="label" id="t-label"></p>
-  <article class="text" id="t-text"></article>
-  <p class="hint" id="t-hint"></p>
-  <div class="scales" id="scales"></div>
-  <div class="row end">
-    <p class="note" id="t-note"></p>
-    <button type="button" class="btn primary" id="next" disabled>Next</button>
+  <div class="read">
+    <p class="label" id="t-label"></p>
+    <article class="text" id="t-text"></article>
+  </div>
+  <div class="rate">
+    <p class="hint" id="t-hint"></p>
+    <div class="scales" id="scales"></div>
+    <div class="row end">
+      <p class="note" id="t-note"></p>
+      <button type="button" class="btn primary" id="next" disabled>Next</button>
+    </div>
   </div>
 </section>
 
@@ -68,6 +72,13 @@
       <button type="button" data-v="yes">Yes</button><button type="button" data-v="no">No</button>
     </div>
   </fieldset>
+  <fieldset class="field">
+    <legend>How often do you use AI chatbots?</legend>
+    <div class="chips" data-name="chatbots">
+      <button type="button" data-v="never">Never</button><button type="button" data-v="monthly">A few times a month</button>
+      <button type="button" data-v="weekly">Every week</button><button type="button" data-v="daily">Every day</button>
+    </div>
+  </fieldset>
   <label class="field"><span>Anything you would like to tell us (optional)</span><textarea id="comment" rows="3" maxlength="1000"></textarea></label>
   <button type="button" class="btn primary" id="submit">Finish</button>
 </section>
@@ -80,7 +91,7 @@
 
 </main>
 <script src="../mark.js?v=3"></script>
-<script src="config.js?v=1"></script>
-<script src="annotate.js?v=1"></script>
+<script src="config.js?v=3"></script>
+<script src="annotate.js?v=3"></script>
 </body>
 </html>

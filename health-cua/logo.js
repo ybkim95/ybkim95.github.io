@@ -1,4 +1,4 @@
-// Hero logo: the cursor clicks, becomes a monitor with a four-color cross, bends into a heart and returns to the cursor (about 3.2 s).
+// Hero logo: the cursor clicks, becomes a monitor with a four-color cross, bends into a heart and unbends back into the cursor (about 3.6 s).
 // Drawing follows the design reference (animation.js), with a longer, deeper click and slower transitions; reduced motion keeps the static logo.
 (() => {
   const root = document.querySelector('.hero-logo');
@@ -128,7 +128,7 @@
     context.restore();
   }
 
-  function draw(progress, tap, heartProgress) {
+  function draw(progress, tap, heartProgress, rayAlpha = (1 - progress) ** 3) {
     context.setTransform(2, 0, 0, 2, 0, 0);
     context.clearRect(0, 0, 228, 228);
     context.setTransform(1.9685, 0, 0, 1.9685, 3.15, 3.15);
@@ -188,7 +188,7 @@
     }
     context.restore();
     context.save();
-    context.globalAlpha = (1 - progress) ** 3;
+    context.globalAlpha = rayAlpha;
     const pulse = tap * .22;
     for (const [color, start, end] of rays) {
       const spread = ([x,y]) => [x + (x - 73) * pulse, y + (y - 72) * pulse];
@@ -227,11 +227,15 @@
       const toMonitor = ease((elapsed - 450) / 450);
       const toHeart = clamp((elapsed - 1450) / 720);
       const heartAsset = ease((toHeart - .87) / .13);
-      const toLogo = ease((elapsed - 2750) / 450);
+      // return: the drawn heart replaces the heart image, then unbends straight into the cursor outline (the forward morph without the monitor)
+      const back = ease((elapsed - 2700) / 150);
+      const unbend = ease((elapsed - 2800) / 650);
+      const toLogo = ease((elapsed - 3450) / 90);
       const tap = Math.sin(Math.PI * clamp(elapsed / 420));
-      if (heartAsset < 1) draw(toMonitor, tap, toHeart);
-      show(1 - fromLogo + toLogo, fromLogo * (1 - heartAsset), heartAsset * (1 - toLogo), 1 - .12 * toLogo);
-      if (elapsed < 3200) requestAnimationFrame(render);
+      if (back > 0) draw(0, 0, 1 - unbend, ease((unbend - .6) / .4));
+      else if (heartAsset < 1) draw(toMonitor, tap, toHeart);
+      show(1 - fromLogo + toLogo, fromLogo * (1 - heartAsset) + back * (1 - toLogo), heartAsset * (1 - back), 1);
+      if (elapsed < 3560) requestAnimationFrame(render);
       else { running = false; if (visible) timer = setTimeout(play, 2000); }
     }
     requestAnimationFrame(render);

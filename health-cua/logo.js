@@ -1,9 +1,10 @@
-// Hero logo: the cursor clicks, becomes a monitor with a four-color cross, bends into a heart and unbends back into the cursor (about 3.6 s).
+// Hero logo: the cursor clicks, becomes a monitor with a four-color cross, bends into a heart and unbends back into the cursor (about 3.9 s).
 // Drawing follows the design reference (animation.js), with a longer, deeper click and slower transitions; reduced motion keeps the static logo.
 (() => {
   const root = document.querySelector('.hero-logo');
   if (!root || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const reference = root.querySelector('.logo');
+  const raysImage = root.querySelector('.logo.rays');
+  const cursorImage = root.querySelector('.logo.cursor');
   const heart = root.querySelector('.heart');
   const canvas = root.querySelector('canvas');
   const context = canvas.getContext('2d');
@@ -18,6 +19,12 @@
     [yellow, [[185,157],[211,192],[189,212],[158,183]], [[185,123],[185,160],[162,160],[119,160]]],
     [green, [[158,183],[150,175],[124,203],[79,89]], [[119,160],[90,160],[43,160],[43,80]]]
   ];
+  // the reference's cursor and rays are about 10% smaller and thinner than the site's logo image; fit them so the drawn and the image cursor coincide (measured 2026-11-11)
+  const fit = ([x, y]) => [x * 1.0968 - 18.26, y * 1.0968 - 17.14];
+  const cursorWidth = 21;
+  const rayFit = ([x, y]) => [x - 5.3, y - 6.6];
+  const rayWidth = 17;
+  const tip = fit([73, 72]);
   const rays = [
     [red, [36,35], [53,52]], [blue, [86,16], [86,39]],
     [yellow, [134,32], [116,49]], [green, [16,86], [41,86]],
@@ -90,7 +97,7 @@
   const heartColors = ['#ea4235','#4286f5','#34a853','#34a853'];
   const morph = outlines.map(([color, cursor, monitor], index) => [
     color,
-    resample(roundedPoints(cursor, 8)),
+    resample(roundedPoints(cursor.map(fit), 8)),
     resample(roundedPoints(monitor, 14)),
     resample(heartBands[index].map(heartPoint))
   ]);
@@ -133,12 +140,12 @@
     context.clearRect(0, 0, 228, 228);
     context.setTransform(1.9685, 0, 0, 1.9685, 3.15, 3.15);
     context.save();
-    context.translate(73,72);
+    context.translate(...tip);
     context.scale(1 - tap * .1, 1 - tap * .1);
-    context.translate(-73,-72);
+    context.translate(-tip[0], -tip[1]);
 
     const bend = ease(heartProgress);
-    const width = mix(17,28.45,bend);
+    const width = mix(mix(cursorWidth,17,progress),28.45,bend);
     const bands = morph.map(([color, cursor, monitor, ribbon]) => [
       color,
       cursor.map(([x,y], i) => [
@@ -191,8 +198,8 @@
     context.globalAlpha = rayAlpha;
     const pulse = tap * .22;
     for (const [color, start, end] of rays) {
-      const spread = ([x,y]) => [x + (x - 73) * pulse, y + (y - 72) * pulse];
-      stroke(color, [spread(start),spread(end)], 17);
+      const spread = ([x,y]) => [x + (x - tip[0]) * pulse, y + (y - tip[1]) * pulse];
+      stroke(color, [spread(rayFit(start)),spread(rayFit(end))], rayWidth);
     }
     context.restore();
 
@@ -209,11 +216,12 @@
     }
   }
 
-  function show(logoOpacity, monitorOpacity, heartOpacity, heartScale) {
-    reference.style.opacity = String(logoOpacity);
+  function show(cursorOpacity, raysOpacity, raysScale, monitorOpacity, heartOpacity) {
+    cursorImage.style.opacity = String(cursorOpacity);
+    raysImage.style.opacity = String(raysOpacity);
+    raysImage.style.transform = `scale(${raysScale})`;
     canvas.style.opacity = String(monitorOpacity);
     heart.style.opacity = String(heartOpacity);
-    heart.style.transform = `scale(${heartScale})`;
   }
 
   let timer = 0, visible = false, running = false;
@@ -223,20 +231,25 @@
     const start = performance.now();
     function render(now) {
       const elapsed = now - start;
-      const fromLogo = ease(elapsed / 55);
-      const toMonitor = ease((elapsed - 450) / 450);
+      const fromLogo = ease(elapsed / 90);
+      const toMonitor = ease((elapsed - 520) / 450);
       const toHeart = clamp((elapsed - 1450) / 720);
       const heartAsset = ease((toHeart - .87) / .13);
       // return: the drawn heart replaces the heart image, then unbends straight into the cursor outline (the forward morph without the monitor)
       const back = ease((elapsed - 2700) / 150);
       const unbend = ease((elapsed - 2800) / 650);
-      const toLogo = ease((elapsed - 3450) / 90);
-      const tap = Math.sin(Math.PI * clamp(elapsed / 420));
-      if (back > 0) draw(0, 0, 1 - unbend, ease((unbend - .6) / .4));
+      // the drawn cursor settles into the logo image while it finishes unbending, so no frame swaps one shape for the other
+      const settle = ease((elapsed - 3250) / 300);
+      // then the click rays come back with a small pop, as the last beat
+      const raysIn = clamp((elapsed - 3450) / 420);
+      const raysScale = raysIn < .6 ? mix(.6, 1.08, ease(raysIn / .6)) : mix(1.08, 1, ease((raysIn - .6) / .4));
+      const tap = Math.sin(Math.PI * clamp((elapsed - 90) / 420));
+      if (back > 0) draw(0, 0, 1 - unbend, 0);
       else if (heartAsset < 1) draw(toMonitor, tap, toHeart);
-      show(1 - fromLogo + toLogo, fromLogo * (1 - heartAsset) + back * (1 - toLogo), heartAsset * (1 - back), 1);
-      if (elapsed < 3560) requestAnimationFrame(render);
-      else { running = false; if (visible) timer = setTimeout(play, 2000); }
+      show(1 - fromLogo + settle, 1 - fromLogo + ease(raysIn / .45), raysIn > 0 ? raysScale : 1,
+        fromLogo * (1 - heartAsset) + back * (1 - settle), heartAsset * (1 - back));
+      if (elapsed < 3900) requestAnimationFrame(render);
+      else { running = false; if (visible) timer = setTimeout(play, 2600); }
     }
     requestAnimationFrame(render);
   }

@@ -104,8 +104,8 @@ function setup(m) {
   if (m === 'GPT-6 Astra') return `OpenRouter with OpenAI as provider, medium reasoning effort, ${hist}.`;
   if (m.startsWith('GPT')) return `OpenAI API, low reasoning effort, ${hist}.`;
   if (m.startsWith('OpenCUA')) return 'Our servers, its own harness with the last three screenshots.';
-  if (m.startsWith('Qwen')) return 'Our servers, the API agent keeps 200,000 characters of tool output, the GUI agent every screenshot until its 65,536 token window is full.';
-  if (m.startsWith('MedGemma')) return 'Our servers, the API agent keeps 200,000 characters of tool output, the GUI agent every screenshot within its 131,072 token window.';
+  if (m.startsWith('Qwen')) return 'Our servers, the API agent keeps 200,000 characters of tool output, the GUI agent up to 200 screenshots within its 65,536 token window.';
+  if (m.startsWith('MedGemma')) return 'Our servers, the API agent keeps 200,000 characters of tool output, the GUI agent up to 200 screenshots within its 131,072 token window.';
   return '';
 }
 
@@ -198,7 +198,7 @@ const ICON = {
 };
 const SETS = { official: ['Consultations', 'Real specialist consultations on deidentified records'], standard: ['Standard', 'Synthetic patients, same kinds of task'],
   hard: ['Hard', 'Hidden facts, late corrections or calculations'], expert: ['Expert twins', 'Twin cases that differ in one decisive fact'],
-  workflow: ['Workflow', 'Long visits with several problems and orders'], confirm: ['Held out', 'Written last, used only to confirm results'] };
+  workflow: ['Workflow', 'Long visits with several problems and orders'], confirm: ['Held out', 'Written last to confirm results, public with answers'] };
 
 function donuts(T) {
   const setColors = ['#1a73e8', '#188038', '#34a853', '#81c995', '#f9ab00', '#9aa0a6'];

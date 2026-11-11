@@ -7,14 +7,14 @@
 <meta name="description" content="Health-CUA gives an AI agent the same clinical task on the same patient record through the EHR's API or through the screens that clinicians use, and grades the orders and notes it leaves in the record.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Health-CUA: Evaluating Clinical Computer Using Agents in Electronic Health Records">
-<meta property="og:description" content="355 clinical tasks, 18 models, the API and the screen on one record, and OpenMRS, a widely used open-source EHR.">
+<meta property="og:description" content="355 clinical tasks, 316 of them public, 16 models on the leaderboard, the API and the screen on one record, and OpenMRS, a widely used open-source EHR.">
 <meta property="og:url" content="https://ybkim95.github.io/health-cua/">
 <meta property="og:image" content="https://ybkim95.github.io/health-cua/assets/brand/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Health-CUA">
-<meta name="twitter:description" content="Can AI agents do clinical work through the screens that clinicians use? 355 tasks, 18 models, API and GUI on one record.">
+<meta name="twitter:description" content="Can AI agents do clinical work through the screens that clinicians use? 355 tasks, 316 of them public, 16 models, API and GUI on one record.">
 <meta name="twitter:image" content="https://ybkim95.github.io/health-cua/assets/brand/og-card.png">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#131314" media="(prefers-color-scheme: dark)">
@@ -109,7 +109,7 @@
     </div>
   </div>
   <div class="lb"><p class="key lb-key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</p><div id="lb"></div></div>
-  <div class="lb-foot"><p class="caption">Revised checks, 95% intervals. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
+  <div class="lb-foot"><p class="caption">Revised grader v3, 95% intervals. The paper's Table 1 uses the original grader. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
 </section>
 
 <section id="findings">
@@ -118,12 +118,12 @@
     <article class="card">
       <h3>On screen, frontier models do as well as through the API, or better</h3>
       <div class="viz" id="c-equiv"></div>
-      <p class="note">150 held out tasks</p>
+      <p class="note">150 held out tasks, synthetic task grader</p>
     </article>
     <article class="card">
       <h3>Three screenshots are not enough</h3>
       <div class="big"><span>1%</span><i>→</i><span>69%</span></div>
-      <p class="note">Claude Sonnet 5.5, Anthropic's default of three screenshots against full history</p>
+      <p class="note">Claude Sonnet 5.5, Anthropic's default of three screenshots against full history, original grader</p>
     </article>
     <article class="card">
       <h3>In OpenMRS, success drops 15 to 19 points</h3>
@@ -171,7 +171,7 @@
 
 <section id="tasks">
   <h2>Tasks</h2>
-  <p class="lead">Real consultations and synthetic patients across 13 fields of medicine, with 150 tasks kept aside to confirm the results.</p>
+  <p class="lead">Real consultations and synthetic patients across 13 fields of medicine. 150 held out tasks confirm the results and are public with their answers.</p>
   <div class="donuts">
     <figure class="donut-card" id="d-sets"></figure>
     <figure class="donut-card" id="d-fields"></figure>
@@ -180,10 +180,10 @@
 
 <section id="submit" class="band">
   <h2>Submit your model</h2>
-  <p class="lead">Run your model on the same tasks, interfaces and grader, and send us the results.</p>
+  <p class="lead">Two tracks. The leaderboard runs the 39 consultation tasks with the revised grader v3 and needs the PhysicianBench records. The synthetic track runs the 166 synthetic or the 150 held out tasks and is listed separately.</p>
   <ol class="steps">
     <li><b>Set up the environment</b><div class="cmd"><pre id="cmd1">git clone --recursive https://github.com/ybkim95/health-cua.git &amp;&amp; cd health-cua &amp;&amp; uv sync &amp;&amp; docker compose up -d --build --wait</pre><button class="btn small" type="button" data-copy="cmd1">Copy</button></div></li>
-    <li><b>Run your model</b><span>Set <code>OPENAI_BASE_URL</code> and <code>OPENAI_API_KEY</code> for an OpenAI compatible endpoint, or <a href="https://github.com/ybkim95/health-cua/blob/main/docs/adding-models.md">add your own agent</a>.</span><span>Smoke test, minutes and cents</span><div class="cmd"><pre id="cmd2">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks synthetic --limit 3 --repeats 1 --local --price-in &lt;USD per million input tokens&gt; --price-out &lt;USD per million output tokens&gt;</pre><button class="btn small" type="button" data-copy="cmd2">Copy</button></div><span>Full run for a submission</span><div class="cmd"><pre id="cmd3">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks synthetic --repeats 3 --local --price-in &lt;USD per million input tokens&gt; --price-out &lt;USD per million output tokens&gt;</pre><button class="btn small" type="button" data-copy="cmd3">Copy</button></div></li>
+    <li><b>Run your model</b><span>Set <code>OPENAI_BASE_URL</code> and <code>OPENAI_API_KEY</code> for an OpenAI compatible endpoint, or <a href="https://github.com/ybkim95/health-cua/blob/main/docs/adding-models.md">add your own agent</a>.</span><span>Smoke test, minutes and cents</span><div class="cmd"><pre id="cmd2">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks synthetic --limit 3 --repeats 1 --local --price-in &lt;USD per million input tokens&gt; --price-out &lt;USD per million output tokens&gt;</pre><button class="btn small" type="button" data-copy="cmd2">Copy</button></div><span>Leaderboard track, full run</span><div class="cmd"><pre id="cmd4">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks consultation --repeats 3 --local</pre><button class="btn small" type="button" data-copy="cmd4">Copy</button></div><span>Synthetic track, full run</span><div class="cmd"><pre id="cmd3">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks synthetic --repeats 3 --local --price-in &lt;USD per million input tokens&gt; --price-out &lt;USD per million output tokens&gt;</pre><button class="btn small" type="button" data-copy="cmd3">Copy</button></div></li>
     <li><b>Send the results</b><span>Open an issue with the <a href="https://github.com/ybkim95/health-cua/issues/new?template=submission.md">Submission template</a> and attach <code>results.json</code> from your run.</span></li>
   </ol>
   <p class="links"><a href="https://github.com/ybkim95/health-cua/blob/main/docs/submitting-results.md">Submission guide</a> · <a href="https://github.com/ybkim95/health-cua/blob/main/docs/adding-models.md">Add your own agent</a> · Questions or results: <a href="mailto:ybkim95@mit.edu">ybkim95@mit.edu</a></p>
@@ -219,6 +219,6 @@
 
 <script src="logo.js?v=202611110400" defer></script>
 <script src="viewer.js?v=202611101400" defer></script>
-<script src="app.js?v=202611101000" defer></script>
+<script src="app.js?v=202611111000" defer></script>
 </body>
 </html>

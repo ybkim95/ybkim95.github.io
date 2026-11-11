@@ -1,5 +1,5 @@
-// Hero logo: the cursor clicks, becomes a monitor with a four-color cross, bends into a heart and returns to the cursor (about 2.2 s).
-// Drawing and timing follow the design reference (animation.js); reduced motion keeps the static logo.
+// Hero logo: the cursor clicks, becomes a monitor with a four-color cross, bends into a heart and returns to the cursor (about 3.2 s).
+// Drawing follows the design reference (animation.js), with a longer, deeper click and slower transitions; reduced motion keeps the static logo.
 (() => {
   const root = document.querySelector('.hero-logo');
   if (!root || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -134,7 +134,7 @@
     context.setTransform(1.9685, 0, 0, 1.9685, 3.15, 3.15);
     context.save();
     context.translate(73,72);
-    context.scale(1 - tap * .045, 1 - tap * .045);
+    context.scale(1 - tap * .1, 1 - tap * .1);
     context.translate(-73,-72);
 
     const bend = ease(heartProgress);
@@ -189,7 +189,7 @@
     context.restore();
     context.save();
     context.globalAlpha = (1 - progress) ** 3;
-    const pulse = tap * .1;
+    const pulse = tap * .22;
     for (const [color, start, end] of rays) {
       const spread = ([x,y]) => [x + (x - 73) * pulse, y + (y - 72) * pulse];
       stroke(color, [spread(start),spread(end)], 17);
@@ -224,15 +224,15 @@
     function render(now) {
       const elapsed = now - start;
       const fromLogo = ease(elapsed / 55);
-      const toMonitor = ease((elapsed - 75) / 300);
-      const toHeart = clamp((elapsed - 895) / 510);
+      const toMonitor = ease((elapsed - 450) / 450);
+      const toHeart = clamp((elapsed - 1450) / 720);
       const heartAsset = ease((toHeart - .87) / .13);
-      const toLogo = ease((elapsed - 1925) / 320);
-      const tap = Math.sin(Math.PI * clamp(elapsed / 135));
+      const toLogo = ease((elapsed - 2750) / 450);
+      const tap = Math.sin(Math.PI * clamp(elapsed / 420));
       if (heartAsset < 1) draw(toMonitor, tap, toHeart);
       show(1 - fromLogo + toLogo, fromLogo * (1 - heartAsset), heartAsset * (1 - toLogo), 1 - .12 * toLogo);
-      if (elapsed < 2245) requestAnimationFrame(render);
-      else { running = false; if (visible) timer = setTimeout(play, 1800); }
+      if (elapsed < 3200) requestAnimationFrame(render);
+      else { running = false; if (visible) timer = setTimeout(play, 2000); }
     }
     requestAnimationFrame(render);
   }

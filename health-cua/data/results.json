@@ -6602,6 +6602,18 @@
    "uncommitted": 0.0,
    "none": 15.4
   },
+  "GPT-6.2 Astra, API": {
+   "p1": 68.4,
+   "missing": 24.8,
+   "uncommitted": 0.0,
+   "none": 6.8
+  },
+  "GPT-6.2 Astra, GUI": {
+   "p1": 68.4,
+   "missing": 21.3,
+   "uncommitted": 2.6,
+   "none": 7.7
+  },
   "GPT-6.1 Sol, API": {
    "p1": 60.7,
    "missing": 30.8,

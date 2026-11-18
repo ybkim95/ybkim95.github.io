@@ -81,7 +81,7 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   go(0); play();
 })();
 
-fetch('data/results.json?v=202611180400').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611180600').then((r) => r.json()).then((R) => {
   board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
@@ -100,7 +100,7 @@ const bar = (cls, v, ci, label) => {
 function setup(m) {
   const hist = 'the API agent keeps 200,000 characters of tool output, the GUI agent its full history';
   if (m.startsWith('Claude')) return 'Anthropic API, full history through both interfaces.';
-  if (m.startsWith('Gemini')) return `Vertex AI, default sampling, ${hist}.`;
+  if (m.startsWith('Gemini')) return `Vertex AI, thinking level low, ${hist}.`;
   if (m === 'GPT-6 Astra' || m === 'GPT-6.2 Astra') return `OpenRouter with OpenAI as provider, medium reasoning effort, ${hist}.`;
   if (m.startsWith('GPT')) return `OpenAI API, low reasoning effort, ${hist}.`;
   if (m.startsWith('OpenCUA')) return 'Our servers, its own harness with the last three screenshots.';
@@ -115,6 +115,7 @@ function board(rows, cats) {
   const box = q('#lb');
   const arms = (r) => (cat === 'Overall' ? { api: r.api, gui: r.gui } : r.cats[cat]);
   const best = (r) => { const a = arms(r); return Math.max(a.gui[key].mean, a.api ? a.api[key].mean : -1); };
+  const other = (r) => { const a = arms(r); return Math.min(a.gui[key].mean, a.api ? a.api[key].mean : -1); };  // ties go by the other interface
   const order = ['Overall', 'Workup', 'Prescribing', 'Treatment planning', 'Diagnosis'];
   q('#cats').innerHTML = order.map((c) => `<button type="button" role="tab" data-c="${c}" aria-selected="${c === cat}" title="${c === 'Overall' ? 39 : cats[c]} consultations">${c}</button>`).join('');
   q('#cats').onclick = (e) => {
@@ -125,7 +126,7 @@ function board(rows, cats) {
   };
   function draw() {
     box.innerHTML = '';
-    [...rows].sort((a, b) => best(b) - best(a)).forEach((r) => {
+    [...rows].sort((a, b) => best(b) - best(a) || other(b) - other(a)).forEach((r) => {
       const A = arms(r);
       const row = h('div', 'lb-row');
       row.tabIndex = 0; row.setAttribute('role', 'button'); row.setAttribute('aria-expanded', 'false');
@@ -136,7 +137,7 @@ function board(rows, cats) {
       row.append(bars);
       const d = cat === 'Overall' && r.delta && r.delta[key];
       const gap = !d ? '' : Math.abs(d.mean) < 0.05 ? 'No gap between the two. ' : `${d.mean > 0 ? 'API' : 'GUI'} ahead by ${fx(Math.abs(d.mean))} points (95% CI ${d.mean > 0 ? `${neg(d.ci[0])} to ${neg(d.ci[1])}` : `${neg(-d.ci[1])} to ${neg(-d.ci[0])}`}). `;
-      const more = r.api ? gap + (r.cost ? `One episode costs $${r.cost.api.toFixed(2)} through the API and $${r.cost.gui.toFixed(2)} on screen.` : '')
+      const more = r.api ? gap + (r.cost ? `One episode costs $${r.cost.api.toFixed(2)} through the API and $${r.cost.gui.toFixed(2)} on screen, at list prices with cached input at its cache rate.` : '')
         : 'Tested on screen only.';
       const det = h('div', 'more');
       det.append(h('p', null, more || `${A.api ? 'API ' + fx(A.api[key].mean) + ', ' : ''}GUI ${fx(A.gui[key].mean)}`), h('p', 'setup', 'Setup: ' + setup(r.model)));

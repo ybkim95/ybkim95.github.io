@@ -6966,5 +6966,47 @@
    "unable": 88,
    "claimed": 352
   }
+ ],
+ "note_record": {
+  "episodes": 4102,
+  "arms": 36,
+  "note_pass": 1374,
+  "note_pass_record_fail": 420,
+  "share_note_pass_record_fail": 30.6,
+  "record_pass": 2017,
+  "note_fail_record_pass": 1063,
+  "share_record_pass_note_fail": 52.7
+ },
+ "order_types": [
+  {
+   "type": "imaging",
+   "checkpoints": 10,
+   "api": 78.09,
+   "gui": 68.57
+  },
+  {
+   "type": "laboratory",
+   "checkpoints": 21,
+   "api": 76.19,
+   "gui": 75.97
+  },
+  {
+   "type": "medication",
+   "checkpoints": 14,
+   "api": 86.05,
+   "gui": 81.63
+  },
+  {
+   "type": "other test or procedure",
+   "checkpoints": 6,
+   "api": 84.13,
+   "gui": 76.19
+  },
+  {
+   "type": "referral",
+   "checkpoints": 4,
+   "api": 65.47,
+   "gui": 45.24
+  }
  ]
 }

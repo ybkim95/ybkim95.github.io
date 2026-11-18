@@ -163,7 +163,7 @@ input[type=range] { flex: 1; accent-color: var(--blue); min-width: 80px; }
 .track { position: relative; height: 12px; }
 .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; transition: width .7s cubic-bezier(.2,.7,.2,1); }
 .api .fill { background: var(--api); } .gui .fill { background: var(--gui); } .openmrs .fill { background: var(--openmrs); }
-.orig .fill { background: var(--orig); } .rev .fill { background: var(--rev); }
+.orig .fill { background: var(--orig); } .rev .fill { background: var(--rev); } .miss .fill { background: var(--red); }
 .ci { position: absolute; top: 5px; height: 2px; background: var(--ink); opacity: .45; }
 .ci::before, .ci::after { content: ""; position: absolute; top: -3px; width: 1.5px; height: 8px; background: inherit; }
 .ci::before { left: 0; } .ci::after { right: 0; }

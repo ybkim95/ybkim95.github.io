@@ -81,7 +81,7 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   go(0); play();
 })();
 
-fetch('data/results.json?v=202611180600').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611181100').then((r) => r.json()).then((R) => {
   board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
@@ -137,7 +137,9 @@ function board(rows, cats) {
       row.append(bars);
       const d = cat === 'Overall' && r.delta && r.delta[key];
       const gap = !d ? '' : Math.abs(d.mean) < 0.05 ? 'No gap between the two. ' : `${d.mean > 0 ? 'API' : 'GUI'} ahead by ${fx(Math.abs(d.mean))} points (95% CI ${d.mean > 0 ? `${neg(d.ci[0])} to ${neg(d.ci[1])}` : `${neg(-d.ci[1])} to ${neg(-d.ci[0])}`}). `;
-      const more = r.api ? gap + (r.cost ? `One episode costs $${r.cost.api.toFixed(2)} through the API and $${r.cost.gui.toFixed(2)} on screen, at list prices with cached input at its cache rate.` : '')
+      // cost per task solved: the cost of one attempt divided by the share solved under the revised grader
+      const per = (c, s) => (s.mean > 0 ? `$${(c / (s.mean / 100)).toFixed(2)}` : 'none solved');
+      const more = r.api ? gap + (r.cost ? `One episode costs $${r.cost.api.toFixed(2)} through the API and $${r.cost.gui.toFixed(2)} on screen, at list prices with cached input at its cache rate. Per task solved under the revised grader, that is ${per(r.cost.api, r.api.s2)} and ${per(r.cost.gui, r.gui.s2)}.` : '')
         : 'Tested on screen only.';
       const det = h('div', 'more');
       det.append(h('p', null, more || `${A.api ? 'API ' + fx(A.api[key].mean) + ', ' : ''}GUI ${fx(A.gui[key].mean)}`), h('p', 'setup', 'Setup: ' + setup(r.model)));
@@ -172,6 +174,15 @@ function findings(R) {
   const per = (v) => ({ v: 25 * v, label: `${v.toFixed(1)}` });  // bars on a 0 to 4 scale
   pair(q('#c-extra'), R.extra_orders.map((r) => [r.model, [['api', 'API', per(r.api).v, null, per(r.api).label], ['gui', 'GUI', per(r.gui).v, null, per(r.gui).label]]]));
   pair(q('#c-openmrs'), R.openmrs.slice(0, 3).map((r) => [r.model, [['gui', 'GUI', r.our_gui.mean, r.our_gui.ci], ['openmrs', 'OpenMRS', r.gui_b_v2.mean, r.gui_b_v2.ci]]]));
+  // notes against the record: of the notes the judge passed, how many sat on a failed record, and the reverse
+  const n = R.note_record;
+  pair(q('#c-notes'), [
+    [`Of ${n.note_pass.toLocaleString('en-US')} notes the judge passed, the record`, [['rev', 'Passed', 100 - n.share_note_pass_record_fail], ['miss', 'Failed', n.share_note_pass_record_fail]]],
+    [`Of ${n.record_pass.toLocaleString('en-US')} records that passed, the note`, [['rev', 'Passed', 100 - n.share_record_pass_note_fail], ['miss', 'Failed', n.share_record_pass_note_fail]]]]);
+  // kinds of required orders, least often placed first
+  const kind = (t) => t[0].toUpperCase() + t.slice(1);
+  pair(q('#c-orders'), [...R.order_types].sort((a, b) => a.api + a.gui - b.api - b.gui)
+    .map((r) => [`${kind(r.type)}, ${r.checkpoints} checks`, [['api', 'API', r.api], ['gui', 'GUI', r.gui]]]));
 }
 
 function grader(rows) {

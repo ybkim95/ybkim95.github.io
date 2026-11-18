@@ -81,7 +81,7 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   go(0); play();
 })();
 
-fetch('data/results.json?v=202611180100').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611180400').then((r) => r.json()).then((R) => {
   board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
@@ -101,7 +101,7 @@ function setup(m) {
   const hist = 'the API agent keeps 200,000 characters of tool output, the GUI agent its full history';
   if (m.startsWith('Claude')) return 'Anthropic API, full history through both interfaces.';
   if (m.startsWith('Gemini')) return `Vertex AI, default sampling, ${hist}.`;
-  if (m === 'GPT-6 Astra') return `OpenRouter with OpenAI as provider, medium reasoning effort, ${hist}.`;
+  if (m === 'GPT-6 Astra' || m === 'GPT-6.2 Astra') return `OpenRouter with OpenAI as provider, medium reasoning effort, ${hist}.`;
   if (m.startsWith('GPT')) return `OpenAI API, low reasoning effort, ${hist}.`;
   if (m.startsWith('OpenCUA')) return 'Our servers, its own harness with the last three screenshots.';
   if (m.startsWith('Qwen')) return 'Our servers, the API agent keeps 200,000 characters of tool output, the GUI agent up to 200 screenshots within its 65,536 token window.';

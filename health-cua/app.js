@@ -111,11 +111,12 @@ function setup(m) {
 
 // ------------------------------------------------------------------ leaderboard
 function board(rows, cats) {
-  let key = 's2', cat = 'Overall';
+  let grade = 's2', measure = '', cat = 'Overall';
+  const K = () => grade + measure;
   const box = q('#lb');
   const arms = (r) => (cat === 'Overall' ? { api: r.api, gui: r.gui } : r.cats[cat]);
-  const best = (r) => { const a = arms(r); return Math.max(a.gui[key].mean, a.api ? a.api[key].mean : -1); };
-  const other = (r) => { const a = arms(r); return Math.min(a.gui[key].mean, a.api ? a.api[key].mean : -1); };  // ties go by the other interface
+  const best = (r) => { const a = arms(r), key = K(); return Math.max(a.gui[key].mean, a.api ? a.api[key].mean : -1); };
+  const other = (r) => { const a = arms(r), key = K(); return Math.min(a.gui[key].mean, a.api ? a.api[key].mean : -1); };  // ties go by the other interface
   const order = ['Overall', 'Workup', 'Prescribing', 'Treatment planning', 'Diagnosis'];
   q('#cats').innerHTML = order.map((c) => `<button type="button" role="tab" data-c="${c}" aria-selected="${c === cat}" title="${c === 'Overall' ? 39 : cats[c]} consultations">${c}</button>`).join('');
   q('#cats').onclick = (e) => {
@@ -125,6 +126,7 @@ function board(rows, cats) {
     draw();
   };
   function draw() {
+    const key = K();
     box.innerHTML = '';
     [...rows].sort((a, b) => best(b) - best(a) || other(b) - other(a)).forEach((r) => {
       const A = arms(r);
@@ -136,7 +138,7 @@ function board(rows, cats) {
       bars.append(bar('gui', A.gui[key].mean, A.gui[key].ci, fx(A.gui[key].mean)));
       row.append(bars);
       const d = cat === 'Overall' && r.delta && r.delta[key];
-      const gap = !d ? '' : Math.abs(d.mean) < 0.05 ? 'No gap between the two. ' : `${d.mean > 0 ? 'API' : 'GUI'} ahead by ${fx(Math.abs(d.mean))} points (95% CI ${d.mean > 0 ? `${neg(d.ci[0])} to ${neg(d.ci[1])}` : `${neg(-d.ci[1])} to ${neg(-d.ci[0])}`}). `;
+      const gap = !d ? '' : Math.abs(d.mean) < 0.05 ? 'No gap between the two. ' : `${d.mean > 0 ? 'API' : 'GUI'} ahead by ${fx(Math.abs(d.mean))} points (95% CI ${d.mean > 0 ? `${neg(d.ci[0])} to ${neg(d.ci[1])}` : `${neg(-d.ci[1])} to ${neg(-d.ci[0])}`}, not adjusted for the number of models). `;
       // cost per task solved: the cost of one attempt divided by the share solved under the revised grader
       const per = (c, s) => (s.mean > 0 ? `$${(c / (s.mean / 100)).toFixed(2)}` : 'none solved');
       const more = r.api ? gap + (r.cost ? `One episode costs $${r.cost.api.toFixed(2)} through the API and $${r.cost.gui.toFixed(2)} on screen, at list prices with cached input at its cache rate. Per task solved under the revised grader, that is ${per(r.cost.api, r.api.s2)} and ${per(r.cost.gui, r.gui.s2)}.` : '')
@@ -150,11 +152,13 @@ function board(rows, cats) {
       box.append(row);
     });
   }
-  document.querySelectorAll('.lb-head .seg button').forEach((b) => b.onclick = () => {
-    key = b.dataset.v;
-    document.querySelectorAll('.lb-head .seg button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  const seg = (id, set) => document.querySelectorAll(`#${id} button`).forEach((b) => b.onclick = () => {
+    set(b.dataset);
+    document.querySelectorAll(`#${id} button`).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
     draw();
   });
+  seg('grader-seg', (d) => { grade = d.g; });
+  seg('measure-seg', (d) => { measure = d.v; });
   draw();
 }
 

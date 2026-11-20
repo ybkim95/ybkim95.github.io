@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Health-CUA</title>
+<title>Health-CUA: clinical computer using agents in the EHR</title>
 <meta name="description" content="Health-CUA gives an AI agent the same clinical task on the same patient record through the EHR's API or through the screens that clinicians use, and grades the orders and notes it leaves in the record.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Health-CUA: Evaluating Clinical Computer Using Agents in Electronic Health Records">
-<meta property="og:description" content="355 clinical tasks, 316 of them public, 19 models on the leaderboard, the API and the screen on one record, and OpenMRS, a widely used open-source EHR.">
+<meta property="og:description" content="355 clinical tasks, 316 of them public, 19 models on the leaderboard, the API and the screen on one record, and OpenMRS, an open source EHR.">
 <meta property="og:url" content="https://ybkim95.github.io/health-cua/">
 <meta property="og:image" content="https://ybkim95.github.io/health-cua/assets/brand/og-card.png">
 <meta property="og:image:width" content="1200">
@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611181100">
+<link rel="stylesheet" href="style.css?v=202611191200">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -45,8 +45,10 @@
 <section class="hero">
   <span class="hero-logo" role="img" aria-label="Health-CUA logo"><img class="logo rays" src="assets/brand/logo-192.png" srcset="assets/brand/logo-512.webp 2x" alt="" width="112" height="112"><img class="logo cursor" src="assets/brand/logo-192.png" srcset="assets/brand/logo-512.webp 2x" alt="" width="112" height="112"><canvas width="456" height="456" aria-hidden="true"></canvas><img class="heart" src="assets/brand/heart-256.png" alt="" width="112" height="112"></span>
   <h1>Health-CUA</h1>
-  <!-- placeholder: author list and affiliations -->
+  <p class="authors">Yubin Kim<sup>1,3</sup>, Samuel Schmidgall<sup>1</sup>, Hyewon Jeong<sup>3</sup>, David Racz<sup>1</sup>, Lin Yang<sup>1</sup>, Daniel McDuff<sup>2</sup>, Min Seo Kim<sup>4</sup>, Cynthia Breazeal<sup>3</sup>, Xin Liu<sup>2</sup></p>
+  <p class="affil"><sup>1</sup>Google DeepMind <sup>2</sup>Google Research <sup>3</sup>Massachusetts Institute of Technology <sup>4</sup>Harvard Medical School</p>
   <p class="subtitle">AI agents doing clinical work in the health record, through the API and on screen</p>
+  <p class="headline">On real specialist consultations, five of the seven frontier models succeed about as often on screen as through the API. Their notes often say more than the record holds.</p>
   <div class="buttons">
     <a class="btn" href="https://github.com/ybkim95/health-cua"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0a8 8 0 0 0-2.5 15.6c.4 0 .5-.2.5-.4v-1.5c-2.2.5-2.7-1-2.7-1-.4-.9-.9-1.2-.9-1.2-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.3 1.9.9 2.4.7 0-.5.3-.9.5-1.1-1.8-.2-3.6-.9-3.6-4 0-.9.3-1.6.8-2.1-.1-.2-.4-1 .1-2.1 0 0 .7-.2 2.2.8a7.5 7.5 0 0 1 4 0c1.5-1 2.2-.8 2.2-.8.4 1.1.2 1.9.1 2.1.5.6.8 1.3.8 2.1 0 3.1-1.9 3.8-3.6 4 .3.3.6.8.6 1.5v2.2c0 .2.1.5.6.4A8 8 0 0 0 8 0z"/></svg>Code</a>
     <button class="btn primary" type="button" id="watch"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>Watch overview</button>
@@ -60,7 +62,7 @@
 
 <section id="replay">
   <h2>Watch an agent work</h2>
-  <p class="lead">The same clinical request, handled through the API, through the EHR screens, and in OpenMRS, a widely used open-source EHR.</p>
+  <p class="lead">The same clinical request, handled through the API, through the EHR screens, and in OpenMRS, an open source EHR.</p>
   <div class="agents" id="agents" role="tablist" aria-label="Agent"></div>
   <p class="request"><b>The request</b> A spreading red patch where a tick bit 9 days ago, in a patient taking isotretinoin for acne. Please assess and treat.</p>
 
@@ -100,16 +102,20 @@
 
 <section id="leaderboard" class="band">
   <h2>Leaderboard</h2>
-  <p class="lead">Nineteen models on real specialist consultations from PhysicianBench, three attempts per task through each interface.</p>
+  <p class="lead">Nineteen models on real specialist consultations from PhysicianBench, three attempts per task through each interface. An attempt succeeds when the record holds every required order and breaks no safety rule. Frontier models are the seven that succeed on more than two thirds of tasks through either interface.</p>
   <div class="lb-head">
     <div class="cats" id="cats" role="tablist" aria-label="Task category"></div>
-    <div class="seg" role="group" aria-label="Measure">
-      <button type="button" data-v="s2" aria-pressed="true" title="Average success over the three attempts at each task">pass@1</button>
-      <button type="button" data-v="s2_all3" aria-pressed="false" title="Share of tasks solved on all three attempts">pass<sup>3</sup></button>
+    <div class="seg" role="group" aria-label="Grader" id="grader-seg">
+      <button type="button" data-g="s2" aria-pressed="true" title="Our revised checks, which accept equivalent orders and limit extra orders">Revised grader</button>
+      <button type="button" data-g="p1" aria-pressed="false" title="PhysicianBench's own order checks, as in the paper's Table 1">Original grader</button>
+    </div>
+    <div class="seg" role="group" aria-label="Measure" id="measure-seg">
+      <button type="button" data-v="" aria-pressed="true" title="Average success over the three attempts at each task">pass@1</button>
+      <button type="button" data-v="_all3" aria-pressed="false" title="Share of tasks solved on all three attempts">pass<sup>3</sup></button>
     </div>
   </div>
   <div class="lb"><p class="key lb-key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</p><div id="lb"></div></div>
-  <div class="lb-foot"><p class="caption">Revised grader v4, 95% intervals. The paper's Table 1 uses the original grader. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
+  <div class="lb-foot"><p class="caption">pass@1 averages the three attempts at each task, pass<sup>3</sup> counts the tasks solved on all three. Bars show 95% intervals. The paper's Table 1 uses the original grader. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
 </section>
 
 <section id="findings">
@@ -118,29 +124,30 @@
     <article class="card">
       <h3>On held out tasks, three frontier models do as well on screen as through the API, or better</h3>
       <div class="viz" id="c-equiv"></div>
-      <p class="note">150 held out tasks, synthetic task grader</p>
+      <p class="note">150 held out tasks, synthetic task grader. Claude Opus 5.5 and Gemini 4 Argon ran once per task.</p>
     </article>
     <article class="card">
       <h3>31% of the notes a judge passed came from attempts that failed</h3>
       <div class="viz" id="c-notes"></div>
-      <p class="note">Exploratory, 4,102 attempts of the 19 leaderboard models. gpt-oss-120b graded each note against PhysicianBench's rubrics without seeing the record, and the revised grader graded the record. A second judge, Gemini 3.8 Flash, gives 32%. Neither judge is yet checked against physicians.</p>
+      <p class="note">Exploratory, 4,102 attempts of the 19 leaderboard models. gpt-oss-120b graded each note against PhysicianBench's rubrics without seeing the record, and the revised grader graded the record. A second judge, Gemini 3.8 Flash, gives 32%. Both judges are language models without physician calibration.</p>
     </article>
     <article class="card">
       <h3>Three screenshots are not enough</h3>
       <div class="big"><span>1%</span><i>→</i><span>69%</span></div>
-      <p class="note">Claude Sonnet 5.5, Anthropic's default of three screenshots against full history, original grader</p>
+      <p class="note">Claude Sonnet 5.5 with the last three screenshots, the default of Anthropic's computer use demo, against its full history, original grader</p>
     </article>
     <article class="card">
       <h3>In OpenMRS, success drops 16 to 19 points</h3>
       <div class="viz" id="c-openmrs"></div>
+      <p class="note">First attempt on the 106 held out tasks that OpenMRS can grade. Gemini 3.5 Flash-Lite drops 29 points.</p>
     </article>
     <article class="card">
       <h3>On screen, referrals are the orders frontier models leave out most</h3>
       <div class="viz" id="c-orders"></div>
-      <p class="note">Share of required orders placed, by kind of order, mean of the seven frontier models, revised grader. Only 4 of its 55 checks are referrals, so this is descriptive and was not preregistered.</p>
+      <p class="note">Share of required orders placed, by kind of order, mean of the seven frontier models, revised grader. Only 4 of its 55 checks are referrals, so the shares are descriptive.</p>
     </article>
     <article class="card">
-      <h3>On screen, agents order fewer tests they do not need</h3>
+      <h3>On screen, agents place fewer extra orders</h3>
       <div class="viz" id="c-extra"></div>
       <p class="note">Reasonable extra orders per episode on 39 consultations from PhysicianBench</p>
     </article>
@@ -175,7 +182,7 @@
 
 <section id="grader" class="band">
   <h2>Testing the grader</h2>
-  <p class="lead">The benchmark's own checks rejected half of the correct alternatives and passed a script that ordered everything, so we rewrote them.</p>
+  <p class="lead">The benchmark's own checks rejected nearly half of the correct alternatives and passed a script that ordered everything, so we rewrote them.</p>
   <div class="viz grader" id="c-grader"></div>
 </section>
 
@@ -193,7 +200,7 @@
   <p class="lead">Two tracks. The leaderboard runs the 39 consultation tasks with the revised grader v4 and needs the PhysicianBench records. The synthetic track runs the 166 synthetic or the 150 held out tasks and is listed separately.</p>
   <ol class="steps">
     <li><b>Set up the environment</b><div class="cmd"><pre id="cmd1">git clone --recursive https://github.com/ybkim95/health-cua.git &amp;&amp; cd health-cua &amp;&amp; uv sync &amp;&amp; docker compose up -d --build --wait</pre><button class="btn small" type="button" data-copy="cmd1">Copy</button></div></li>
-    <li><b>Run your model</b><span>Set <code>OPENAI_BASE_URL</code> and <code>OPENAI_API_KEY</code> for an OpenAI compatible endpoint, or <a href="https://github.com/ybkim95/health-cua/blob/main/docs/adding-models.md">add your own agent</a>.</span><span>Smoke test, minutes and cents</span><div class="cmd"><pre id="cmd2">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks synthetic --limit 3 --repeats 1 --local --price-in &lt;USD per million input tokens&gt; --price-out &lt;USD per million output tokens&gt;</pre><button class="btn small" type="button" data-copy="cmd2">Copy</button></div><span>Leaderboard track, full run</span><div class="cmd"><pre id="cmd4">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks consultation --repeats 3 --local</pre><button class="btn small" type="button" data-copy="cmd4">Copy</button></div><span>Synthetic track, full run</span><div class="cmd"><pre id="cmd3">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks synthetic --repeats 3 --local --price-in &lt;USD per million input tokens&gt; --price-out &lt;USD per million output tokens&gt;</pre><button class="btn small" type="button" data-copy="cmd3">Copy</button></div></li>
+    <li><b>Run your model</b><span>Set <code>OPENAI_BASE_URL</code> and <code>OPENAI_API_KEY</code> for an OpenAI compatible endpoint, or <a href="https://github.com/ybkim95/health-cua/blob/main/docs/adding-models.md">add your own agent</a>.</span><span>Smoke test, minutes and cents</span><div class="cmd"><pre id="cmd2">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks synthetic --limit 3 --repeats 1 --local --price-in &lt;USD per million input tokens&gt; --price-out &lt;USD per million output tokens&gt;</pre><button class="btn small" type="button" data-copy="cmd2">Copy</button></div><span>Leaderboard track, full run, after <code>health-cua physicianbench prepare</code> and <code>up</code> with the PhysicianBench records (<a href="https://github.com/ybkim95/health-cua#consultation-tasks-from-physicianbench">setup</a>)</span><div class="cmd"><pre id="cmd4">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks consultation --repeats 3 --local</pre><button class="btn small" type="button" data-copy="cmd4">Copy</button></div><span>Synthetic track, full run</span><div class="cmd"><pre id="cmd3">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks synthetic --repeats 3 --local --price-in &lt;USD per million input tokens&gt; --price-out &lt;USD per million output tokens&gt;</pre><button class="btn small" type="button" data-copy="cmd3">Copy</button></div></li>
     <li><b>Send the results</b><span>Open an issue with the <a href="https://github.com/ybkim95/health-cua/issues/new?template=submission.md">Submission template</a> and attach <code>results.json</code> from your run.</span></li>
   </ol>
   <p class="links"><a href="https://github.com/ybkim95/health-cua/blob/main/docs/submitting-results.md">Submission guide</a> · <a href="https://github.com/ybkim95/health-cua/blob/main/docs/adding-models.md">Add your own agent</a> · Questions or results: <a href="mailto:ybkim95@mit.edu">ybkim95@mit.edu</a></p>
@@ -211,7 +218,7 @@
     <button class="btn small" type="button" data-copy="bibtex">Copy BibTeX</button>
 <pre id="bibtex">@misc{kim2026healthcua,
   title        = {Health-CUA: Evaluating Clinical Computer Using Agents in Electronic Health Records},
-  author       = {Kim, Yubin and others},
+  author       = {Kim, Yubin and Schmidgall, Samuel and Jeong, Hyewon and Racz, David and Yang, Lin and McDuff, Daniel and Kim, Min Seo and Breazeal, Cynthia and Liu, Xin},
   year         = {2026},
   howpublished = {\url{https://ybkim95.github.io/health-cua/}}
 }</pre>
@@ -229,6 +236,6 @@
 
 <script src="logo.js?v=202611110400" defer></script>
 <script src="viewer.js?v=202611101400" defer></script>
-<script src="app.js?v=202611181100" defer></script>
+<script src="app.js?v=202611191200" defer></script>
 </body>
 </html>

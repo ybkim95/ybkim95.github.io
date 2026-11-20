@@ -374,3 +374,9 @@ footer { justify-content: center; }
 .donut-card.mini figcaption { grid-column: 1 / -1; }
 @media (max-width: 900px) { .fail-grid { grid-template-columns: minmax(0, 1fr); } .fail-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 700px) { .fail-stats { grid-template-columns: minmax(0, 1fr); } .donut-card.mini .donut { width: 104px; height: 104px; } .donut-card.mini .center { inset: 20px; } }
+.authors { color: var(--ink); font-size: clamp(.95rem, 1.6vw, 1.05rem); max-width: 760px; margin: 12px auto 0; text-wrap: balance; }
+.affil { color: var(--ink2); font-size: .85rem; max-width: 760px; margin: 4px auto 0; }
+.authors sup, .affil sup { font-size: .7em; }
+.affil sup { margin-left: .6em; }
+.affil sup:first-child { margin-left: 0; }
+.headline { color: var(--ink); font-size: clamp(1rem, 1.8vw, 1.15rem); font-weight: 500; max-width: 640px; margin: 14px auto 0; text-wrap: balance; }

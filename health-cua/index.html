@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611211030">
+<link rel="stylesheet" href="style.css?v=202611211240">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -62,7 +62,7 @@
   <h2>Watch an agent work</h2>
   <p class="lead">The same clinical request, handled through the API, through the EHR screens, and in OpenMRS, an open source EHR.</p>
   <div class="agents" id="agents" role="tablist" aria-label="Agent"></div>
-  <p class="request"><b>The request</b> A spreading red patch where a tick bit 9 days ago, in a patient taking isotretinoin for acne. Please assess and treat.</p>
+  <p class="request"><b>The request</b> A spreading red patch where a tick bit 9 days ago, in a patient taking isotretinoin for acne. Please assess and treat. <a href="#task=sr259_erythema_migrans_isotretinoin_no_doxycycline">Open the task and its answer key</a></p>
 
   <div class="viewer" id="viewer" tabindex="0" aria-label="Episode viewer. Use the left and right arrow keys to step through the episode.">
     <div class="pane api">
@@ -115,6 +115,11 @@
   </div>
   <div class="lb"><p class="key lb-key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</p><div id="lb"></div></div>
   <div class="lb-foot"><p class="caption">USD per episode is one attempt at list prices with cached input at its cache rate, and a dash marks open weight models run on our servers. pass@1 averages the three attempts at each task, pass<sup>3</sup> counts the tasks solved on all three. Bars show 95% intervals. The original grader is PhysicianBench's own order checks, as in the paper's Table 1, and the revised grader also accepts equivalent orders and limits extra orders. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
+  <div class="costfig">
+    <h3>Success against cost</h3>
+    <p class="caption">Each model through the API (blue) and the GUI (orange), joined by a line. The stepped line marks runs that no cheaper run beats, named on the right on wider screens. Point at a dot for its model and numbers. Open weight models ran on our servers and are not shown.</p>
+    <div id="lb-cost"></div>
+  </div>
   <details class="updates">
     <summary>Updates</summary>
     <ul>
@@ -203,6 +208,21 @@
     <figure class="donut-card" id="d-sets"></figure>
     <figure class="donut-card" id="d-fields"></figure>
   </div>
+  <div class="browser" id="browser">
+    <div class="tb-head">
+      <h3>Browse the public tasks</h3>
+      <input type="search" id="tb-q" placeholder="Search a condition, drug, test or field" aria-label="Search the public tasks">
+    </div>
+    <div class="tb-filters">
+      <div class="seg" role="group" aria-label="Task set" id="tb-set"><button type="button" data-s="" aria-pressed="true">All</button><button type="button" data-s="synthetic" aria-pressed="false">Synthetic</button><button type="button" data-s="heldout" aria-pressed="false">Held out</button></div>
+      <select id="tb-design" aria-label="Design"><option value="">All designs</option><option>Standard</option><option>Added features</option><option>Twin</option><option>Workflow</option></select>
+      <select id="tb-field" aria-label="Field"><option value="">All fields</option></select>
+      <select id="tb-model" aria-label="Results of a model on the held out tasks"><option value="">Results of a model</option></select>
+      <span class="tb-count" id="tb-count" aria-live="polite"></span>
+    </div>
+    <ol class="tb-list" id="tb-list"></ol>
+    <button class="btn" type="button" id="tb-more" hidden>Show more</button>
+  </div>
 </section>
 
 <section id="submit" class="band">
@@ -239,6 +259,11 @@
 <footer><span class="fbrand"><img src="assets/brand/logo-96.png" alt="" width="20" height="20">Health-CUA</span></footer>
 <p class="legal">© 2026 The Health-CUA authors · Code <a href="https://github.com/ybkim95/health-cua/blob/main/LICENSE">Apache 2.0</a> · Synthetic tasks <a href="https://github.com/ybkim95/health-cua/blob/main/DATA_LICENSE.md">CC BY 4.0</a> · <a href="https://github.com/ybkim95/health-cua">GitHub</a></p>
 
+<dialog id="task-card" class="task-card" aria-label="Task">
+  <button class="close" type="button" aria-label="Close">×</button>
+  <div id="tc-body"></div>
+</dialog>
+
 <dialog id="video-modal" aria-label="Overview video">
   <button class="close" type="button" aria-label="Close">×</button>
   <video id="video" controls playsinline preload="none" poster="assets/video/overview-poster.jpg" data-src="assets/video/overview.mp4" width="1920" height="1080"></video>
@@ -246,6 +271,7 @@
 
 <script src="logo.js?v=202611110400" defer></script>
 <script src="viewer.js?v=202611211000" defer></script>
-<script src="app.js?v=202611211000" defer></script>
+<script src="app.js?v=202611211240" defer></script>
+<script src="tasks.js?v=202611211230" defer></script>
 </body>
 </html>

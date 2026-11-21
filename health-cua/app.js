@@ -81,7 +81,8 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   go(0); play();
 })();
 
-fetch('data/results.json?v=202611211000').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611211200').then((r) => r.json()).then((R) => {
+  LBT = R.lb_tasks || [];
   board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
@@ -91,6 +92,55 @@ fetch('data/results.json?v=202611211000').then((r) => r.json()).then((R) => {
   donuts(R.tasks);
   failStats(R.fail_stats);
 }).catch(() => { q('#lb').textContent = 'The results could not be loaded.'; });
+
+let LBT = [];  // the 39 consultation tasks in drill-down order, by category
+const HELDOUT = ['Claude Sonnet 5.5', 'Gemini 3.5 Flash-Lite', 'Claude Opus 5.5', 'Gemini 4 Argon', 'GPT-6 Astra'];  // models with held out episodes in the task browser
+
+// Per task, how many attempts passed through each interface (39 cells per row, grouped by PhysicianBench category).
+function taskGrid(r, g) {
+  const box = h('div', 'tgrid');
+  ['api', 'gui'].forEach((ui) => {
+    const G = r.grid && r.grid[ui]; if (!G) return;
+    const line = h('div', 'tg-line');
+    line.append(h('span', 'tg-lab', ui === 'api' ? 'API' : 'GUI'));
+    const cells = h('div', 'tg-cells');
+    LBT.forEach((t, k) => {
+      if (k && t.cat !== LBT[k - 1].cat) cells.append(h('i', 'tg-gap'));
+      const p = +G[g][k], n = +G.n[k];
+      const c = h('i', `tg ${ui} l${n ? Math.round(3 * p / n) : 0}`);
+      c.title = `${t.id.replace(/_/g, ' ')} (${t.cat}): passed on ${p} of ${n} attempt${n === 1 ? '' : 's'}`;
+      cells.append(c);
+    });
+    line.append(cells); box.append(line);
+  });
+  const cats = h('div', 'tg-cats'); cats.append(h('span', 'tg-lab', ''));
+  const names = h('div', 'tg-cells'); let prev = null;
+  LBT.forEach((t, k) => { if (k && t.cat !== prev) names.append(h('i', 'tg-gap')); names.append(h('b', t.cat !== prev ? 'tg-cat' : '', t.cat !== prev ? t.cat : '')); prev = t.cat; });
+  cats.append(names); box.append(cats);
+  return box;
+}
+
+// Success against cost per episode for every hosted model, the API and GUI points of a model joined, cheapest best runs outlined.
+function costPlot(rows, key) {
+  const el = q('#lb-cost'); if (!el) return;
+  const pts = [];
+  rows.forEach((r) => { if (!r.cost) return; [['api', 'API'], ['gui', 'GUI']].forEach(([ui, lab]) => { if (r[ui] && r.cost[ui] > 0) pts.push({ r, ui, lab, x: r.cost[ui], y: r[ui][key].mean }); }); });
+  const W = Math.max(320, Math.round(el.clientWidth) || 720), wide = W >= 560, H = wide ? 330 : 280, L = 46, Rt = wide ? 150 : 12, T = 14, B = 40;  // drawn at its own width, so text stays at 11px
+  const lx = (v) => Math.log10(v), x0 = Math.floor(Math.min(...pts.map((p) => lx(p.x)))), x1 = Math.ceil(Math.max(...pts.map((p) => lx(p.x))));
+  const X = (v) => L + (lx(v) - x0) / (x1 - x0) * (W - L - Rt), Y = (v) => T + (100 - v) / 100 * (H - T - B);
+  const front = []; let bestY = -1;  // Pareto front: no cheaper run succeeds as often
+  [...pts].sort((a, b) => a.x - b.x || b.y - a.y).forEach((p) => { if (p.y > bestY) { front.push(p); bestY = p.y; } });
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Success against cost per episode">`;
+  for (let e = x0; e <= x1; e++) { const xv = X(10 ** e); s += `<line class="gl" x1="${xv}" x2="${xv}" y1="${T}" y2="${H - B}"/><text class="tk" x="${xv}" y="${H - B + 16}" text-anchor="middle">$${10 ** e >= 1 ? 10 ** e : (10 ** e).toFixed(-e)}</text>`; }
+  [0, 25, 50, 75, 100].forEach((v) => { s += `<line class="gl" x1="${L}" x2="${W - Rt}" y1="${Y(v)}" y2="${Y(v)}"/><text class="tk" x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`; });
+  s += `<text class="ax" x="${(L + W - Rt) / 2}" y="${H - 4}" text-anchor="middle">USD per episode, log scale</text><text class="ax" transform="translate(12 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">${key.startsWith('s2') ? 'Revised grader' : 'Original grader'}, ${key.endsWith('all3') ? 'pass³' : 'pass@1'}, %</text>`;
+  s += `<polyline class="front" points="${front.map((p, k) => `${X(p.x)},${Y(p.y)}` + (front[k + 1] ? ` ${X(front[k + 1].x)},${Y(p.y)}` : '')).join(' ')}"/>`;
+  rows.forEach((r) => { const a = pts.find((p) => p.r === r && p.ui === 'api'), g = pts.find((p) => p.r === r && p.ui === 'gui'); if (a && g) s += `<line class="pair" x1="${X(a.x)}" y1="${Y(a.y)}" x2="${X(g.x)}" y2="${Y(g.y)}"/>`; });
+  pts.forEach((p) => { s += `<circle class="pt ${p.ui}${front.includes(p) ? ' on' : ''}" cx="${X(p.x)}" cy="${Y(p.y)}" r="5.5"><title>${p.r.model}, ${p.lab}: ${p.y.toFixed(1)}% at $${p.x.toFixed(2)} per episode</title></circle>`; });
+  let lastY = -99;  // label the front, top to bottom, without overlaps
+  if (wide) [...front].sort((a, b) => b.y - a.y).forEach((p) => { const yy = Math.max(Y(p.y) + 4, lastY + 14); lastY = yy; s += `<text class="lbl" x="${W - Rt + 10}" y="${yy}">${p.r.model}, ${p.lab}</text><line class="lead" x1="${X(p.x) + 6}" y1="${Y(p.y)}" x2="${W - Rt + 6}" y2="${yy - 4}"/>`; });
+  el.innerHTML = s + '</svg>';
+}
 
 // One bar with its 95% whisker and value. v in percent.
 const bar = (cls, v, ci, label) => {
@@ -163,13 +213,21 @@ function board(rows, cats) {
         : r.attempts.api === r.attempts.gui ? `${r.attempts.gui} attempts through each interface` : `${r.attempts.api} attempts through the API and ${r.attempts.gui} on screen`;
       const when = r.evaluated ? `Run ${day(r.evaluated[0])}${r.evaluated[1] !== r.evaluated[0] ? ' to ' + day(r.evaluated[1]) : ''}, ${att} on 39 tasks. ` : '';
       det.append(h('p', null, more || `${A.api ? 'API ' + fx(A.api[key].mean) + ', ' : ''}GUI ${fx(A.gui[key].mean)}`), h('p', 'setup', when + 'Setup: ' + setup(r.model)));
+      if (HELDOUT.includes(r.model)) {
+        const go = h('button', 'linkish', 'Its held out tasks, with each attempt and what it left in the record →');
+        go.type = 'button'; go.onclick = (e) => { e.stopPropagation(); if (window.showModelTasks) window.showModelTasks(r.model); };
+        det.append(go);
+      }
+      if (LBT.length && r.grid) det.append(h('p', 'tg-head', `Each consultation task, attempts passed under the ${grade === 's2' ? 'revised' : 'original'} grader (darker is more)`), taskGrid(r, grade));
       row.append(det);
       const toggle = () => { const open = row.classList.toggle('open'); row.setAttribute('aria-expanded', String(open)); };
       row.onclick = toggle;
       row.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } };
       box.append(row);
     });
+    costPlot(rows, grade + measure);
   }
+  let rs; window.addEventListener('resize', () => { clearTimeout(rs); rs = setTimeout(() => costPlot(rows, grade + measure), 200); });
   const seg = (id, set) => document.querySelectorAll(`#${id} button`).forEach((b) => b.onclick = () => {
     set(b.dataset);
     document.querySelectorAll(`#${id} button`).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));

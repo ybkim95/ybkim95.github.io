@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611191200">
+<link rel="stylesheet" href="style.css?v=202611210915">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -104,8 +104,8 @@
   <div class="lb-head">
     <div class="cats" id="cats" role="tablist" aria-label="Task category"></div>
     <div class="seg" role="group" aria-label="Grader" id="grader-seg">
-      <button type="button" data-g="s2" aria-pressed="true" title="Our revised checks, which accept equivalent orders and limit extra orders">Revised grader</button>
-      <button type="button" data-g="p1" aria-pressed="false" title="PhysicianBench's own order checks, as in the paper's Table 1">Original grader</button>
+      <button type="button" data-g="p1" aria-pressed="true" title="PhysicianBench's own order checks, as in the paper's Table 1">Original grader</button>
+      <button type="button" data-g="s2" aria-pressed="false" title="Our revised checks, which accept equivalent orders and limit extra orders">Revised grader</button>
     </div>
     <div class="seg" role="group" aria-label="Measure" id="measure-seg">
       <button type="button" data-v="" aria-pressed="true" title="Average success over the three attempts at each task">pass@1</button>
@@ -113,7 +113,7 @@
     </div>
   </div>
   <div class="lb"><p class="key lb-key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</p><div id="lb"></div></div>
-  <div class="lb-foot"><p class="caption">pass@1 averages the three attempts at each task, pass<sup>3</sup> counts the tasks solved on all three. Bars show 95% intervals. The paper's Table 1 uses the original grader. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
+  <div class="lb-foot"><p class="caption">pass@1 averages the three attempts at each task, pass<sup>3</sup> counts the tasks solved on all three. Bars show 95% intervals. The original grader is PhysicianBench's own order checks, as in the paper's Table 1, and the revised grader also accepts equivalent orders and limits extra orders. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
 </section>
 
 <section id="findings">
@@ -180,8 +180,9 @@
 
 <section id="grader" class="band">
   <h2>Testing the grader</h2>
-  <p class="lead">The benchmark's own checks rejected nearly half of the correct alternatives and passed a script that ordered everything, so we rewrote them.</p>
+  <p class="lead">The benchmark's own checks rejected nearly half of the correct alternatives and passed a script that ordered every test and referral, so we rewrote them.</p>
   <div class="viz grader" id="c-grader"></div>
+  <p class="caption">Counts are checks, except for the two scripts, which count tasks. With a tenfold dose, the revised grader credited the check in 4 of 12 episodes and passed 2 of them, as in the paper's Fig. 5.</p>
 </section>
 
 <section id="tasks">
@@ -195,7 +196,7 @@
 
 <section id="submit" class="band">
   <h2>Submit your model</h2>
-  <p class="lead">Two tracks. The leaderboard runs the 39 consultation tasks with the revised grader v4 and needs the PhysicianBench records. The synthetic track runs the 166 synthetic or the 150 held out tasks and is listed separately.</p>
+  <p class="lead">Two tracks. The leaderboard track runs the 39 consultation tasks, graded with the original and the revised grader, and needs the PhysicianBench records. The synthetic track runs the 166 synthetic or the 150 held out tasks and is listed separately.</p>
   <ol class="steps">
     <li><b>Set up the environment</b><div class="cmd"><pre id="cmd1">git clone --recursive https://github.com/ybkim95/health-cua.git &amp;&amp; cd health-cua &amp;&amp; uv sync &amp;&amp; docker compose up -d --build --wait</pre><button class="btn small" type="button" data-copy="cmd1">Copy</button></div></li>
     <li><b>Run your model</b><span>Set <code>OPENAI_BASE_URL</code> and <code>OPENAI_API_KEY</code> for an OpenAI compatible endpoint, or <a href="https://github.com/ybkim95/health-cua/blob/main/docs/adding-models.md">add your own agent</a>.</span><span>Smoke test, minutes and cents</span><div class="cmd"><pre id="cmd2">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks synthetic --limit 3 --repeats 1 --local --price-in &lt;USD per million input tokens&gt; --price-out &lt;USD per million output tokens&gt;</pre><button class="btn small" type="button" data-copy="cmd2">Copy</button></div><span>Leaderboard track, full run, after <code>health-cua physicianbench prepare</code> and <code>up</code> with the PhysicianBench records (<a href="https://github.com/ybkim95/health-cua#consultation-tasks-from-physicianbench">setup</a>)</span><div class="cmd"><pre id="cmd4">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks consultation --repeats 3 --local</pre><button class="btn small" type="button" data-copy="cmd4">Copy</button></div><span>Synthetic track, full run</span><div class="cmd"><pre id="cmd3">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks synthetic --repeats 3 --local --price-in &lt;USD per million input tokens&gt; --price-out &lt;USD per million output tokens&gt;</pre><button class="btn small" type="button" data-copy="cmd3">Copy</button></div></li>
@@ -234,6 +235,6 @@
 
 <script src="logo.js?v=202611110400" defer></script>
 <script src="viewer.js?v=202611101400" defer></script>
-<script src="app.js?v=202611191200" defer></script>
+<script src="app.js?v=202611210830" defer></script>
 </body>
 </html>

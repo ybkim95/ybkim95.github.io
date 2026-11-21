@@ -81,7 +81,7 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   go(0); play();
 })();
 
-fetch('data/results.json?v=202611181100').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611210800').then((r) => r.json()).then((R) => {
   board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
@@ -111,12 +111,11 @@ function setup(m) {
 
 // ------------------------------------------------------------------ leaderboard
 function board(rows, cats) {
-  let grade = 's2', measure = '', cat = 'Overall';
+  let grade = 'p1', measure = '', cat = 'Overall';  // the original grader, as the paper's Table 1 and Fig. 1b
   const K = () => grade + measure;
   const box = q('#lb');
   const arms = (r) => (cat === 'Overall' ? { api: r.api, gui: r.gui } : r.cats[cat]);
   const best = (r) => { const a = arms(r), key = K(); return Math.max(a.gui[key].mean, a.api ? a.api[key].mean : -1); };
-  const other = (r) => { const a = arms(r), key = K(); return Math.min(a.gui[key].mean, a.api ? a.api[key].mean : -1); };  // ties go by the other interface
   const order = ['Overall', 'Workup', 'Prescribing', 'Treatment planning', 'Diagnosis'];
   q('#cats').innerHTML = order.map((c) => `<button type="button" role="tab" data-c="${c}" aria-selected="${c === cat}" title="${c === 'Overall' ? 39 : cats[c]} consultations">${c}</button>`).join('');
   q('#cats').onclick = (e) => {
@@ -128,7 +127,7 @@ function board(rows, cats) {
   function draw() {
     const key = K();
     box.innerHTML = '';
-    [...rows].sort((a, b) => best(b) - best(a) || other(b) - other(a)).forEach((r) => {
+    [...rows].sort((a, b) => best(b) - best(a)).forEach((r) => {  // stable: ties keep the order of Table 1, as in the paper
       const A = arms(r);
       const row = h('div', 'lb-row');
       row.tabIndex = 0; row.setAttribute('role', 'button'); row.setAttribute('aria-expanded', 'false');
@@ -213,8 +212,8 @@ const ICON = {
   confirm: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
 };
 const SETS = { official: ['Consultations', 'Real specialist consultations on deidentified records'], standard: ['Standard', 'Synthetic patients, same kinds of task'],
-  hard: ['Hard', 'Hidden facts, late corrections or calculations'], expert: ['Expert twins', 'Twin cases that differ in one decisive fact'],
-  workflow: ['Workflow', 'Long visits with several problems and orders'], confirm: ['Held out', 'Written last to confirm results, public with answers'] };
+  hard: ['Added features', 'A fact in an older note, a corrected value, a calculation or several problems'], expert: ['Twin', 'Pairs on one patient that differ in one decisive fact'],
+  workflow: ['Workflow', 'Long visits with several problems and orders'], confirm: ['Confirmation set', 'Held out, written after development ended, public with answers'] };
 
 function donuts(T) {
   const setColors = ['#1a73e8', '#188038', '#34a853', '#81c995', '#f9ab00', '#9aa0a6'];

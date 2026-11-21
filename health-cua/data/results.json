@@ -6941,15 +6941,18 @@
     "Claude Fable 5.2",
     "Claude Opus 5.5",
     "Claude Sonnet 5.5",
-    "Gemini 4 Argon"
+    "Gemini 4 Hydrogen",
+    "Gemini 4 Argon",
+    "Gemini 4 Carbon",
+    "GPT-6.2 Astra"
    ],
-   "failed": 276,
-   "signed": 200,
-   "unsigned": 2,
-   "stopped": 50,
-   "timeout": 15,
+   "failed": 521,
+   "signed": 342,
+   "unsigned": 6,
+   "stopped": 105,
+   "timeout": 59,
    "unable": 9,
-   "claimed": 240
+   "claimed": 430
   },
   {
    "group": "Smaller models",

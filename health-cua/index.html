@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611211700">
+<link rel="stylesheet" href="style.css?v=202611211900">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -53,14 +53,10 @@
     <button class="btn primary" type="button" id="watch"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>Watch overview</button>
     <a class="btn" href="#leaderboard">Leaderboard</a>
   </div>
-  <figure class="loop" id="loop">
-    <div class="loop-win">
-      <div class="loop-bar" aria-hidden="true"><i></i><i></i><i></i><span id="loop-phase">Read the chart</span></div>
-      <div class="shot" id="loop-shot"><img alt="The EHR screen the agent saw" width="1200" height="750"></div>
-      <button class="loop-btn" id="loop-btn" type="button" aria-label="Pause"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg></button>
-    </div>
-    <figcaption>Claude Fable 5.2 orders amoxicillin for early Lyme disease and signs a note through the GUI, on a synthetic patient. 21 of its 51 actions. <a href="#replay">Step through the whole episode</a></figcaption>
-  </figure>
+  <div class="cover" id="cover" aria-roledescription="carousel" aria-label="Screens from synthetic tasks">
+    <div class="cover-stage" id="cover-stage"></div>
+    <p class="cover-cap" id="cover-cap" aria-live="polite"></p>
+  </div>
 </section>
 
 <section class="glance" aria-label="At a glance">
@@ -291,7 +287,7 @@
 
 <script src="logo.js?v=202611110400" defer></script>
 <script src="viewer.js?v=202611211700" defer></script>
-<script src="app.js?v=202611211700" defer></script>
+<script src="app.js?v=202611211900" defer></script>
 <script src="tasks.js?v=202611211230" defer></script>
 </body>
 </html>

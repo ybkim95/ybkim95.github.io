@@ -192,7 +192,7 @@ function findings(R) {
 function grader(rows) {
   const el = q('#c-grader');
   el.innerHTML = '<p class="key"><i class="sw orig"></i>Benchmark\'s own checks <i class="sw rev"></i>Our revised checks</p>';
-  const label = { 'Equivalent order rejected': 'Correct alternatives rejected', 'Tenfold dose accepted': 'Tenfold doses accepted',
+  const label = { 'Equivalent order rejected': 'Correct alternatives rejected', 'Tenfold dose credited': 'Tenfold doses credited',
     'Script ordering everything passed': 'A script ordering everything passed', 'Same 15 tests on every task passed': 'The same 15 tests on every task passed' };
   rows.filter((r) => label[r.label]).forEach((r) => {
     const g = h('div', 'pair');

@@ -6417,13 +6417,13 @@
    ]
   },
   {
-   "label": "Tenfold dose accepted",
+   "label": "Tenfold dose credited",
    "original": [
     10,
     16
    ],
    "revised": [
-    2,
+    4,
     12
    ]
   },
@@ -6450,13 +6450,13 @@
    ]
   },
   {
-   "label": "Plausible wrong order accepted",
+   "label": "Plausible wrong order credited",
    "original": [
     0,
     22
    ],
    "revised": [
-    0,
+    2,
     20
    ]
   },

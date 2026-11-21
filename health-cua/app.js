@@ -81,10 +81,13 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   go(0); play();
 })();
 
-fetch('data/results.json?v=202611210800').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611211000').then((r) => r.json()).then((R) => {
   board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
+  const meta = q('#lb-meta');
+  if (meta && R.meta) meta.innerHTML = `All entries run by us · ${day(R.meta.evaluated[0]).replace(/ \d{4}$/, '')} to ${day(R.meta.evaluated[1])} · updated ${day(R.meta.updated)} · `
+    + `Download <a href="data/results.json" download>JSON</a> or <a href="data/leaderboard-per-task.csv" download>per task CSV</a>`;
   donuts(R.tasks);
   failStats(R.fail_stats);
 }).catch(() => { q('#lb').textContent = 'The results could not be loaded.'; });
@@ -97,6 +100,9 @@ const bar = (cls, v, ci, label) => {
 };
 
 // How each model ran (paper, Section 4): provider route, reasoning effort where set, and memory in each interface.
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const day = (iso) => { const [y, m, d] = iso.split('-').map(Number); return `${d} ${MONTHS[m - 1]} ${y}`; };
+
 function setup(m) {
   const hist = 'the API agent keeps 200,000 characters of tool output, the GUI agent its full history';
   if (m.startsWith('Claude')) return 'Anthropic API, full history through both interfaces.';
@@ -126,16 +132,26 @@ function board(rows, cats) {
   };
   function draw() {
     const key = K();
-    box.innerHTML = '';
-    [...rows].sort((a, b) => best(b) - best(a)).forEach((r) => {  // stable: ties keep the order of Table 1, as in the paper
+    box.innerHTML = `<div class="lb-row lb-headrow" aria-hidden="true"><div class="rank">#</div><div class="who">Model</div>`
+      + `<div class="axis"><span class="ticks">${[0, 25, 50, 75, 100].map((v) => `<i style="left:${v}%">${v}</i>`).join('')}</span>`
+      + `<span class="unit">${measure ? 'pass<sup>3</sup>, %' : 'pass@1, %'}</span></div><div class="cost">USD per episode</div></div>`;
+    let rank = 0, last = null;
+    [...rows].sort((a, b) => best(b) - best(a)).forEach((r, idx) => {  // stable: ties keep the order of Table 1, as in the paper
       const A = arms(r);
+      const top = Math.round(10 * best(r)) / 10;
+      if (top !== last) { rank = idx + 1; last = top; }  // equal best scores share a rank
       const row = h('div', 'lb-row');
       row.tabIndex = 0; row.setAttribute('role', 'button'); row.setAttribute('aria-expanded', 'false');
-      row.innerHTML = `<div class="who"><img src="assets/logos/${LOGO[r.maker]}.png" alt="" width="22" height="22"><span>${r.model}</span>${r.open ? '<em>Open weights</em>' : ''}</div>`;
+      const badge = r.source && r.source !== 'ours' ? `<em class="src">${r.source === 'reproduced' ? 'Submitted, reproduced by us' : 'Submitted'}</em>` : '';
+      row.innerHTML = `<div class="rank">${rank}</div><div class="who"><img src="assets/logos/${LOGO[r.maker]}.png" alt="" width="22" height="22"><span>${r.model}</span>${r.open ? '<em>Open weights</em>' : ''}${badge}</div>`;
       const bars = h('div', 'bars');
       if (A.api) bars.append(bar('api', A.api[key].mean, A.api[key].ci, fx(A.api[key].mean)));
       bars.append(bar('gui', A.gui[key].mean, A.gui[key].ci, fx(A.gui[key].mean)));
-      row.append(bars);
+      const cost = h('div', 'cost');
+      const usd = (v) => (v == null ? '–' : `$${v.toFixed(2)}`);
+      if (A.api) cost.append(h('span', null, usd(r.cost && r.cost.api)));
+      cost.append(h('span', null, usd(r.cost && r.cost.gui)));
+      row.append(bars, cost);
       const d = cat === 'Overall' && r.delta && r.delta[key];
       const gap = !d ? '' : Math.abs(d.mean) < 0.05 ? 'No gap between the two. ' : `${d.mean > 0 ? 'API' : 'GUI'} ahead by ${fx(Math.abs(d.mean))} points (95% CI ${d.mean > 0 ? `${neg(d.ci[0])} to ${neg(d.ci[1])}` : `${neg(-d.ci[1])} to ${neg(-d.ci[0])}`}, not adjusted for the number of models). `;
       // cost per task solved: the cost of one attempt divided by the share solved under the revised grader
@@ -143,7 +159,10 @@ function board(rows, cats) {
       const more = r.api ? gap + (r.cost ? `One episode costs $${r.cost.api.toFixed(2)} through the API and $${r.cost.gui.toFixed(2)} on screen, at list prices with cached input at its cache rate. Per task solved under the revised grader, that is ${per(r.cost.api, r.api.s2)} and ${per(r.cost.gui, r.gui.s2)}.` : '')
         : 'Tested on screen only.';
       const det = h('div', 'more');
-      det.append(h('p', null, more || `${A.api ? 'API ' + fx(A.api[key].mean) + ', ' : ''}GUI ${fx(A.gui[key].mean)}`), h('p', 'setup', 'Setup: ' + setup(r.model)));
+      const att = !r.attempts ? '' : r.attempts.api == null ? `${r.attempts.gui} attempts on screen`
+        : r.attempts.api === r.attempts.gui ? `${r.attempts.gui} attempts through each interface` : `${r.attempts.api} attempts through the API and ${r.attempts.gui} on screen`;
+      const when = r.evaluated ? `Run ${day(r.evaluated[0])}${r.evaluated[1] !== r.evaluated[0] ? ' to ' + day(r.evaluated[1]) : ''}, ${att} on 39 tasks. ` : '';
+      det.append(h('p', null, more || `${A.api ? 'API ' + fx(A.api[key].mean) + ', ' : ''}GUI ${fx(A.gui[key].mean)}`), h('p', 'setup', when + 'Setup: ' + setup(r.model)));
       row.append(det);
       const toggle = () => { const open = row.classList.toggle('open'); row.setAttribute('aria-expanded', String(open)); };
       row.onclick = toggle;

@@ -1,0 +1,1405 @@
+model,interface,task,category,original_grader_pass_at_1,revised_grader_pass_at_1
+Claude Fable 5.2,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Claude Fable 5.2,API,asbestos_exposure,Workup,1.0000,1.0000
+Claude Fable 5.2,API,buprenorphine_initiation,Prescribing,1.0000,1.0000
+Claude Fable 5.2,API,chronic_cough_stepwise,Treatment planning,1.0000,1.0000
+Claude Fable 5.2,API,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Claude Fable 5.2,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+Claude Fable 5.2,API,covid_immunocompromised,Prescribing,1.0000,1.0000
+Claude Fable 5.2,API,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Claude Fable 5.2,API,diabetes_a1c_improvement,Prescribing,1.0000,1.0000
+Claude Fable 5.2,API,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+Claude Fable 5.2,API,headache_classification,Diagnosis,1.0000,1.0000
+Claude Fable 5.2,API,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Claude Fable 5.2,API,inflammatory_arthritis_serology,Workup,1.0000,0.0000
+Claude Fable 5.2,API,liver_enzymes_fibrosis_workup,Workup,1.0000,0.0000
+Claude Fable 5.2,API,liver_enzymes_pregnancy,Workup,0.6667,0.0000
+Claude Fable 5.2,API,liver_gallbladder_findings,Workup,1.0000,1.0000
+Claude Fable 5.2,API,mds_iron_overload,Prescribing,1.0000,1.0000
+Claude Fable 5.2,API,nafld_ferritin_workup,Workup,1.0000,1.0000
+Claude Fable 5.2,API,new_onset_afib_young,Workup,0.3333,1.0000
+Claude Fable 5.2,API,oligomenorrhea_pcos,Workup,0.0000,0.0000
+Claude Fable 5.2,API,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+Claude Fable 5.2,API,osteoporosis_metabolic_workup,Treatment planning,1.0000,1.0000
+Claude Fable 5.2,API,pcp_rash_workup,Prescribing,0.0000,1.0000
+Claude Fable 5.2,API,peripheral_neuropathy_workup,Workup,0.6667,0.0000
+Claude Fable 5.2,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Claude Fable 5.2,API,post_gi_bleed_followup,Treatment planning,1.0000,1.0000
+Claude Fable 5.2,API,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Claude Fable 5.2,API,pruritic_papular_rash,Treatment planning,1.0000,1.0000
+Claude Fable 5.2,API,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+Claude Fable 5.2,API,quantiferon_renal_tb,Workup,0.6667,1.0000
+Claude Fable 5.2,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Claude Fable 5.2,API,ssri_intolerance_switch,Prescribing,0.3333,0.3333
+Claude Fable 5.2,API,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+Claude Fable 5.2,API,thyroid_medication_management,Prescribing,1.0000,1.0000
+Claude Fable 5.2,API,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+Claude Fable 5.2,API,tinnitus_imaging_workup,Workup,1.0000,1.0000
+Claude Fable 5.2,API,travel_parasitic_infection,Workup,1.0000,1.0000
+Claude Fable 5.2,API,urinary_retention_workup,Treatment planning,0.0000,1.0000
+Claude Fable 5.2,API,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Claude Fable 5.2,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Claude Fable 5.2,GUI,asbestos_exposure,Workup,1.0000,1.0000
+Claude Fable 5.2,GUI,buprenorphine_initiation,Prescribing,1.0000,1.0000
+Claude Fable 5.2,GUI,chronic_cough_stepwise,Treatment planning,1.0000,1.0000
+Claude Fable 5.2,GUI,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Claude Fable 5.2,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+Claude Fable 5.2,GUI,covid_immunocompromised,Prescribing,0.6667,1.0000
+Claude Fable 5.2,GUI,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Claude Fable 5.2,GUI,diabetes_a1c_improvement,Prescribing,0.6667,0.6667
+Claude Fable 5.2,GUI,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+Claude Fable 5.2,GUI,headache_classification,Diagnosis,1.0000,1.0000
+Claude Fable 5.2,GUI,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Claude Fable 5.2,GUI,inflammatory_arthritis_serology,Workup,0.6667,1.0000
+Claude Fable 5.2,GUI,liver_enzymes_fibrosis_workup,Workup,0.6667,0.6667
+Claude Fable 5.2,GUI,liver_enzymes_pregnancy,Workup,0.6667,0.3333
+Claude Fable 5.2,GUI,liver_gallbladder_findings,Workup,1.0000,1.0000
+Claude Fable 5.2,GUI,mds_iron_overload,Prescribing,1.0000,0.6667
+Claude Fable 5.2,GUI,nafld_ferritin_workup,Workup,1.0000,1.0000
+Claude Fable 5.2,GUI,new_onset_afib_young,Workup,0.0000,0.6667
+Claude Fable 5.2,GUI,oligomenorrhea_pcos,Workup,0.0000,0.3333
+Claude Fable 5.2,GUI,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+Claude Fable 5.2,GUI,osteoporosis_metabolic_workup,Treatment planning,1.0000,1.0000
+Claude Fable 5.2,GUI,pcp_rash_workup,Prescribing,0.0000,1.0000
+Claude Fable 5.2,GUI,peripheral_neuropathy_workup,Workup,1.0000,1.0000
+Claude Fable 5.2,GUI,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Claude Fable 5.2,GUI,post_gi_bleed_followup,Treatment planning,1.0000,1.0000
+Claude Fable 5.2,GUI,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Claude Fable 5.2,GUI,pruritic_papular_rash,Treatment planning,0.0000,0.6667
+Claude Fable 5.2,GUI,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+Claude Fable 5.2,GUI,quantiferon_renal_tb,Workup,0.0000,1.0000
+Claude Fable 5.2,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Claude Fable 5.2,GUI,ssri_intolerance_switch,Prescribing,0.6667,0.6667
+Claude Fable 5.2,GUI,thrombocytopenia_immunotherapy,Workup,0.3333,0.3333
+Claude Fable 5.2,GUI,thyroid_medication_management,Prescribing,1.0000,0.0000
+Claude Fable 5.2,GUI,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+Claude Fable 5.2,GUI,tinnitus_imaging_workup,Workup,1.0000,1.0000
+Claude Fable 5.2,GUI,travel_parasitic_infection,Workup,1.0000,1.0000
+Claude Fable 5.2,GUI,urinary_retention_workup,Treatment planning,0.6667,1.0000
+Claude Fable 5.2,GUI,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Claude Opus 5.5,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Claude Opus 5.5,API,asbestos_exposure,Workup,1.0000,1.0000
+Claude Opus 5.5,API,buprenorphine_initiation,Prescribing,0.0000,0.0000
+Claude Opus 5.5,API,chronic_cough_stepwise,Treatment planning,1.0000,1.0000
+Claude Opus 5.5,API,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Claude Opus 5.5,API,ckd_on_prep,Diagnosis,0.3333,0.3333
+Claude Opus 5.5,API,covid_immunocompromised,Prescribing,0.6667,0.6667
+Claude Opus 5.5,API,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Claude Opus 5.5,API,diabetes_a1c_improvement,Prescribing,1.0000,1.0000
+Claude Opus 5.5,API,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+Claude Opus 5.5,API,headache_classification,Diagnosis,1.0000,1.0000
+Claude Opus 5.5,API,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Claude Opus 5.5,API,inflammatory_arthritis_serology,Workup,1.0000,0.0000
+Claude Opus 5.5,API,liver_enzymes_fibrosis_workup,Workup,1.0000,0.0000
+Claude Opus 5.5,API,liver_enzymes_pregnancy,Workup,1.0000,0.0000
+Claude Opus 5.5,API,liver_gallbladder_findings,Workup,1.0000,0.6667
+Claude Opus 5.5,API,mds_iron_overload,Prescribing,1.0000,1.0000
+Claude Opus 5.5,API,nafld_ferritin_workup,Workup,1.0000,0.3333
+Claude Opus 5.5,API,new_onset_afib_young,Workup,1.0000,0.6667
+Claude Opus 5.5,API,oligomenorrhea_pcos,Workup,0.3333,0.6667
+Claude Opus 5.5,API,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+Claude Opus 5.5,API,osteoporosis_metabolic_workup,Treatment planning,0.3333,0.3333
+Claude Opus 5.5,API,pcp_rash_workup,Prescribing,0.0000,1.0000
+Claude Opus 5.5,API,peripheral_neuropathy_workup,Workup,1.0000,0.3333
+Claude Opus 5.5,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Claude Opus 5.5,API,post_gi_bleed_followup,Treatment planning,1.0000,1.0000
+Claude Opus 5.5,API,pregnancy_anemia_thalassemia,Workup,1.0000,0.0000
+Claude Opus 5.5,API,pruritic_papular_rash,Treatment planning,1.0000,1.0000
+Claude Opus 5.5,API,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+Claude Opus 5.5,API,quantiferon_renal_tb,Workup,1.0000,1.0000
+Claude Opus 5.5,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Claude Opus 5.5,API,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+Claude Opus 5.5,API,thrombocytopenia_immunotherapy,Workup,0.0000,0.3333
+Claude Opus 5.5,API,thyroid_medication_management,Prescribing,1.0000,1.0000
+Claude Opus 5.5,API,tick_borne_coinfection,Diagnosis,1.0000,0.0000
+Claude Opus 5.5,API,tinnitus_imaging_workup,Workup,1.0000,1.0000
+Claude Opus 5.5,API,travel_parasitic_infection,Workup,0.6667,0.6667
+Claude Opus 5.5,API,urinary_retention_workup,Treatment planning,0.0000,1.0000
+Claude Opus 5.5,API,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Claude Opus 5.5,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Claude Opus 5.5,GUI,asbestos_exposure,Workup,1.0000,1.0000
+Claude Opus 5.5,GUI,buprenorphine_initiation,Prescribing,0.3333,0.3333
+Claude Opus 5.5,GUI,chronic_cough_stepwise,Treatment planning,1.0000,1.0000
+Claude Opus 5.5,GUI,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Claude Opus 5.5,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+Claude Opus 5.5,GUI,covid_immunocompromised,Prescribing,1.0000,1.0000
+Claude Opus 5.5,GUI,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Claude Opus 5.5,GUI,diabetes_a1c_improvement,Prescribing,1.0000,1.0000
+Claude Opus 5.5,GUI,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+Claude Opus 5.5,GUI,headache_classification,Diagnosis,1.0000,1.0000
+Claude Opus 5.5,GUI,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Claude Opus 5.5,GUI,inflammatory_arthritis_serology,Workup,1.0000,1.0000
+Claude Opus 5.5,GUI,liver_enzymes_fibrosis_workup,Workup,0.3333,0.0000
+Claude Opus 5.5,GUI,liver_enzymes_pregnancy,Workup,0.6667,1.0000
+Claude Opus 5.5,GUI,liver_gallbladder_findings,Workup,1.0000,1.0000
+Claude Opus 5.5,GUI,mds_iron_overload,Prescribing,1.0000,1.0000
+Claude Opus 5.5,GUI,nafld_ferritin_workup,Workup,1.0000,1.0000
+Claude Opus 5.5,GUI,new_onset_afib_young,Workup,0.0000,1.0000
+Claude Opus 5.5,GUI,oligomenorrhea_pcos,Workup,0.0000,0.6667
+Claude Opus 5.5,GUI,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+Claude Opus 5.5,GUI,osteoporosis_metabolic_workup,Treatment planning,1.0000,1.0000
+Claude Opus 5.5,GUI,pcp_rash_workup,Prescribing,0.0000,1.0000
+Claude Opus 5.5,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.6667
+Claude Opus 5.5,GUI,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Claude Opus 5.5,GUI,post_gi_bleed_followup,Treatment planning,0.6667,1.0000
+Claude Opus 5.5,GUI,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Claude Opus 5.5,GUI,pruritic_papular_rash,Treatment planning,1.0000,1.0000
+Claude Opus 5.5,GUI,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+Claude Opus 5.5,GUI,quantiferon_renal_tb,Workup,0.3333,1.0000
+Claude Opus 5.5,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Claude Opus 5.5,GUI,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+Claude Opus 5.5,GUI,thrombocytopenia_immunotherapy,Workup,0.6667,0.6667
+Claude Opus 5.5,GUI,thyroid_medication_management,Prescribing,1.0000,0.0000
+Claude Opus 5.5,GUI,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+Claude Opus 5.5,GUI,tinnitus_imaging_workup,Workup,1.0000,1.0000
+Claude Opus 5.5,GUI,travel_parasitic_infection,Workup,0.3333,0.3333
+Claude Opus 5.5,GUI,urinary_retention_workup,Treatment planning,0.0000,0.6667
+Claude Opus 5.5,GUI,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,API,afib_tachy_brady_elderly,Diagnosis,1.0000,1.0000
+Claude Sonnet 5.5,API,asbestos_exposure,Workup,1.0000,1.0000
+Claude Sonnet 5.5,API,buprenorphine_initiation,Prescribing,0.0000,0.0000
+Claude Sonnet 5.5,API,chronic_cough_stepwise,Treatment planning,0.3333,1.0000
+Claude Sonnet 5.5,API,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+Claude Sonnet 5.5,API,covid_immunocompromised,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,API,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,API,diabetes_a1c_improvement,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,API,ed_premature_ejaculation,Prescribing,1.0000,0.0000
+Claude Sonnet 5.5,API,headache_classification,Diagnosis,1.0000,1.0000
+Claude Sonnet 5.5,API,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Claude Sonnet 5.5,API,inflammatory_arthritis_serology,Workup,1.0000,0.3333
+Claude Sonnet 5.5,API,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+Claude Sonnet 5.5,API,liver_enzymes_pregnancy,Workup,0.6667,0.0000
+Claude Sonnet 5.5,API,liver_gallbladder_findings,Workup,1.0000,0.6667
+Claude Sonnet 5.5,API,mds_iron_overload,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,API,nafld_ferritin_workup,Workup,1.0000,1.0000
+Claude Sonnet 5.5,API,new_onset_afib_young,Workup,0.0000,0.6667
+Claude Sonnet 5.5,API,oligomenorrhea_pcos,Workup,0.0000,1.0000
+Claude Sonnet 5.5,API,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,API,osteoporosis_metabolic_workup,Treatment planning,1.0000,0.3333
+Claude Sonnet 5.5,API,pcp_rash_workup,Prescribing,0.0000,1.0000
+Claude Sonnet 5.5,API,peripheral_neuropathy_workup,Workup,1.0000,0.0000
+Claude Sonnet 5.5,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Claude Sonnet 5.5,API,post_gi_bleed_followup,Treatment planning,1.0000,1.0000
+Claude Sonnet 5.5,API,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Claude Sonnet 5.5,API,pruritic_papular_rash,Treatment planning,1.0000,1.0000
+Claude Sonnet 5.5,API,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+Claude Sonnet 5.5,API,quantiferon_renal_tb,Workup,1.0000,1.0000
+Claude Sonnet 5.5,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Claude Sonnet 5.5,API,ssri_intolerance_switch,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,API,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+Claude Sonnet 5.5,API,thyroid_medication_management,Prescribing,1.0000,0.6667
+Claude Sonnet 5.5,API,tick_borne_coinfection,Diagnosis,1.0000,0.3333
+Claude Sonnet 5.5,API,tinnitus_imaging_workup,Workup,1.0000,1.0000
+Claude Sonnet 5.5,API,travel_parasitic_infection,Workup,0.0000,0.0000
+Claude Sonnet 5.5,API,urinary_retention_workup,Treatment planning,0.0000,1.0000
+Claude Sonnet 5.5,API,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Claude Sonnet 5.5,GUI,asbestos_exposure,Workup,1.0000,1.0000
+Claude Sonnet 5.5,GUI,buprenorphine_initiation,Prescribing,0.3333,0.6667
+Claude Sonnet 5.5,GUI,chronic_cough_stepwise,Treatment planning,1.0000,1.0000
+Claude Sonnet 5.5,GUI,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+Claude Sonnet 5.5,GUI,covid_immunocompromised,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,GUI,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,GUI,diabetes_a1c_improvement,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,GUI,ed_premature_ejaculation,Prescribing,0.3333,0.0000
+Claude Sonnet 5.5,GUI,headache_classification,Diagnosis,1.0000,1.0000
+Claude Sonnet 5.5,GUI,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Claude Sonnet 5.5,GUI,inflammatory_arthritis_serology,Workup,1.0000,0.6667
+Claude Sonnet 5.5,GUI,liver_enzymes_fibrosis_workup,Workup,0.3333,0.3333
+Claude Sonnet 5.5,GUI,liver_enzymes_pregnancy,Workup,1.0000,1.0000
+Claude Sonnet 5.5,GUI,liver_gallbladder_findings,Workup,1.0000,1.0000
+Claude Sonnet 5.5,GUI,mds_iron_overload,Prescribing,1.0000,0.6667
+Claude Sonnet 5.5,GUI,nafld_ferritin_workup,Workup,1.0000,1.0000
+Claude Sonnet 5.5,GUI,new_onset_afib_young,Workup,0.6667,1.0000
+Claude Sonnet 5.5,GUI,oligomenorrhea_pcos,Workup,0.0000,0.0000
+Claude Sonnet 5.5,GUI,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,GUI,osteoporosis_metabolic_workup,Treatment planning,0.6667,1.0000
+Claude Sonnet 5.5,GUI,pcp_rash_workup,Prescribing,0.0000,1.0000
+Claude Sonnet 5.5,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+Claude Sonnet 5.5,GUI,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Claude Sonnet 5.5,GUI,post_gi_bleed_followup,Treatment planning,1.0000,1.0000
+Claude Sonnet 5.5,GUI,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Claude Sonnet 5.5,GUI,pruritic_papular_rash,Treatment planning,0.6667,1.0000
+Claude Sonnet 5.5,GUI,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+Claude Sonnet 5.5,GUI,quantiferon_renal_tb,Workup,1.0000,1.0000
+Claude Sonnet 5.5,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Claude Sonnet 5.5,GUI,ssri_intolerance_switch,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,GUI,thrombocytopenia_immunotherapy,Workup,0.6667,0.6667
+Claude Sonnet 5.5,GUI,thyroid_medication_management,Prescribing,1.0000,1.0000
+Claude Sonnet 5.5,GUI,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+Claude Sonnet 5.5,GUI,tinnitus_imaging_workup,Workup,0.3333,1.0000
+Claude Sonnet 5.5,GUI,travel_parasitic_infection,Workup,0.0000,0.0000
+Claude Sonnet 5.5,GUI,urinary_retention_workup,Treatment planning,0.0000,1.0000
+Claude Sonnet 5.5,GUI,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Gemini 4 Hydrogen,API,asbestos_exposure,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,API,buprenorphine_initiation,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,API,chronic_cough_stepwise,Treatment planning,0.6667,0.6667
+Gemini 4 Hydrogen,API,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+Gemini 4 Hydrogen,API,covid_immunocompromised,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,API,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,API,diabetes_a1c_improvement,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,API,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,API,headache_classification,Diagnosis,1.0000,1.0000
+Gemini 4 Hydrogen,API,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,API,inflammatory_arthritis_serology,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,API,liver_enzymes_fibrosis_workup,Workup,1.0000,0.6667
+Gemini 4 Hydrogen,API,liver_enzymes_pregnancy,Workup,0.0000,1.0000
+Gemini 4 Hydrogen,API,liver_gallbladder_findings,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,API,mds_iron_overload,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,API,nafld_ferritin_workup,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,API,new_onset_afib_young,Workup,0.6667,1.0000
+Gemini 4 Hydrogen,API,oligomenorrhea_pcos,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,API,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,API,osteoporosis_metabolic_workup,Treatment planning,1.0000,1.0000
+Gemini 4 Hydrogen,API,pcp_rash_workup,Prescribing,0.0000,1.0000
+Gemini 4 Hydrogen,API,peripheral_neuropathy_workup,Workup,0.6667,0.6667
+Gemini 4 Hydrogen,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,API,post_gi_bleed_followup,Treatment planning,0.3333,0.3333
+Gemini 4 Hydrogen,API,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,API,pruritic_papular_rash,Treatment planning,1.0000,1.0000
+Gemini 4 Hydrogen,API,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,API,quantiferon_renal_tb,Workup,0.3333,1.0000
+Gemini 4 Hydrogen,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Gemini 4 Hydrogen,API,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+Gemini 4 Hydrogen,API,thrombocytopenia_immunotherapy,Workup,0.3333,0.3333
+Gemini 4 Hydrogen,API,thyroid_medication_management,Prescribing,1.0000,0.0000
+Gemini 4 Hydrogen,API,tick_borne_coinfection,Diagnosis,0.3333,1.0000
+Gemini 4 Hydrogen,API,tinnitus_imaging_workup,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,API,travel_parasitic_infection,Workup,0.3333,0.6667
+Gemini 4 Hydrogen,API,urinary_retention_workup,Treatment planning,0.0000,1.0000
+Gemini 4 Hydrogen,API,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Gemini 4 Hydrogen,GUI,asbestos_exposure,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,buprenorphine_initiation,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+Gemini 4 Hydrogen,GUI,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+Gemini 4 Hydrogen,GUI,covid_immunocompromised,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+Gemini 4 Hydrogen,GUI,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,headache_classification,Diagnosis,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,inflammatory_arthritis_serology,Workup,0.0000,1.0000
+Gemini 4 Hydrogen,GUI,liver_enzymes_fibrosis_workup,Workup,0.0000,0.6667
+Gemini 4 Hydrogen,GUI,liver_enzymes_pregnancy,Workup,0.3333,1.0000
+Gemini 4 Hydrogen,GUI,liver_gallbladder_findings,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,mds_iron_overload,Prescribing,1.0000,0.6667
+Gemini 4 Hydrogen,GUI,nafld_ferritin_workup,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,new_onset_afib_young,Workup,0.0000,0.0000
+Gemini 4 Hydrogen,GUI,oligomenorrhea_pcos,Workup,0.3333,0.3333
+Gemini 4 Hydrogen,GUI,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,osteoporosis_metabolic_workup,Treatment planning,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,pcp_rash_workup,Prescribing,0.0000,1.0000
+Gemini 4 Hydrogen,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.3333
+Gemini 4 Hydrogen,GUI,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,post_gi_bleed_followup,Treatment planning,0.6667,1.0000
+Gemini 4 Hydrogen,GUI,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,pruritic_papular_rash,Treatment planning,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,quantiferon_renal_tb,Workup,0.0000,1.0000
+Gemini 4 Hydrogen,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Gemini 4 Hydrogen,GUI,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+Gemini 4 Hydrogen,GUI,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+Gemini 4 Hydrogen,GUI,thyroid_medication_management,Prescribing,1.0000,0.0000
+Gemini 4 Hydrogen,GUI,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,tinnitus_imaging_workup,Workup,1.0000,1.0000
+Gemini 4 Hydrogen,GUI,travel_parasitic_infection,Workup,0.0000,0.0000
+Gemini 4 Hydrogen,GUI,urinary_retention_workup,Treatment planning,0.0000,0.6667
+Gemini 4 Hydrogen,GUI,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Gemini 4 Argon,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Gemini 4 Argon,API,asbestos_exposure,Workup,1.0000,1.0000
+Gemini 4 Argon,API,buprenorphine_initiation,Prescribing,1.0000,1.0000
+Gemini 4 Argon,API,chronic_cough_stepwise,Treatment planning,1.0000,1.0000
+Gemini 4 Argon,API,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Gemini 4 Argon,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+Gemini 4 Argon,API,covid_immunocompromised,Prescribing,1.0000,1.0000
+Gemini 4 Argon,API,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Gemini 4 Argon,API,diabetes_a1c_improvement,Prescribing,1.0000,1.0000
+Gemini 4 Argon,API,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+Gemini 4 Argon,API,headache_classification,Diagnosis,1.0000,1.0000
+Gemini 4 Argon,API,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Gemini 4 Argon,API,inflammatory_arthritis_serology,Workup,0.6667,0.0000
+Gemini 4 Argon,API,liver_enzymes_fibrosis_workup,Workup,0.6667,0.0000
+Gemini 4 Argon,API,liver_enzymes_pregnancy,Workup,0.0000,0.6667
+Gemini 4 Argon,API,liver_gallbladder_findings,Workup,1.0000,1.0000
+Gemini 4 Argon,API,mds_iron_overload,Prescribing,0.6667,0.6667
+Gemini 4 Argon,API,nafld_ferritin_workup,Workup,1.0000,1.0000
+Gemini 4 Argon,API,new_onset_afib_young,Workup,0.3333,0.3333
+Gemini 4 Argon,API,oligomenorrhea_pcos,Workup,1.0000,0.3333
+Gemini 4 Argon,API,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,0.3333
+Gemini 4 Argon,API,osteoporosis_metabolic_workup,Treatment planning,0.3333,0.0000
+Gemini 4 Argon,API,pcp_rash_workup,Prescribing,0.0000,1.0000
+Gemini 4 Argon,API,peripheral_neuropathy_workup,Workup,1.0000,0.0000
+Gemini 4 Argon,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Gemini 4 Argon,API,post_gi_bleed_followup,Treatment planning,0.3333,0.0000
+Gemini 4 Argon,API,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Gemini 4 Argon,API,pruritic_papular_rash,Treatment planning,1.0000,1.0000
+Gemini 4 Argon,API,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+Gemini 4 Argon,API,quantiferon_renal_tb,Workup,0.0000,1.0000
+Gemini 4 Argon,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Gemini 4 Argon,API,ssri_intolerance_switch,Prescribing,0.3333,0.0000
+Gemini 4 Argon,API,thrombocytopenia_immunotherapy,Workup,0.6667,0.0000
+Gemini 4 Argon,API,thyroid_medication_management,Prescribing,0.6667,0.0000
+Gemini 4 Argon,API,tick_borne_coinfection,Diagnosis,0.0000,1.0000
+Gemini 4 Argon,API,tinnitus_imaging_workup,Workup,1.0000,1.0000
+Gemini 4 Argon,API,travel_parasitic_infection,Workup,1.0000,1.0000
+Gemini 4 Argon,API,urinary_retention_workup,Treatment planning,0.3333,0.6667
+Gemini 4 Argon,API,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Gemini 4 Argon,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Gemini 4 Argon,GUI,asbestos_exposure,Workup,1.0000,1.0000
+Gemini 4 Argon,GUI,buprenorphine_initiation,Prescribing,1.0000,1.0000
+Gemini 4 Argon,GUI,chronic_cough_stepwise,Treatment planning,0.6667,1.0000
+Gemini 4 Argon,GUI,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Gemini 4 Argon,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+Gemini 4 Argon,GUI,covid_immunocompromised,Prescribing,1.0000,1.0000
+Gemini 4 Argon,GUI,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Gemini 4 Argon,GUI,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+Gemini 4 Argon,GUI,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+Gemini 4 Argon,GUI,headache_classification,Diagnosis,1.0000,1.0000
+Gemini 4 Argon,GUI,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Gemini 4 Argon,GUI,inflammatory_arthritis_serology,Workup,1.0000,1.0000
+Gemini 4 Argon,GUI,liver_enzymes_fibrosis_workup,Workup,0.3333,1.0000
+Gemini 4 Argon,GUI,liver_enzymes_pregnancy,Workup,0.0000,1.0000
+Gemini 4 Argon,GUI,liver_gallbladder_findings,Workup,1.0000,1.0000
+Gemini 4 Argon,GUI,mds_iron_overload,Prescribing,1.0000,1.0000
+Gemini 4 Argon,GUI,nafld_ferritin_workup,Workup,1.0000,1.0000
+Gemini 4 Argon,GUI,new_onset_afib_young,Workup,0.0000,1.0000
+Gemini 4 Argon,GUI,oligomenorrhea_pcos,Workup,0.6667,1.0000
+Gemini 4 Argon,GUI,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,0.6667
+Gemini 4 Argon,GUI,osteoporosis_metabolic_workup,Treatment planning,0.3333,0.3333
+Gemini 4 Argon,GUI,pcp_rash_workup,Prescribing,0.0000,1.0000
+Gemini 4 Argon,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+Gemini 4 Argon,GUI,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Gemini 4 Argon,GUI,post_gi_bleed_followup,Treatment planning,0.0000,0.0000
+Gemini 4 Argon,GUI,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Gemini 4 Argon,GUI,pruritic_papular_rash,Treatment planning,1.0000,1.0000
+Gemini 4 Argon,GUI,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+Gemini 4 Argon,GUI,quantiferon_renal_tb,Workup,0.0000,1.0000
+Gemini 4 Argon,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Gemini 4 Argon,GUI,ssri_intolerance_switch,Prescribing,0.3333,0.0000
+Gemini 4 Argon,GUI,thrombocytopenia_immunotherapy,Workup,0.3333,0.3333
+Gemini 4 Argon,GUI,thyroid_medication_management,Prescribing,1.0000,0.0000
+Gemini 4 Argon,GUI,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+Gemini 4 Argon,GUI,tinnitus_imaging_workup,Workup,1.0000,1.0000
+Gemini 4 Argon,GUI,travel_parasitic_infection,Workup,1.0000,1.0000
+Gemini 4 Argon,GUI,urinary_retention_workup,Treatment planning,0.0000,1.0000
+Gemini 4 Argon,GUI,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Gemini 4 Carbon,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Gemini 4 Carbon,API,asbestos_exposure,Workup,0.0000,0.0000
+Gemini 4 Carbon,API,buprenorphine_initiation,Prescribing,1.0000,1.0000
+Gemini 4 Carbon,API,chronic_cough_stepwise,Treatment planning,1.0000,0.3333
+Gemini 4 Carbon,API,chronic_urticaria_allergist,Prescribing,0.6667,0.6667
+Gemini 4 Carbon,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+Gemini 4 Carbon,API,covid_immunocompromised,Prescribing,1.0000,1.0000
+Gemini 4 Carbon,API,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Gemini 4 Carbon,API,diabetes_a1c_improvement,Prescribing,1.0000,1.0000
+Gemini 4 Carbon,API,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+Gemini 4 Carbon,API,headache_classification,Diagnosis,1.0000,1.0000
+Gemini 4 Carbon,API,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Gemini 4 Carbon,API,inflammatory_arthritis_serology,Workup,0.3333,0.0000
+Gemini 4 Carbon,API,liver_enzymes_fibrosis_workup,Workup,0.3333,0.0000
+Gemini 4 Carbon,API,liver_enzymes_pregnancy,Workup,0.6667,0.0000
+Gemini 4 Carbon,API,liver_gallbladder_findings,Workup,0.3333,0.3333
+Gemini 4 Carbon,API,mds_iron_overload,Prescribing,0.0000,0.0000
+Gemini 4 Carbon,API,nafld_ferritin_workup,Workup,1.0000,1.0000
+Gemini 4 Carbon,API,new_onset_afib_young,Workup,0.3333,0.3333
+Gemini 4 Carbon,API,oligomenorrhea_pcos,Workup,1.0000,0.3333
+Gemini 4 Carbon,API,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+Gemini 4 Carbon,API,osteoporosis_metabolic_workup,Treatment planning,0.0000,0.0000
+Gemini 4 Carbon,API,pcp_rash_workup,Prescribing,0.0000,1.0000
+Gemini 4 Carbon,API,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+Gemini 4 Carbon,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Gemini 4 Carbon,API,post_gi_bleed_followup,Treatment planning,0.3333,0.3333
+Gemini 4 Carbon,API,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Gemini 4 Carbon,API,pruritic_papular_rash,Treatment planning,1.0000,1.0000
+Gemini 4 Carbon,API,pulsatile_tinnitus_workup,Workup,0.6667,1.0000
+Gemini 4 Carbon,API,quantiferon_renal_tb,Workup,0.0000,0.0000
+Gemini 4 Carbon,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Gemini 4 Carbon,API,ssri_intolerance_switch,Prescribing,1.0000,1.0000
+Gemini 4 Carbon,API,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+Gemini 4 Carbon,API,thyroid_medication_management,Prescribing,0.0000,0.0000
+Gemini 4 Carbon,API,tick_borne_coinfection,Diagnosis,0.3333,0.3333
+Gemini 4 Carbon,API,tinnitus_imaging_workup,Workup,1.0000,1.0000
+Gemini 4 Carbon,API,travel_parasitic_infection,Workup,1.0000,1.0000
+Gemini 4 Carbon,API,urinary_retention_workup,Treatment planning,0.0000,1.0000
+Gemini 4 Carbon,API,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Gemini 4 Carbon,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Gemini 4 Carbon,GUI,asbestos_exposure,Workup,1.0000,1.0000
+Gemini 4 Carbon,GUI,buprenorphine_initiation,Prescribing,0.6667,1.0000
+Gemini 4 Carbon,GUI,chronic_cough_stepwise,Treatment planning,0.6667,0.6667
+Gemini 4 Carbon,GUI,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Gemini 4 Carbon,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+Gemini 4 Carbon,GUI,covid_immunocompromised,Prescribing,0.6667,1.0000
+Gemini 4 Carbon,GUI,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Gemini 4 Carbon,GUI,diabetes_a1c_improvement,Prescribing,0.6667,0.6667
+Gemini 4 Carbon,GUI,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+Gemini 4 Carbon,GUI,headache_classification,Diagnosis,1.0000,1.0000
+Gemini 4 Carbon,GUI,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Gemini 4 Carbon,GUI,inflammatory_arthritis_serology,Workup,1.0000,1.0000
+Gemini 4 Carbon,GUI,liver_enzymes_fibrosis_workup,Workup,1.0000,1.0000
+Gemini 4 Carbon,GUI,liver_enzymes_pregnancy,Workup,0.3333,1.0000
+Gemini 4 Carbon,GUI,liver_gallbladder_findings,Workup,1.0000,1.0000
+Gemini 4 Carbon,GUI,mds_iron_overload,Prescribing,0.0000,0.0000
+Gemini 4 Carbon,GUI,nafld_ferritin_workup,Workup,1.0000,1.0000
+Gemini 4 Carbon,GUI,new_onset_afib_young,Workup,0.0000,1.0000
+Gemini 4 Carbon,GUI,oligomenorrhea_pcos,Workup,1.0000,1.0000
+Gemini 4 Carbon,GUI,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+Gemini 4 Carbon,GUI,osteoporosis_metabolic_workup,Treatment planning,0.0000,0.0000
+Gemini 4 Carbon,GUI,pcp_rash_workup,Prescribing,0.0000,1.0000
+Gemini 4 Carbon,GUI,peripheral_neuropathy_workup,Workup,0.6667,0.0000
+Gemini 4 Carbon,GUI,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Gemini 4 Carbon,GUI,post_gi_bleed_followup,Treatment planning,0.3333,0.3333
+Gemini 4 Carbon,GUI,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Gemini 4 Carbon,GUI,pruritic_papular_rash,Treatment planning,1.0000,1.0000
+Gemini 4 Carbon,GUI,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+Gemini 4 Carbon,GUI,quantiferon_renal_tb,Workup,0.0000,0.0000
+Gemini 4 Carbon,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Gemini 4 Carbon,GUI,ssri_intolerance_switch,Prescribing,1.0000,0.6667
+Gemini 4 Carbon,GUI,thrombocytopenia_immunotherapy,Workup,1.0000,1.0000
+Gemini 4 Carbon,GUI,thyroid_medication_management,Prescribing,1.0000,0.3333
+Gemini 4 Carbon,GUI,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+Gemini 4 Carbon,GUI,tinnitus_imaging_workup,Workup,1.0000,1.0000
+Gemini 4 Carbon,GUI,travel_parasitic_infection,Workup,1.0000,1.0000
+Gemini 4 Carbon,GUI,urinary_retention_workup,Treatment planning,0.0000,1.0000
+Gemini 4 Carbon,GUI,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+GPT-6.2 Astra,API,afib_tachy_brady_elderly,Diagnosis,0.3333,0.3333
+GPT-6.2 Astra,API,asbestos_exposure,Workup,1.0000,1.0000
+GPT-6.2 Astra,API,buprenorphine_initiation,Prescribing,0.0000,0.0000
+GPT-6.2 Astra,API,chronic_cough_stepwise,Treatment planning,0.6667,1.0000
+GPT-6.2 Astra,API,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+GPT-6.2 Astra,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+GPT-6.2 Astra,API,covid_immunocompromised,Prescribing,0.0000,1.0000
+GPT-6.2 Astra,API,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+GPT-6.2 Astra,API,diabetes_a1c_improvement,Prescribing,1.0000,1.0000
+GPT-6.2 Astra,API,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+GPT-6.2 Astra,API,headache_classification,Diagnosis,1.0000,1.0000
+GPT-6.2 Astra,API,incidental_pulmonary_findings,Workup,1.0000,1.0000
+GPT-6.2 Astra,API,inflammatory_arthritis_serology,Workup,1.0000,0.0000
+GPT-6.2 Astra,API,liver_enzymes_fibrosis_workup,Workup,0.6667,0.0000
+GPT-6.2 Astra,API,liver_enzymes_pregnancy,Workup,0.6667,0.0000
+GPT-6.2 Astra,API,liver_gallbladder_findings,Workup,1.0000,1.0000
+GPT-6.2 Astra,API,mds_iron_overload,Prescribing,0.0000,0.0000
+GPT-6.2 Astra,API,nafld_ferritin_workup,Workup,1.0000,1.0000
+GPT-6.2 Astra,API,new_onset_afib_young,Workup,1.0000,0.0000
+GPT-6.2 Astra,API,oligomenorrhea_pcos,Workup,0.6667,0.6667
+GPT-6.2 Astra,API,osteoarthritis_nsaid_intolerant,Prescribing,0.6667,1.0000
+GPT-6.2 Astra,API,osteoporosis_metabolic_workup,Treatment planning,1.0000,0.0000
+GPT-6.2 Astra,API,pcp_rash_workup,Prescribing,0.0000,1.0000
+GPT-6.2 Astra,API,peripheral_neuropathy_workup,Workup,0.3333,0.3333
+GPT-6.2 Astra,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+GPT-6.2 Astra,API,post_gi_bleed_followup,Treatment planning,1.0000,1.0000
+GPT-6.2 Astra,API,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+GPT-6.2 Astra,API,pruritic_papular_rash,Treatment planning,0.3333,1.0000
+GPT-6.2 Astra,API,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+GPT-6.2 Astra,API,quantiferon_renal_tb,Workup,1.0000,1.0000
+GPT-6.2 Astra,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+GPT-6.2 Astra,API,ssri_intolerance_switch,Prescribing,1.0000,1.0000
+GPT-6.2 Astra,API,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+GPT-6.2 Astra,API,thyroid_medication_management,Prescribing,1.0000,0.0000
+GPT-6.2 Astra,API,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+GPT-6.2 Astra,API,tinnitus_imaging_workup,Workup,1.0000,1.0000
+GPT-6.2 Astra,API,travel_parasitic_infection,Workup,0.0000,0.0000
+GPT-6.2 Astra,API,urinary_retention_workup,Treatment planning,0.3333,1.0000
+GPT-6.2 Astra,API,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+GPT-6.2 Astra,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+GPT-6.2 Astra,GUI,asbestos_exposure,Workup,1.0000,1.0000
+GPT-6.2 Astra,GUI,buprenorphine_initiation,Prescribing,0.0000,0.0000
+GPT-6.2 Astra,GUI,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+GPT-6.2 Astra,GUI,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+GPT-6.2 Astra,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+GPT-6.2 Astra,GUI,covid_immunocompromised,Prescribing,0.3333,1.0000
+GPT-6.2 Astra,GUI,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+GPT-6.2 Astra,GUI,diabetes_a1c_improvement,Prescribing,1.0000,1.0000
+GPT-6.2 Astra,GUI,ed_premature_ejaculation,Prescribing,0.3333,0.3333
+GPT-6.2 Astra,GUI,headache_classification,Diagnosis,1.0000,1.0000
+GPT-6.2 Astra,GUI,incidental_pulmonary_findings,Workup,1.0000,1.0000
+GPT-6.2 Astra,GUI,inflammatory_arthritis_serology,Workup,1.0000,1.0000
+GPT-6.2 Astra,GUI,liver_enzymes_fibrosis_workup,Workup,1.0000,1.0000
+GPT-6.2 Astra,GUI,liver_enzymes_pregnancy,Workup,1.0000,1.0000
+GPT-6.2 Astra,GUI,liver_gallbladder_findings,Workup,1.0000,1.0000
+GPT-6.2 Astra,GUI,mds_iron_overload,Prescribing,1.0000,0.6667
+GPT-6.2 Astra,GUI,nafld_ferritin_workup,Workup,0.6667,1.0000
+GPT-6.2 Astra,GUI,new_onset_afib_young,Workup,0.0000,1.0000
+GPT-6.2 Astra,GUI,oligomenorrhea_pcos,Workup,1.0000,1.0000
+GPT-6.2 Astra,GUI,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+GPT-6.2 Astra,GUI,osteoporosis_metabolic_workup,Treatment planning,1.0000,1.0000
+GPT-6.2 Astra,GUI,pcp_rash_workup,Prescribing,0.0000,0.0000
+GPT-6.2 Astra,GUI,peripheral_neuropathy_workup,Workup,0.3333,0.6667
+GPT-6.2 Astra,GUI,persistent_diarrhea_workup,Workup,1.0000,1.0000
+GPT-6.2 Astra,GUI,post_gi_bleed_followup,Treatment planning,1.0000,1.0000
+GPT-6.2 Astra,GUI,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+GPT-6.2 Astra,GUI,pruritic_papular_rash,Treatment planning,0.0000,1.0000
+GPT-6.2 Astra,GUI,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+GPT-6.2 Astra,GUI,quantiferon_renal_tb,Workup,1.0000,1.0000
+GPT-6.2 Astra,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+GPT-6.2 Astra,GUI,ssri_intolerance_switch,Prescribing,1.0000,1.0000
+GPT-6.2 Astra,GUI,thrombocytopenia_immunotherapy,Workup,1.0000,1.0000
+GPT-6.2 Astra,GUI,thyroid_medication_management,Prescribing,1.0000,0.0000
+GPT-6.2 Astra,GUI,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+GPT-6.2 Astra,GUI,tinnitus_imaging_workup,Workup,1.0000,1.0000
+GPT-6.2 Astra,GUI,travel_parasitic_infection,Workup,0.0000,0.0000
+GPT-6.2 Astra,GUI,urinary_retention_workup,Treatment planning,0.0000,1.0000
+GPT-6.2 Astra,GUI,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+GPT-6 Astra,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+GPT-6 Astra,API,asbestos_exposure,Workup,1.0000,1.0000
+GPT-6 Astra,API,buprenorphine_initiation,Prescribing,0.0000,0.0000
+GPT-6 Astra,API,chronic_cough_stepwise,Treatment planning,1.0000,0.3333
+GPT-6 Astra,API,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+GPT-6 Astra,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+GPT-6 Astra,API,covid_immunocompromised,Prescribing,0.0000,1.0000
+GPT-6 Astra,API,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+GPT-6 Astra,API,diabetes_a1c_improvement,Prescribing,1.0000,0.6667
+GPT-6 Astra,API,ed_premature_ejaculation,Prescribing,0.6667,0.0000
+GPT-6 Astra,API,headache_classification,Diagnosis,1.0000,1.0000
+GPT-6 Astra,API,incidental_pulmonary_findings,Workup,0.3333,0.3333
+GPT-6 Astra,API,inflammatory_arthritis_serology,Workup,0.6667,0.0000
+GPT-6 Astra,API,liver_enzymes_fibrosis_workup,Workup,0.3333,0.0000
+GPT-6 Astra,API,liver_enzymes_pregnancy,Workup,0.6667,0.0000
+GPT-6 Astra,API,liver_gallbladder_findings,Workup,0.0000,0.0000
+GPT-6 Astra,API,mds_iron_overload,Prescribing,0.0000,0.0000
+GPT-6 Astra,API,nafld_ferritin_workup,Workup,1.0000,0.6667
+GPT-6 Astra,API,new_onset_afib_young,Workup,0.6667,0.0000
+GPT-6 Astra,API,oligomenorrhea_pcos,Workup,0.0000,0.0000
+GPT-6 Astra,API,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+GPT-6 Astra,API,osteoporosis_metabolic_workup,Treatment planning,0.3333,0.0000
+GPT-6 Astra,API,pcp_rash_workup,Prescribing,0.0000,1.0000
+GPT-6 Astra,API,peripheral_neuropathy_workup,Workup,1.0000,0.0000
+GPT-6 Astra,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+GPT-6 Astra,API,post_gi_bleed_followup,Treatment planning,1.0000,1.0000
+GPT-6 Astra,API,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+GPT-6 Astra,API,pruritic_papular_rash,Treatment planning,1.0000,0.6667
+GPT-6 Astra,API,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+GPT-6 Astra,API,quantiferon_renal_tb,Workup,1.0000,1.0000
+GPT-6 Astra,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+GPT-6 Astra,API,ssri_intolerance_switch,Prescribing,1.0000,0.3333
+GPT-6 Astra,API,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+GPT-6 Astra,API,thyroid_medication_management,Prescribing,0.6667,0.3333
+GPT-6 Astra,API,tick_borne_coinfection,Diagnosis,1.0000,0.0000
+GPT-6 Astra,API,tinnitus_imaging_workup,Workup,0.6667,1.0000
+GPT-6 Astra,API,travel_parasitic_infection,Workup,0.0000,0.0000
+GPT-6 Astra,API,urinary_retention_workup,Treatment planning,0.0000,1.0000
+GPT-6 Astra,API,vte_prophylaxis_substitution,Prescribing,0.6667,1.0000
+GPT-6 Astra,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+GPT-6 Astra,GUI,asbestos_exposure,Workup,1.0000,1.0000
+GPT-6 Astra,GUI,buprenorphine_initiation,Prescribing,0.0000,0.0000
+GPT-6 Astra,GUI,chronic_cough_stepwise,Treatment planning,0.6667,0.6667
+GPT-6 Astra,GUI,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+GPT-6 Astra,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+GPT-6 Astra,GUI,covid_immunocompromised,Prescribing,0.0000,1.0000
+GPT-6 Astra,GUI,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+GPT-6 Astra,GUI,diabetes_a1c_improvement,Prescribing,1.0000,1.0000
+GPT-6 Astra,GUI,ed_premature_ejaculation,Prescribing,0.0000,0.0000
+GPT-6 Astra,GUI,headache_classification,Diagnosis,1.0000,1.0000
+GPT-6 Astra,GUI,incidental_pulmonary_findings,Workup,1.0000,1.0000
+GPT-6 Astra,GUI,inflammatory_arthritis_serology,Workup,1.0000,1.0000
+GPT-6 Astra,GUI,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+GPT-6 Astra,GUI,liver_enzymes_pregnancy,Workup,1.0000,1.0000
+GPT-6 Astra,GUI,liver_gallbladder_findings,Workup,1.0000,1.0000
+GPT-6 Astra,GUI,mds_iron_overload,Prescribing,1.0000,1.0000
+GPT-6 Astra,GUI,nafld_ferritin_workup,Workup,1.0000,1.0000
+GPT-6 Astra,GUI,new_onset_afib_young,Workup,0.0000,1.0000
+GPT-6 Astra,GUI,oligomenorrhea_pcos,Workup,0.0000,0.0000
+GPT-6 Astra,GUI,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+GPT-6 Astra,GUI,osteoporosis_metabolic_workup,Treatment planning,1.0000,1.0000
+GPT-6 Astra,GUI,pcp_rash_workup,Prescribing,0.0000,0.0000
+GPT-6 Astra,GUI,peripheral_neuropathy_workup,Workup,0.3333,1.0000
+GPT-6 Astra,GUI,persistent_diarrhea_workup,Workup,1.0000,1.0000
+GPT-6 Astra,GUI,post_gi_bleed_followup,Treatment planning,1.0000,1.0000
+GPT-6 Astra,GUI,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+GPT-6 Astra,GUI,pruritic_papular_rash,Treatment planning,0.6667,1.0000
+GPT-6 Astra,GUI,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+GPT-6 Astra,GUI,quantiferon_renal_tb,Workup,0.3333,1.0000
+GPT-6 Astra,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+GPT-6 Astra,GUI,ssri_intolerance_switch,Prescribing,1.0000,1.0000
+GPT-6 Astra,GUI,thrombocytopenia_immunotherapy,Workup,1.0000,1.0000
+GPT-6 Astra,GUI,thyroid_medication_management,Prescribing,1.0000,0.0000
+GPT-6 Astra,GUI,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+GPT-6 Astra,GUI,tinnitus_imaging_workup,Workup,1.0000,1.0000
+GPT-6 Astra,GUI,travel_parasitic_infection,Workup,0.3333,0.3333
+GPT-6 Astra,GUI,urinary_retention_workup,Treatment planning,0.0000,1.0000
+GPT-6 Astra,GUI,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+GPT-6.1 Sol,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+GPT-6.1 Sol,API,asbestos_exposure,Workup,1.0000,1.0000
+GPT-6.1 Sol,API,buprenorphine_initiation,Prescribing,0.0000,0.0000
+GPT-6.1 Sol,API,chronic_cough_stepwise,Treatment planning,0.6667,0.6667
+GPT-6.1 Sol,API,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+GPT-6.1 Sol,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+GPT-6.1 Sol,API,covid_immunocompromised,Prescribing,0.0000,1.0000
+GPT-6.1 Sol,API,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+GPT-6.1 Sol,API,diabetes_a1c_improvement,Prescribing,1.0000,1.0000
+GPT-6.1 Sol,API,ed_premature_ejaculation,Prescribing,1.0000,0.0000
+GPT-6.1 Sol,API,headache_classification,Diagnosis,1.0000,1.0000
+GPT-6.1 Sol,API,incidental_pulmonary_findings,Workup,1.0000,1.0000
+GPT-6.1 Sol,API,inflammatory_arthritis_serology,Workup,1.0000,1.0000
+GPT-6.1 Sol,API,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+GPT-6.1 Sol,API,liver_enzymes_pregnancy,Workup,0.6667,1.0000
+GPT-6.1 Sol,API,liver_gallbladder_findings,Workup,0.3333,0.3333
+GPT-6.1 Sol,API,mds_iron_overload,Prescribing,0.0000,0.0000
+GPT-6.1 Sol,API,nafld_ferritin_workup,Workup,1.0000,1.0000
+GPT-6.1 Sol,API,new_onset_afib_young,Workup,0.6667,1.0000
+GPT-6.1 Sol,API,oligomenorrhea_pcos,Workup,0.0000,0.0000
+GPT-6.1 Sol,API,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+GPT-6.1 Sol,API,osteoporosis_metabolic_workup,Treatment planning,1.0000,0.6667
+GPT-6.1 Sol,API,pcp_rash_workup,Prescribing,0.0000,0.0000
+GPT-6.1 Sol,API,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+GPT-6.1 Sol,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+GPT-6.1 Sol,API,post_gi_bleed_followup,Treatment planning,1.0000,1.0000
+GPT-6.1 Sol,API,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+GPT-6.1 Sol,API,pruritic_papular_rash,Treatment planning,1.0000,1.0000
+GPT-6.1 Sol,API,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+GPT-6.1 Sol,API,quantiferon_renal_tb,Workup,0.3333,1.0000
+GPT-6.1 Sol,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+GPT-6.1 Sol,API,ssri_intolerance_switch,Prescribing,1.0000,1.0000
+GPT-6.1 Sol,API,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+GPT-6.1 Sol,API,thyroid_medication_management,Prescribing,1.0000,0.0000
+GPT-6.1 Sol,API,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+GPT-6.1 Sol,API,tinnitus_imaging_workup,Workup,1.0000,1.0000
+GPT-6.1 Sol,API,travel_parasitic_infection,Workup,0.0000,1.0000
+GPT-6.1 Sol,API,urinary_retention_workup,Treatment planning,0.0000,1.0000
+GPT-6.1 Sol,API,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+GPT-6.1 Sol,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+GPT-6.1 Sol,GUI,asbestos_exposure,Workup,1.0000,1.0000
+GPT-6.1 Sol,GUI,buprenorphine_initiation,Prescribing,0.0000,0.0000
+GPT-6.1 Sol,GUI,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+GPT-6.1 Sol,GUI,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+GPT-6.1 Sol,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+GPT-6.1 Sol,GUI,covid_immunocompromised,Prescribing,0.0000,0.3333
+GPT-6.1 Sol,GUI,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+GPT-6.1 Sol,GUI,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+GPT-6.1 Sol,GUI,ed_premature_ejaculation,Prescribing,0.0000,0.0000
+GPT-6.1 Sol,GUI,headache_classification,Diagnosis,1.0000,1.0000
+GPT-6.1 Sol,GUI,incidental_pulmonary_findings,Workup,0.6667,1.0000
+GPT-6.1 Sol,GUI,inflammatory_arthritis_serology,Workup,1.0000,1.0000
+GPT-6.1 Sol,GUI,liver_enzymes_fibrosis_workup,Workup,0.6667,0.6667
+GPT-6.1 Sol,GUI,liver_enzymes_pregnancy,Workup,1.0000,1.0000
+GPT-6.1 Sol,GUI,liver_gallbladder_findings,Workup,1.0000,1.0000
+GPT-6.1 Sol,GUI,mds_iron_overload,Prescribing,1.0000,1.0000
+GPT-6.1 Sol,GUI,nafld_ferritin_workup,Workup,1.0000,1.0000
+GPT-6.1 Sol,GUI,new_onset_afib_young,Workup,0.0000,1.0000
+GPT-6.1 Sol,GUI,oligomenorrhea_pcos,Workup,0.0000,0.0000
+GPT-6.1 Sol,GUI,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+GPT-6.1 Sol,GUI,osteoporosis_metabolic_workup,Treatment planning,0.6667,0.6667
+GPT-6.1 Sol,GUI,pcp_rash_workup,Prescribing,0.0000,0.0000
+GPT-6.1 Sol,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+GPT-6.1 Sol,GUI,persistent_diarrhea_workup,Workup,1.0000,1.0000
+GPT-6.1 Sol,GUI,post_gi_bleed_followup,Treatment planning,1.0000,1.0000
+GPT-6.1 Sol,GUI,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+GPT-6.1 Sol,GUI,pruritic_papular_rash,Treatment planning,0.0000,1.0000
+GPT-6.1 Sol,GUI,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+GPT-6.1 Sol,GUI,quantiferon_renal_tb,Workup,0.0000,1.0000
+GPT-6.1 Sol,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+GPT-6.1 Sol,GUI,ssri_intolerance_switch,Prescribing,0.3333,0.3333
+GPT-6.1 Sol,GUI,thrombocytopenia_immunotherapy,Workup,1.0000,0.6667
+GPT-6.1 Sol,GUI,thyroid_medication_management,Prescribing,1.0000,0.0000
+GPT-6.1 Sol,GUI,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+GPT-6.1 Sol,GUI,tinnitus_imaging_workup,Workup,1.0000,1.0000
+GPT-6.1 Sol,GUI,travel_parasitic_infection,Workup,0.0000,0.0000
+GPT-6.1 Sol,GUI,urinary_retention_workup,Treatment planning,0.0000,1.0000
+GPT-6.1 Sol,GUI,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+GPT-6.1 Terra,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+GPT-6.1 Terra,API,asbestos_exposure,Workup,1.0000,1.0000
+GPT-6.1 Terra,API,buprenorphine_initiation,Prescribing,0.0000,0.0000
+GPT-6.1 Terra,API,chronic_cough_stepwise,Treatment planning,1.0000,1.0000
+GPT-6.1 Terra,API,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+GPT-6.1 Terra,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+GPT-6.1 Terra,API,covid_immunocompromised,Prescribing,0.3333,0.3333
+GPT-6.1 Terra,API,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+GPT-6.1 Terra,API,diabetes_a1c_improvement,Prescribing,0.6667,0.6667
+GPT-6.1 Terra,API,ed_premature_ejaculation,Prescribing,0.0000,0.0000
+GPT-6.1 Terra,API,headache_classification,Diagnosis,1.0000,1.0000
+GPT-6.1 Terra,API,incidental_pulmonary_findings,Workup,0.6667,1.0000
+GPT-6.1 Terra,API,inflammatory_arthritis_serology,Workup,1.0000,0.3333
+GPT-6.1 Terra,API,liver_enzymes_fibrosis_workup,Workup,0.3333,0.6667
+GPT-6.1 Terra,API,liver_enzymes_pregnancy,Workup,1.0000,0.0000
+GPT-6.1 Terra,API,liver_gallbladder_findings,Workup,0.3333,0.3333
+GPT-6.1 Terra,API,mds_iron_overload,Prescribing,0.0000,0.0000
+GPT-6.1 Terra,API,nafld_ferritin_workup,Workup,1.0000,1.0000
+GPT-6.1 Terra,API,new_onset_afib_young,Workup,1.0000,0.6667
+GPT-6.1 Terra,API,oligomenorrhea_pcos,Workup,0.0000,0.0000
+GPT-6.1 Terra,API,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+GPT-6.1 Terra,API,osteoporosis_metabolic_workup,Treatment planning,0.6667,0.3333
+GPT-6.1 Terra,API,pcp_rash_workup,Prescribing,0.0000,0.0000
+GPT-6.1 Terra,API,peripheral_neuropathy_workup,Workup,0.3333,0.3333
+GPT-6.1 Terra,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+GPT-6.1 Terra,API,post_gi_bleed_followup,Treatment planning,0.3333,0.0000
+GPT-6.1 Terra,API,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+GPT-6.1 Terra,API,pruritic_papular_rash,Treatment planning,1.0000,1.0000
+GPT-6.1 Terra,API,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+GPT-6.1 Terra,API,quantiferon_renal_tb,Workup,1.0000,1.0000
+GPT-6.1 Terra,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+GPT-6.1 Terra,API,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+GPT-6.1 Terra,API,thrombocytopenia_immunotherapy,Workup,0.6667,0.0000
+GPT-6.1 Terra,API,thyroid_medication_management,Prescribing,1.0000,0.0000
+GPT-6.1 Terra,API,tick_borne_coinfection,Diagnosis,1.0000,0.6667
+GPT-6.1 Terra,API,tinnitus_imaging_workup,Workup,0.6667,0.6667
+GPT-6.1 Terra,API,travel_parasitic_infection,Workup,0.0000,0.0000
+GPT-6.1 Terra,API,urinary_retention_workup,Treatment planning,0.0000,1.0000
+GPT-6.1 Terra,API,vte_prophylaxis_substitution,Prescribing,0.0000,1.0000
+GPT-6.1 Terra,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+GPT-6.1 Terra,GUI,asbestos_exposure,Workup,1.0000,1.0000
+GPT-6.1 Terra,GUI,buprenorphine_initiation,Prescribing,0.0000,0.0000
+GPT-6.1 Terra,GUI,chronic_cough_stepwise,Treatment planning,1.0000,1.0000
+GPT-6.1 Terra,GUI,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+GPT-6.1 Terra,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+GPT-6.1 Terra,GUI,covid_immunocompromised,Prescribing,0.0000,0.0000
+GPT-6.1 Terra,GUI,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+GPT-6.1 Terra,GUI,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+GPT-6.1 Terra,GUI,ed_premature_ejaculation,Prescribing,0.6667,0.6667
+GPT-6.1 Terra,GUI,headache_classification,Diagnosis,1.0000,1.0000
+GPT-6.1 Terra,GUI,incidental_pulmonary_findings,Workup,1.0000,1.0000
+GPT-6.1 Terra,GUI,inflammatory_arthritis_serology,Workup,1.0000,1.0000
+GPT-6.1 Terra,GUI,liver_enzymes_fibrosis_workup,Workup,1.0000,1.0000
+GPT-6.1 Terra,GUI,liver_enzymes_pregnancy,Workup,1.0000,1.0000
+GPT-6.1 Terra,GUI,liver_gallbladder_findings,Workup,0.0000,0.0000
+GPT-6.1 Terra,GUI,mds_iron_overload,Prescribing,0.0000,0.0000
+GPT-6.1 Terra,GUI,nafld_ferritin_workup,Workup,1.0000,1.0000
+GPT-6.1 Terra,GUI,new_onset_afib_young,Workup,0.0000,0.3333
+GPT-6.1 Terra,GUI,oligomenorrhea_pcos,Workup,0.0000,0.0000
+GPT-6.1 Terra,GUI,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+GPT-6.1 Terra,GUI,osteoporosis_metabolic_workup,Treatment planning,1.0000,1.0000
+GPT-6.1 Terra,GUI,pcp_rash_workup,Prescribing,0.0000,0.0000
+GPT-6.1 Terra,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+GPT-6.1 Terra,GUI,persistent_diarrhea_workup,Workup,1.0000,1.0000
+GPT-6.1 Terra,GUI,post_gi_bleed_followup,Treatment planning,0.0000,0.3333
+GPT-6.1 Terra,GUI,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+GPT-6.1 Terra,GUI,pruritic_papular_rash,Treatment planning,0.0000,0.0000
+GPT-6.1 Terra,GUI,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+GPT-6.1 Terra,GUI,quantiferon_renal_tb,Workup,0.6667,1.0000
+GPT-6.1 Terra,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+GPT-6.1 Terra,GUI,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+GPT-6.1 Terra,GUI,thrombocytopenia_immunotherapy,Workup,0.3333,0.3333
+GPT-6.1 Terra,GUI,thyroid_medication_management,Prescribing,1.0000,0.0000
+GPT-6.1 Terra,GUI,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+GPT-6.1 Terra,GUI,tinnitus_imaging_workup,Workup,1.0000,1.0000
+GPT-6.1 Terra,GUI,travel_parasitic_infection,Workup,0.0000,0.0000
+GPT-6.1 Terra,GUI,urinary_retention_workup,Treatment planning,0.0000,0.3333
+GPT-6.1 Terra,GUI,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Gemini 3.5 Flash,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Gemini 3.5 Flash,API,asbestos_exposure,Workup,1.0000,1.0000
+Gemini 3.5 Flash,API,buprenorphine_initiation,Prescribing,0.3333,1.0000
+Gemini 3.5 Flash,API,chronic_cough_stepwise,Treatment planning,0.3333,0.3333
+Gemini 3.5 Flash,API,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Gemini 3.5 Flash,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+Gemini 3.5 Flash,API,covid_immunocompromised,Prescribing,1.0000,1.0000
+Gemini 3.5 Flash,API,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Gemini 3.5 Flash,API,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+Gemini 3.5 Flash,API,ed_premature_ejaculation,Prescribing,1.0000,0.6667
+Gemini 3.5 Flash,API,headache_classification,Diagnosis,1.0000,1.0000
+Gemini 3.5 Flash,API,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Gemini 3.5 Flash,API,inflammatory_arthritis_serology,Workup,0.3333,0.6667
+Gemini 3.5 Flash,API,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+Gemini 3.5 Flash,API,liver_enzymes_pregnancy,Workup,0.0000,1.0000
+Gemini 3.5 Flash,API,liver_gallbladder_findings,Workup,0.3333,0.3333
+Gemini 3.5 Flash,API,mds_iron_overload,Prescribing,1.0000,0.6667
+Gemini 3.5 Flash,API,nafld_ferritin_workup,Workup,1.0000,1.0000
+Gemini 3.5 Flash,API,new_onset_afib_young,Workup,0.0000,0.3333
+Gemini 3.5 Flash,API,oligomenorrhea_pcos,Workup,0.0000,0.0000
+Gemini 3.5 Flash,API,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+Gemini 3.5 Flash,API,osteoporosis_metabolic_workup,Treatment planning,0.6667,0.3333
+Gemini 3.5 Flash,API,pcp_rash_workup,Prescribing,0.0000,1.0000
+Gemini 3.5 Flash,API,peripheral_neuropathy_workup,Workup,0.6667,0.6667
+Gemini 3.5 Flash,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Gemini 3.5 Flash,API,post_gi_bleed_followup,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash,API,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Gemini 3.5 Flash,API,pruritic_papular_rash,Treatment planning,0.3333,1.0000
+Gemini 3.5 Flash,API,pulsatile_tinnitus_workup,Workup,0.6667,1.0000
+Gemini 3.5 Flash,API,quantiferon_renal_tb,Workup,0.0000,1.0000
+Gemini 3.5 Flash,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash,API,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+Gemini 3.5 Flash,API,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+Gemini 3.5 Flash,API,thyroid_medication_management,Prescribing,0.6667,0.0000
+Gemini 3.5 Flash,API,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+Gemini 3.5 Flash,API,tinnitus_imaging_workup,Workup,0.0000,0.0000
+Gemini 3.5 Flash,API,travel_parasitic_infection,Workup,0.0000,0.3333
+Gemini 3.5 Flash,API,urinary_retention_workup,Treatment planning,0.0000,0.3333
+Gemini 3.5 Flash,API,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Gemini 3.5 Flash,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Gemini 3.5 Flash,GUI,asbestos_exposure,Workup,1.0000,1.0000
+Gemini 3.5 Flash,GUI,buprenorphine_initiation,Prescribing,0.0000,1.0000
+Gemini 3.5 Flash,GUI,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash,GUI,chronic_urticaria_allergist,Prescribing,0.6667,0.6667
+Gemini 3.5 Flash,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+Gemini 3.5 Flash,GUI,covid_immunocompromised,Prescribing,0.6667,0.6667
+Gemini 3.5 Flash,GUI,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Gemini 3.5 Flash,GUI,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+Gemini 3.5 Flash,GUI,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+Gemini 3.5 Flash,GUI,headache_classification,Diagnosis,1.0000,1.0000
+Gemini 3.5 Flash,GUI,incidental_pulmonary_findings,Workup,0.6667,1.0000
+Gemini 3.5 Flash,GUI,inflammatory_arthritis_serology,Workup,0.0000,1.0000
+Gemini 3.5 Flash,GUI,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+Gemini 3.5 Flash,GUI,liver_enzymes_pregnancy,Workup,0.0000,0.6667
+Gemini 3.5 Flash,GUI,liver_gallbladder_findings,Workup,0.0000,0.0000
+Gemini 3.5 Flash,GUI,mds_iron_overload,Prescribing,0.6667,0.3333
+Gemini 3.5 Flash,GUI,nafld_ferritin_workup,Workup,0.6667,0.6667
+Gemini 3.5 Flash,GUI,new_onset_afib_young,Workup,0.0000,0.3333
+Gemini 3.5 Flash,GUI,oligomenorrhea_pcos,Workup,0.0000,0.3333
+Gemini 3.5 Flash,GUI,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+Gemini 3.5 Flash,GUI,osteoporosis_metabolic_workup,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash,GUI,pcp_rash_workup,Prescribing,0.0000,0.0000
+Gemini 3.5 Flash,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+Gemini 3.5 Flash,GUI,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Gemini 3.5 Flash,GUI,post_gi_bleed_followup,Treatment planning,0.3333,0.3333
+Gemini 3.5 Flash,GUI,pregnancy_anemia_thalassemia,Workup,0.3333,0.0000
+Gemini 3.5 Flash,GUI,pruritic_papular_rash,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash,GUI,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+Gemini 3.5 Flash,GUI,quantiferon_renal_tb,Workup,0.0000,0.3333
+Gemini 3.5 Flash,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash,GUI,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+Gemini 3.5 Flash,GUI,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+Gemini 3.5 Flash,GUI,thyroid_medication_management,Prescribing,1.0000,0.0000
+Gemini 3.5 Flash,GUI,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+Gemini 3.5 Flash,GUI,tinnitus_imaging_workup,Workup,0.0000,1.0000
+Gemini 3.5 Flash,GUI,travel_parasitic_infection,Workup,0.0000,0.0000
+Gemini 3.5 Flash,GUI,urinary_retention_workup,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash,GUI,vte_prophylaxis_substitution,Prescribing,0.6667,1.0000
+Gemini 3.8 Flash,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Gemini 3.8 Flash,API,asbestos_exposure,Workup,1.0000,1.0000
+Gemini 3.8 Flash,API,buprenorphine_initiation,Prescribing,0.6667,1.0000
+Gemini 3.8 Flash,API,chronic_cough_stepwise,Treatment planning,0.3333,0.3333
+Gemini 3.8 Flash,API,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Gemini 3.8 Flash,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+Gemini 3.8 Flash,API,covid_immunocompromised,Prescribing,0.0000,0.0000
+Gemini 3.8 Flash,API,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Gemini 3.8 Flash,API,diabetes_a1c_improvement,Prescribing,1.0000,1.0000
+Gemini 3.8 Flash,API,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+Gemini 3.8 Flash,API,headache_classification,Diagnosis,1.0000,1.0000
+Gemini 3.8 Flash,API,incidental_pulmonary_findings,Workup,0.3333,0.3333
+Gemini 3.8 Flash,API,inflammatory_arthritis_serology,Workup,0.6667,1.0000
+Gemini 3.8 Flash,API,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+Gemini 3.8 Flash,API,liver_enzymes_pregnancy,Workup,0.0000,0.6667
+Gemini 3.8 Flash,API,liver_gallbladder_findings,Workup,0.6667,0.6667
+Gemini 3.8 Flash,API,mds_iron_overload,Prescribing,0.0000,0.0000
+Gemini 3.8 Flash,API,nafld_ferritin_workup,Workup,1.0000,1.0000
+Gemini 3.8 Flash,API,new_onset_afib_young,Workup,0.0000,0.3333
+Gemini 3.8 Flash,API,oligomenorrhea_pcos,Workup,0.0000,0.0000
+Gemini 3.8 Flash,API,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+Gemini 3.8 Flash,API,osteoporosis_metabolic_workup,Treatment planning,0.0000,0.3333
+Gemini 3.8 Flash,API,pcp_rash_workup,Prescribing,0.0000,1.0000
+Gemini 3.8 Flash,API,peripheral_neuropathy_workup,Workup,0.3333,0.3333
+Gemini 3.8 Flash,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Gemini 3.8 Flash,API,post_gi_bleed_followup,Treatment planning,0.0000,0.0000
+Gemini 3.8 Flash,API,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Gemini 3.8 Flash,API,pruritic_papular_rash,Treatment planning,1.0000,1.0000
+Gemini 3.8 Flash,API,pulsatile_tinnitus_workup,Workup,0.3333,1.0000
+Gemini 3.8 Flash,API,quantiferon_renal_tb,Workup,0.0000,0.0000
+Gemini 3.8 Flash,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Gemini 3.8 Flash,API,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+Gemini 3.8 Flash,API,thrombocytopenia_immunotherapy,Workup,0.6667,0.6667
+Gemini 3.8 Flash,API,thyroid_medication_management,Prescribing,0.6667,0.0000
+Gemini 3.8 Flash,API,tick_borne_coinfection,Diagnosis,0.3333,1.0000
+Gemini 3.8 Flash,API,tinnitus_imaging_workup,Workup,1.0000,1.0000
+Gemini 3.8 Flash,API,travel_parasitic_infection,Workup,0.0000,1.0000
+Gemini 3.8 Flash,API,urinary_retention_workup,Treatment planning,0.0000,1.0000
+Gemini 3.8 Flash,API,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Gemini 3.8 Flash,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Gemini 3.8 Flash,GUI,asbestos_exposure,Workup,1.0000,1.0000
+Gemini 3.8 Flash,GUI,buprenorphine_initiation,Prescribing,0.6667,1.0000
+Gemini 3.8 Flash,GUI,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+Gemini 3.8 Flash,GUI,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Gemini 3.8 Flash,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+Gemini 3.8 Flash,GUI,covid_immunocompromised,Prescribing,1.0000,1.0000
+Gemini 3.8 Flash,GUI,dermatology_econsult_rash,Prescribing,0.6667,0.6667
+Gemini 3.8 Flash,GUI,diabetes_a1c_improvement,Prescribing,0.3333,0.3333
+Gemini 3.8 Flash,GUI,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+Gemini 3.8 Flash,GUI,headache_classification,Diagnosis,1.0000,1.0000
+Gemini 3.8 Flash,GUI,incidental_pulmonary_findings,Workup,0.6667,0.6667
+Gemini 3.8 Flash,GUI,inflammatory_arthritis_serology,Workup,0.3333,0.6667
+Gemini 3.8 Flash,GUI,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+Gemini 3.8 Flash,GUI,liver_enzymes_pregnancy,Workup,0.0000,0.6667
+Gemini 3.8 Flash,GUI,liver_gallbladder_findings,Workup,0.6667,0.6667
+Gemini 3.8 Flash,GUI,mds_iron_overload,Prescribing,0.3333,0.3333
+Gemini 3.8 Flash,GUI,nafld_ferritin_workup,Workup,1.0000,1.0000
+Gemini 3.8 Flash,GUI,new_onset_afib_young,Workup,0.0000,1.0000
+Gemini 3.8 Flash,GUI,oligomenorrhea_pcos,Workup,0.0000,0.0000
+Gemini 3.8 Flash,GUI,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+Gemini 3.8 Flash,GUI,osteoporosis_metabolic_workup,Treatment planning,0.0000,0.0000
+Gemini 3.8 Flash,GUI,pcp_rash_workup,Prescribing,0.0000,0.0000
+Gemini 3.8 Flash,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+Gemini 3.8 Flash,GUI,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Gemini 3.8 Flash,GUI,post_gi_bleed_followup,Treatment planning,0.6667,0.6667
+Gemini 3.8 Flash,GUI,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Gemini 3.8 Flash,GUI,pruritic_papular_rash,Treatment planning,0.0000,0.0000
+Gemini 3.8 Flash,GUI,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+Gemini 3.8 Flash,GUI,quantiferon_renal_tb,Workup,0.0000,0.6667
+Gemini 3.8 Flash,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Gemini 3.8 Flash,GUI,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+Gemini 3.8 Flash,GUI,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+Gemini 3.8 Flash,GUI,thyroid_medication_management,Prescribing,1.0000,0.0000
+Gemini 3.8 Flash,GUI,tick_borne_coinfection,Diagnosis,1.0000,1.0000
+Gemini 3.8 Flash,GUI,tinnitus_imaging_workup,Workup,0.0000,0.3333
+Gemini 3.8 Flash,GUI,travel_parasitic_infection,Workup,0.0000,0.0000
+Gemini 3.8 Flash,GUI,urinary_retention_workup,Treatment planning,0.0000,0.0000
+Gemini 3.8 Flash,GUI,vte_prophylaxis_substitution,Prescribing,0.3333,1.0000
+Claude Haiku 5.5,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Claude Haiku 5.5,API,asbestos_exposure,Workup,1.0000,0.6667
+Claude Haiku 5.5,API,buprenorphine_initiation,Prescribing,0.0000,0.0000
+Claude Haiku 5.5,API,chronic_cough_stepwise,Treatment planning,0.3333,0.6667
+Claude Haiku 5.5,API,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Claude Haiku 5.5,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+Claude Haiku 5.5,API,covid_immunocompromised,Prescribing,1.0000,1.0000
+Claude Haiku 5.5,API,dermatology_econsult_rash,Prescribing,0.0000,0.0000
+Claude Haiku 5.5,API,diabetes_a1c_improvement,Prescribing,1.0000,1.0000
+Claude Haiku 5.5,API,ed_premature_ejaculation,Prescribing,0.6667,0.0000
+Claude Haiku 5.5,API,headache_classification,Diagnosis,1.0000,1.0000
+Claude Haiku 5.5,API,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Claude Haiku 5.5,API,inflammatory_arthritis_serology,Workup,0.6667,0.0000
+Claude Haiku 5.5,API,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+Claude Haiku 5.5,API,liver_enzymes_pregnancy,Workup,0.0000,0.6667
+Claude Haiku 5.5,API,liver_gallbladder_findings,Workup,0.0000,0.0000
+Claude Haiku 5.5,API,mds_iron_overload,Prescribing,0.0000,0.0000
+Claude Haiku 5.5,API,nafld_ferritin_workup,Workup,1.0000,0.6667
+Claude Haiku 5.5,API,new_onset_afib_young,Workup,0.0000,0.6667
+Claude Haiku 5.5,API,oligomenorrhea_pcos,Workup,0.0000,0.0000
+Claude Haiku 5.5,API,osteoarthritis_nsaid_intolerant,Prescribing,0.0000,0.0000
+Claude Haiku 5.5,API,osteoporosis_metabolic_workup,Treatment planning,0.0000,0.6667
+Claude Haiku 5.5,API,pcp_rash_workup,Prescribing,0.0000,0.6667
+Claude Haiku 5.5,API,peripheral_neuropathy_workup,Workup,0.0000,0.3333
+Claude Haiku 5.5,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Claude Haiku 5.5,API,post_gi_bleed_followup,Treatment planning,1.0000,1.0000
+Claude Haiku 5.5,API,pregnancy_anemia_thalassemia,Workup,1.0000,0.6667
+Claude Haiku 5.5,API,pruritic_papular_rash,Treatment planning,0.3333,1.0000
+Claude Haiku 5.5,API,pulsatile_tinnitus_workup,Workup,0.3333,1.0000
+Claude Haiku 5.5,API,quantiferon_renal_tb,Workup,0.6667,1.0000
+Claude Haiku 5.5,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Claude Haiku 5.5,API,ssri_intolerance_switch,Prescribing,0.6667,0.6667
+Claude Haiku 5.5,API,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+Claude Haiku 5.5,API,thyroid_medication_management,Prescribing,1.0000,0.6667
+Claude Haiku 5.5,API,tick_borne_coinfection,Diagnosis,0.6667,0.6667
+Claude Haiku 5.5,API,tinnitus_imaging_workup,Workup,1.0000,1.0000
+Claude Haiku 5.5,API,travel_parasitic_infection,Workup,0.0000,0.0000
+Claude Haiku 5.5,API,urinary_retention_workup,Treatment planning,0.0000,1.0000
+Claude Haiku 5.5,API,vte_prophylaxis_substitution,Prescribing,1.0000,0.6667
+Claude Haiku 5.5,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Claude Haiku 5.5,GUI,asbestos_exposure,Workup,0.0000,0.0000
+Claude Haiku 5.5,GUI,buprenorphine_initiation,Prescribing,0.0000,0.0000
+Claude Haiku 5.5,GUI,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+Claude Haiku 5.5,GUI,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Claude Haiku 5.5,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+Claude Haiku 5.5,GUI,covid_immunocompromised,Prescribing,0.3333,0.3333
+Claude Haiku 5.5,GUI,dermatology_econsult_rash,Prescribing,0.3333,0.3333
+Claude Haiku 5.5,GUI,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+Claude Haiku 5.5,GUI,ed_premature_ejaculation,Prescribing,0.0000,0.0000
+Claude Haiku 5.5,GUI,headache_classification,Diagnosis,1.0000,1.0000
+Claude Haiku 5.5,GUI,incidental_pulmonary_findings,Workup,1.0000,1.0000
+Claude Haiku 5.5,GUI,inflammatory_arthritis_serology,Workup,0.3333,0.3333
+Claude Haiku 5.5,GUI,liver_enzymes_fibrosis_workup,Workup,0.6667,0.6667
+Claude Haiku 5.5,GUI,liver_enzymes_pregnancy,Workup,0.0000,0.6667
+Claude Haiku 5.5,GUI,liver_gallbladder_findings,Workup,0.3333,0.3333
+Claude Haiku 5.5,GUI,mds_iron_overload,Prescribing,0.0000,0.0000
+Claude Haiku 5.5,GUI,nafld_ferritin_workup,Workup,0.0000,0.0000
+Claude Haiku 5.5,GUI,new_onset_afib_young,Workup,0.0000,0.3333
+Claude Haiku 5.5,GUI,oligomenorrhea_pcos,Workup,0.3333,0.3333
+Claude Haiku 5.5,GUI,osteoarthritis_nsaid_intolerant,Prescribing,0.6667,0.6667
+Claude Haiku 5.5,GUI,osteoporosis_metabolic_workup,Treatment planning,0.3333,0.6667
+Claude Haiku 5.5,GUI,pcp_rash_workup,Prescribing,0.0000,0.0000
+Claude Haiku 5.5,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+Claude Haiku 5.5,GUI,persistent_diarrhea_workup,Workup,0.0000,0.0000
+Claude Haiku 5.5,GUI,post_gi_bleed_followup,Treatment planning,0.6667,0.6667
+Claude Haiku 5.5,GUI,pregnancy_anemia_thalassemia,Workup,0.6667,0.6667
+Claude Haiku 5.5,GUI,pruritic_papular_rash,Treatment planning,0.0000,0.3333
+Claude Haiku 5.5,GUI,pulsatile_tinnitus_workup,Workup,0.0000,0.3333
+Claude Haiku 5.5,GUI,quantiferon_renal_tb,Workup,0.0000,0.0000
+Claude Haiku 5.5,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Claude Haiku 5.5,GUI,ssri_intolerance_switch,Prescribing,0.3333,0.3333
+Claude Haiku 5.5,GUI,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+Claude Haiku 5.5,GUI,thyroid_medication_management,Prescribing,0.6667,0.0000
+Claude Haiku 5.5,GUI,tick_borne_coinfection,Diagnosis,0.3333,0.3333
+Claude Haiku 5.5,GUI,tinnitus_imaging_workup,Workup,0.6667,0.6667
+Claude Haiku 5.5,GUI,travel_parasitic_infection,Workup,0.0000,0.0000
+Claude Haiku 5.5,GUI,urinary_retention_workup,Treatment planning,0.0000,0.3333
+Claude Haiku 5.5,GUI,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+GPT-6 Luna,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+GPT-6 Luna,API,asbestos_exposure,Workup,1.0000,1.0000
+GPT-6 Luna,API,buprenorphine_initiation,Prescribing,0.0000,0.0000
+GPT-6 Luna,API,chronic_cough_stepwise,Treatment planning,0.6667,0.6667
+GPT-6 Luna,API,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+GPT-6 Luna,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+GPT-6 Luna,API,covid_immunocompromised,Prescribing,0.3333,0.3333
+GPT-6 Luna,API,dermatology_econsult_rash,Prescribing,0.6667,0.6667
+GPT-6 Luna,API,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+GPT-6 Luna,API,ed_premature_ejaculation,Prescribing,0.3333,0.3333
+GPT-6 Luna,API,headache_classification,Diagnosis,0.3333,0.3333
+GPT-6 Luna,API,incidental_pulmonary_findings,Workup,0.3333,1.0000
+GPT-6 Luna,API,inflammatory_arthritis_serology,Workup,0.6667,0.6667
+GPT-6 Luna,API,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+GPT-6 Luna,API,liver_enzymes_pregnancy,Workup,0.0000,1.0000
+GPT-6 Luna,API,liver_gallbladder_findings,Workup,0.6667,0.6667
+GPT-6 Luna,API,mds_iron_overload,Prescribing,0.6667,0.3333
+GPT-6 Luna,API,nafld_ferritin_workup,Workup,1.0000,1.0000
+GPT-6 Luna,API,new_onset_afib_young,Workup,0.0000,0.3333
+GPT-6 Luna,API,oligomenorrhea_pcos,Workup,0.0000,0.0000
+GPT-6 Luna,API,osteoarthritis_nsaid_intolerant,Prescribing,1.0000,1.0000
+GPT-6 Luna,API,osteoporosis_metabolic_workup,Treatment planning,0.3333,0.3333
+GPT-6 Luna,API,pcp_rash_workup,Prescribing,0.0000,0.0000
+GPT-6 Luna,API,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+GPT-6 Luna,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+GPT-6 Luna,API,post_gi_bleed_followup,Treatment planning,0.6667,1.0000
+GPT-6 Luna,API,pregnancy_anemia_thalassemia,Workup,0.3333,1.0000
+GPT-6 Luna,API,pruritic_papular_rash,Treatment planning,0.0000,1.0000
+GPT-6 Luna,API,pulsatile_tinnitus_workup,Workup,0.6667,1.0000
+GPT-6 Luna,API,quantiferon_renal_tb,Workup,0.0000,0.6667
+GPT-6 Luna,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+GPT-6 Luna,API,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+GPT-6 Luna,API,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+GPT-6 Luna,API,thyroid_medication_management,Prescribing,0.6667,0.0000
+GPT-6 Luna,API,tick_borne_coinfection,Diagnosis,0.6667,0.6667
+GPT-6 Luna,API,tinnitus_imaging_workup,Workup,0.6667,0.6667
+GPT-6 Luna,API,travel_parasitic_infection,Workup,0.0000,0.3333
+GPT-6 Luna,API,urinary_retention_workup,Treatment planning,0.0000,0.0000
+GPT-6 Luna,API,vte_prophylaxis_substitution,Prescribing,0.6667,1.0000
+GPT-6 Luna,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+GPT-6 Luna,GUI,asbestos_exposure,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,buprenorphine_initiation,Prescribing,0.0000,0.0000
+GPT-6 Luna,GUI,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+GPT-6 Luna,GUI,chronic_urticaria_allergist,Prescribing,0.3333,0.3333
+GPT-6 Luna,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+GPT-6 Luna,GUI,covid_immunocompromised,Prescribing,0.0000,0.0000
+GPT-6 Luna,GUI,dermatology_econsult_rash,Prescribing,0.0000,0.0000
+GPT-6 Luna,GUI,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+GPT-6 Luna,GUI,ed_premature_ejaculation,Prescribing,0.0000,0.0000
+GPT-6 Luna,GUI,headache_classification,Diagnosis,0.0000,0.0000
+GPT-6 Luna,GUI,incidental_pulmonary_findings,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,inflammatory_arthritis_serology,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,liver_enzymes_pregnancy,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,liver_gallbladder_findings,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,mds_iron_overload,Prescribing,0.0000,0.0000
+GPT-6 Luna,GUI,nafld_ferritin_workup,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,new_onset_afib_young,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,oligomenorrhea_pcos,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,osteoarthritis_nsaid_intolerant,Prescribing,0.0000,0.0000
+GPT-6 Luna,GUI,osteoporosis_metabolic_workup,Treatment planning,0.0000,0.0000
+GPT-6 Luna,GUI,pcp_rash_workup,Prescribing,0.0000,0.0000
+GPT-6 Luna,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,persistent_diarrhea_workup,Workup,0.3333,0.3333
+GPT-6 Luna,GUI,post_gi_bleed_followup,Treatment planning,0.3333,0.3333
+GPT-6 Luna,GUI,pregnancy_anemia_thalassemia,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,pruritic_papular_rash,Treatment planning,0.0000,0.0000
+GPT-6 Luna,GUI,pulsatile_tinnitus_workup,Workup,0.3333,0.6667
+GPT-6 Luna,GUI,quantiferon_renal_tb,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+GPT-6 Luna,GUI,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+GPT-6 Luna,GUI,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,thyroid_medication_management,Prescribing,0.0000,0.0000
+GPT-6 Luna,GUI,tick_borne_coinfection,Diagnosis,0.0000,0.0000
+GPT-6 Luna,GUI,tinnitus_imaging_workup,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,travel_parasitic_infection,Workup,0.0000,0.0000
+GPT-6 Luna,GUI,urinary_retention_workup,Treatment planning,0.0000,0.0000
+GPT-6 Luna,GUI,vte_prophylaxis_substitution,Prescribing,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,asbestos_exposure,Workup,0.3333,0.3333
+Gemini 3.5 Flash-Lite,API,buprenorphine_initiation,Prescribing,0.6667,1.0000
+Gemini 3.5 Flash-Lite,API,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,chronic_urticaria_allergist,Prescribing,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,covid_immunocompromised,Prescribing,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,dermatology_econsult_rash,Prescribing,1.0000,1.0000
+Gemini 3.5 Flash-Lite,API,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,ed_premature_ejaculation,Prescribing,1.0000,1.0000
+Gemini 3.5 Flash-Lite,API,headache_classification,Diagnosis,0.6667,0.6667
+Gemini 3.5 Flash-Lite,API,incidental_pulmonary_findings,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,inflammatory_arthritis_serology,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,liver_enzymes_pregnancy,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,liver_gallbladder_findings,Workup,1.0000,1.0000
+Gemini 3.5 Flash-Lite,API,mds_iron_overload,Prescribing,1.0000,0.0000
+Gemini 3.5 Flash-Lite,API,nafld_ferritin_workup,Workup,0.3333,0.3333
+Gemini 3.5 Flash-Lite,API,new_onset_afib_young,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,oligomenorrhea_pcos,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,osteoarthritis_nsaid_intolerant,Prescribing,0.3333,0.0000
+Gemini 3.5 Flash-Lite,API,osteoporosis_metabolic_workup,Treatment planning,0.6667,0.6667
+Gemini 3.5 Flash-Lite,API,pcp_rash_workup,Prescribing,0.0000,1.0000
+Gemini 3.5 Flash-Lite,API,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,persistent_diarrhea_workup,Workup,1.0000,1.0000
+Gemini 3.5 Flash-Lite,API,post_gi_bleed_followup,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,pregnancy_anemia_thalassemia,Workup,1.0000,1.0000
+Gemini 3.5 Flash-Lite,API,pruritic_papular_rash,Treatment planning,0.0000,0.6667
+Gemini 3.5 Flash-Lite,API,pulsatile_tinnitus_workup,Workup,0.3333,1.0000
+Gemini 3.5 Flash-Lite,API,quantiferon_renal_tb,Workup,0.0000,0.6667
+Gemini 3.5 Flash-Lite,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,thyroid_medication_management,Prescribing,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,tick_borne_coinfection,Diagnosis,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,tinnitus_imaging_workup,Workup,0.6667,1.0000
+Gemini 3.5 Flash-Lite,API,travel_parasitic_infection,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,urinary_retention_workup,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash-Lite,API,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Gemini 3.5 Flash-Lite,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,asbestos_exposure,Workup,0.6667,0.6667
+Gemini 3.5 Flash-Lite,GUI,buprenorphine_initiation,Prescribing,0.0000,1.0000
+Gemini 3.5 Flash-Lite,GUI,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,chronic_urticaria_allergist,Prescribing,0.3333,0.3333
+Gemini 3.5 Flash-Lite,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,covid_immunocompromised,Prescribing,0.6667,0.6667
+Gemini 3.5 Flash-Lite,GUI,dermatology_econsult_rash,Prescribing,0.3333,0.3333
+Gemini 3.5 Flash-Lite,GUI,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,ed_premature_ejaculation,Prescribing,0.3333,0.3333
+Gemini 3.5 Flash-Lite,GUI,headache_classification,Diagnosis,0.6667,0.6667
+Gemini 3.5 Flash-Lite,GUI,incidental_pulmonary_findings,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,inflammatory_arthritis_serology,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,liver_enzymes_pregnancy,Workup,0.0000,0.3333
+Gemini 3.5 Flash-Lite,GUI,liver_gallbladder_findings,Workup,1.0000,1.0000
+Gemini 3.5 Flash-Lite,GUI,mds_iron_overload,Prescribing,0.6667,0.3333
+Gemini 3.5 Flash-Lite,GUI,nafld_ferritin_workup,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,new_onset_afib_young,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,oligomenorrhea_pcos,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,osteoarthritis_nsaid_intolerant,Prescribing,0.3333,0.0000
+Gemini 3.5 Flash-Lite,GUI,osteoporosis_metabolic_workup,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,pcp_rash_workup,Prescribing,0.0000,0.6667
+Gemini 3.5 Flash-Lite,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,persistent_diarrhea_workup,Workup,0.6667,0.6667
+Gemini 3.5 Flash-Lite,GUI,post_gi_bleed_followup,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,pregnancy_anemia_thalassemia,Workup,0.3333,0.3333
+Gemini 3.5 Flash-Lite,GUI,pruritic_papular_rash,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,pulsatile_tinnitus_workup,Workup,1.0000,1.0000
+Gemini 3.5 Flash-Lite,GUI,quantiferon_renal_tb,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,ssri_intolerance_switch,Prescribing,0.3333,0.0000
+Gemini 3.5 Flash-Lite,GUI,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,thyroid_medication_management,Prescribing,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,tick_borne_coinfection,Diagnosis,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,tinnitus_imaging_workup,Workup,0.3333,0.3333
+Gemini 3.5 Flash-Lite,GUI,travel_parasitic_infection,Workup,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,urinary_retention_workup,Treatment planning,0.0000,0.0000
+Gemini 3.5 Flash-Lite,GUI,vte_prophylaxis_substitution,Prescribing,1.0000,1.0000
+Qwen3-VL-32B-Instruct,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,asbestos_exposure,Workup,0.3333,0.3333
+Qwen3-VL-32B-Instruct,API,buprenorphine_initiation,Prescribing,0.0000,0.3333
+Qwen3-VL-32B-Instruct,API,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,chronic_urticaria_allergist,Prescribing,1.0000,1.0000
+Qwen3-VL-32B-Instruct,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,covid_immunocompromised,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,dermatology_econsult_rash,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,ed_premature_ejaculation,Prescribing,0.3333,0.0000
+Qwen3-VL-32B-Instruct,API,headache_classification,Diagnosis,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,incidental_pulmonary_findings,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,inflammatory_arthritis_serology,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,liver_enzymes_pregnancy,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,liver_gallbladder_findings,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,mds_iron_overload,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,nafld_ferritin_workup,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,new_onset_afib_young,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,oligomenorrhea_pcos,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,osteoarthritis_nsaid_intolerant,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,osteoporosis_metabolic_workup,Treatment planning,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,pcp_rash_workup,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,persistent_diarrhea_workup,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,post_gi_bleed_followup,Treatment planning,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,pregnancy_anemia_thalassemia,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,pruritic_papular_rash,Treatment planning,0.0000,0.3333
+Qwen3-VL-32B-Instruct,API,pulsatile_tinnitus_workup,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,quantiferon_renal_tb,Workup,0.0000,0.3333
+Qwen3-VL-32B-Instruct,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,thyroid_medication_management,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,tick_borne_coinfection,Diagnosis,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,tinnitus_imaging_workup,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,travel_parasitic_infection,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,urinary_retention_workup,Treatment planning,0.0000,0.0000
+Qwen3-VL-32B-Instruct,API,vte_prophylaxis_substitution,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,asbestos_exposure,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,buprenorphine_initiation,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,chronic_urticaria_allergist,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,covid_immunocompromised,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,dermatology_econsult_rash,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,ed_premature_ejaculation,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,headache_classification,Diagnosis,0.3333,0.3333
+Qwen3-VL-32B-Instruct,GUI,incidental_pulmonary_findings,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,inflammatory_arthritis_serology,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,liver_enzymes_pregnancy,Workup,0.0000,0.3333
+Qwen3-VL-32B-Instruct,GUI,liver_gallbladder_findings,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,mds_iron_overload,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,nafld_ferritin_workup,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,new_onset_afib_young,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,oligomenorrhea_pcos,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,osteoarthritis_nsaid_intolerant,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,osteoporosis_metabolic_workup,Treatment planning,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,pcp_rash_workup,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,persistent_diarrhea_workup,Workup,0.6667,0.6667
+Qwen3-VL-32B-Instruct,GUI,post_gi_bleed_followup,Treatment planning,1.0000,1.0000
+Qwen3-VL-32B-Instruct,GUI,pregnancy_anemia_thalassemia,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,pruritic_papular_rash,Treatment planning,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,pulsatile_tinnitus_workup,Workup,0.3333,0.3333
+Qwen3-VL-32B-Instruct,GUI,quantiferon_renal_tb,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,thyroid_medication_management,Prescribing,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,tick_borne_coinfection,Diagnosis,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,tinnitus_imaging_workup,Workup,0.3333,0.6667
+Qwen3-VL-32B-Instruct,GUI,travel_parasitic_infection,Workup,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,urinary_retention_workup,Treatment planning,0.0000,0.0000
+Qwen3-VL-32B-Instruct,GUI,vte_prophylaxis_substitution,Prescribing,0.0000,0.0000
+OpenCUA-7B,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+OpenCUA-7B,GUI,asbestos_exposure,Workup,0.3333,0.3333
+OpenCUA-7B,GUI,buprenorphine_initiation,Prescribing,0.0000,0.0000
+OpenCUA-7B,GUI,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+OpenCUA-7B,GUI,chronic_urticaria_allergist,Prescribing,0.3333,0.3333
+OpenCUA-7B,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+OpenCUA-7B,GUI,covid_immunocompromised,Prescribing,0.0000,0.0000
+OpenCUA-7B,GUI,dermatology_econsult_rash,Prescribing,0.0000,0.0000
+OpenCUA-7B,GUI,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+OpenCUA-7B,GUI,ed_premature_ejaculation,Prescribing,0.0000,0.0000
+OpenCUA-7B,GUI,headache_classification,Diagnosis,0.0000,0.0000
+OpenCUA-7B,GUI,incidental_pulmonary_findings,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,inflammatory_arthritis_serology,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,liver_enzymes_pregnancy,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,liver_gallbladder_findings,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,mds_iron_overload,Prescribing,0.0000,0.0000
+OpenCUA-7B,GUI,nafld_ferritin_workup,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,new_onset_afib_young,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,oligomenorrhea_pcos,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,osteoarthritis_nsaid_intolerant,Prescribing,0.0000,0.0000
+OpenCUA-7B,GUI,osteoporosis_metabolic_workup,Treatment planning,0.3333,0.3333
+OpenCUA-7B,GUI,pcp_rash_workup,Prescribing,0.0000,0.0000
+OpenCUA-7B,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,persistent_diarrhea_workup,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,post_gi_bleed_followup,Treatment planning,0.3333,1.0000
+OpenCUA-7B,GUI,pregnancy_anemia_thalassemia,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,pruritic_papular_rash,Treatment planning,0.0000,0.3333
+OpenCUA-7B,GUI,pulsatile_tinnitus_workup,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,quantiferon_renal_tb,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+OpenCUA-7B,GUI,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+OpenCUA-7B,GUI,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,thyroid_medication_management,Prescribing,0.0000,0.0000
+OpenCUA-7B,GUI,tick_borne_coinfection,Diagnosis,0.0000,0.0000
+OpenCUA-7B,GUI,tinnitus_imaging_workup,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,travel_parasitic_infection,Workup,0.0000,0.0000
+OpenCUA-7B,GUI,urinary_retention_workup,Treatment planning,0.0000,0.0000
+OpenCUA-7B,GUI,vte_prophylaxis_substitution,Prescribing,0.0000,0.0000
+OpenCUA-32B,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+OpenCUA-32B,GUI,asbestos_exposure,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,buprenorphine_initiation,Prescribing,0.0000,0.0000
+OpenCUA-32B,GUI,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+OpenCUA-32B,GUI,chronic_urticaria_allergist,Prescribing,0.0000,0.0000
+OpenCUA-32B,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+OpenCUA-32B,GUI,covid_immunocompromised,Prescribing,0.0000,0.0000
+OpenCUA-32B,GUI,dermatology_econsult_rash,Prescribing,0.0000,0.0000
+OpenCUA-32B,GUI,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+OpenCUA-32B,GUI,ed_premature_ejaculation,Prescribing,0.0000,0.0000
+OpenCUA-32B,GUI,headache_classification,Diagnosis,0.0000,0.0000
+OpenCUA-32B,GUI,incidental_pulmonary_findings,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,inflammatory_arthritis_serology,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,liver_enzymes_pregnancy,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,liver_gallbladder_findings,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,mds_iron_overload,Prescribing,0.0000,0.0000
+OpenCUA-32B,GUI,nafld_ferritin_workup,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,new_onset_afib_young,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,oligomenorrhea_pcos,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,osteoarthritis_nsaid_intolerant,Prescribing,0.0000,0.0000
+OpenCUA-32B,GUI,osteoporosis_metabolic_workup,Treatment planning,0.0000,0.3333
+OpenCUA-32B,GUI,pcp_rash_workup,Prescribing,0.0000,0.0000
+OpenCUA-32B,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,persistent_diarrhea_workup,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,post_gi_bleed_followup,Treatment planning,0.3333,0.3333
+OpenCUA-32B,GUI,pregnancy_anemia_thalassemia,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,pruritic_papular_rash,Treatment planning,0.0000,0.0000
+OpenCUA-32B,GUI,pulsatile_tinnitus_workup,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,quantiferon_renal_tb,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+OpenCUA-32B,GUI,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+OpenCUA-32B,GUI,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,thyroid_medication_management,Prescribing,0.0000,0.0000
+OpenCUA-32B,GUI,tick_borne_coinfection,Diagnosis,0.0000,0.0000
+OpenCUA-32B,GUI,tinnitus_imaging_workup,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,travel_parasitic_infection,Workup,0.0000,0.0000
+OpenCUA-32B,GUI,urinary_retention_workup,Treatment planning,0.0000,0.0000
+OpenCUA-32B,GUI,vte_prophylaxis_substitution,Prescribing,0.0000,0.0000
+MedGemma 27B,API,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+MedGemma 27B,API,asbestos_exposure,Workup,0.3333,0.3333
+MedGemma 27B,API,buprenorphine_initiation,Prescribing,0.0000,0.0000
+MedGemma 27B,API,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+MedGemma 27B,API,chronic_urticaria_allergist,Prescribing,0.0000,0.0000
+MedGemma 27B,API,ckd_on_prep,Diagnosis,0.0000,0.0000
+MedGemma 27B,API,covid_immunocompromised,Prescribing,0.0000,0.0000
+MedGemma 27B,API,dermatology_econsult_rash,Prescribing,0.0000,0.0000
+MedGemma 27B,API,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+MedGemma 27B,API,ed_premature_ejaculation,Prescribing,0.0000,0.0000
+MedGemma 27B,API,headache_classification,Diagnosis,0.0000,0.0000
+MedGemma 27B,API,incidental_pulmonary_findings,Workup,0.0000,0.0000
+MedGemma 27B,API,inflammatory_arthritis_serology,Workup,0.0000,0.0000
+MedGemma 27B,API,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+MedGemma 27B,API,liver_enzymes_pregnancy,Workup,0.0000,0.0000
+MedGemma 27B,API,liver_gallbladder_findings,Workup,0.0000,0.0000
+MedGemma 27B,API,mds_iron_overload,Prescribing,0.0000,0.0000
+MedGemma 27B,API,nafld_ferritin_workup,Workup,0.0000,0.0000
+MedGemma 27B,API,new_onset_afib_young,Workup,0.0000,0.0000
+MedGemma 27B,API,oligomenorrhea_pcos,Workup,0.0000,0.0000
+MedGemma 27B,API,osteoarthritis_nsaid_intolerant,Prescribing,0.0000,0.0000
+MedGemma 27B,API,osteoporosis_metabolic_workup,Treatment planning,0.0000,0.0000
+MedGemma 27B,API,pcp_rash_workup,Prescribing,0.0000,0.0000
+MedGemma 27B,API,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+MedGemma 27B,API,persistent_diarrhea_workup,Workup,0.0000,0.0000
+MedGemma 27B,API,post_gi_bleed_followup,Treatment planning,0.0000,0.0000
+MedGemma 27B,API,pregnancy_anemia_thalassemia,Workup,0.0000,0.0000
+MedGemma 27B,API,pruritic_papular_rash,Treatment planning,0.0000,0.0000
+MedGemma 27B,API,pulsatile_tinnitus_workup,Workup,0.0000,0.0000
+MedGemma 27B,API,quantiferon_renal_tb,Workup,0.0000,0.0000
+MedGemma 27B,API,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+MedGemma 27B,API,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+MedGemma 27B,API,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+MedGemma 27B,API,thyroid_medication_management,Prescribing,0.0000,0.0000
+MedGemma 27B,API,tick_borne_coinfection,Diagnosis,0.0000,0.0000
+MedGemma 27B,API,tinnitus_imaging_workup,Workup,0.0000,0.0000
+MedGemma 27B,API,travel_parasitic_infection,Workup,0.0000,0.0000
+MedGemma 27B,API,urinary_retention_workup,Treatment planning,0.0000,0.0000
+MedGemma 27B,API,vte_prophylaxis_substitution,Prescribing,0.0000,0.0000
+MedGemma 27B,GUI,afib_tachy_brady_elderly,Diagnosis,0.0000,0.0000
+MedGemma 27B,GUI,asbestos_exposure,Workup,0.0000,0.0000
+MedGemma 27B,GUI,buprenorphine_initiation,Prescribing,0.0000,0.0000
+MedGemma 27B,GUI,chronic_cough_stepwise,Treatment planning,0.0000,0.0000
+MedGemma 27B,GUI,chronic_urticaria_allergist,Prescribing,0.0000,0.0000
+MedGemma 27B,GUI,ckd_on_prep,Diagnosis,0.0000,0.0000
+MedGemma 27B,GUI,covid_immunocompromised,Prescribing,0.0000,0.0000
+MedGemma 27B,GUI,dermatology_econsult_rash,Prescribing,0.0000,0.0000
+MedGemma 27B,GUI,diabetes_a1c_improvement,Prescribing,0.0000,0.0000
+MedGemma 27B,GUI,ed_premature_ejaculation,Prescribing,0.0000,0.0000
+MedGemma 27B,GUI,headache_classification,Diagnosis,0.0000,0.0000
+MedGemma 27B,GUI,incidental_pulmonary_findings,Workup,0.0000,0.0000
+MedGemma 27B,GUI,inflammatory_arthritis_serology,Workup,0.0000,0.0000
+MedGemma 27B,GUI,liver_enzymes_fibrosis_workup,Workup,0.0000,0.0000
+MedGemma 27B,GUI,liver_enzymes_pregnancy,Workup,0.0000,0.0000
+MedGemma 27B,GUI,liver_gallbladder_findings,Workup,0.0000,0.0000
+MedGemma 27B,GUI,mds_iron_overload,Prescribing,0.0000,0.0000
+MedGemma 27B,GUI,nafld_ferritin_workup,Workup,0.0000,0.0000
+MedGemma 27B,GUI,new_onset_afib_young,Workup,0.0000,0.0000
+MedGemma 27B,GUI,oligomenorrhea_pcos,Workup,0.0000,0.0000
+MedGemma 27B,GUI,osteoarthritis_nsaid_intolerant,Prescribing,0.0000,0.0000
+MedGemma 27B,GUI,osteoporosis_metabolic_workup,Treatment planning,0.0000,0.0000
+MedGemma 27B,GUI,pcp_rash_workup,Prescribing,0.0000,0.0000
+MedGemma 27B,GUI,peripheral_neuropathy_workup,Workup,0.0000,0.0000
+MedGemma 27B,GUI,persistent_diarrhea_workup,Workup,0.0000,0.0000
+MedGemma 27B,GUI,post_gi_bleed_followup,Treatment planning,0.0000,0.0000
+MedGemma 27B,GUI,pregnancy_anemia_thalassemia,Workup,0.0000,0.0000
+MedGemma 27B,GUI,pruritic_papular_rash,Treatment planning,0.0000,0.0000
+MedGemma 27B,GUI,pulsatile_tinnitus_workup,Workup,0.0000,0.0000
+MedGemma 27B,GUI,quantiferon_renal_tb,Workup,0.0000,0.0000
+MedGemma 27B,GUI,recurrent_olecranon_bursitis,Treatment planning,0.0000,0.0000
+MedGemma 27B,GUI,ssri_intolerance_switch,Prescribing,0.0000,0.0000
+MedGemma 27B,GUI,thrombocytopenia_immunotherapy,Workup,0.0000,0.0000
+MedGemma 27B,GUI,thyroid_medication_management,Prescribing,0.0000,0.0000
+MedGemma 27B,GUI,tick_borne_coinfection,Diagnosis,0.0000,0.0000
+MedGemma 27B,GUI,tinnitus_imaging_workup,Workup,0.0000,0.0000
+MedGemma 27B,GUI,travel_parasitic_infection,Workup,0.0000,0.0000
+MedGemma 27B,GUI,urinary_retention_workup,Treatment planning,0.0000,0.0000
+MedGemma 27B,GUI,vte_prophylaxis_substitution,Prescribing,0.0000,0.0000

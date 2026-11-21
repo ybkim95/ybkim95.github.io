@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611210915">
+<link rel="stylesheet" href="style.css?v=202611211030">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -101,6 +101,7 @@
 <section id="leaderboard" class="band">
   <h2>Leaderboard</h2>
   <p class="lead">Nineteen models on real specialist consultations from PhysicianBench, three attempts per task through each interface. An attempt succeeds when the record holds every required order and breaks no safety rule. Frontier models are the seven that succeed on more than two thirds of tasks through either interface.</p>
+  <p class="lb-meta" id="lb-meta"></p>
   <div class="lb-head">
     <div class="cats" id="cats" role="tablist" aria-label="Task category"></div>
     <div class="seg" role="group" aria-label="Grader" id="grader-seg">
@@ -113,7 +114,17 @@
     </div>
   </div>
   <div class="lb"><p class="key lb-key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</p><div id="lb"></div></div>
-  <div class="lb-foot"><p class="caption">pass@1 averages the three attempts at each task, pass<sup>3</sup> counts the tasks solved on all three. Bars show 95% intervals. The original grader is PhysicianBench's own order checks, as in the paper's Table 1, and the revised grader also accepts equivalent orders and limits extra orders. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
+  <div class="lb-foot"><p class="caption">USD per episode is one attempt at list prices with cached input at its cache rate, and a dash marks open weight models run on our servers. pass@1 averages the three attempts at each task, pass<sup>3</sup> counts the tasks solved on all three. Bars show 95% intervals. The original grader is PhysicianBench's own order checks, as in the paper's Table 1, and the revised grader also accepts equivalent orders and limits extra orders. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
+  <details class="updates">
+    <summary>Updates</summary>
+    <ul>
+      <li><time datetime="2026-11-21">21 Nov 2026</time> The leaderboard opens on the original grader, as the paper's Table 1, with ranks, cost per episode, run dates and downloads.</li>
+      <li><time datetime="2026-11-18">18 Nov 2026</time> Findings on notes against the record and on the kinds of required orders.</li>
+      <li><time datetime="2026-11-17">17 Nov 2026</time> Gemini 4 Carbon, Gemini 4 Hydrogen and GPT-6.2 Astra added, with the final version of the revised grader.</li>
+      <li><time datetime="2026-11-10">10 Nov 2026</time> Claude Fable 5.2 added.</li>
+      <li><time datetime="2026-11-07">7 Nov 2026</time> Project page released.</li>
+    </ul>
+  </details>
 </section>
 
 <section id="findings">
@@ -234,7 +245,7 @@
 </dialog>
 
 <script src="logo.js?v=202611110400" defer></script>
-<script src="viewer.js?v=202611101400" defer></script>
-<script src="app.js?v=202611210830" defer></script>
+<script src="viewer.js?v=202611211000" defer></script>
+<script src="app.js?v=202611211000" defer></script>
 </body>
 </html>

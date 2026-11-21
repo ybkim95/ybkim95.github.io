@@ -62,6 +62,17 @@ function agents() {
     MODELS = list; CACHE[FIRST] = D;
     const box = $('agents');
     box.innerHTML = list.map((m, k) => `<button type="button" role="tab" aria-selected="${k === 0}" data-k="${m.key}">${m.model}</button>`).join('');
+    // load every agent's episode (about 17 KB each) and mark the agents with a failed run, so a failure is one click away
+    list.forEach((m) => {
+      const got = CACHE[m.key] ? Promise.resolve(CACHE[m.key]) : fetch(ROOTDIR + (m.key ? m.key + '/' : '') + 'episode.json?v=202611101400').then((r) => r.json()).then((d) => (CACHE[m.key] = d));
+      got.then((d) => {
+        const bad = Object.entries(d.interfaces).filter(([, v]) => !v.success).map(([n]) => NAMES[n]);
+        if (!bad.length) return;
+        const b = box.querySelector(`button[data-k="${m.key}"]`);
+        b.classList.add('has-fail'); b.title = `Failed in ${bad.join(' and ')}`;
+        b.append(el('span', 'failmark', `failed in ${bad.join(', ')}`));
+      }).catch(() => {});
+    });
     box.onclick = (e) => {
       const b = e.target.closest('button'); if (!b) return;
       box.querySelectorAll('button').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
@@ -161,15 +172,34 @@ function buildPhases() {
   });
 }
 
+// The grader's verdict on every check of the task, per interface, with the episode's result below (the checks the task was written with).
 function buildOutcome() {
   const box = $('outcome-grid');
-  ['api', 'gui', 'openmrs'].forEach((name) => {
-    const v = D.interfaces[name];
-    const p = el('p', 'pill');
-    p.append(el('span', 'dot ' + name), document.createTextNode(NAMES[name] + ' '),
-      el('b', v.success ? 'ok' : 'fail', v.success ? 'Success' : 'Failed'), el('small', null, v.actions + (name === 'api' ? ' tool calls' : ' actions')));
-    box.append(p);
+  const uis = ['api', 'gui', 'openmrs'].filter((n) => D.interfaces[n]);
+  const t = el('table', 'verdict');
+  t.append(el('caption', null, `Grader verdict on each check of this task, ${D.model}`));
+  const head = el('tr');
+  head.append(el('th', null, 'Check'));
+  uis.forEach((n) => { const th = el('th'); th.scope = 'col'; th.append(el('span', 'dot ' + n), document.createTextNode(NAMES[n])); head.append(th); });
+  const thead = el('thead'); thead.append(head);
+  const body = el('tbody');
+  D.interfaces[uis[0]].checks.forEach(({ label }) => {
+    const tr = el('tr'); const th = el('th', null, label); th.scope = 'row'; tr.append(th);
+    uis.forEach((n) => {
+      const c = D.interfaces[n].checks.find((x) => x.label === label), ok = !!(c && c.pass);
+      const td = el('td', ok ? 'ok' : 'fail', ok ? '✓' : '✗'); td.setAttribute('aria-label', ok ? 'passed' : 'failed'); tr.append(td);
+    });
+    body.append(tr);
   });
+  const fr = el('tr'); const fth = el('th', null, 'Episode'); fth.scope = 'row'; fr.append(fth);
+  uis.forEach((n) => {
+    const v = D.interfaces[n], td = el('td', v.success ? 'ok' : 'fail');
+    td.append(el('b', null, v.success ? 'Success' : 'Failed'), el('small', null, v.actions + (n === 'api' ? ' tool calls' : ' actions')));
+    fr.append(td);
+  });
+  const foot = el('tfoot'); foot.append(fr);
+  t.append(thead, body, foot);
+  box.append(t);
 }
 
 function setUi(name) {

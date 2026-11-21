@@ -27,13 +27,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611211240">
+<link rel="stylesheet" href="style.css?v=202611211700">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
   <a class="brand" href="#"><img src="assets/brand/logo-96.png" alt="" width="28" height="28">Health-CUA</a>
-  <nav aria-label="Sections">
+  <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav" aria-label="Sections"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+  <nav id="nav" aria-label="Sections">
     <a href="#leaderboard">Leaderboard</a>
     <a href="#findings">Findings</a>
     <a href="#tasks">Tasks</a>
@@ -52,10 +53,23 @@
     <button class="btn primary" type="button" id="watch"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>Watch overview</button>
     <a class="btn" href="#leaderboard">Leaderboard</a>
   </div>
-  <div class="cover" id="cover" aria-roledescription="carousel" aria-label="Screens from synthetic tasks">
-    <div class="cover-stage" id="cover-stage"></div>
-    <p class="cover-cap" id="cover-cap" aria-live="polite"></p>
-  </div>
+  <figure class="loop" id="loop">
+    <div class="loop-win">
+      <div class="loop-bar" aria-hidden="true"><i></i><i></i><i></i><span id="loop-phase">Read the chart</span></div>
+      <div class="shot" id="loop-shot"><img alt="The EHR screen the agent saw" width="1200" height="750"></div>
+      <button class="loop-btn" id="loop-btn" type="button" aria-label="Pause"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg></button>
+    </div>
+    <figcaption>Claude Fable 5.2 orders amoxicillin for early Lyme disease and signs a note through the GUI, on a synthetic patient. 21 of its 51 actions. <a href="#replay">Step through the whole episode</a></figcaption>
+  </figure>
+</section>
+
+<section class="glance" aria-label="At a glance">
+  <ul>
+    <li><b>355</b><span>clinical tasks, 316 public with their answers</span></li>
+    <li><b>19</b><span>models on the leaderboard</span></li>
+    <li><b>13</b><span>fields of medicine</span></li>
+    <li><b>3</b><span>interfaces, the API and the GUI on one record, and OpenMRS</span></li>
+  </ul>
 </section>
 
 <section id="replay">
@@ -123,6 +137,7 @@
   <details class="updates">
     <summary>Updates</summary>
     <ul>
+      <li><time datetime="2026-11-21">21 Nov 2026</time> A browser of the 316 public tasks with their answer keys and every held out attempt through the API and the GUI, a per task grid in each leaderboard row, and success against cost.</li>
       <li><time datetime="2026-11-21">21 Nov 2026</time> The leaderboard opens on the original grader, as the paper's Table 1, with ranks, cost per episode, run dates and downloads.</li>
       <li><time datetime="2026-11-18">18 Nov 2026</time> Findings on notes against the record and on the kinds of required orders.</li>
       <li><time datetime="2026-11-17">17 Nov 2026</time> Gemini 4 Carbon, Gemini 4 Hydrogen and GPT-6.2 Astra added, with the final version of the revised grader.</li>
@@ -137,33 +152,38 @@
   <div class="cards">
     <article class="card">
       <h3>On held out tasks, three frontier models do as well on screen as through the API, or better</h3>
+      <p class="sub">150 held out tasks · synthetic task grader · three attempts per task, one for Claude Opus 5.5 and Gemini 4 Argon</p>
       <div class="viz" id="c-equiv"></div>
-      <p class="note">150 held out tasks, synthetic task grader. Claude Opus 5.5 and Gemini 4 Argon ran once per task.</p>
     </article>
     <article class="card">
       <h3>31% of the notes a judge passed came from attempts that failed</h3>
+      <p class="sub">39 consultations · 4,102 attempts of the 19 leaderboard models · exploratory</p>
       <div class="viz" id="c-notes"></div>
-      <p class="note">Exploratory, 4,102 attempts of the 19 leaderboard models. gpt-oss-120b graded each note against PhysicianBench's rubrics without seeing the record, and the revised grader graded the record. A second judge, Gemini 3.8 Flash, gives 32%. Both judges are language models without physician calibration.</p>
+      <p class="note">gpt-oss-120b graded each note against PhysicianBench's rubrics without seeing the record, and the revised grader graded the record. A second judge, Gemini 3.8 Flash, gives 32%. Both judges are language models without physician calibration.</p>
     </article>
     <article class="card">
       <h3>Three screenshots are not enough</h3>
+      <p class="sub">Claude Sonnet 5.5 through the GUI · 39 consultations · three attempts per task · original grader</p>
       <div class="big"><span>1%</span><i>→</i><span>69%</span></div>
-      <p class="note">Claude Sonnet 5.5 with the last three screenshots, the default of Anthropic's computer use demo, against its full history, original grader</p>
+      <p class="note">Success with only the last three screenshots, the default of Anthropic's computer use demo, against the full history</p>
     </article>
     <article class="card">
       <h3>In OpenMRS, success drops 16 to 19 points</h3>
+      <p class="sub">106 held out tasks that OpenMRS can grade · first attempt</p>
       <div class="viz" id="c-openmrs"></div>
-      <p class="note">First attempt on the 106 held out tasks that OpenMRS can grade. Gemini 3.5 Flash-Lite drops 29 points.</p>
+      <p class="note">Gemini 3.5 Flash-Lite drops 29 points.</p>
     </article>
     <article class="card">
       <h3>On screen, referrals are the orders frontier models leave out most</h3>
+      <p class="sub">39 consultations · seven frontier models · revised grader</p>
       <div class="viz" id="c-orders"></div>
-      <p class="note">Share of required orders placed, by kind of order, mean of the seven frontier models, revised grader. Only 4 of its 55 checks are referrals, so the shares are descriptive.</p>
+      <p class="note">Share of required orders placed, by kind of order, averaged over the models. Only 4 of the 55 checks are referrals, so the shares are descriptive.</p>
     </article>
     <article class="card">
       <h3>On screen, agents place fewer extra orders</h3>
+      <p class="sub">39 consultations · eight leading models · revised grader</p>
       <div class="viz" id="c-extra"></div>
-      <p class="note">Reasonable extra orders per episode on 39 consultations from PhysicianBench</p>
+      <p class="note">Reasonable extra orders per episode</p>
     </article>
   </div>
 
@@ -270,8 +290,8 @@
 </dialog>
 
 <script src="logo.js?v=202611110400" defer></script>
-<script src="viewer.js?v=202611211000" defer></script>
-<script src="app.js?v=202611211240" defer></script>
+<script src="viewer.js?v=202611211700" defer></script>
+<script src="app.js?v=202611211700" defer></script>
 <script src="tasks.js?v=202611211230" defer></script>
 </body>
 </html>

@@ -291,6 +291,7 @@ function makeStage(shot, base) {
   const clear = () => ['bubble', 'keycap', 'wheel'].forEach((c) => sq('.' + c).classList.remove('on'));
   function show(f, preload = []) {
     img.src = B() + f.img;
+    img.alt = `The EHR screen the agent saw${f.sec ? ', ' + f.sec : ''}${f.do ? '. Its next action: ' + f.do : ''}`;
     preload.forEach((n) => { if (n && n.img) new Image().src = B() + n.img; });
     if (f.x != null) ptr = { x: f.x, y: f.y };
     place(ptr); sq('.pointer').style.opacity = f.do ? 1 : 0; clear();

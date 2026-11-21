@@ -1,4 +1,4 @@
-// Coverflow, video modal, BibTeX copy, leaderboard, findings, grader and task charts. Numbers come from data/results.json.
+// Hero loop, menu, video modal, BibTeX copy, leaderboard, findings, grader and task charts. Numbers come from data/results.json.
 const q = (s, r = document) => r.querySelector(s);
 const h = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
 const fx = (v) => v.toFixed(1);
@@ -26,59 +26,56 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   dlg.addEventListener('close', () => v.pause());
 })();
 
-// ------------------------------------------------------------------ coverflow
+
+// ------------------------------------------------------------------ hero loop
+// A condensed GUI episode replayed by the episode player's stage (viewer.js): it plays only while in view and the tab is visible,
+// never starts by itself under reduced motion, and the button pauses it.
 (() => {
-  const S = 'assets/demo/sr259/', C = 'assets/cover/';
-  const items = [
-    { img: S + 'gui/26072ffcd16d0fed.webp', cap: 'GUI, ordering amoxicillin' },
-    { img: S + 'openmrs/1c0ccbf0d226998b.webp', cap: 'OpenMRS, the same order' },
-    { api: true, cap: 'API, the same order as one tool call' },
-    { img: C + 'sr153_gui_step17.webp', cap: 'GUI, a scanned lab report' },
-    { img: C + 'sr153_gui_step72.webp', cap: 'GUI, reviewing an order before signing' },
-    { img: S + 'gui/e805453b35c908db.webp', cap: 'GUI, writing the note' },
-    { img: S + 'openmrs/b5f5b2d0614eaf6b.webp', cap: 'OpenMRS, the visit note' },
-    { img: C + 'sr153_gui_step80.webp', cap: 'GUI, scheduling a follow up test' },
-  ];
-  const stage = q('#cover-stage'), cap = q('#cover-cap');
-  const els = items.map((it, k) => {
-    const b = h('button', 'cv');
-    b.type = 'button'; b.setAttribute('aria-label', it.cap);
-    if (it.api) {
-      b.classList.add('api-card');
-      b.innerHTML = '<span class="api-top"><i></i><i></i><i></i>FHIR tool call</span><code><b>fhir_medication_request_create</b>(\n'
-        + '  patient_reference = "Patient/sr-259",\n  medication_display = "Amoxicillin 500 MG Oral Capsule",\n'
-        + '  dose_value = 500, dose_unit = "mg",\n  frequency_text = "Three times daily (every 8 hours)",\n  duration_value = 14, duration_unit = "d"\n)</code>'
-        + '<span class="api-res">→ MedicationRequest created, authored 2024-06-03</span>';
-    } else {
-      b.innerHTML = `<img src="${it.img}" alt="" loading="${k < 3 ? 'eager' : 'lazy'}" width="1200" height="750">`;
-    }
-    b.onclick = () => { go(k); };
-    stage.append(b);
-    return b;
-  });
-  let cur = 0, timer = null;
-  function go(k) {
-    cur = (k + items.length) % items.length;
-    els.forEach((e, j) => {
-      let o = j - cur;
-      if (o > items.length / 2) o -= items.length;
-      if (o < -items.length / 2) o += items.length;
-      const a = Math.abs(o);
-      e.style.transform = `translateX(${o * 44}%) translateZ(${-a * 140}px) rotateY(${-o * 24}deg) scale(${1 - a * 0.06})`;
-      e.style.opacity = a > 2 ? 0 : 1;  // side cards stay opaque so they never show through each other; a veil dims them
-      e.style.setProperty('--dim', Math.min(a * 0.32, 0.7));
-      e.style.zIndex = 10 - a;
-      e.tabIndex = o === 0 ? 0 : -1;
-      e.classList.toggle('on', o === 0);
-    });
-    cap.textContent = items[cur].cap;
+  const shot = q('#loop-shot'), btn = q('#loop-btn'), cap = q('#loop-phase');
+  if (!shot || typeof makeStage !== 'function') return;
+  const BASE = 'assets/demo/sr259/fable/', PICK = [0, 1, 12, 13, 14, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 28, 29, 30, 45, 48, 49, 50];
+  const S = makeStage(shot, BASE);
+  let F, k = 0, run = 0, playing = false, want = !reducedMotion, inView = false;
+  const icon = (p) => { btn.innerHTML = p ? '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg>' : '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.5v11l9-5.5z"/></svg>'; btn.setAttribute('aria-label', p ? 'Pause' : 'Play'); };
+  const frame = (j) => { S.show(F[j], [F[(j + 1) % F.length]]); cap.textContent = PHASES[F[j].phase]; };
+  async function loop(id) {
+    const alive = () => id === run;
+    try {
+      frame(k);
+      for (;;) {
+        const f = F[k], j = (k + 1) % F.length;
+        if (f.do) await S.act(f, alive); else await S.wait(1800, alive);
+        await S.crossfade(F[j], alive); k = j; frame(k); await S.wait(200, alive);
+      }
+    } catch (e) { /* stopped */ }
   }
-  const play = () => { if (!reducedMotion && !timer) timer = setInterval(() => go(cur + 1), 3200); };
-  const pause = () => { clearInterval(timer); timer = null; };
-  stage.addEventListener('mouseenter', pause); stage.addEventListener('mouseleave', play);
-  stage.addEventListener('focusin', pause); stage.addEventListener('focusout', play);
-  stage.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') go(cur + 1); if (e.key === 'ArrowLeft') go(cur - 1); });
-  go(0); play();
+  function sync() {
+    const go = want && inView && !document.hidden;
+    icon(want);
+    if (go === playing || !F) return;
+    playing = go; run++;
+    if (go) loop(run); else S.clear();
+  }
+  btn.onclick = () => { want = !want; sync(); };
+  document.addEventListener('visibilitychange', sync);
+  fetch(BASE + 'episode.json?v=202611101400').then((r) => r.json()).then((d) => {
+    const all = d.interfaces.gui.frames;
+    F = PICK.map((j) => all[j]);
+    if (reducedMotion) k = PICK.indexOf(19);  // a still of the order form until the reader presses play
+    frame(k);
+    new IntersectionObserver(([e]) => { inView = e.isIntersecting; sync(); }, { threshold: 0.25 }).observe(shot);
+  }).catch(() => { q('#loop').hidden = true; });
+  icon(want);
+})();
+
+// ------------------------------------------------------------------ menu on narrow screens
+(() => {
+  const b = q('.menu-btn'), n = q('#nav');
+  const set = (o) => { n.classList.toggle('open', o); b.setAttribute('aria-expanded', String(o)); };
+  b.onclick = (e) => { e.stopPropagation(); set(!n.classList.contains('open')); };
+  n.addEventListener('click', (e) => { if (e.target.closest('a')) set(false); });
+  document.addEventListener('click', (e) => { if (!e.target.closest('.top')) set(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && n.classList.contains('open')) { set(false); b.focus(); } });
 })();
 
 fetch('data/results.json?v=202611211200').then((r) => r.json()).then((R) => {
@@ -340,14 +337,6 @@ function donut(fig, title, segs, unit = 'tasks') {
   fig.addEventListener('mouseleave', () => set(null));
 }
 
-// One-shot bar growth: each chart animates fully once it is a fifth in view.
-(() => {
-  if (!('IntersectionObserver' in window)) return;
-  document.documentElement.classList.add('anim-bars');
-  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold: 0.2});
-  const watch = () => document.querySelectorAll('.bars:not(.in), .viz:not(.in)').forEach(el => io.observe(el));
-  watch(); ['#lb', '#findings', '#grader'].forEach(sel => { const el = document.querySelector(sel); if (el) new MutationObserver(watch).observe(el, {childList: true, subtree: true}); });
-})();
 
 // ------------------------------------------------------------------ failure clips
 // Short stretches of synthetic-task episodes, loaded when the block first comes into view and played only while it is visible.

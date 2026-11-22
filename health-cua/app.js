@@ -28,36 +28,42 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
 
 
 // ------------------------------------------------------------------ coverflow
+// Each card says which interface it shows and what the agent does there. The card in front replays the recorded actions of
+// Claude Sonnet 5.5 on task sr259 (pointer, clicks, typing); the API card types its tool call; a still screen zooms to the part
+// that matters (focus: centre and size of the ring, in % of the card). The fan moves on when the card in front has finished.
 (() => {
-  const S = 'assets/demo/sr259/', C = 'assets/cover/';
+  const S = 'assets/demo/sr259/', C = 'assets/cover/', UI = { gui: 'GUI', openmrs: 'OpenMRS', api: 'API' };
   const items = [
-    { img: S + 'gui/26072ffcd16d0fed.webp', cap: 'GUI, ordering amoxicillin' },
-    { img: S + 'openmrs/1c0ccbf0d226998b.webp', cap: 'OpenMRS, the same order' },
-    { api: true, cap: 'API, the same order as one tool call' },
-    { img: C + 'sr153_gui_step17.webp', cap: 'GUI, a scanned lab report' },
-    { img: C + 'sr153_gui_step72.webp', cap: 'GUI, reviewing an order before signing' },
-    { img: S + 'gui/e805453b35c908db.webp', cap: 'GUI, writing the note' },
-    { img: S + 'openmrs/b5f5b2d0614eaf6b.webp', cap: 'OpenMRS, the visit note' },
-    { img: C + 'sr153_gui_step80.webp', cap: 'GUI, scheduling a follow up test' },
+    { ui: 'gui', what: 'Ordering amoxicillin', img: S + 'gui/26072ffcd16d0fed.webp', clip: ['gui', 12, 16] },
+    { ui: 'openmrs', what: 'The same order in OpenMRS', img: S + 'openmrs/1c0ccbf0d226998b.webp', clip: ['openmrs', 30, 34] },
+    { ui: 'api', what: 'The same order as one tool call' },
+    { ui: 'gui', what: 'Reading a scanned lab report', img: C + 'sr153_gui_step17.webp', focus: [71.5, 90, 32, 6] },
+    { ui: 'gui', what: 'Checking an order before signing', img: C + 'sr153_gui_step72.webp', focus: [47.8, 75, 10, 7] },
+    { ui: 'gui', what: 'Writing and signing the note', img: S + 'gui/e805453b35c908db.webp', clip: ['gui', 30, 35] },
+    { ui: 'openmrs', what: 'Writing the visit note', img: S + 'openmrs/b5f5b2d0614eaf6b.webp', clip: ['openmrs', 51, 55] },
+    { ui: 'gui', what: 'Scheduling a follow up test', img: C + 'sr153_gui_step80.webp', focus: [22, 62, 15, 7] },
   ];
+  const CODE = '<b>fhir_medication_request_create</b>(\n  patient_reference = "Patient/sr-259",\n  medication_display = "Amoxicillin 500 MG Oral Capsule",\n'
+    + '  dose_value = 500, dose_unit = "mg",\n  frequency_text = "Three times daily (every 8 hours)",\n  duration_value = 14, duration_unit = "d"\n)';
   const stage = q('#cover-stage');
   const els = items.map((it, k) => {
     const b = h('button', 'cv');
-    b.type = 'button'; b.setAttribute('aria-label', it.cap);
-    if (it.api) {
+    b.type = 'button'; b.setAttribute('aria-label', `${UI[it.ui]}, ${it.what}`);
+    if (it.ui === 'api') {
       b.classList.add('api-card');
-      b.innerHTML = '<span class="api-top"><i></i><i></i><i></i>FHIR tool call</span><code><b>fhir_medication_request_create</b>(\n'
-        + '  patient_reference = "Patient/sr-259",\n  medication_display = "Amoxicillin 500 MG Oral Capsule",\n'
-        + '  dose_value = 500, dose_unit = "mg",\n  frequency_text = "Three times daily (every 8 hours)",\n  duration_value = 14, duration_unit = "d"\n)</code>'
-        + '<span class="api-res">→ MedicationRequest created, authored 2024-06-03</span>';
+      b.innerHTML = `<span class="api-top"><i></i><i></i><i></i>FHIR tool call</span><code>${CODE}</code><span class="api-res">→ MedicationRequest created, authored 2024-06-03</span>`;
     } else {
       b.innerHTML = `<img src="${it.img}" alt="" loading="${k < 3 ? 'eager' : 'lazy'}" width="1200" height="750">`;
+      if (it.focus) { ['--fx', '--fy', '--fw', '--fh'].forEach((v, j) => b.style.setProperty(v, it.focus[j] + '%')); b.insertAdjacentHTML('beforeend', '<span class="spot"></span>'); }
     }
+    b.insertAdjacentHTML('beforeend', `<span class="cv-tag"><i class="dot ${it.ui}"></i><b>${UI[it.ui]}</b>${it.what}</span>`);
     b.onclick = () => { go(k); };
     stage.append(b);
     return b;
   });
-  let cur = 0, timer = null;
+  let cur = 0, run = 0, hold = false, F = null;
+  fetch(S + 'episode.json?v=202611220300').then((r) => r.json()).then((d) => { F = d.interfaces; }).catch(() => {});
+  const wait = (ms, alive) => new Promise((res, rej) => setTimeout(() => (alive() ? res() : rej(new Error('stopped'))), ms));
   function go(k) {
     cur = (k + items.length) % items.length;
     els.forEach((e, j) => {
@@ -72,13 +78,56 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
       e.tabIndex = o === 0 ? 0 : -1;
       e.classList.toggle('on', o === 0);
     });
+    start();
   }
-  const play = () => { if (!reducedMotion && !timer) timer = setInterval(() => go(cur + 1), 3200); };
-  const pause = () => { clearInterval(timer); timer = null; };
-  stage.addEventListener('mouseenter', pause); stage.addEventListener('mouseleave', play);
-  stage.addEventListener('focusin', pause); stage.addEventListener('focusout', play);
+  // a card back at rest: its first screen, no pointer, code shown in full
+  function rest(k) {
+    const it = items[k], e = els[k];
+    e.classList.remove('zoom', 'typing');
+    if (it.st && F) it.st.show(F[it.clip[0]].frames[it.clip[1]]);
+    if (it.ui === 'api') { q('code', e).innerHTML = CODE; }
+  }
+  async function play(k, alive) {
+    const it = items[k], e = els[k];
+    if (it.clip && F) {
+      const [ui, a, z] = it.clip, fr = F[ui].frames;
+      if (!it.st) it.st = makeStage(e, S);
+      it.st.show(fr[a]);
+      await wait(500, alive);
+      for (let j = a; j < z; j++) {
+        await it.st.act(fr[j], alive);
+        await it.st.crossfade(fr[j + 1], alive);
+        it.st.show(fr[j + 1], [fr[j + 2]], { keep: true });
+        await wait(160, alive);
+      }
+      await wait(1400, alive);
+    } else if (it.ui === 'api') {
+      const code = q('code', e), text = code.textContent;
+      e.classList.add('typing'); code.textContent = '';
+      for (let c = 1; c <= text.length; c += 2) { code.textContent = text.slice(0, c); await wait(16, alive); }
+      code.innerHTML = CODE; e.classList.remove('typing');
+      await wait(2600, alive);
+    } else if (it.focus) {
+      e.classList.add('zoom');
+      await wait(4600, alive);
+    } else {
+      await wait(3200, alive);  // the episode has not loaded yet
+    }
+  }
+  function start() {
+    const t = ++run, alive = () => t === run, k = cur;
+    els.forEach((e, j) => { if (j !== k) rest(j); });
+    const r = stage.getBoundingClientRect();
+    if (reducedMotion || r.bottom < 0 || r.top > innerHeight) return;  // checked here too, as scroll events can reach the observer late
+    play(k, alive).then(() => { if (alive() && !hold) go(cur + 1); }).catch(() => {});
+  }
+  const pause = () => { hold = true; }, resume = () => { if (hold) { hold = false; start(); } };
+  stage.addEventListener('mouseenter', pause); stage.addEventListener('mouseleave', resume);
+  stage.addEventListener('focusin', pause); stage.addEventListener('focusout', resume);
   stage.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') go(cur + 1); if (e.key === 'ArrowLeft') go(cur - 1); });
-  go(0); play();
+  let seen = true;
+  if ('IntersectionObserver' in window) new IntersectionObserver(([x]) => { if (x.isIntersecting && !seen) start(); if (!x.isIntersecting) run++; seen = x.isIntersecting; }).observe(stage);
+  go(0);
 })();
 
 // ------------------------------------------------------------------ menu on narrow screens
@@ -299,16 +348,17 @@ const ICON = {
   workflow: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',
   confirm: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
 };
-const SETS = { official: ['Consultations', 'Real specialist consultations on deidentified records'], standard: ['Standard', 'Synthetic patients, same kinds of task'],
-  hard: ['Added features', 'A fact in an older note, a corrected value, a calculation or several problems'], expert: ['Twin', 'Pairs on one patient that differ in one decisive fact'],
-  workflow: ['Workflow', 'Long visits with several problems and orders'], confirm: ['Confirmation set', 'Held out, written after development ended, public with answers'] };
+const SETS = { official: ['Real consultations', 'Specialist consultations on deidentified records, not public'],
+  dev: ['Development', 'Synthetic patients, written while we built the benchmark: 94 basic tasks, 38 tricky charts, 14 look-alike pairs and 20 long visits'],
+  heldout: ['Held out', 'Synthetic patients, written after development ended and run once to confirm the results, public with answers'] };
 
-const SET_COLOR = { official: '#1a73e8', standard: '#188038', hard: '#34a853', expert: '#81c995', workflow: '#f9ab00', confirm: '#9aa0a6' };  // also the task browser's
+const SET_COLOR = { official: '#1a73e8', dev: '#188038', heldout: '#9aa0a6', standard: '#188038', hard: '#34a853', expert: '#81c995', workflow: '#f9ab00' };  // the task browser's kinds too
 
 function donuts(T) {
   // a source in the legend also filters the task browser below; the consultations are not public
-  donut(q('#d-sets'), 'By source', T.sets.map((s) => ({ n: s.n, label: SETS[s.key][0], detail: SETS[s.key][1], color: SET_COLOR[s.key], icon: ICON[s.key],
-    pick: s.key === 'official' ? null : () => window.filterTasks && window.filterTasks(s.key) })));
+  const n = (k) => T.sets.filter((s) => (k === 'dev' ? !['official', 'confirm'].includes(s.key) : s.key === (k === 'heldout' ? 'confirm' : k))).reduce((a, s) => a + s.n, 0);
+  donut(q('#d-sets'), 'By source', ['official', 'dev', 'heldout'].map((k) => ({ n: n(k), label: SETS[k][0], detail: SETS[k][1], color: SET_COLOR[k], icon: ICON[k === 'heldout' ? 'confirm' : k === 'dev' ? 'standard' : k],
+    pick: k === 'official' ? null : () => window.filterTasks && window.filterTasks(k) })));
   const blues = T.fields.map((_, k) => `hsl(217 ${80 - k * 3}% ${38 + k * 4.4}%)`);
   donut(q('#d-fields'), 'By field', T.fields.map((f, k) => {
     const long = f.field.split(' ').length > 3;  // the centre holds at most three words

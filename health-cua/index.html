@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611220300">
+<link rel="stylesheet" href="style.css?v=202611220505">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -68,7 +68,7 @@
 </section>
 
 <section id="replay">
-  <h2>Watch an agent work</h2>
+  <h2>Demo</h2>
   <p class="lead">The same clinical request, handled through the API, through the EHR screens, and in OpenMRS, an open source EHR.</p>
   <div class="agents" id="agents" role="tablist" aria-label="Agent"></div>
   <p class="request"><b>The request</b> A spreading red patch where a tick bit 9 days ago, in a patient taking isotretinoin for acne. Please assess and treat. <a href="#task=sr259_erythema_migrans_isotretinoin_no_doxycycline">Open the task and its answer key</a></p>
@@ -122,14 +122,14 @@
   <div class="lb"><p class="key lb-key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</p><div id="lb"></div></div>
   <div class="lb-foot"><p class="caption">Bars show 95% intervals and cost is one attempt at list prices. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
   <div class="costfig">
-    <h3>Success against cost</h3>
-    <p class="caption">API in blue and GUI in orange, joined for each model. The stepped line marks runs that no cheaper run beats.</p>
+    <h3>Pareto frontier</h3>
+    <p class="caption">Success against the cost of one attempt, API in blue and GUI in orange, joined for each model. The stepped line is the Pareto frontier, the runs that no cheaper run beats.</p>
     <div id="lb-cost"></div>
   </div>
   <details class="updates">
     <summary>Updates</summary>
     <ul>
-      <li><time datetime="2026-11-21">21 Nov 2026</time> A browser of the 316 public tasks with their answer keys and every held out attempt through the API and the GUI, a per task grid in each leaderboard row, and success against cost.</li>
+      <li><time datetime="2026-11-21">21 Nov 2026</time> A browser of the 316 public tasks with their answer keys and every held out attempt through the API and the GUI, a per task grid in each leaderboard row, and the Pareto frontier of success and cost.</li>
       <li><time datetime="2026-11-21">21 Nov 2026</time> Ranks, cost per episode, run dates and downloads on the leaderboard.</li>
       <li><time datetime="2026-11-18">18 Nov 2026</time> Findings on notes against the record and on the kinds of required orders.</li>
       <li><time datetime="2026-11-17">17 Nov 2026</time> Gemini 4 Carbon, Gemini 4 Hydrogen and GPT-6.2 Astra added.</li>
@@ -222,10 +222,11 @@
     <h3 class="tb-h">Browse the public tasks</h3>
     <div class="tb-bar">
       <label class="tb-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input type="search" id="tb-q" placeholder="Search a condition, drug, test or field" aria-label="Search the public tasks"></label>
+      <select id="tb-type" aria-label="Kind of task"><option value="">All kinds of task</option></select>
       <select id="tb-field" aria-label="Field"><option value="">All fields</option></select>
-      <select id="tb-model" aria-label="Attempts of a model on the confirmation set"><option value="">All models</option></select>
+      <select id="tb-model" aria-label="Attempts of a model on the held out tasks"><option value="">All models</option></select>
     </div>
-    <div class="tb-chips" id="tb-src" role="group" aria-label="Source"></div>
+    <div class="tb-chips" id="tb-src" role="group" aria-label="Set"></div>
     <p class="tb-count" id="tb-count" aria-live="polite"></p>
     <ol class="tb-list" id="tb-list"></ol>
     <button class="btn" type="button" id="tb-more" hidden>Show more</button>
@@ -278,7 +279,7 @@
 
 <script src="logo.js?v=202611110400" defer></script>
 <script src="viewer.js?v=202611220300" defer></script>
-<script src="app.js?v=202611220300" defer></script>
-<script src="tasks.js?v=202611220100" defer></script>
+<script src="app.js?v=202611220504" defer></script>
+<script src="tasks.js?v=202611220506" defer></script>
 </body>
 </html>

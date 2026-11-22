@@ -1,4 +1,4 @@
-// Task browser: the 316 public synthetic tasks (data/tasks.json), searchable and filtered, each opening a task card with its request,
+// Task browser: the 316 public tasks (data/tasks.json), searchable and filtered, each opening a task card with its request,
 // decisive facts, answer key and, for the held out tasks, how each model did. Deep link: #task=<task id>.
 (() => {
   const $ = (id) => document.getElementById(id);
@@ -6,10 +6,14 @@
   const GH = 'https://github.com/ybkim95/health-cua/blob/main/';
   const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const day = (iso) => { const [y, m, d] = iso.split('-').map(Number); return `${d} ${MON[m - 1]} ${y}`; };
-  const SET = { synthetic: 'Synthetic', heldout: 'Held out' };
   const UIS = ['API', 'GUI', 'OpenMRS'];
+  // sources as in the donut above: the four designs of the synthetic tasks and the confirmation set (held out)
+  const SRC = [['standard', 'Standard'], ['hard', 'Added features'], ['expert', 'Twin'], ['workflow', 'Workflow'], ['confirm', 'Confirmation set']];
+  const srcOf = (t) => (t.set === 'heldout' ? 'confirm' : SRC.find(([, l]) => l === t.design)[0]);
+  const label = (k) => SRC.find(([x]) => x === k)[1];
+  const icon = (k) => (typeof ICON !== 'undefined' && ICON[k] ? `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="color:${SET_COLOR[k]}">${ICON[k]}</svg>` : '');
   let T = null, shown = 24;
-  const state = { q: '', set: '', design: '', field: '', model: '' };
+  const state = { q: '', src: '', field: '', model: '' };
 
   function load() {
     if (T) return Promise.resolve(T);
@@ -17,8 +21,7 @@
   }
 
   function match(t) {
-    if (state.set && t.set !== state.set) return false;
-    if (state.design && t.design !== state.design) return false;
+    if (state.src && srcOf(t) !== state.src) return false;
     if (state.field && t.field !== state.field) return false;
     if (state.model && !(t.results && t.results[state.model])) return false;
     if (!state.q) return true;
@@ -26,35 +29,54 @@
     return state.q.toLowerCase().split(/\s+/).every((w) => hay.includes(w));
   }
 
-  // one line per model on a held out task: how many attempts passed through each interface
-  const tally = (r) => UIS.filter((u) => r[u]).map((u) => `${u} ${[...r[u]].filter((c) => c === '1').length}/${r[u].length}`).join(' · ');
+  const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+  // the foot of a card: the answer key's size and, on the confirmation set, how many API and GUI attempts passed (or one model's marks)
+  function foot(t) {
+    const key = t.required.length ? plural(t.required.length, 'required order') : 'No order required';
+    const r = t.results || {};
+    if (state.model && r[state.model]) {
+      return `<span>${key}</span><span class="tb-marks">${UIS.filter((u) => r[state.model][u]).map((u) => `${u} ${[...r[state.model][u]].map((c) => (c === '1' ? '<i class="ok">✓</i>' : '<i class="no">✗</i>')).join('')}`).join(' · ')}</span>`;
+    }
+    const at = Object.values(r).flatMap((m) => ['API', 'GUI'].flatMap((u) => [...(m[u] || '')]));
+    if (!at.length) return `<span>${key}</span>`;
+    const p = at.filter((c) => c === '1').length;
+    return `<span>${key}</span><span class="tb-solve" title="Attempts passed through the API and the GUI, ${plural(Object.keys(r).length, 'model')}"><span class="tb-sbar"><i style="width:${(100 * p / at.length).toFixed(1)}%"></i></span>${p} of ${at.length} passed</span>`;
+  }
 
   function list() {
     const rows = T.filter(match);
-    $('tb-count').textContent = `${rows.length} of ${T.length} tasks`;
+    $('tb-count').textContent = rows.length === T.length ? `${T.length} public tasks` : `${rows.length} of ${T.length} public tasks`;
     $('tb-list').innerHTML = rows.slice(0, shown).map((t) => `<li><button type="button" class="tb-item" data-id="${esc(t.id)}">
+      <span class="tb-top">${icon(srcOf(t))}${label(srcOf(t))}<span class="tb-field">${esc(t.field)}</span></span>
       <span class="tb-title">${esc(t.title)}</span>
-      <span class="tb-meta">${SET[t.set]} · ${esc(t.design)} · ${esc(t.field)}</span>
-      ${state.model && t.results && t.results[state.model] ? `<span class="tb-marks">${esc(state.model)}: ${UIS.filter((u) => t.results[state.model][u]).map((u) => `${u} ${[...t.results[state.model][u]].map((c) => (c === '1' ? '<i class="ok">✓</i>' : '<i class="no">✗</i>')).join('')}`).join(' · ')}</span>` : ''}
-      <span class="tb-req">${esc(t.request)}</span></button></li>`).join('');
+      <span class="tb-req">${esc(t.request)}</span>
+      <span class="tb-foot">${foot(t)}</span></button></li>`).join('');
     $('tb-more').hidden = rows.length <= shown;
+    $('tb-more').textContent = `Show ${Math.min(48, rows.length - shown)} more`;
+  }
+
+  function chips() {
+    const n = (k) => T.filter((t) => srcOf(t) === k).length;
+    $('tb-src').innerHTML = `<button type="button" data-s="" aria-pressed="${!state.src}">All <b>${T.length}</b></button>`
+      + SRC.map(([k, l]) => `<button type="button" data-s="${k}" aria-pressed="${state.src === k}">${icon(k)}${l} <b>${n(k)}</b></button>`).join('');
+  }
+  function pickSrc(k) {
+    state.src = k; shown = 24;
+    $('tb-src').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.s === k)));
+    list();
   }
 
   function filters() {
     const fields = [...new Set(T.map((t) => t.field))].sort();
     $('tb-field').innerHTML = '<option value="">All fields</option>' + fields.map((f) => `<option>${esc(f)}</option>`).join('');
     $('tb-q').oninput = (e) => { state.q = e.target.value.trim(); shown = 24; list(); };
-    $('tb-design').onchange = (e) => { state.design = e.target.value; shown = 24; list(); };
+    chips();
+    $('tb-src').onclick = (e) => { const b = e.target.closest('button'); if (b) pickSrc(b.dataset.s); };
     $('tb-field').onchange = (e) => { state.field = e.target.value; shown = 24; list(); };
     const models = [...new Set(T.flatMap((t) => Object.keys(t.results || {})))];
-    $('tb-model').innerHTML = '<option value="">Results of a model</option>' + models.map((m) => `<option>${esc(m)}</option>`).join('');
+    $('tb-model').innerHTML = '<option value="">All models</option>' + models.map((m) => `<option>${esc(m)}</option>`).join('');
     $('tb-model').onchange = (e) => { state.model = e.target.value; shown = 24; list(); };
     $('tb-field').value = state.field; $('tb-model').value = state.model;  // a second call keeps the choices made
-    document.querySelectorAll('#tb-set button').forEach((b) => b.onclick = () => {
-      state.set = b.dataset.s; shown = 24;
-      document.querySelectorAll('#tb-set button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-      list();
-    });
     $('tb-more').onclick = () => { shown += 48; list(); };
     $('tb-list').onclick = (e) => { const b = e.target.closest('.tb-item'); if (b) open(b.dataset.id); };
   }
@@ -113,7 +135,7 @@
       const extra = [t.no_order ? 'The correct answer places no order' : '', t.features.length ? 'Features: ' + t.features.join(', ') : '',
         twin ? `Twin of <a href="#task=${esc(twin.id)}">${esc(twin.title)}</a>` : ''].filter(Boolean);
       $('tc-body').innerHTML = `
-        <header><p class="tc-meta">${SET[t.set]} · ${esc(t.design)} · ${esc(t.field)} · ${esc(t.role)} · ${day(t.date)}</p>
+        <header><p class="tc-meta">${t.set === 'heldout' ? 'Confirmation set · ' : ''}${esc(t.design)} · ${esc(t.field)} · ${esc(t.role)} · ${day(t.date)}</p>
         <h3>${esc(t.title)}</h3><p class="tc-id">${esc(t.id)}${t.actions ? ` · the gold script needs ${t.actions} GUI actions` : ''}</p>
         ${t.flag ? `<p class="tc-flag">Chart defect flagged by the review of the held out charts (${esc(t.flag)}); the paper reports results with and without these tasks.</p>` : ''}</header>
         <section class="tc-inbox"><h4>The request</h4><p class="from">${esc(t.from)} · ${esc(t.subject)}</p><p>${esc(t.request)}</p></section>
@@ -152,10 +174,11 @@
     // a leaderboard row: the held out tasks of one model, with its marks on each
     window.showModelTasks = (m) => load().then(() => {
       if (!$('tb-model').options.length || $('tb-model').options.length === 1) { filters(); }
-      state.model = m; state.set = 'heldout'; shown = 24; $('tb-model').value = m;
-      document.querySelectorAll('#tb-set button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.s === 'heldout')));
-      list(); box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      state.model = m; $('tb-model').value = m;
+      pickSrc('confirm'); box.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+    // a source picked in the donut above
+    window.filterTasks = (k) => load().then(() => { if (!$('tb-src').children.length) { filters(); } pickSrc(k); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

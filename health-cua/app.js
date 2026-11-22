@@ -92,7 +92,7 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && n.classList.contains('open')) { set(false); b.focus(); } });
 })();
 
-fetch('data/results.json?v=202611211200').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611220100').then((r) => r.json()).then((R) => {
   LBT = R.lb_tasks || [];
   board(R.leaderboard, R.categories);
   findings(R);
@@ -144,7 +144,7 @@ function costPlot(rows, key) {
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Success against cost per episode">`;
   for (let e = x0; e <= x1; e++) { const xv = X(10 ** e); s += `<line class="gl" x1="${xv}" x2="${xv}" y1="${T}" y2="${H - B}"/><text class="tk" x="${xv}" y="${H - B + 16}" text-anchor="middle">$${10 ** e >= 1 ? 10 ** e : (10 ** e).toFixed(-e)}</text>`; }
   [0, 25, 50, 75, 100].forEach((v) => { s += `<line class="gl" x1="${L}" x2="${W - Rt}" y1="${Y(v)}" y2="${Y(v)}"/><text class="tk" x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`; });
-  s += `<text class="ax" x="${(L + W - Rt) / 2}" y="${H - 4}" text-anchor="middle">USD per episode, log scale</text><text class="ax" transform="translate(12 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">${key.startsWith('s2') ? 'Revised grader' : 'Original grader'}, ${key.endsWith('all3') ? 'pass³' : 'pass@1'}, %</text>`;
+  s += `<text class="ax" x="${(L + W - Rt) / 2}" y="${H - 4}" text-anchor="middle">USD per episode, log scale</text><text class="ax" transform="translate(12 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">${key.endsWith('all3') ? 'pass³' : 'pass@1'}, %</text>`;
   s += `<polyline class="front" points="${front.map((p, k) => `${X(p.x)},${Y(p.y)}` + (front[k + 1] ? ` ${X(front[k + 1].x)},${Y(p.y)}` : '')).join(' ')}"/>`;
   rows.forEach((r) => { const a = pts.find((p) => p.r === r && p.ui === 'api'), g = pts.find((p) => p.r === r && p.ui === 'gui'); if (a && g) s += `<line class="pair" x1="${X(a.x)}" y1="${Y(a.y)}" x2="${X(g.x)}" y2="${Y(g.y)}"/>`; });
   pts.forEach((p) => { s += `<circle class="pt ${p.ui}${front.includes(p) ? ' on' : ''}" cx="${X(p.x)}" cy="${Y(p.y)}" r="5.5"><title>${p.r.model}, ${p.lab}: ${p.y.toFixed(1)}% at $${p.x.toFixed(2)} per episode</title></circle>`; });
@@ -178,7 +178,8 @@ function setup(m) {
 
 // ------------------------------------------------------------------ leaderboard
 function board(rows, cats) {
-  let grade = 'p1', measure = '', cat = 'Overall';  // the original grader, as the paper's Table 1 and Fig. 1b
+  const grade = 's2';  // the grader of the paper's Table 1 and Fig. 1b
+  let measure = '', cat = 'Overall';
   const K = () => grade + measure;
   const box = q('#lb');
   const arms = (r) => (cat === 'Overall' ? { api: r.api, gui: r.gui } : r.cats[cat]);
@@ -215,9 +216,9 @@ function board(rows, cats) {
       row.append(bars, cost);
       const d = cat === 'Overall' && r.delta && r.delta[key];
       const gap = !d ? '' : Math.abs(d.mean) < 0.05 ? 'No gap between the two. ' : `${d.mean > 0 ? 'API' : 'GUI'} ahead by ${fx(Math.abs(d.mean))} points (95% CI ${d.mean > 0 ? `${neg(d.ci[0])} to ${neg(d.ci[1])}` : `${neg(-d.ci[1])} to ${neg(-d.ci[0])}`}, not adjusted for the number of models). `;
-      // cost per task solved: the cost of one attempt divided by the share solved under the revised grader
+      // cost per task solved: the cost of one attempt divided by the share solved
       const per = (c, s) => (s.mean > 0 ? `$${(c / (s.mean / 100)).toFixed(2)}` : 'none solved');
-      const more = r.api ? gap + (r.cost ? `One episode costs $${r.cost.api.toFixed(2)} through the API and $${r.cost.gui.toFixed(2)} on screen, at list prices with cached input at its cache rate. Per task solved under the revised grader, that is ${per(r.cost.api, r.api.s2)} and ${per(r.cost.gui, r.gui.s2)}.` : '')
+      const more = r.api ? gap + (r.cost ? `One episode costs $${r.cost.api.toFixed(2)} through the API and $${r.cost.gui.toFixed(2)} on screen, at list prices with cached input at its cache rate. Per task solved, that is ${per(r.cost.api, r.api.s2)} and ${per(r.cost.gui, r.gui.s2)}.` : '')
         : 'Tested on screen only.';
       const det = h('div', 'more');
       const att = !r.attempts ? '' : r.attempts.api == null ? `${r.attempts.gui} attempts on screen`
@@ -229,7 +230,7 @@ function board(rows, cats) {
         go.type = 'button'; go.onclick = (e) => { e.stopPropagation(); if (window.showModelTasks) window.showModelTasks(r.model); };
         det.append(go);
       }
-      if (LBT.length && r.grid) det.append(h('p', 'tg-head', `Each consultation task, attempts passed under the ${grade === 's2' ? 'revised' : 'original'} grader (darker is more)`), taskGrid(r, grade));
+      if (LBT.length && r.grid) det.append(h('p', 'tg-head', 'Each consultation task, attempts passed (darker is more)'), taskGrid(r, grade));
       row.append(det);
       const toggle = () => { const open = row.classList.toggle('open'); row.setAttribute('aria-expanded', String(open)); };
       row.onclick = toggle;
@@ -244,7 +245,6 @@ function board(rows, cats) {
     document.querySelectorAll(`#${id} button`).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
     draw();
   });
-  seg('grader-seg', (d) => { grade = d.g; });
   seg('measure-seg', (d) => { measure = d.v; });
   draw();
 }
@@ -260,7 +260,8 @@ function pair(el, groups) {
 }
 
 function findings(R) {
-  const c = R.confirmation;
+  const c = R.confirmation, m = R.memory;
+  q('#c-mem').innerHTML = `<span>${Math.round(m['S-GUI-last3'].mean)}%</span><i>→</i><span>${Math.round(m['S-GUI-full'].mean)}%</span>`;
   pair(q('#c-equiv'), R.confirm_frontier.map((r) => [r.model, [['api', 'API', r.api], ['gui', 'GUI', r.gui]]]));
   const per = (v) => ({ v: 25 * v, label: `${v.toFixed(1)}` });  // bars on a 0 to 4 scale
   pair(q('#c-extra'), R.extra_orders.map((r) => [r.model, [['api', 'API', per(r.api).v, null, per(r.api).label], ['gui', 'GUI', per(r.gui).v, null, per(r.gui).label]]]));
@@ -278,7 +279,7 @@ function findings(R) {
 
 function grader(rows) {
   const el = q('#c-grader');
-  el.innerHTML = '<p class="key"><i class="sw orig"></i>Benchmark\'s own checks <i class="sw rev"></i>Our revised checks</p>';
+  el.innerHTML = '<p class="key"><i class="sw orig"></i>PhysicianBench\'s checks <i class="sw rev"></i>Our grader</p>';
   const label = { 'Equivalent order rejected': 'Correct alternatives rejected', 'Tenfold dose credited': 'Tenfold doses credited',
     'Script ordering everything passed': 'A script ordering everything passed', 'Same 15 tests on every task passed': 'The same 15 tests on every task passed' };
   rows.filter((r) => label[r.label]).forEach((r) => {
@@ -303,9 +304,12 @@ const SETS = { official: ['Consultations', 'Real specialist consultations on dei
   hard: ['Added features', 'A fact in an older note, a corrected value, a calculation or several problems'], expert: ['Twin', 'Pairs on one patient that differ in one decisive fact'],
   workflow: ['Workflow', 'Long visits with several problems and orders'], confirm: ['Confirmation set', 'Held out, written after development ended, public with answers'] };
 
+const SET_COLOR = { official: '#1a73e8', standard: '#188038', hard: '#34a853', expert: '#81c995', workflow: '#f9ab00', confirm: '#9aa0a6' };  // also the task browser's
+
 function donuts(T) {
-  const setColors = ['#1a73e8', '#188038', '#34a853', '#81c995', '#f9ab00', '#9aa0a6'];
-  donut(q('#d-sets'), 'By source', T.sets.map((s, k) => ({ n: s.n, label: SETS[s.key][0], detail: SETS[s.key][1], color: setColors[k], icon: ICON[s.key] })));
+  // a source in the legend also filters the task browser below; the consultations are not public
+  donut(q('#d-sets'), 'By source', T.sets.map((s) => ({ n: s.n, label: SETS[s.key][0], detail: SETS[s.key][1], color: SET_COLOR[s.key], icon: ICON[s.key],
+    pick: s.key === 'official' ? null : () => window.filterTasks && window.filterTasks(s.key) })));
   const blues = T.fields.map((_, k) => `hsl(217 ${80 - k * 3}% ${38 + k * 4.4}%)`);
   donut(q('#d-fields'), 'By field', T.fields.map((f, k) => {
     const long = f.field.split(' ').length > 3;  // the centre holds at most three words
@@ -435,7 +439,8 @@ function donut(fig, title, segs, unit = 'tasks') {
 
 // How failed episodes ended, frontier and smaller models, API and GUI pooled (the paper's failure figure, consultation tasks).
 function failStats(G) {
-  const cats = [['signed', 'Signed orders but missed or got one wrong', 'Signed, but wrong', 'Signed its orders, but a required one was missing or wrong', '#F2B3AE', 0],
+  const cats = [['other', 'Placed every required order, failed another check', 'Other check', 'Placed every required order but failed another check, mostly the limit on extra orders', '#F6C978', 3],
+    ['signed', 'Signed orders but missed or got one wrong', 'Signed, but wrong', 'Signed its orders, but a required one was missing or wrong', '#F2B3AE', 0],
     ['unsigned', 'Left orders unsigned', 'Unsigned', 'Drafted an order and never signed it', '#D64541', null],
     ['stopped', 'Stopped without ordering', 'Stopped', 'Ended the task as done without placing any order', '#9AA0A8', 1],
     ['timeout', 'Ran out of actions', 'Out of actions', 'Used up its action budget before placing any order', '#C9CDD3', 2],

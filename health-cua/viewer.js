@@ -62,17 +62,6 @@ function agents() {
     MODELS = list; CACHE[FIRST] = D;
     const box = $('agents');
     box.innerHTML = list.map((m, k) => `<button type="button" role="tab" aria-selected="${k === 0}" data-k="${m.key}">${m.model}</button>`).join('');
-    // load every agent's episode (about 17 KB each) and mark the agents with a failed run, so a failure is one click away
-    list.forEach((m) => {
-      const got = CACHE[m.key] ? Promise.resolve(CACHE[m.key]) : fetch(ROOTDIR + (m.key ? m.key + '/' : '') + 'episode.json?v=202611101400').then((r) => r.json()).then((d) => (CACHE[m.key] = d));
-      got.then((d) => {
-        const bad = Object.entries(d.interfaces).filter(([, v]) => !v.success).map(([n]) => NAMES[n]);
-        if (!bad.length) return;
-        const b = box.querySelector(`button[data-k="${m.key}"]`);
-        b.classList.add('has-fail'); b.title = `Failed in ${bad.join(' and ')}`;
-        b.append(el('span', 'failmark', `failed in ${bad.join(', ')}`));
-      }).catch(() => {});
-    });
     box.onclick = (e) => {
       const b = e.target.closest('button'); if (!b) return;
       box.querySelectorAll('button').forEach((x) => x.setAttribute('aria-selected', String(x === b)));

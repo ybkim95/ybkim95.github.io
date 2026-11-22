@@ -415,8 +415,6 @@ footer { justify-content: center; }
 .verdict td.ok { color: var(--green); } .verdict td.fail { color: var(--red); background: color-mix(in srgb, var(--red) 7%, transparent); }
 .verdict tfoot th, .verdict tfoot td { border-bottom: 0; }
 .verdict tfoot b { display: block; font-weight: 500; } .verdict tfoot small { color: var(--ink3); font-weight: 400; }
-.agents .failmark { margin-left: 8px; font-size: .74rem; color: var(--red); font-weight: 500; }
-.agents button[aria-selected="true"] .failmark { color: color-mix(in srgb, var(--red) 55%, var(--bg)); }
 
 /* per-task drill-down in a leaderboard row (2026-11-21) */
 .lb-row.open .more { max-height: 40em; }
@@ -446,18 +444,36 @@ footer { justify-content: center; }
 
 /* task browser and task card */
 .browser { margin-top: 28px; }
-.tb-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
-.tb-head h3 { margin: 0; font-size: 1.15rem; font-weight: 500; }
-#tb-q { flex: 1 1 280px; max-width: 420px; font: .95rem var(--sans); padding: 10px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink); }
-.tb-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 14px 0; }
-.tb-filters select { font: .9rem var(--sans); padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink2); }
-.tb-count { color: var(--ink3); font-size: .86rem; margin-left: auto; }
-.tb-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
-.tb-item { width: 100%; height: 100%; text-align: left; display: grid; gap: 6px; align-content: start; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); color: var(--ink); font: inherit; cursor: pointer; }
-.tb-item:hover, .tb-item:focus-visible { border-color: var(--ink3); }
-.tb-title { font-weight: 500; } .tb-meta { font-size: .8rem; color: var(--ink3); }
-.tb-req { font-size: .86rem; color: var(--ink2); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-#tb-more { margin: 16px auto 0; display: block; } #tb-more[hidden] { display: none; }
+.browser { margin-top: 56px; }
+.tb-h { margin: 0 0 16px; font-size: 1.35rem; font-weight: 500; }
+.tb-bar { display: flex; flex-wrap: wrap; gap: 10px; }
+.tb-search { flex: 1 1 340px; display: flex; align-items: center; gap: 10px; padding: 0 18px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); cursor: text; }
+.tb-search:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 16%, transparent); }
+.tb-search svg { width: 18px; height: 18px; fill: none; stroke: var(--ink3); stroke-width: 2; stroke-linecap: round; flex: none; }
+#tb-q { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: .95rem var(--sans); color: var(--ink); padding: 12px 0; }
+.tb-bar select { height: 46px; font: .9rem var(--sans); padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink2); cursor: pointer; }
+.tb-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.tb-chips button { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink2); font: 500 .88rem var(--sans); cursor: pointer; }
+.tb-chips button:hover { border-color: color-mix(in srgb, var(--ink3) 50%, var(--line)); }
+.tb-chips button b { font-weight: 400; color: var(--ink3); font-variant-numeric: tabular-nums; }
+.tb-chips button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.tb-chips button[aria-pressed="true"] b { color: color-mix(in srgb, var(--bg) 72%, transparent); }
+.tb-chips button[aria-pressed="true"] .ic { color: var(--bg) !important; }
+.tb-chips .ic, .tb-top .ic { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.tb-count { margin: 20px 0 12px; color: var(--ink3); font-size: .86rem; }
+.tb-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.tb-item { width: 100%; height: 100%; text-align: left; display: flex; flex-direction: column; gap: 10px; padding: 20px 20px 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--card); color: var(--ink); font: inherit; cursor: pointer; transition: border-color .15s, box-shadow .15s, transform .15s; }
+.tb-item:hover, .tb-item:focus-visible { border-color: color-mix(in srgb, var(--ink3) 45%, var(--line)); box-shadow: 0 6px 20px rgba(60, 64, 67, .12); transform: translateY(-1px); }
+.tb-top { display: flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 500; color: var(--ink2); }
+.tb-field { margin-left: auto; color: var(--ink3); font-weight: 400; text-align: right; }
+.tb-title { font-size: 1.02rem; font-weight: 500; line-height: 1.35; }
+.tb-req { font-size: .88rem; line-height: 1.5; color: var(--ink2); padding-left: 12px; border-left: 2px solid var(--line); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.tb-foot { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 10px; white-space: nowrap; font-size: .8rem; color: var(--ink3); }
+.tb-solve { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
+.tb-sbar { width: 56px; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.tb-sbar i { display: block; height: 100%; border-radius: 3px; background: var(--green); }
+#tb-more { margin: 20px auto 0; display: block; } #tb-more[hidden] { display: none; }
+@media (max-width: 600px) { .tb-bar select { flex: 1 1 0; min-width: 0; } .tb-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -24px; padding-right: 24px; } .tb-chips button { flex: none; } }
 .task-card { width: min(820px, 94vw); max-height: 90vh; border: 1px solid var(--line); border-radius: 18px; padding: 28px 32px; background: var(--bg); color: var(--ink); overflow-y: auto; }
 .task-card::backdrop { background: rgba(0, 0, 0, .45); }
 #tc-body { margin-right: 46px; }  /* a gutter for the close button, which stays in view as the card scrolls */

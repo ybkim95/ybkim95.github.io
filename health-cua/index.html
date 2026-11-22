@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611211900">
+<link rel="stylesheet" href="style.css?v=202611220100">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -110,21 +110,17 @@
 
 <section id="leaderboard" class="band">
   <h2>Leaderboard</h2>
-  <p class="lead">Nineteen models on real specialist consultations from PhysicianBench, three attempts per task through each interface. An attempt succeeds when the record holds every required order and breaks no safety rule. Frontier models are the seven that succeed on more than two thirds of tasks through either interface.</p>
+  <p class="lead">Nineteen models on real specialist consultations from PhysicianBench, three attempts per task through each interface. An attempt succeeds when the record holds every required order and breaks no safety rule. Frontier models are the eight that succeed on more than two thirds of tasks through either interface.</p>
   <p class="lb-meta" id="lb-meta"></p>
   <div class="lb-head">
     <div class="cats" id="cats" role="tablist" aria-label="Task category"></div>
-    <div class="seg" role="group" aria-label="Grader" id="grader-seg">
-      <button type="button" data-g="p1" aria-pressed="true" title="PhysicianBench's own order checks, as in the paper's Table 1">Original grader</button>
-      <button type="button" data-g="s2" aria-pressed="false" title="Our revised checks, which accept equivalent orders and limit extra orders">Revised grader</button>
-    </div>
     <div class="seg" role="group" aria-label="Measure" id="measure-seg">
       <button type="button" data-v="" aria-pressed="true" title="Average success over the three attempts at each task">pass@1</button>
       <button type="button" data-v="_all3" aria-pressed="false" title="Share of tasks solved on all three attempts">pass<sup>3</sup></button>
     </div>
   </div>
   <div class="lb"><p class="key lb-key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</p><div id="lb"></div></div>
-  <div class="lb-foot"><p class="caption">USD per episode is one attempt at list prices with cached input at its cache rate, and a dash marks open weight models run on our servers. pass@1 averages the three attempts at each task, pass<sup>3</sup> counts the tasks solved on all three. Bars show 95% intervals. The original grader is PhysicianBench's own order checks, as in the paper's Table 1, and the revised grader also accepts equivalent orders and limits extra orders. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
+  <div class="lb-foot"><p class="caption">USD per episode is one attempt at list prices with cached input at its cache rate, and a dash marks open weight models run on our servers. pass@1 averages the three attempts at each task, pass<sup>3</sup> counts the tasks solved on all three. Bars show 95% intervals. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
   <div class="costfig">
     <h3>Success against cost</h3>
     <p class="caption">Each model through the API (blue) and the GUI (orange), joined by a line. The stepped line marks runs that no cheaper run beats, named on the right on wider screens. Point at a dot for its model and numbers. Open weight models ran on our servers and are not shown.</p>
@@ -134,9 +130,9 @@
     <summary>Updates</summary>
     <ul>
       <li><time datetime="2026-11-21">21 Nov 2026</time> A browser of the 316 public tasks with their answer keys and every held out attempt through the API and the GUI, a per task grid in each leaderboard row, and success against cost.</li>
-      <li><time datetime="2026-11-21">21 Nov 2026</time> The leaderboard opens on the original grader, as the paper's Table 1, with ranks, cost per episode, run dates and downloads.</li>
+      <li><time datetime="2026-11-21">21 Nov 2026</time> Ranks, cost per episode, run dates and downloads on the leaderboard.</li>
       <li><time datetime="2026-11-18">18 Nov 2026</time> Findings on notes against the record and on the kinds of required orders.</li>
-      <li><time datetime="2026-11-17">17 Nov 2026</time> Gemini 4 Carbon, Gemini 4 Hydrogen and GPT-6.2 Astra added, with the final version of the revised grader.</li>
+      <li><time datetime="2026-11-17">17 Nov 2026</time> Gemini 4 Carbon, Gemini 4 Hydrogen and GPT-6.2 Astra added.</li>
       <li><time datetime="2026-11-10">10 Nov 2026</time> Claude Fable 5.2 added.</li>
       <li><time datetime="2026-11-07">7 Nov 2026</time> Project page released.</li>
     </ul>
@@ -148,36 +144,35 @@
   <div class="cards">
     <article class="card">
       <h3>On held out tasks, three frontier models do as well on screen as through the API, or better</h3>
-      <p class="sub">150 held out tasks · synthetic task grader · three attempts per task, one for Claude Opus 5.5 and Gemini 4 Argon</p>
+      <p class="sub">150 held out tasks · three attempts per task, one for Claude Opus 5.5 and Gemini 4 Argon</p>
       <div class="viz" id="c-equiv"></div>
     </article>
     <article class="card">
       <h3>31% of the notes a judge passed came from attempts that failed</h3>
       <p class="sub">39 consultations · 4,102 attempts of the 19 leaderboard models · exploratory</p>
       <div class="viz" id="c-notes"></div>
-      <p class="note">gpt-oss-120b graded each note against PhysicianBench's rubrics without seeing the record, and the revised grader graded the record. A second judge, Gemini 3.8 Flash, gives 32%. Both judges are language models without physician calibration.</p>
+      <p class="note">gpt-oss-120b graded each note against PhysicianBench's rubrics without seeing the record, and the grader checked the record. A second judge, Gemini 3.8 Flash, gives 32%. Both judges are language models without physician calibration.</p>
     </article>
     <article class="card">
       <h3>Three screenshots are not enough</h3>
-      <p class="sub">Claude Sonnet 5.5 through the GUI · 39 consultations · three attempts per task · original grader</p>
-      <div class="big"><span>1%</span><i>→</i><span>69%</span></div>
+      <p class="sub">Claude Sonnet 5.5 through the GUI · 39 consultations · three attempts per task</p>
+      <div class="big" id="c-mem"></div>
       <p class="note">Success with only the last three screenshots, the default of Anthropic's computer use demo, against the full history</p>
     </article>
     <article class="card">
       <h3>In OpenMRS, success drops 16 to 19 points</h3>
       <p class="sub">106 held out tasks that OpenMRS can grade · first attempt</p>
       <div class="viz" id="c-openmrs"></div>
-      <p class="note">Gemini 3.5 Flash-Lite drops 29 points.</p>
     </article>
     <article class="card">
       <h3>On screen, referrals are the orders frontier models leave out most</h3>
-      <p class="sub">39 consultations · seven frontier models · revised grader</p>
+      <p class="sub">39 consultations · eight frontier models</p>
       <div class="viz" id="c-orders"></div>
       <p class="note">Share of required orders placed, by kind of order, averaged over the models. Only 4 of the 55 checks are referrals, so the shares are descriptive.</p>
     </article>
     <article class="card">
       <h3>On screen, agents place fewer extra orders</h3>
-      <p class="sub">39 consultations · eight leading models · revised grader</p>
+      <p class="sub">39 consultations · eight frontier models</p>
       <div class="viz" id="c-extra"></div>
       <p class="note">Reasonable extra orders per episode</p>
     </article>
@@ -189,7 +184,7 @@
     <aside class="fail-stats">
       <figure class="donut-card mini" id="fs0"></figure>
       <figure class="donut-card mini" id="fs1"></figure>
-      <p class="note">Frontier models mostly sign incomplete orders. Smaller models mostly never order.</p>
+      <p class="note">Frontier models mostly sign orders that fall short. Smaller models mostly never order.</p>
     </aside>
     <div class="fail-main">
     <div class="fail-tabs" id="fail-tabs" role="tablist" aria-label="Failure"></div>
@@ -212,9 +207,9 @@
 
 <section id="grader" class="band">
   <h2>Testing the grader</h2>
-  <p class="lead">The benchmark's own checks rejected nearly half of the correct alternatives and passed a script that ordered every test and referral, so we rewrote them.</p>
+  <p class="lead">PhysicianBench's own checks rejected nearly half of the correct alternatives and passed a script that ordered every test and referral, so we rewrote them. Our grader passes neither script.</p>
   <div class="viz grader" id="c-grader"></div>
-  <p class="caption">Counts are checks, except for the two scripts, which count tasks. With a tenfold dose, the revised grader credited the check in 4 of 12 episodes and passed 2 of them, as in the paper's Fig. 5.</p>
+  <p class="caption">Counts are checks, except for the two scripts, which count tasks. With a tenfold dose, our grader credited the check in 4 of 12 episodes and passed 2 of them.</p>
 </section>
 
 <section id="tasks">
@@ -225,17 +220,14 @@
     <figure class="donut-card" id="d-fields"></figure>
   </div>
   <div class="browser" id="browser">
-    <div class="tb-head">
-      <h3>Browse the public tasks</h3>
-      <input type="search" id="tb-q" placeholder="Search a condition, drug, test or field" aria-label="Search the public tasks">
-    </div>
-    <div class="tb-filters">
-      <div class="seg" role="group" aria-label="Task set" id="tb-set"><button type="button" data-s="" aria-pressed="true">All</button><button type="button" data-s="synthetic" aria-pressed="false">Synthetic</button><button type="button" data-s="heldout" aria-pressed="false">Held out</button></div>
-      <select id="tb-design" aria-label="Design"><option value="">All designs</option><option>Standard</option><option>Added features</option><option>Twin</option><option>Workflow</option></select>
+    <h3 class="tb-h">Browse the public tasks</h3>
+    <div class="tb-bar">
+      <label class="tb-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input type="search" id="tb-q" placeholder="Search a condition, drug, test or field" aria-label="Search the public tasks"></label>
       <select id="tb-field" aria-label="Field"><option value="">All fields</option></select>
-      <select id="tb-model" aria-label="Results of a model on the held out tasks"><option value="">Results of a model</option></select>
-      <span class="tb-count" id="tb-count" aria-live="polite"></span>
+      <select id="tb-model" aria-label="Attempts of a model on the confirmation set"><option value="">All models</option></select>
     </div>
+    <div class="tb-chips" id="tb-src" role="group" aria-label="Source"></div>
+    <p class="tb-count" id="tb-count" aria-live="polite"></p>
     <ol class="tb-list" id="tb-list"></ol>
     <button class="btn" type="button" id="tb-more" hidden>Show more</button>
   </div>
@@ -243,7 +235,7 @@
 
 <section id="submit" class="band">
   <h2>Submit your model</h2>
-  <p class="lead">Two tracks. The leaderboard track runs the 39 consultation tasks, graded with the original and the revised grader, and needs the PhysicianBench records. The synthetic track runs the 166 synthetic or the 150 held out tasks, and its results are kept apart from the leaderboard.</p>
+  <p class="lead">Two tracks. The leaderboard track runs the 39 consultation tasks and needs the PhysicianBench records. The synthetic track runs the 166 synthetic or the 150 held out tasks, and its results are kept apart from the leaderboard.</p>
   <ol class="steps">
     <li><b>Set up the environment</b><div class="cmd"><pre id="cmd1">git clone --recursive https://github.com/ybkim95/health-cua.git &amp;&amp; cd health-cua &amp;&amp; uv sync &amp;&amp; docker compose up -d --build --wait</pre><button class="btn small" type="button" data-copy="cmd1">Copy</button></div></li>
     <li><b>Run your model</b><span>Set <code>OPENAI_BASE_URL</code> and <code>OPENAI_API_KEY</code> for an OpenAI compatible endpoint, or <a href="https://github.com/ybkim95/health-cua/blob/main/docs/adding-models.md">add your own agent</a>.</span><span>Smoke test, minutes and cents</span><div class="cmd"><pre id="cmd2">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks synthetic --limit 3 --repeats 1 --local --price-in &lt;USD per million input tokens&gt; --price-out &lt;USD per million output tokens&gt;</pre><button class="btn small" type="button" data-copy="cmd2">Copy</button></div><span>Leaderboard track, full run, after <code>health-cua physicianbench prepare</code> and <code>up</code> with the PhysicianBench records (<a href="https://github.com/ybkim95/health-cua#consultation-tasks-from-physicianbench">setup</a>)</span><div class="cmd"><pre id="cmd4">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks consultation --repeats 3 --local</pre><button class="btn small" type="button" data-copy="cmd4">Copy</button></div><span>Synthetic track, full run</span><div class="cmd"><pre id="cmd3">uv run health-cua eval --model openai-compatible/&lt;model&gt; --surface both --tasks synthetic --repeats 3 --local --price-in &lt;USD per million input tokens&gt; --price-out &lt;USD per million output tokens&gt;</pre><button class="btn small" type="button" data-copy="cmd3">Copy</button></div></li>
@@ -282,12 +274,12 @@
 
 <dialog id="video-modal" aria-label="Overview video">
   <button class="close" type="button" aria-label="Close">×</button>
-  <video id="video" controls playsinline preload="none" poster="assets/video/overview-poster.jpg" data-src="assets/video/overview.mp4" width="1920" height="1080"></video>
+  <video id="video" controls playsinline preload="none" poster="assets/video/overview-poster.jpg?v=202611220100" data-src="assets/video/overview.mp4?v=202611220100" width="1920" height="1080"></video>
 </dialog>
 
 <script src="logo.js?v=202611110400" defer></script>
-<script src="viewer.js?v=202611211700" defer></script>
-<script src="app.js?v=202611211900" defer></script>
-<script src="tasks.js?v=202611211230" defer></script>
+<script src="viewer.js?v=202611220100" defer></script>
+<script src="app.js?v=202611220100" defer></script>
+<script src="tasks.js?v=202611220100" defer></script>
 </body>
 </html>

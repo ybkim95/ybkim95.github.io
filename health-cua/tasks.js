@@ -23,7 +23,7 @@
 
   function load() {
     if (T) return Promise.resolve(T);
-    return fetch('data/tasks.json?v=202611220500').then((r) => r.json()).then((d) => (T = d.tasks));
+    return fetch('data/tasks.json?v=202611220507').then((r) => r.json()).then((d) => (T = d.tasks));
   }
 
   function match(t) {
@@ -152,19 +152,25 @@
     const box = $('tc-attempt'); if (!box) return;
     fetch(`data/attempts/${t.id}.json?v=202611220500`).then((r) => (r.ok ? r.json() : null)).then((d) => {
       if (!d || !d.interfaces) return;
-      const A = d.interfaces.api, G = d.interfaces.gui, base = `assets/tasks/${t.id}/`;
-      const badge = (x) => `<span class="vbadge ${x.success ? 'ok' : 'fail'}">${x.success ? 'Pass' : 'Fail'} ${x.checks.filter((c) => c.pass).length}/${x.checks.length}</span>`;
-      const reads = A.actions - A.frames.length;
+      const A = d.interfaces.api, G = d.interfaces.gui, base = 'assets/tasks/';
+      const badge = (x) => { const c = x.checks.filter((k) => k.status === 'pass' || k.status === 'fail'), p = c.filter((k) => k.status === 'pass').length;
+        return `<span class="vbadge ${x.success ? 'ok' : 'fail'}" title="${p} of ${c.length} checks passed">${x.success ? 'Pass' : 'Fail'} ${p}/${c.length}</span>`; };
+      const reads = A.reads ?? A.actions - A.frames.length;
+      // the arguments a reader needs to see what was ordered or written; codes and references left out
+      const KEY = ['code_display', 'medication_display', 'medication_request_reference', 'dose_value', 'dose_unit', 'frequency_text', 'duration_value', 'duration_unit',
+        'occurrence_datetime', 'description', 'start', 'subject', 'recipient', 'file_path', 'reason_display'];
+      const args = (a) => KEY.filter((k) => a && a[k] != null).map((k) => `<dt>${esc(k)}</dt><dd>${esc(String(a[k]).slice(0, 120))}</dd>`).join('');
       box.innerHTML = `<h4>${esc(d.model)}, attempt ${d.repeat + 1}, through both interfaces</h4>
         <div class="tc-two">
           <div class="pane api"><div class="pane-head"><span class="dot api"></span>API ${badge(A)}<span class="count">${plural(reads, 'read')}, then</span></div>
-            <ol class="calls">${A.frames.map((f) => `<li><span class="n">${f.n}</span><span class="tool">${esc(f.tool)}</span>${f.args ? `<dl>${Object.entries(f.args).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(typeof v === 'string' ? v : JSON.stringify(v))}</dd>`).join('')}</dl>` : ''}</li>`).join('')}</ol></div>
+            <ol class="calls">${A.frames.map((f) => `<li><span class="n">${f.n}</span><span class="tool">${esc(f.tool)}</span><dl>${args(f.args)}</dl></li>`).join('')}</ol></div>
           <div class="pane screen"><div class="pane-head"><span class="dot gui"></span>GUI ${badge(G)}<span class="count" id="ta-count"></span></div>
             <div class="shot" id="ta-shot"><img alt="The EHR screen the agent saw" width="1200" height="750"></div><p class="do" id="ta-do"></p></div>
         </div>`;
       box.hidden = false;
+      const PH = ['Reads the chart', 'Places the orders', 'Writes the note', 'Finishes'];  // the demo's four phases
       const F = G.frames, st = makeStage($('ta-shot'), base), t0 = ++play, alive = () => t0 === play && $('task-card').open;
-      const say = (k) => { $('ta-count').textContent = `Step ${k + 1} of ${F.length}, action ${F[k].n} of ${G.actions}`; $('ta-do').textContent = F[k].do || 'The final screen'; };
+      const say = (k) => { $('ta-count').textContent = `Step ${k + 1} of ${F.length}, action ${F[k].n} of ${G.actions}`; $('ta-do').textContent = F[k].do ? `${PH[F[k].phase] || F[k].sec} · ${F[k].do}` : 'The final screen'; };
       st.show(F[0]); say(0);
       if (reducedMotion) return;
       (async () => {

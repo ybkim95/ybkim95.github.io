@@ -349,7 +349,7 @@ const ICON = {
   confirm: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
 };
 const SETS = { official: ['Real consultations', 'Specialist consultations on deidentified records, not public'],
-  dev: ['Development', 'Synthetic patients, written while we built the benchmark: 94 basic tasks, 38 tricky charts, 14 look-alike pairs and 20 long visits'],
+  dev: ['Development', 'Synthetic patients, written while we built the benchmark: 94 basic tasks, 38 tricky charts, 14 lookalike pairs and 20 long visits'],
   heldout: ['Held out', 'Synthetic patients, written after development ended and run once to confirm the results, public with answers'] };
 
 const SET_COLOR = { official: '#1a73e8', dev: '#188038', heldout: '#9aa0a6', standard: '#188038', hard: '#34a853', expert: '#81c995', workflow: '#f9ab00' };  // the task browser's kinds too

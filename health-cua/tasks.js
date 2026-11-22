@@ -11,7 +11,7 @@
   // the paper's four designs in plain words (one task, a filter), with the colour and icon of the donut above
   const TYPES = [['Standard', 'Basic', 'Basic', 'standard', 'One problem, the same kinds of task as the consultations'],
     ['Added features', 'Tricky chart', 'Tricky charts', 'hard', 'A fact in an older note, a corrected value, a calculation or a test before treatment'],
-    ['Twin', 'Look-alike pair', 'Look-alike pairs', 'expert', 'Two versions of one patient that differ in one decisive fact'],
+    ['Twin', 'Lookalike pair', 'Lookalike pairs', 'expert', 'Two versions of one patient that differ in one decisive fact'],
     ['Workflow', 'Long visit', 'Long visits', 'workflow', 'Several problems, four or more orders and a test to schedule']];
   const SETS = [['dev', 'Development', 'Written while we built the benchmark'], ['heldout', 'Held out', 'Written after development ended and run once to confirm the results']];
   const typeOf = (t) => TYPES.find((x) => x[0] === t.design);
@@ -190,7 +190,7 @@
       const t = T.find((x) => x.id === id); if (!t) return;
       const ty = typeOf(t), twin = t.twin && T.find((x) => x.id === t.twin);
       const meta = [`${icon(ty[3])}${ty[1]}`, t.set === 'heldout' ? 'Held out' : 'Development', esc(t.field), esc(t.role), day(t.date)];
-      const extra = [t.features.length ? 'What makes it tricky: ' + t.features.join(', ') : '', twin ? `Look-alike of <a href="#task=${esc(twin.id)}">${esc(twin.title)}</a>` : ''].filter(Boolean);
+      const extra = [t.features.length ? 'What makes it tricky: ' + t.features.join(', ') : '', twin ? `Lookalike of <a href="#task=${esc(twin.id)}">${esc(twin.title)}</a>` : ''].filter(Boolean);
       const why = [...t.required.map((o) => [o.names[0], o.why]), ...t.forbidden.map((o) => ['Not ' + (o.names[0] || ''), o.why])].filter(([, w]) => w);
       play++;
       $('tc-body').innerHTML = `

@@ -38,7 +38,7 @@ function locate(list, w, hasFinalFrame) {
 function init() {
   S = makeStage($('shot'), () => BASE);
   agents();
-  buildCalls(); buildPhases(); buildOutcome(); drawLanes();
+  buildCalls(); buildPhases(); buildOutcome(); drawLanes(); verdict('api-verdict', 'api');
   addEventListener('resize', () => { clearTimeout(drawLanes.t); drawLanes.t = setTimeout(drawLanes, 200); });
   document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => { userPaused = true; stop(); setUi(t.dataset.ui); }));
   $('prev').onclick = () => { userPaused = true; stop(); show(i - 1); };
@@ -75,7 +75,7 @@ function pick(key) {
   load.then((d) => {
     D = d; BASE = ROOTDIR + (key ? key + '/' : ''); apiShown = -1, i = 0;  // the old step may lie past the end of this episode
     $('calls').innerHTML = ''; $('outcome-grid').innerHTML = '';
-    buildCalls(); buildOutcome(); drawLanes();
+    buildCalls(); buildOutcome(); drawLanes(); verdict('api-verdict', 'api');
     document.querySelectorAll('.tab').forEach((t) => { t.hidden = !D.interfaces[t.dataset.ui]; });
     ui = D.interfaces.gui ? 'gui' : 'openmrs';
     document.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.ui === ui)));
@@ -191,6 +191,15 @@ function buildOutcome() {
   box.append(t);
 }
 
+// The grader's result for the episode shown, in the pane header, as the reader watches it.
+function verdict(id, n) {
+  const v = D.interfaces[n], e = $(id); if (!e || !v) return;
+  const p = v.checks.filter((c) => c.pass).length, t = v.checks.length;
+  e.className = 'vbadge ' + (v.success ? 'ok' : 'fail');
+  e.textContent = `${v.success ? 'Pass' : 'Fail'} ${p}/${t}`;
+  e.title = `${p} of ${t} checks passed`;
+}
+
 function setUi(name) {
   const w = where();
   ui = name;
@@ -198,13 +207,13 @@ function setUi(name) {
   show(locate(frames(ui), w, true));
 }
 
-// Static view of frame k: its screenshot with the pointer resting where the agent acts next.
-function show(k) {
+// View of frame k. Paused, the pointer rests where the agent acts next under a magnifier; playing, it stays put and glides there.
+function show(k, moving = false) {
   const m = frames(ui);
   i = Math.max(0, Math.min(m.length - 1, k));
   const f = m[i];
-  S.show(f, [m[i + 1], m[i + 2]]);
-  caption(f);
+  S.show(f, [m[i + 1], m[i + 2]], { keep: moving, lens: !moving });
+  caption(f); verdict('screen-verdict', ui);
   sync();
 }
 
@@ -263,7 +272,7 @@ async function loop(token) {
     }
     await S.act(m[i], alive);
     await S.crossfade(m[i + 1], alive);
-    i++; show(i);
+    i++; show(i, true);
     await sleep(160);
   }
 }
@@ -271,19 +280,32 @@ async function loop(token) {
 // A screenshot stage with a pointer that replays recorded actions (glide, press, type, scroll, keys). The main player and the
 // failure clips each own one. alive() turns false when playback stops, which cancels any step in flight.
 function makeStage(shot, base) {
-  shot.insertAdjacentHTML('beforeend', '<img class="layer next" alt="" aria-hidden="true"><span class="ripple"></span><span class="bubble"></span><span class="keycap"></span><span class="wheel"></span>'
+  shot.insertAdjacentHTML('beforeend', '<img class="layer next" alt="" aria-hidden="true"><span class="ripple"></span><span class="bubble"></span><span class="keycap"></span><span class="wheel"></span><span class="lens"></span>'
     + '<svg class="pointer" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5v17.2l4.4-4.2 2.9 6.6 2.6-1.1-2.8-6.5 6.1-.3z"/></svg>');
   const sq = (s) => shot.querySelector(s), img = shot.querySelector('img:not(.layer)'), B = typeof base === 'function' ? base : () => base;
   let ptr = { x: 50, y: 50 };
   const wait = (ms, alive) => new Promise((res, rej) => setTimeout(() => (alive() ? res() : rej(new Error('stopped'))), ms / SPEED));
   const place = (p) => { const e = sq('.pointer'); e.style.left = p.x + '%'; e.style.top = p.y + '%'; };
   const clear = () => ['bubble', 'keycap', 'wheel'].forEach((c) => sq('.' + c).classList.remove('on'));
-  function show(f, preload = []) {
+  // a 2.5x magnifier beside the pointer, so small text on the screen can be read
+  function lens(at) {
+    const L = sq('.lens');
+    if (!at || !img.src) { L.classList.remove('on'); return; }
+    const w = shot.clientWidth, hh = shot.clientHeight, Z = 2.5, R = L.offsetWidth / 2, px = at.x / 100 * w, py = at.y / 100 * hh;
+    L.style.backgroundImage = `url("${img.src}")`;  // src, not currentSrc, which lags until the new frame loads
+    L.style.backgroundSize = `${w * Z}px ${hh * Z}px`;
+    L.style.backgroundPosition = `${R - px * Z}px ${R - py * Z}px`;
+    L.style.left = (px > w * 0.62 ? px - 2 * R - 22 : px + 22) + 'px';
+    L.style.top = Math.min(Math.max(py - R, 4), hh - 2 * R - 4) + 'px';
+    L.classList.add('on');
+  }
+  function show(f, preload = [], o = {}) {
     img.src = B() + f.img;
     img.alt = `The EHR screen the agent saw${f.sec ? ', ' + f.sec : ''}${f.do ? '. Its next action: ' + f.do : ''}`;
     preload.forEach((n) => { if (n && n.img) new Image().src = B() + n.img; });
-    if (f.x != null) ptr = { x: f.x, y: f.y };
+    if (f.x != null && !o.keep) ptr = { x: f.x, y: f.y };
     place(ptr); sq('.pointer').style.opacity = f.do ? 1 : 0; clear();
+    lens(o.lens && f.do && f.x != null ? ptr : null);
   }
   function glide(to, alive) {
     const from = { ...ptr }, d = Math.hypot(to.x - from.x, to.y - from.y);
@@ -308,13 +330,15 @@ function makeStage(shot, base) {
   }
   async function act(f, alive) {
     const target = f.x != null ? { x: f.x, y: f.y } : ptr;
+    lens(null);
     await glide(target, alive);
     const kind = (f.do || '').split(' ')[0];
     if (kind === 'Click' || kind === 'Select' || kind === 'Double') {
       const p = sq('.pointer'), r = sq('.ripple');
       r.style.left = target.x + '%'; r.style.top = target.y + '%';
+      lens(target); await wait(420, alive);
       p.classList.add('press'); r.classList.remove('go'); void r.offsetWidth; r.classList.add('go');
-      await wait(170, alive); p.classList.remove('press'); await wait(200, alive);
+      await wait(170, alive); p.classList.remove('press'); await wait(360, alive); lens(null);
     } else if (kind === 'Type') {
       const m = f.do.match(/“(.*)”/), text = m ? m[1].replace(/ …$/, '') : '';
       const b = sq('.bubble');

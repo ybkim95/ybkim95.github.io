@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611220100">
+<link rel="stylesheet" href="style.css?v=202611220300">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -55,7 +55,6 @@
   </div>
   <div class="cover" id="cover" aria-roledescription="carousel" aria-label="Screens from synthetic tasks">
     <div class="cover-stage" id="cover-stage"></div>
-    <p class="cover-cap" id="cover-cap" aria-live="polite"></p>
   </div>
 </section>
 
@@ -76,7 +75,7 @@
 
   <div class="viewer" id="viewer" tabindex="0" aria-label="Episode viewer. Use the left and right arrow keys to step through the episode.">
     <div class="pane api">
-      <div class="pane-head"><span class="dot api"></span>API <small>FHIR tool calls</small><span class="count" id="api-count"></span></div>
+      <div class="pane-head"><span class="dot api"></span>API <small>FHIR tool calls</small><span class="vbadge" id="api-verdict"></span><span class="count" id="api-count"></span></div>
       <ol class="calls" id="calls"></ol>
     </div>
     <div class="pane screen">
@@ -85,6 +84,7 @@
           <button role="tab" class="tab" data-ui="gui" aria-selected="true"><span class="dot gui"></span>GUI</button>
           <button role="tab" class="tab" data-ui="openmrs" aria-selected="false"><span class="dot openmrs"></span>OpenMRS</button>
         </div>
+        <span class="vbadge" id="screen-verdict"></span>
         <span class="count" id="screen-count"></span>
       </div>
       <div class="shot" id="shot">
@@ -120,10 +120,10 @@
     </div>
   </div>
   <div class="lb"><p class="key lb-key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</p><div id="lb"></div></div>
-  <div class="lb-foot"><p class="caption">USD per episode is one attempt at list prices with cached input at its cache rate, and a dash marks open weight models run on our servers. pass@1 averages the three attempts at each task, pass<sup>3</sup> counts the tasks solved on all three. Bars show 95% intervals. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
+  <div class="lb-foot"><p class="caption">Bars show 95% intervals and cost is one attempt at list prices. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
   <div class="costfig">
     <h3>Success against cost</h3>
-    <p class="caption">Each model through the API (blue) and the GUI (orange), joined by a line. The stepped line marks runs that no cheaper run beats, named on the right on wider screens. Point at a dot for its model and numbers. Open weight models ran on our servers and are not shown.</p>
+    <p class="caption">API in blue and GUI in orange, joined for each model. The stepped line marks runs that no cheaper run beats.</p>
     <div id="lb-cost"></div>
   </div>
   <details class="updates">
@@ -151,13 +151,13 @@
       <h3>31% of the notes a judge passed came from attempts that failed</h3>
       <p class="sub">39 consultations · 4,102 attempts of the 19 leaderboard models · exploratory</p>
       <div class="viz" id="c-notes"></div>
-      <p class="note">gpt-oss-120b graded each note against PhysicianBench's rubrics without seeing the record, and the grader checked the record. A second judge, Gemini 3.8 Flash, gives 32%. Both judges are language models without physician calibration.</p>
+      <p class="note">gpt-oss-120b judged each note against PhysicianBench's rubrics. A second judge, Gemini 3.8 Flash, gives 32%.</p>
     </article>
     <article class="card">
       <h3>Three screenshots are not enough</h3>
       <p class="sub">Claude Sonnet 5.5 through the GUI · 39 consultations · three attempts per task</p>
       <div class="big" id="c-mem"></div>
-      <p class="note">Success with only the last three screenshots, the default of Anthropic's computer use demo, against the full history</p>
+      <p class="note">Last three screenshots, the default of Anthropic's computer use demo, against the full history</p>
     </article>
     <article class="card">
       <h3>In OpenMRS, success drops 16 to 19 points</h3>
@@ -168,7 +168,7 @@
       <h3>On screen, referrals are the orders frontier models leave out most</h3>
       <p class="sub">39 consultations · eight frontier models</p>
       <div class="viz" id="c-orders"></div>
-      <p class="note">Share of required orders placed, by kind of order, averaged over the models. Only 4 of the 55 checks are referrals, so the shares are descriptive.</p>
+      <p class="note">Share of required orders placed, averaged over the models</p>
     </article>
     <article class="card">
       <h3>On screen, agents place fewer extra orders</h3>
@@ -209,7 +209,6 @@
   <h2>Testing the grader</h2>
   <p class="lead">PhysicianBench's own checks rejected nearly half of the correct alternatives and passed a script that ordered every test and referral, so we rewrote them. Our grader passes neither script.</p>
   <div class="viz grader" id="c-grader"></div>
-  <p class="caption">Counts are checks, except for the two scripts, which count tasks. With a tenfold dose, our grader credited the check in 4 of 12 episodes and passed 2 of them.</p>
 </section>
 
 <section id="tasks">
@@ -274,12 +273,12 @@
 
 <dialog id="video-modal" aria-label="Overview video">
   <button class="close" type="button" aria-label="Close">×</button>
-  <video id="video" controls playsinline preload="none" poster="assets/video/overview-poster.jpg?v=202611220100" data-src="assets/video/overview.mp4?v=202611220100" width="1920" height="1080"></video>
+  <video id="video" controls playsinline preload="none" poster="assets/video/overview-poster.jpg?v=202611220300" data-src="assets/video/overview.mp4?v=202611220300" width="1920" height="1080"></video>
 </dialog>
 
 <script src="logo.js?v=202611110400" defer></script>
-<script src="viewer.js?v=202611220100" defer></script>
-<script src="app.js?v=202611220100" defer></script>
+<script src="viewer.js?v=202611220300" defer></script>
+<script src="app.js?v=202611220300" defer></script>
 <script src="tasks.js?v=202611220100" defer></script>
 </body>
 </html>

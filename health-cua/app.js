@@ -40,7 +40,7 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
     { img: S + 'openmrs/b5f5b2d0614eaf6b.webp', cap: 'OpenMRS, the visit note' },
     { img: C + 'sr153_gui_step80.webp', cap: 'GUI, scheduling a follow up test' },
   ];
-  const stage = q('#cover-stage'), cap = q('#cover-cap');
+  const stage = q('#cover-stage');
   const els = items.map((it, k) => {
     const b = h('button', 'cv');
     b.type = 'button'; b.setAttribute('aria-label', it.cap);
@@ -72,7 +72,6 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
       e.tabIndex = o === 0 ? 0 : -1;
       e.classList.toggle('on', o === 0);
     });
-    cap.textContent = items[cur].cap;
   }
   const play = () => { if (!reducedMotion && !timer) timer = setInterval(() => go(cur + 1), 3200); };
   const pause = () => { clearInterval(timer); timer = null; };
@@ -210,9 +209,9 @@ function board(rows, cats) {
       if (A.api) bars.append(bar('api', A.api[key].mean, A.api[key].ci, fx(A.api[key].mean)));
       bars.append(bar('gui', A.gui[key].mean, A.gui[key].ci, fx(A.gui[key].mean)));
       const cost = h('div', 'cost');
-      const usd = (v) => (v == null ? '–' : `$${v.toFixed(2)}`);
-      if (A.api) cost.append(h('span', null, usd(r.cost && r.cost.api)));
-      cost.append(h('span', null, usd(r.cost && r.cost.gui)));
+      const usd = (v) => { const e = h('span', null, v == null ? '–' : `$${v.toFixed(2)}`); if (v == null) e.title = 'Open weights, run on our servers'; return e; };
+      if (A.api) cost.append(usd(r.cost && r.cost.api));
+      cost.append(usd(r.cost && r.cost.gui));
       row.append(bars, cost);
       const d = cat === 'Overall' && r.delta && r.delta[key];
       const gap = !d ? '' : Math.abs(d.mean) < 0.05 ? 'No gap between the two. ' : `${d.mean > 0 ? 'API' : 'GUI'} ahead by ${fx(Math.abs(d.mean))} points (95% CI ${d.mean > 0 ? `${neg(d.ci[0])} to ${neg(d.ci[1])}` : `${neg(-d.ci[1])} to ${neg(-d.ci[0])}`}, not adjusted for the number of models). `;
@@ -414,7 +413,7 @@ function donut(fig, title, segs, unit = 'tasks') {
         let next = F[j + 1];
         if (next.skip) { chip.textContent = `${next.skip} actions later`; chip.classList.add('on'); next = F[j + 2]; j++; }
         await stage.crossfade(next, alive);
-        stage.show(next, [F[j + 2]]);
+        stage.show(next, [F[j + 2]], { keep: true });
         if (chip.classList.contains('on')) { await wait(900); chip.classList.remove('on'); }
         await wait(160);
       }
@@ -445,13 +444,10 @@ function failStats(G) {
     ['stopped', 'Stopped without ordering', 'Stopped', 'Ended the task as done without placing any order', '#9AA0A8', 1],
     ['timeout', 'Ran out of actions', 'Out of actions', 'Used up its action budget before placing any order', '#C9CDD3', 2],
     ['unable', 'Said it could not be done', 'Said impossible', 'Said the task could not be done, without placing any order', '#6B6B70', null]];
-  const facts = [(g) => `In ${g.claimed} of ${g.failed} failures, the agent still said the task was done.`,
-    (g) => `In ${g.stopped} of ${g.failed} failures, the agent said it was done without placing a single order.`];
   G.forEach((g, j) => {
     const fig = q('#fs' + j);
     donut(fig, g.group, cats.map(([k, label, short, detail, color, tab]) => ({
       n: g[k], label, short, color, detail: `${detail}. ${g[k]} of ${g.failed} failed episodes.`,
       pick: tab == null ? null : () => window.showFail && window.showFail(tab) })), 'failed episodes');
-    fig.insertAdjacentHTML('beforeend', `<figcaption>${facts[j](g)}</figcaption>`);
   });
 }

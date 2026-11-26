@@ -46,7 +46,7 @@
     const at = Object.values(r).flatMap((m) => ['API', 'GUI'].flatMap((u) => [...(m[u] || '')]));
     if (!at.length) return `<span class="tb-key">${t.required.length ? plural(t.required.length, 'required order') : 'No order required'}</span>`;
     const p = at.filter((c) => c === '1').length;
-    return `<span class="tb-solve" title="Attempts passed through the API and the GUI, ${plural(Object.keys(r).length, 'model')}"><span class="tb-sbar"><i style="width:${(100 * p / at.length).toFixed(1)}%"></i></span>${p} of ${at.length} passed</span>`;
+    return `<span class="tb-solve" title="Attempts passed through the API and the GUI, ${plural(Object.keys(r).length, 'model')}"><span class="tb-sbar"><i style="width:${(100 * p / at.length).toFixed(1)}%"></i></span>API + GUI ${p}/${at.length} passed</span>`;
   }
 
   function list() {
@@ -170,7 +170,7 @@
       box.hidden = false;
       const PH = ['Reads the chart', 'Places the orders', 'Writes the note', 'Finishes'];  // the demo's four phases
       const F = G.frames, st = makeStage($('ta-shot'), base), t0 = ++play, alive = () => t0 === play && $('task-card').open;
-      const say = (k) => { $('ta-count').textContent = `Step ${k + 1} of ${F.length}, action ${F[k].n} of ${G.actions}`; $('ta-do').textContent = F[k].do ? `${PH[F[k].phase] || F[k].sec} · ${F[k].do}` : 'The final screen'; };
+      const say = (k) => { $('ta-count').textContent = F[k].n == null ? `Final state · ${plural(G.actions, 'action')}` : `Step ${k + 1} of ${F.length}, action ${F[k].n} of ${G.actions}`; $('ta-do').textContent = F[k].do ? `${PH[F[k].phase] || F[k].sec} · ${F[k].do}` : 'The final screen'; };
       st.show(F[0]); say(0);
       if (reducedMotion) return;
       (async () => {

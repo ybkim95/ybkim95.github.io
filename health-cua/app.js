@@ -146,7 +146,7 @@ fetch('data/results.json?v=202611220100').then((r) => r.json()).then((R) => {
   findings(R);
   grader(R.grader);
   const meta = q('#lb-meta');
-  if (meta && R.meta) meta.innerHTML = `All entries run by us · ${day(R.meta.evaluated[0]).replace(/ \d{4}$/, '')} to ${day(R.meta.evaluated[1])} · updated ${day(R.meta.updated)} · `
+  if (meta && R.meta) meta.innerHTML = `<b>39 consultation tasks · three attempts per task through each interface</b> · All entries run by us · ${day(R.meta.evaluated[0]).replace(/ \d{4}$/, '')} to ${day(R.meta.evaluated[1])} · updated ${day(R.meta.updated)} · `
     + `Download <a href="data/results.json" download>JSON</a> or <a href="data/leaderboard-per-task.csv" download>per task CSV</a>`;
   donuts(R.tasks);
   failStats(R.fail_stats);

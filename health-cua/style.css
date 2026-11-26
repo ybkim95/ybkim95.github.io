@@ -410,6 +410,7 @@ footer { justify-content: center; }
 .who em.src { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 40%, transparent); }
 .lb-meta { font-size: .84rem; color: var(--ink3); margin: -6px 0 18px; }
 .lb-meta a { color: var(--ink2); }
+.lb-meta b { color: var(--ink2); font-weight: 600; }
 .updates { margin-top: 18px; font-size: .86rem; color: var(--ink2); }
 .updates summary { cursor: pointer; color: var(--ink2); font-weight: 500; width: max-content; }
 .updates ul { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }

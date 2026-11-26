@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611220505">
+<link rel="stylesheet" href="style.css?v=202611260100">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -120,7 +120,7 @@
     </div>
   </div>
   <div class="lb"><p class="key lb-key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</p><div id="lb"></div></div>
-  <div class="lb-foot"><p class="caption">Bars show 95% intervals and cost is one attempt at list prices. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
+  <div class="lb-foot"><p class="caption">pass@1 is the average success over the three attempts at each task, and pass<sup>3</sup> counts a task only when all three succeed. Bars show 95% intervals and cost is one attempt at list prices. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
   <div class="costfig">
     <h3>Pareto frontier</h3>
     <p class="caption">Success against the cost of one attempt, API in blue and GUI in orange, joined for each model. The stepped line is the Pareto frontier, the runs that no cheaper run beats.</p>
@@ -209,6 +209,7 @@
   <h2>Testing the grader</h2>
   <p class="lead">PhysicianBench's own checks rejected nearly half of the correct alternatives and passed a script that ordered every test and referral, so we rewrote them. Our grader passes neither script.</p>
   <div class="viz grader" id="c-grader"></div>
+  <p class="caption">A pass means every required order is in the record, no wrong or unjustified order is, the note is signed and the request is closed. Doses are not checked on every order, so a tenfold dose is still credited on 4 of 12 medication checks, and 2 such episodes pass.</p>
 </section>
 
 <section id="tasks">
@@ -274,12 +275,12 @@
 
 <dialog id="video-modal" aria-label="Overview video">
   <button class="close" type="button" aria-label="Close">×</button>
-  <video id="video" controls playsinline preload="none" poster="assets/video/overview-poster.jpg?v=202611220300" data-src="assets/video/overview.mp4?v=202611220300" width="1920" height="1080"></video>
+  <video id="video" controls playsinline preload="none" poster="assets/video/overview-poster.jpg?v=202611220300" data-src="assets/video/overview.mp4?v=202611220300" width="1920" height="1080"><track kind="captions" srclang="en" label="English" src="assets/video/overview.vtt?v=202611260100" default></video>
 </dialog>
 
 <script src="logo.js?v=202611110400" defer></script>
 <script src="viewer.js?v=202611220300" defer></script>
-<script src="app.js?v=202611220510" defer></script>
-<script src="tasks.js?v=202611220510" defer></script>
+<script src="app.js?v=202611260100" defer></script>
+<script src="tasks.js?v=202611260100" defer></script>
 </body>
 </html>

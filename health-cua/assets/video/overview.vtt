@@ -1,0 +1,40 @@
+WEBVTT
+
+00:00.800 --> 00:06.560
+Health-CUA asks whether AI agents can do real clinical work inside an electronic health record.
+
+00:07.260 --> 00:14.420
+Each agent gets the same task on the same patient record, through the API, our screens, or OpenMRS.
+
+00:15.120 --> 00:17.956
+On screen, the agent works like a person.
+
+00:17.956 --> 00:21.761
+It reads the chart, clicks, types, and signs the order.
+
+00:22.461 --> 00:28.941
+OpenMRS is an independent open source medical record system, used in clinics around the world.
+
+00:29.641 --> 00:34.081
+We tested 19 models on 39 real specialist consultations.
+
+00:34.781 --> 00:40.101
+Most of the strongest models complete at least as many tasks on screen as through the API.
+
+00:40.801 --> 00:43.441
+Memory decides success on screen.
+
+00:43.441 --> 00:49.441
+With only its last three screenshots, Claude Sonnet 5.5 solves 1% of tasks.
+
+00:49.441 --> 00:51.601
+With its full history, 77%.
+
+00:52.301 --> 00:57.902
+In OpenMRS, the same agents complete 16 to 19 points fewer tasks.
+
+00:58.602 --> 01:04.322
+We also tested the grader, with scripts that order correctly, leave orders out, or order everything.
+
+01:05.022 --> 01:09.782
+Health-CUA. The leaderboard, the paper and the code are on the project page.

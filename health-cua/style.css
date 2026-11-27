@@ -408,9 +408,6 @@ footer { justify-content: center; }
 .axis .ticks i:first-child { transform: none; } .axis .ticks i:last-child { transform: translateX(-100%); }
 .axis .unit { text-align: right; white-space: nowrap; } .axis sup { font-size: .75em; line-height: 0; }
 .who em.src { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 40%, transparent); }
-.lb-meta { font-size: .84rem; color: var(--ink3); margin: -6px 0 18px; }
-.lb-meta a { color: var(--ink2); }
-.lb-meta b { color: var(--ink2); font-weight: 600; }
 .updates { margin-top: 18px; font-size: .86rem; color: var(--ink2); }
 .updates summary { cursor: pointer; color: var(--ink2); font-weight: 500; width: max-content; }
 .updates ul { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
@@ -453,11 +450,17 @@ footer { justify-content: center; }
 #lb-cost svg { width: 100%; height: auto; display: block; }
 #lb-cost .gl { stroke: var(--line); stroke-width: 1; }
 #lb-cost .tk, #lb-cost .ax { fill: var(--ink3); font: 11px var(--sans); }
-#lb-cost .pair { stroke: var(--ink3); stroke-width: 1; opacity: .45; }
-#lb-cost .front { fill: none; stroke: var(--ink2); stroke-width: 1.2; stroke-dasharray: 4 3; }
-#lb-cost .pt { stroke: var(--card); stroke-width: 1.5; } #lb-cost .pt.api { fill: var(--api); } #lb-cost .pt.gui { fill: var(--gui); }
-#lb-cost .pt.on { stroke: var(--ink); stroke-width: 1.5; }
-#lb-cost .lbl { fill: var(--ink2); font: 11.5px var(--sans); } #lb-cost .lead { stroke: var(--ink3); stroke-width: .6; opacity: .6; }
+#lb-cost .front { fill: none; stroke: var(--ink3); stroke-width: 1.4; stroke-dasharray: 4 4; }
+#lb-cost .pt circle { fill: var(--card); stroke: var(--ink3); stroke-opacity: .4; stroke-width: 1.2; }
+#lb-cost .pt.on circle { stroke-opacity: 1; stroke-width: 2.6; }
+#lb-cost .lbl { fill: var(--ink); font: 500 12px var(--sans); paint-order: stroke; stroke: var(--card); stroke-width: 4px; stroke-linejoin: round; }
+@media (max-width: 600px) { #lb-cost .lbl { font-size: 11px; } }
+@media (prefers-color-scheme: dark) { #lb-cost image.openai { filter: invert(1); } }
+.cost-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+.cost-head h3 { margin: 0; }
+.cost-head .seg button { padding: 5px 14px; font-size: .82rem; }
+.lg { width: 16px; height: 16px; border-radius: 4px; vertical-align: -3px; margin-right: 6px; }
+@media (min-width: 901px) { .lead.one { max-width: none; } }
 
 /* task browser and task card */
 .browser { margin-top: 28px; }

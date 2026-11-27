@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611262300">
+<link rel="stylesheet" href="style.css?v=202611271200">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -60,18 +60,18 @@
 
 <section class="glance" aria-label="At a glance">
   <ul>
-    <li><b>355</b><span>clinical tasks, 316 public with their answers</span></li>
-    <li><b>19</b><span>models on the leaderboard</span></li>
+    <li><b>355</b><span>clinical tasks</span></li>
+    <li><b>19</b><span>language models</span></li>
     <li><b>13</b><span>fields of medicine</span></li>
-    <li><b>3</b><span>interfaces, the API and the GUI on one record, and OpenMRS</span></li>
+    <li><b>3</b><span>interfaces (API, GUI and OpenMRS)</span></li>
   </ul>
 </section>
 
 <section id="replay">
   <h2>Demo</h2>
-  <p class="lead">The same clinical request, handled through the API, through the EHR screens, and in OpenMRS, an open source EHR.</p>
+  <p class="lead one">The same clinical request through the API, the EHR screens and OpenMRS, an open source EHR.</p>
   <div class="agents" id="agents" role="tablist" aria-label="Agent"></div>
-  <p class="request"><b>The request</b> A spreading red patch where a tick bit 9 days ago, in a patient taking isotretinoin for acne. Please assess and treat. <a href="#task=sr259_erythema_migrans_isotretinoin_no_doxycycline">Open the task and its answer key</a></p>
+  <p class="request"><b>Input</b> A spreading red patch where a tick bit 9 days ago, in a patient taking isotretinoin for acne. Please assess and treat. <a href="#task=sr259_erythema_migrans_isotretinoin_no_doxycycline">Open the task and its answer key</a></p>
 
   <div class="viewer" id="viewer" tabindex="0" aria-label="Episode viewer. Use the left and right arrow keys to step through the episode.">
     <div class="pane api">
@@ -110,8 +110,7 @@
 
 <section id="leaderboard" class="band">
   <h2>Leaderboard</h2>
-  <p class="lead">Nineteen models on real specialist consultations from PhysicianBench, three attempts per task through each interface. An attempt succeeds when the record holds every required order and breaks no safety rule. Frontier models are the eight that succeed on more than two thirds of tasks through either interface.</p>
-  <p class="lb-meta" id="lb-meta"></p>
+  <p class="lead one">Success on 39 real specialist consultations, three attempts per task through each interface.</p>
   <div class="lb-head">
     <div class="cats" id="cats" role="tablist" aria-label="Task category"></div>
     <div class="seg" role="group" aria-label="Measure" id="measure-seg">
@@ -120,17 +119,17 @@
     </div>
   </div>
   <div class="lb"><p class="key lb-key"><i class="sw api"></i>API <i class="sw gui"></i>GUI</p><div id="lb"></div></div>
-  <div class="lb-foot"><p class="caption">pass@1 is the average success over the three attempts at each task, and pass<sup>3</sup> counts a task only when all three succeed. Bars show 95% intervals and cost is one attempt at list prices. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
+  <div class="lb-foot"><p class="caption">pass@1 is the average success over the three attempts at each task, and pass<sup>3</sup> counts a task only when all three succeed. Bars show 95% intervals and cost is one attempt at list prices. Frontier models are the eight that succeed on more than two thirds of tasks through either interface. Select a model for details.</p><a class="btn" href="#submit">Submit your model →</a></div>
   <div class="costfig">
-    <h3>Pareto frontier</h3>
-    <p class="caption">Success against the cost of one attempt, API in blue and GUI in orange, joined for each model. The stepped line is the Pareto frontier, the runs that no cheaper run beats.</p>
+    <div class="cost-head"><h3>Pareto frontier</h3><div class="seg" role="group" aria-label="Interface" id="cost-seg"><button type="button" data-v="gui" aria-pressed="true">GUI</button><button type="button" data-v="api" aria-pressed="false">API</button></div></div>
+    <p class="caption">Success against the cost of one attempt at list prices. Ringed models are on the Pareto frontier, where no cheaper model succeeds as often.</p>
     <div id="lb-cost"></div>
   </div>
   <details class="updates">
     <summary>Updates</summary>
     <ul>
       <li><time datetime="2026-11-21">21 Nov 2026</time> A browser of the 316 public tasks with their answer keys and every held out attempt through the API and the GUI, a per task grid in each leaderboard row, and the Pareto frontier of success and cost.</li>
-      <li><time datetime="2026-11-21">21 Nov 2026</time> Ranks, cost per episode, run dates and downloads on the leaderboard.</li>
+      <li><time datetime="2026-11-21">21 Nov 2026</time> Ranks, cost per episode and run dates on the leaderboard.</li>
       <li><time datetime="2026-11-18">18 Nov 2026</time> Findings on notes against the record and on the kinds of required orders.</li>
       <li><time datetime="2026-11-17">17 Nov 2026</time> Gemini 4 Carbon, Gemini 4 Hydrogen and GPT-6.2 Astra added.</li>
       <li><time datetime="2026-11-10">10 Nov 2026</time> Claude Fable 5.2 added.</li>
@@ -143,43 +142,41 @@
   <h2>Findings</h2>
   <div class="cards">
     <article class="card">
-      <h3>On held out tasks, three frontier models do as well on screen as through the API, or better</h3>
-      <p class="sub">150 held out tasks · three attempts per task, one for Claude Opus 5.5 and Gemini 4 Argon</p>
+      <h3>On held out tasks, three frontier models do at least as well on screen as through the API</h3>
+      <p class="sub">Success per attempt on 150 held out tasks</p>
       <div class="viz" id="c-equiv"></div>
     </article>
     <article class="card">
-      <h3>31% of the notes a judge passed came from attempts that failed</h3>
-      <p class="sub">39 consultations · 4,102 attempts of the 19 leaderboard models · exploratory</p>
+      <h3>31% of the notes a judge passed came from failed attempts</h3>
+      <p class="sub">Notes from 39 consultations, judged against PhysicianBench's rubrics</p>
       <div class="viz" id="c-notes"></div>
-      <p class="note">gpt-oss-120b judged each note against PhysicianBench's rubrics. A second judge, Gemini 3.8 Flash, gives 32%.</p>
+      <p class="note">A second judge gives 32%.</p>
     </article>
     <article class="card">
       <h3>Three screenshots are not enough</h3>
-      <p class="sub">Claude Sonnet 5.5 through the GUI · 39 consultations · three attempts per task</p>
+      <p class="sub"><img class="lg" src="assets/logos/anthropic.png" alt="" width="16" height="16">Claude Sonnet 5.5 on screen, with its last three screenshots or its full history</p>
       <div class="big" id="c-mem"></div>
-      <p class="note">Last three screenshots, the default of Anthropic's computer use demo, against the full history</p>
+      <p class="note">Three is the default in Anthropic's computer use demo.</p>
     </article>
     <article class="card">
       <h3>In OpenMRS, success drops 16 to 19 points</h3>
-      <p class="sub">106 held out tasks that OpenMRS can grade · first attempt</p>
+      <p class="sub">An open source EHR, on the 106 held out tasks it can grade</p>
       <div class="viz" id="c-openmrs"></div>
     </article>
     <article class="card">
-      <h3>On screen, referrals are the orders frontier models leave out most</h3>
-      <p class="sub">39 consultations · eight frontier models</p>
+      <h3>Agents miss referrals most often, especially on screen</h3>
+      <p class="sub">Share of required orders placed by eight frontier models on 39 consultations</p>
       <div class="viz" id="c-orders"></div>
-      <p class="note">Share of required orders placed, averaged over the models</p>
     </article>
     <article class="card">
-      <h3>On screen, agents place fewer extra orders</h3>
-      <p class="sub">39 consultations · eight frontier models</p>
+      <h3>On screen, agents add fewer extra orders</h3>
+      <p class="sub">Reasonable extra orders per attempt, eight frontier models on 39 consultations</p>
       <div class="viz" id="c-extra"></div>
-      <p class="note">Reasonable extra orders per episode</p>
     </article>
   </div>
 
   <div class="fails" id="fails">
-    <h3>How agents fail</h3>
+    <h3>Failure mode analysis</h3>
     <div class="fail-grid">
     <aside class="fail-stats">
       <figure class="donut-card mini" id="fs0"></figure>
@@ -206,7 +203,7 @@
 </section>
 
 <section id="grader" class="band">
-  <h2>Testing the grader</h2>
+  <h2>Grader validation</h2>
   <p class="lead">PhysicianBench's own checks rejected nearly half of the correct alternatives and passed a script that ordered every test and referral, so we rewrote them. Our grader passes neither script.</p>
   <div class="viz grader" id="c-grader"></div>
   <p class="caption">A pass means every required order is in the record, no wrong or unjustified order is, the note is signed and the request is closed. Doses are not checked on every order, so a tenfold dose is still credited on 4 of 12 medication checks, and 2 such episodes pass.</p>
@@ -220,7 +217,7 @@
 
 <section id="tasks">
   <h2>Tasks</h2>
-  <p class="lead">Real consultations and synthetic patients across 13 fields of medicine. 150 held out tasks confirm the results and are public with their answers.</p>
+  <p class="lead one">Real consultations and synthetic patients across 13 fields of medicine, with 150 tasks held out.</p>
   <div class="donuts">
     <figure class="donut-card" id="d-sets"></figure>
     <figure class="donut-card" id="d-fields"></figure>
@@ -286,7 +283,7 @@
 
 <script src="logo.js?v=202611110400" defer></script>
 <script src="viewer.js?v=202611220300" defer></script>
-<script src="app.js?v=202611262300" defer></script>
+<script src="app.js?v=202611271200" defer></script>
 <script src="tasks.js?v=202611260100" defer></script>
 </body>
 </html>

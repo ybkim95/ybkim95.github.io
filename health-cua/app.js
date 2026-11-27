@@ -6,6 +6,9 @@ const sgn = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(1);
 const neg = (v) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(1);
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const LOGO = { Anthropic: 'anthropic', Google: 'google', OpenAI: 'openai', Alibaba: 'alibaba', 'XLANG Lab': 'xlang' };
+const FAM = { Anthropic: '#d97757', Google: '#4285f4', OpenAI: '#10a37f', Alibaba: '#615ced', 'XLANG Lab': '#5f6368' };  // ring colour of each family on the Pareto frontier
+const logoOf = (m) => (/^Claude/.test(m) ? 'anthropic' : /^(Gemini|MedGemma)/.test(m) ? 'google' : /^(GPT|gpt)/.test(m) ? 'openai' : /^Qwen/.test(m) ? 'alibaba' : /^OpenCUA/.test(m) ? 'xlang' : '');
+const named = (m) => (logoOf(m) ? `<img class="lg" src="assets/logos/${logoOf(m)}.png" alt="" width="16" height="16">` : '') + m;
 
 document.querySelectorAll('[data-copy]').forEach((b) => {
   const label = b.textContent;
@@ -140,15 +143,12 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && n.classList.contains('open')) { set(false); b.focus(); } });
 })();
 
-fetch('data/results.json?v=202611262300').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611271200').then((r) => r.json()).then((R) => {
   LBT = R.lb_tasks || [];
   board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
   if (R.physicians) physicians(R.physicians);
-  const meta = q('#lb-meta');
-  if (meta && R.meta) meta.innerHTML = `<b>39 consultation tasks · three attempts per task through each interface</b> · All entries run by us · ${day(R.meta.evaluated[0]).replace(/ \d{4}$/, '')} to ${day(R.meta.evaluated[1])} · updated ${day(R.meta.updated)} · `
-    + `Download <a href="data/results.json" download>JSON</a> or <a href="data/leaderboard-per-task.csv" download>per task CSV</a>`;
   donuts(R.tasks);
   failStats(R.fail_stats);
 }).catch(() => { q('#lb').textContent = 'The results could not be loaded.'; });
@@ -180,25 +180,42 @@ function taskGrid(r, g) {
   return box;
 }
 
-// Success against cost per episode for every hosted model, the API and GUI points of a model joined, cheapest best runs outlined.
+// Success against cost per episode for one interface: each model a logo in a ring, the Pareto front ringed in its family colour and labelled.
+let costUI = 'gui';
 function costPlot(rows, key) {
   const el = q('#lb-cost'); if (!el) return;
-  const pts = [];
-  rows.forEach((r) => { if (!r.cost) return; [['api', 'API'], ['gui', 'GUI']].forEach(([ui, lab]) => { if (r[ui] && r.cost[ui] > 0) pts.push({ r, ui, lab, x: r.cost[ui], y: r[ui][key].mean }); }); });
-  const W = Math.max(320, Math.round(el.clientWidth) || 720), wide = W >= 560, H = wide ? 330 : 280, L = 46, Rt = wide ? 150 : 12, T = 14, B = 40;  // drawn at its own width, so text stays at 11px
-  const lx = (v) => Math.log10(v), x0 = Math.floor(Math.min(...pts.map((p) => lx(p.x)))), x1 = Math.ceil(Math.max(...pts.map((p) => lx(p.x))));
-  const X = (v) => L + (lx(v) - x0) / (x1 - x0) * (W - L - Rt), Y = (v) => T + (100 - v) / 100 * (H - T - B);
-  const front = []; let bestY = -1;  // Pareto front: no cheaper run succeeds as often
+  const ui = costUI, pts = rows.filter((r) => r.cost && r[ui] && r.cost[ui] > 0).map((r) => ({ r, x: r.cost[ui], y: r[ui][key].mean }));
+  const W = Math.max(300, Math.round(el.clientWidth) || 720), wide = W >= 560, H = wide ? 380 : 300, L = 40, Rt = 12, T = 34, B = 42, R = wide ? 12 : 10;  // drawn at its own width, so text stays at 11px
+  const lx = Math.log10, lo = lx(Math.min(...pts.map((p) => p.x)) / 1.6), hi = lx(Math.max(...pts.map((p) => p.x)) * 1.6);
+  const X = (v) => L + R + (lx(v) - lo) / (hi - lo) * (W - L - Rt - 2 * R), Y = (v) => T + (100 - v) / 100 * (H - T - B);
+  const front = []; let bestY = -1;  // Pareto front: no cheaper model succeeds as often
   [...pts].sort((a, b) => a.x - b.x || b.y - a.y).forEach((p) => { if (p.y > bestY) { front.push(p); bestY = p.y; } });
-  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Success against cost per episode">`;
-  for (let e = x0; e <= x1; e++) { const xv = X(10 ** e); s += `<line class="gl" x1="${xv}" x2="${xv}" y1="${T}" y2="${H - B}"/><text class="tk" x="${xv}" y="${H - B + 16}" text-anchor="middle">$${10 ** e >= 1 ? 10 ** e : (10 ** e).toFixed(-e)}</text>`; }
-  [0, 25, 50, 75, 100].forEach((v) => { s += `<line class="gl" x1="${L}" x2="${W - Rt}" y1="${Y(v)}" y2="${Y(v)}"/><text class="tk" x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`; });
-  s += `<text class="ax" x="${(L + W - Rt) / 2}" y="${H - 4}" text-anchor="middle">USD per episode, log scale</text><text class="ax" transform="translate(12 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">${key.endsWith('all3') ? 'pass³' : 'pass@1'}, %</text>`;
-  s += `<polyline class="front" points="${front.map((p, k) => `${X(p.x)},${Y(p.y)}` + (front[k + 1] ? ` ${X(front[k + 1].x)},${Y(p.y)}` : '')).join(' ')}"/>`;
-  rows.forEach((r) => { const a = pts.find((p) => p.r === r && p.ui === 'api'), g = pts.find((p) => p.r === r && p.ui === 'gui'); if (a && g) s += `<line class="pair" x1="${X(a.x)}" y1="${Y(a.y)}" x2="${X(g.x)}" y2="${Y(g.y)}"/>`; });
-  pts.forEach((p) => { s += `<circle class="pt ${p.ui}${front.includes(p) ? ' on' : ''}" cx="${X(p.x)}" cy="${Y(p.y)}" r="5.5"><title>${p.r.model}, ${p.lab}: ${p.y.toFixed(1)}% at $${p.x.toFixed(2)} per episode</title></circle>`; });
-  let lastY = -99;  // label the front, top to bottom, without overlaps
-  if (wide) [...front].sort((a, b) => b.y - a.y).forEach((p) => { const yy = Math.max(Y(p.y) + 4, lastY + 14); lastY = yy; s += `<text class="lbl" x="${W - Rt + 10}" y="${yy}">${p.r.model}, ${p.lab}</text><line class="lead" x1="${X(p.x) + 6}" y1="${Y(p.y)}" x2="${W - Rt + 6}" y2="${yy - 4}"/>`; });
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Success against cost per episode through the ${ui.toUpperCase()}">`;
+  [0, 20, 40, 60, 80, 100].forEach((v) => { s += `<line class="gl" x1="${L}" x2="${W - Rt}" y1="${Y(v)}" y2="${Y(v)}"/><text class="tk" x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`; });
+  for (let e = Math.floor(lo); e <= Math.ceil(hi); e++) (wide ? [1, 2, 5] : [1]).forEach((m) => {
+    const v = m * 10 ** e; if (lx(v) < lo || lx(v) > hi) return;
+    s += `<text class="tk" x="${X(v)}" y="${H - B + 18}" text-anchor="middle">$${v >= 1 ? v : v.toFixed(2)}</text>`;
+  });
+  s += `<text class="ax" x="${(L + W - Rt) / 2}" y="${H - 4}" text-anchor="middle">Cost per episode (USD)</text><text class="ax" transform="translate(11 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">${key.endsWith('all3') ? 'pass³' : 'pass@1'} (%)</text>`;
+  s += `<polyline class="front" points="${front.map((p) => `${X(p.x)},${Y(p.y)}`).join(' ')}"/>`;
+  const dot = (p, on) => {
+    const cx = X(p.x), cy = Y(p.y), k = Math.round(R * 1.2), lg = LOGO[p.r.maker];
+    return `<g class="pt${on ? ' on' : ''}"><circle cx="${cx}" cy="${cy}" r="${R}"${on ? ` style="stroke:${FAM[p.r.maker]}"` : ''}/>`
+      + `<image class="${lg}" href="assets/logos/${lg}.png" x="${cx - k / 2}" y="${cy - k / 2}" width="${k}" height="${k}"/>`
+      + `<title>${p.r.model}, ${p.y.toFixed(1)}% at $${p.x.toFixed(2)} per episode</title></g>`;
+  };
+  pts.filter((p) => !front.includes(p)).forEach((p) => { s += dot(p, false); });
+  front.forEach((p) => { s += dot(p, true); });
+  // labels of the front, left to right: above, below, right or left of the ring, never over another ring or label, else left out
+  const boxes = pts.map((p) => [X(p.x) - R, Y(p.y) - R, X(p.x) + R, Y(p.y) + R]), hit = (a, b) => a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3];
+  front.forEach((p) => {
+    const cx = X(p.x), cy = Y(p.y), w = p.r.model.length * (wide ? 6.4 : 5.8), fs = wide ? 12 : 11, g = 5, own = boxes[pts.indexOf(p)];
+    const up = cy - R - g - fs, tries = [[cx - w / 2, up], [cx - w / 2, cy + R + g], [cx - R, up], [cx + R - w, up], [cx + R + g, cy - fs / 2], [cx - R - g - w, cy - fs / 2], [cx - w / 2, up - fs - 4], [cx - w / 2, cy + R + g + fs + 4]];
+    const at = tries.map(([x, y]) => [x, y, x + w, y + fs]).find((b) => b[0] >= 2 && b[2] <= W - 2 && b[1] >= 2 && b[3] <= H - B && !boxes.some((o) => o !== own && hit(b, o)));
+    if (!at) return;
+    boxes.push(at);
+    s += `<text class="lbl" x="${at[0]}" y="${at[3] - 2}">${p.r.model}</text>`;
+  });
   el.innerHTML = s + '</svg>';
 }
 
@@ -289,12 +306,13 @@ function board(rows, cats) {
     costPlot(rows, grade + measure);
   }
   let rs; window.addEventListener('resize', () => { clearTimeout(rs); rs = setTimeout(() => costPlot(rows, grade + measure), 200); });
-  const seg = (id, set) => document.querySelectorAll(`#${id} button`).forEach((b) => b.onclick = () => {
+  const seg = (id, set, after = draw) => document.querySelectorAll(`#${id} button`).forEach((b) => b.onclick = () => {
     set(b.dataset);
     document.querySelectorAll(`#${id} button`).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-    draw();
+    after();
   });
   seg('measure-seg', (d) => { measure = d.v; });
+  seg('cost-seg', (d) => { costUI = d.v; }, () => costPlot(rows, grade + measure));
   draw();
 }
 
@@ -311,10 +329,10 @@ function pair(el, groups) {
 function findings(R) {
   const c = R.confirmation, m = R.memory;
   q('#c-mem').innerHTML = `<span>${Math.round(m['S-GUI-last3'].mean)}%</span><i>→</i><span>${Math.round(m['S-GUI-full'].mean)}%</span>`;
-  pair(q('#c-equiv'), R.confirm_frontier.map((r) => [r.model, [['api', 'API', r.api], ['gui', 'GUI', r.gui]]]));
+  pair(q('#c-equiv'), R.confirm_frontier.map((r) => [named(r.model), [['api', 'API', r.api], ['gui', 'GUI', r.gui]]]));
   const per = (v) => ({ v: 25 * v, label: `${v.toFixed(1)}` });  // bars on a 0 to 4 scale
-  pair(q('#c-extra'), R.extra_orders.map((r) => [r.model, [['api', 'API', per(r.api).v, null, per(r.api).label], ['gui', 'GUI', per(r.gui).v, null, per(r.gui).label]]]));
-  pair(q('#c-openmrs'), R.openmrs.slice(0, 3).map((r) => [r.model, [['gui', 'GUI', r.our_gui.mean, r.our_gui.ci], ['openmrs', 'OpenMRS', r.gui_b_v2.mean, r.gui_b_v2.ci]]]));
+  pair(q('#c-extra'), R.extra_orders.map((r) => [named(r.model), [['api', 'API', per(r.api).v, null, per(r.api).label], ['gui', 'GUI', per(r.gui).v, null, per(r.gui).label]]]));
+  pair(q('#c-openmrs'), R.openmrs.slice(0, 3).map((r) => [named(r.model), [['gui', 'GUI', r.our_gui.mean, r.our_gui.ci], ['openmrs', 'OpenMRS', r.gui_b_v2.mean, r.gui_b_v2.ci]]]));
   // notes against the record: of the notes the judge passed, how many sat on a failed record, and the reverse
   const n = R.note_record;
   pair(q('#c-notes'), [
@@ -344,7 +362,7 @@ function grader(rows) {
 function physicians(P) {
   const acc = (100 - P.material_pass).toFixed(0);
   q('#phys-title').textContent = `Physicians would accept ${acc}% of the episodes our grader passed`;
-  q('#phys-sub').textContent = `${P.physicians} physicians · ${P.ratings} ratings of ${P.episodes} held out episodes of Claude Sonnet 5.5 · interface, model and grade hidden`;
+  q('#phys-sub').innerHTML = `${P.physicians} physicians · ${P.ratings} ratings of ${P.episodes} held out episodes of ${named('Claude Sonnet 5.5')} · interface, model and grade hidden`;
   const el = q('#c-phys');
   el.innerHTML = '<p class="key"><i class="sw rev"></i>Accepted as recorded or after minor edits <i class="sw miss"></i>Material correction needed</p>';
   const left = h('div', 'phys-col'), right = h('div', 'phys-col');
@@ -449,7 +467,7 @@ function donut(fig, title, segs, unit = 'tasks') {
     cur = k; run++;
     q('#fail-tabs').querySelectorAll('button').forEach((b, j) => b.setAttribute('aria-selected', String(j === k)));
     const c = clips[k];
-    say('#clip-model', `${c.model} · ${c.interface}`); say('#clip-cap', c.caption); say('#clip-check', c.check);
+    q('#clip-model').innerHTML = `${named(c.model)} · ${c.interface}`; say('#clip-cap', c.caption); say('#clip-check', c.check);
     const api = !c.frames;
     shot.hidden = api; calls.hidden = !api; chip.classList.remove('on');
     if (api) { calls.innerHTML = ''; say('#clip-count', `${c.calls.length} tool calls`); }

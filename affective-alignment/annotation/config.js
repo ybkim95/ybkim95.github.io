@@ -1,7 +1,8 @@
-/* Study settings. Leave `endpoint` empty until the IRB has approved the study: the page then runs as a preview and
-   sends nothing. After approval, set `endpoint` to the collection URL and `completionUrl` to the Prolific link. */
+/* Study settings. Leave `firebase` empty until the IRB has approved the study: the page then runs as a preview and sends
+   nothing. After approval, set `firebase` to the web app settings of the study team's Firebase project (backend/README.md)
+   and `completionUrl` to the Prolific link. Each answer is then saved under /aa_ratings as it is given. */
 window.STUDY_CONFIG = {
-  endpoint: "",
+  firebase: null,
   completionUrl: "",
-  version: "annotation-v1.1",
+  version: "annotation-v2.0",
 };

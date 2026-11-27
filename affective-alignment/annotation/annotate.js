@@ -1,69 +1,47 @@
 "use strict";
-/* Rating study (ANNOTATION_PLAN.md). One text per screen, two or three rating scales, no back button.
-   Study A (?study=replies, default): AI replies, valence and arousal of the reply's own tone.
-   Study B (?study=messages): user messages, valence and arousal of the writer, the feeling that fits best, and how natural
-   the message sounds. */
+/* Rating study (ANNOTATION_PLAN.md, version 2.0). One link and one task: each participant reads a mixed deck of AI
+   replies (ids r###) and user messages (ids m###), one text per screen, with the same three items on every screen
+   (valence and arousal of the text's own tone, and the feeling it mostly expresses). No back button. */
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const CFG = window.STUDY_CONFIG || {};
 const Q = new URLSearchParams(location.search);
-const PREVIEW = !CFG.endpoint;
+// on localhost, ?emulator[=port] saves to the Database emulator (project demo-aa, backend/README.md) instead
+const EMU = ["localhost", "127.0.0.1"].includes(location.hostname) && Q.has("emulator") ? +Q.get("emulator") || 9010 : 0;
+const FB = EMU ? { apiKey: "demo-key", projectId: "demo-aa", databaseURL: `http://127.0.0.1:${EMU}?ns=demo-aa-default-rtdb` } : CFG.firebase;
+const PREVIEW = !FB;
 
 // the end labels are the wording of the judges' prompt (judge_s72.py), so people and judges rate on the same scale
 const VALENCE = { k: "v", n: 9, lo: "Very unpleasant or negative", mid: "Neutral", hi: "Very pleasant or positive" };
 const AROUSAL = { k: "a", n: 9, lo: "Very calm, flat or subdued", mid: "Moderate", hi: "Very excited, energetic or agitated" };
-const SEPARATE = "The two scales are separate. An excited feeling can be pleasant (thrilled) or unpleasant (alarmed, furious).";
 const FEELINGS = [["neu", "No clear feeling"], ["calm", "Calm"], ["exc", "Excited"], ["anx", "Anxious"], ["ang", "Angry"], ["sad", "Sad"]];
-const STUDIES = {
-  replies: {
-    data: "data/replies.json", label: "Reply", minutes: 20,
-    title: "Rating the tone of AI replies",
-    what: n => `You will read ${n} replies that an AI assistant wrote to everyday messages, and rate the tone of each reply. It takes about 20 minutes.`,
-    steps: n => [
-      `You will read ${n} replies written by an AI assistant, one at a time.`,
-      "Rate the tone of <b>the reply itself</b>, not the situation it talks about.",
-      "Use two scales. One runs from negative to positive. The other runs from calm to excited.",
-      SEPARATE,
-      "There are no right or wrong answers. Go with your first impression.",
-    ],
-    hint: "Rate the reply's own tone, not the situation it talks about.",
-    scales: [{ ...VALENCE, q: "How negative or positive is the tone of this reply?" },
-             { ...AROUSAL, q: "How calm or excited is the tone of this reply?" }],
-    example: [["That's wonderful news, congratulations! I'm so happy for you!", "positive", "excited"],
-              ["That is completely unacceptable! They had no right to treat you that way!", "negative", "excited"],
-              ["Sadly, there is not much anyone can do now. It is a pity.", "negative", "calm"],
-              ["Here are the steps. First, open Settings. Then choose Display.", "neutral", "calm"]],
-    practice: ["Good question. To keep basil fresh, trim the stems, stand them in a glass of water, and keep the glass out of direct sun. Change the water every two days.",
-               "I can't go along with this plan. It skips the safety check, and that worries me a lot. Please don't start until someone has looked at it."],
-  },
-  messages: {
-    data: "data/messages.json", label: "Message", minutes: 20,
-    title: "Rating the feeling in short messages",
-    what: n => `You will read ${n} short messages of the kind people might send to an AI assistant. You will rate how the writer feels and how natural each message sounds. It takes about 20 minutes.`,
-    steps: n => [
-      `You will read ${n} short messages, one at a time.`,
-      "Rate how <b>the writer</b> feels on two scales. One runs from negative to positive. The other runs from calm to excited.",
-      SEPARATE,
-      "Then pick the feeling that fits best, and say how natural the message sounds.",
-      "There are no right or wrong answers. Go with your first impression.",
-    ],
-    hint: "Rate how the writer feels.",
-    scales: [{ ...VALENCE, q: "How negative or positive does the writer feel?" },
-             { ...AROUSAL, q: "How calm or excited does the writer feel?" },
-             { k: "e", opts: FEELINGS, q: "Which feeling does the writer mostly express?" },
-             { k: "r", n: 5, lo: "Not at all natural", mid: "", hi: "Completely natural", q: "How natural does this message sound, as something a person would write?" }],
-    example: [["I just got the job!! I can't stop smiling, I have to call everyone!", "positive", "excited"],
-              ["They cancelled on me again. That's the third time, and I am furious!", "negative", "excited"],
-              ["Nothing feels worth doing today. I just sat by the window for hours.", "negative", "calm"],
-              ["I took the 8:10 bus, bought milk and bread, and got home at 9.", "neutral", "calm"]],
-    practice: ["I spent the afternoon reorganising the bookshelf by colour. It took longer than I thought, and now the living room finally looks the way I wanted.",
-               "My landlord kept the whole deposit over one scratch on the floor. I have emailed him three times and he just ignores me."],
-  },
+const STUDY = "texts";
+const S = {
+  data: "data/texts.json",
+  title: "Rating the feeling in short texts",
+  what: n => `You will read ${n} short texts and rate the feeling each one expresses. Some are messages of the kind people send to an AI assistant, and the others are replies written by an AI assistant. Two more screens check attention. It takes about 20 minutes.`,
+  steps: n => [
+    `You will read ${n} short texts, one at a time. Some are messages of the kind people send to an AI assistant. The others are replies written by an AI assistant.`,
+    "Rate the tone of <b>the text itself</b>, not the situation it talks about.",
+    "Two scales come first. One runs from negative to positive, the other from calm to excited. They are separate: an excited feeling can be pleasant (thrilled) or unpleasant (alarmed, furious).",
+    "Then pick the feeling that fits best.",
+    "There are no right or wrong answers. Go with your first impression.",
+  ],
+  hint: "Rate the tone of the text itself, not the situation it talks about.",
+  scales: [{ ...VALENCE, q: "How negative or positive is the tone of this text?" },
+           { ...AROUSAL, q: "How calm or excited is the tone of this text?" },
+           { k: "e", opts: FEELINGS, q: "Which feeling does it mostly express?" }],
+  example: [["I just got the job!! I can't stop smiling, I have to call everyone!", "positive", "excited"],
+            ["That is completely unacceptable! They had no right to treat you that way!", "negative", "excited"],
+            ["Nothing feels worth doing today. I just sat by the window for hours.", "negative", "calm"],
+            ["Here are the steps. First, open Settings. Then choose Display.", "neutral", "calm"]],
+  practice: [{ id: "r", text: "Good question. To keep basil fresh, trim the stems, stand them in a glass of water, and keep the glass out of direct sun. Change the water every two days." },
+             { id: "m", text: "My landlord kept the whole deposit over one scratch on the floor. I have emailed him three times and he just ignores me." }],
 };
-const STUDY = STUDIES[Q.get("study")] ? Q.get("study") : "replies";
-const S = STUDIES[STUDY];
+// the small line above a text: an id starts with r (AI reply) or m (message)
+const LABEL = id => id === "check" ? "Attention check" : id[0] === "m" ? "Message" : "AI reply";
 const PID = Q.get("PROLIFIC_PID") || "", SID = Q.get("STUDY_ID") || "", SES = Q.get("SESSION_ID") || "";
-const KEY = `aa-annot-${STUDY}-${PID || "preview"}`;
+const KEY = `aa-annot-v2-${PID || "preview"}`;
 
 function hash(s) { let h = 2166136261; for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h >>> 0; }
 function shuffle(a, seed) { let x = seed || 1; const r = () => ((x = Math.imul(x ^ (x >>> 15), 2246822507) ^ Math.imul(x ^ (x >>> 13), 3266489909)) >>> 0) / 4294967296; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
@@ -102,6 +80,41 @@ let st = null;
 try { st = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
 
+/* saving, only with a backend. Each write waits in st.queue (kept in localStorage) until the server confirms it, and goes once
+   to aa_ratings/sessions/{st.sid}/{path}; the rules refuse reads, overwrites and deletes (backend/database.rules.json). A
+   refused write is taken as saved before (a repeat after a reload or a lost reply), so the queue never sticks. */
+const SDK = "https://www.gstatic.com/firebasejs/10.14.1", NOW = { ".sv": "timestamp" };  // NOW: the server's time
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const late = (p, ms) => Promise.race([p, sleep(ms).then(() => { throw Object.assign(new Error("timeout"), { code: "timeout" }); })]);
+const clean = s => s.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 64);
+let fbp = null, flushing = null; const sent = new Map();  // path -> the SDK's promise for the write sent from this page
+const sdk = () => fbp || (fbp = Promise.all([import(`${SDK}/firebase-app.js`), import(`${SDK}/firebase-database.js`)]).then(([A, D]) => {
+  const db = D.getDatabase(A.initializeApp(FB, "aa"));
+  if (EMU) D.connectDatabaseEmulator(db, "127.0.0.1", EMU);
+  return { D, db };
+}).catch(e => { fbp = null; throw e; }));
+const put = (path, v) => { if (FB) { st.queue.push([path, v]); flush(); } };
+function flush() {
+  return flushing || (flushing = (async () => {
+    for (let k = 0; st.queue.length;) {
+      const [p, v] = st.queue[0];
+      try {
+        const { D, db } = await late(sdk(), 15000);
+        if (!sent.has(p)) sent.set(p, D.set(D.ref(db, `aa_ratings/sessions/${st.sid}/${p}`), v));
+        await late(sent.get(p), 10000);
+      } catch (e) {
+        if (!/permission/i.test(`${e.code} ${e.message}`)) {  // offline or slow: the SDK resends by itself, so wait for the same write
+          if (e.code !== "timeout") sent.delete(p);
+          await sleep(Math.min(30000, 1000 * 2 ** k++)); continue;
+        }
+        console.warn("write refused, taken as saved before:", p);
+      }
+      st.queue.shift(); save(); k = 0;
+    }
+  })().finally(() => { flushing = null; }));
+}
+addEventListener("beforeunload", e => { if (FB && st && st.queue && st.queue.length) e.preventDefault(); });
+
 function show(id) {
   for (const s of $$(".screen")) s.hidden = s.id !== id;
   $("#app").classList.toggle("wide", id === "s-item");
@@ -131,10 +144,11 @@ function consent(n) {
 }
 
 /* rating screen */
-const CHECK = n => n > 2 ? "This screen checks attention. Please choose 2 on the first scale, 8 on the second scale, Sad for the feeling and 4 on the last scale."
-  : "This screen checks attention. Please choose 2 on the first scale and 8 on the second.";
-const CHECK_KEY = { v: 2, a: 8, e: "sad", r: 4 };
-let cur = null, t0 = 0, pi = 0;
+const CHECK = "This screen checks attention. Please choose 2 on the first scale, 8 on the second scale and Sad for the feeling.";
+const CHECK_KEY = { v: 2, a: 8, e: "sad" };
+// Next opens only after a short reading time (100 ms per word, at least 3 s and at most 20 s), so nobody clicks through unread
+const minRead = text => Math.min(20000, Math.max(3000, text.trim().split(/\s+/).length * 100));
+let cur = null, t0 = 0, pi = 0, waitTimer = 0;
 function scaleHTML(sc) {
   const head = `<fieldset class="scale" data-k="${sc.k}" style="--n:${sc.n || 3}"><legend>${sc.q}</legend>`;
   if (sc.opts) return head + `<div class="opts words" role="radiogroup" aria-label="${esc(sc.q)}">` + st.feelings.map(k =>
@@ -143,21 +157,27 @@ function scaleHTML(sc) {
   return head + `<div class="opts" role="radiogroup" aria-label="${esc(sc.q)}">${btns}</div>
     <div class="ends"><span>${sc.lo}</span><span>${sc.mid}</span><span>${sc.hi}</span></div></fieldset>`;
 }
+function gate() {  // Next: every item answered and the reading time over
+  clearTimeout(waitTimer);
+  const answered = Object.keys(cur.vals).length === S.scales.length, wait = cur.min - (performance.now() - t0);
+  $("#next").disabled = !answered || wait > 0;
+  $("#t-note").textContent = answered && wait > 0 ? "Please take a moment to read the text." : cur.note;
+  if (answered && wait > 0) waitTimer = setTimeout(gate, wait + 30);
+}
 function render(item, kind) {
-  cur = { item, kind, vals: {} };
-  $("#t-label").textContent = kind === "practice" ? "Practice" : S.label;
+  cur = { item, kind, vals: {}, min: minRead(item.text), note: kind === "practice" ? `Practice ${pi + 1} of ${S.practice.length}. Not recorded.` : "" };
+  $("#t-label").textContent = LABEL(item.id) + (kind === "practice" ? " (practice)" : "");
   $("#t-text").innerHTML = md(item.text);
   $("#t-hint").textContent = S.hint;
-  $("#t-note").textContent = kind === "practice" ? `Practice ${pi + 1} of ${S.practice.length}. Not recorded.` : "";
   $("#scales").innerHTML = S.scales.map(scaleHTML).join("");
   for (const fs of $$(".scale")) for (const b of $$("button", fs)) b.onclick = () => {
     for (const o of $$("button", fs)) o.setAttribute("aria-checked", String(o === b));
     cur.vals[fs.dataset.k] = +b.dataset.v || b.dataset.v;
-    $("#next").disabled = Object.keys(cur.vals).length < S.scales.length;
+    gate();
   };
-  $("#next").disabled = true;
   $("#next").textContent = kind === "practice" && pi === S.practice.length - 1 ? "Start" : "Next";
   t0 = performance.now();
+  gate();
   show("s-item");
   progress();
 }
@@ -165,7 +185,7 @@ function nextItem() {
   const k = st.answers.length + st.checks.length;
   if (k >= st.order.length) { st.stage = "about"; save(); progress(); show("s-about"); return; }
   const o = st.order[k];
-  render(o === "check" ? { id: "check", text: CHECK(S.scales.length) } : st.items[o], o === "check" ? "check" : "item");
+  render(o === "check" ? { id: "check", text: CHECK } : st.items[o], o === "check" ? "check" : "item");
 }
 $("#next").onclick = () => {
   const ms = Math.round(performance.now() - t0);
@@ -173,9 +193,11 @@ $("#next").onclick = () => {
     if (++pi < S.practice.length) { practice(); return; }
     st.stage = "items"; save(); nextItem(); return;
   }
+  const pos = st.answers.length + st.checks.length, tm = { ms: Math.min(ms, 864e5), at: NOW };  // pos: the place in st.order
   if (cur.kind === "check") {
-    st.checks.push({ pos: st.answers.length + st.checks.length + 1, ...cur.vals, pass: S.scales.every(s => cur.vals[s.k] === CHECK_KEY[s.k]), ms });
-  } else st.answers.push({ id: cur.item.id, ...cur.vals, ms });
+    st.checks.push({ pos: pos + 1, ...cur.vals, pass: S.scales.every(s => cur.vals[s.k] === CHECK_KEY[s.k]), ms });
+    put(`checks/${pos}`, { ...cur.vals, pass: st.checks[st.checks.length - 1].pass, ...tm });
+  } else { st.answers.push({ id: cur.item.id, ...cur.vals, ms }); put(`answers/${pos}`, { id: cur.item.id, ...cur.vals, ...tm }); }
   save(); nextItem();
 };
 
@@ -187,7 +209,7 @@ async function start() {
   const nd = data.decks.length;
   const deck = Math.min(Math.max(+Q.get("deck") || (PID ? hash(PID) % nd + 1 : Math.floor(Math.random() * nd) + 1), 1), nd);
   const items = data.decks[deck - 1];
-  if (!st || st.deck !== deck || st.version !== CFG.version) {
+  if (!st || st.deck !== deck || st.version !== CFG.version || (FB && !st.sid && st.stage !== "consent")) {
     const order = shuffle(items.map((_, i) => i), hash(PID || String(Date.now())));
     const pos = [Math.round(order.length * 0.3), Math.round(order.length * 0.7) + 1];
     for (const p of pos) order.splice(p, 0, "check");
@@ -196,10 +218,11 @@ async function start() {
            feelings: shuffle(FEELINGS.map(f => f[0]), hash(PID || String(Date.now())) + 1) };  // one order of the feeling buttons per participant
     save();
   }
+  if (FB && st.queue && st.queue.length) flush();  // writes left from an earlier visit
   if (st.stage === "consent") consent(items.length);
   else if (st.stage === "intro") intro();
   else if (st.stage === "items") nextItem();
-  else if (st.stage === "about" || st.stage === "sending") show("s-about");
+  else if (st.stage === "about" || st.stage === "sending") { show("s-about"); if (FB && st.stage === "sending") send(); }
   else if (st.stage === "declined") done("declined");
   else done(PREVIEW ? "preview" : "sent", { ...st, items: undefined });
 }
@@ -209,33 +232,43 @@ function intro() {
     `<div class="ex-row"><p>“${esc(t)}”</p><span>${v}</span><span>${a}</span></div>`).join("");
   show("s-intro");
 }
-$("#agree").onclick = () => { st.stage = "intro"; st.consent_at = new Date().toISOString(); save(); intro(); };
+$("#agree").onclick = () => {
+  st.stage = "intro"; st.consent_at = new Date().toISOString();
+  if (FB) {  // a session id nobody can guess (18 random bytes), then the session's start
+    st.sid = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(18)))).replace(/\+/g, "-").replace(/\//g, "_"); st.queue = [];
+    put("start", { study: STUDY, version: CFG.version, deck: st.deck, pid: clean(PID), studyId: clean(SID), sessionId: clean(SES),
+      order: st.order.map(o => o === "check" ? o : st.items[o].id), feelings: st.feelings, consentAt: NOW });
+  }
+  save(); intro();
+};
 $("#decline").onclick = () => { st.stage = "declined"; save(); done("declined"); };
-const practice = () => render({ id: "practice", text: S.practice[pi] }, "practice");
+const practice = () => render(S.practice[pi], "practice");
 $("#practice").onclick = () => { pi = 0; practice(); };
 for (const g of $$(".chips")) for (const b of $$("button", g)) b.onclick = () => {
   for (const o of $$("button", g)) o.setAttribute("aria-pressed", String(o === b));
   st.about[g.dataset.name] = b.dataset.v; save();
 };
 $("#submit").onclick = async () => {
-  const age = parseInt($("#age").value, 10);
-  if (age >= 18 && age <= 99) st.about.age = age;
-  st.comment = $("#comment").value.trim();
-  st.finished = new Date().toISOString();
-  st.stage = "sending"; save();
+  if (PREVIEW || st.stage !== "sending") {  // with a backend, a second press only retries
+    const age = parseInt($("#age").value, 10);
+    if (age >= 18 && age <= 99) st.about.age = age;
+    st.comment = $("#comment").value.trim();
+    st.finished = new Date().toISOString();
+    st.stage = "sending";
+    put("about", { ...st.about, ...(st.comment && { comment: st.comment.slice(0, 1000) }), at: NOW }); put("submitted", NOW);
+    save();
+  }
   await send();
 };
 async function send() {
   const payload = { ...st, items: undefined };
   if (PREVIEW) { st.stage = "sent"; save(); done("preview", payload); return; }
-  $("#submit").disabled = true; $("#submit").textContent = "Sending…";
-  try {
-    await fetch(CFG.endpoint, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(payload) });
-    st.stage = "sent"; save(); done("sent");
-  } catch (e) {
-    $("#submit").disabled = false; $("#submit").textContent = "Try again";
-    $("#submit").insertAdjacentHTML("beforebegin", `<p class="err">Your answers could not be sent. Please check your connection and try again.</p>`);
-  }
+  $("#submit").disabled = true; $("#submit").textContent = "Saving…";
+  for (const e of $$("#s-about .err")) e.remove();
+  await late(flush(), 20000).catch(() => {});  // the Prolific link only once the server has confirmed every write
+  if (!st.queue.length) { st.stage = "sent"; save(); done("sent"); return; }
+  $("#submit").disabled = false; $("#submit").textContent = "Try again";
+  $("#submit").insertAdjacentHTML("beforebegin", `<p class="err">Your answers are not saved yet. Please check your connection, keep this window open and press Try again.</p>`);
 }
 function done(kind, payload) {
   const T = $("#d-title"), B = $("#d-body"), A = $("#d-actions");
@@ -245,7 +278,7 @@ function done(kind, payload) {
   else if (kind === "preview") {
     T.textContent = "Preview finished"; B.textContent = "Nothing was sent. You can download the answers to check the data format.";
     const b = document.createElement("button"); b.className = "btn"; b.textContent = "Download answers";
-    b.onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" })); a.download = `annotation-${STUDY}-deck${st.deck}.json`; a.click(); };
+    b.onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" })); a.download = `annotation-deck${st.deck}.json`; a.click(); };
     const r = document.createElement("button"); r.className = "btn"; r.textContent = "Start again";
     r.onclick = () => { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); };
     A.append(b, r);

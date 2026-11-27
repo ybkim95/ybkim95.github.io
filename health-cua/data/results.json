@@ -7406,24 +7406,24 @@
   }
  ],
  "physicians": {
-  "physicians": 5,
-  "ratings": 157,
-  "episodes": 101,
-  "pass_ratings": 135,
-  "fail_ratings": 22,
-  "material_pass": 11.9,
+  "physicians": 6,
+  "ratings": 193,
+  "episodes": 111,
+  "pass_ratings": 164,
+  "fail_ratings": 29,
+  "material_pass": 9.8,
   "material_pass_ci": [
-   3.5,
-   23.5
+   2.6,
+   19.5
   ],
-  "accept_fail": 90.9,
+  "accept_fail": 93.1,
   "accept_fail_ci": [
-   64.0,
+   72.7,
    100.0
   ],
-  "gui": 11.9,
-  "api": 11.8,
-  "kappa": 0.14,
+  "gui": 9.4,
+  "api": 10.1,
+  "kappa": 0.03,
   "severe": 4,
   "causes": [
    {

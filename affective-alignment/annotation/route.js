@@ -14,7 +14,7 @@
   else if (!task && PID) task = pick(NEED, "task");
   const load = src => { const s = document.createElement("script"); s.src = src; document.body.append(s); };
   if (task === "rate") load("annotate.js?v=6");
-  else if (CELLS.includes(task)) { window.AA_CELL = task; load("decide.js?v=2"); }
+  else if (CELLS.includes(task)) { window.AA_CELL = task; load("decide.js?v=3"); }
   else {  // preview: choose what to look at
     for (const s of document.querySelectorAll(".screen")) s.hidden = true;
     document.querySelector("#preview").hidden = false;

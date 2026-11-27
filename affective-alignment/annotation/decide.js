@@ -19,7 +19,10 @@ function shuffle(a, seed) { let x = seed || 1; const r = () => ((x = Math.imul(x
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const inline = t => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
 // paragraphs, bold and "- " lists are all the study texts use
-const md = t => t.split(/\n\s*\n/).map(b => /^- /.test(b.trim()) ? "<ul>" + b.trim().split("\n").map(l => `<li>${inline(l.replace(/^- /, ""))}</li>`).join("") + "</ul>" : `<p>${inline(b.replace(/\n/g, " "))}</p>`).join("");
+const md = t => t.split(/\n\s*\n/).map(b => {
+  const lines = b.trim().split("\n"), text = lines.filter(l => !/^- /.test(l)), items = lines.filter(l => /^- /.test(l));
+  return (text.length ? `<p>${inline(text.join(" "))}</p>` : "") + (items.length ? "<ul>" + items.map(l => `<li>${inline(l.slice(2))}</li>`).join("") + "</ul>" : "");
+}).join("");
 
 const D = await (await fetch("data/decide.json")).json();
 const main = $("#app");
@@ -148,11 +151,11 @@ steps.push(async () => {  // about you
   show(`<h1>A little about you</h1>
     <label class="field"><span>Age</span><input type="number" id="age" min="18" max="99" inputmode="numeric"></label>` +
     words("gender", "Gender", [["woman", "Woman"], ["man", "Man"], ["nonbinary", "Non-binary"], ["other", "Another gender"], ["na", "Prefer not to say"]]) +
-    words("education", "Highest level of education", [["lt_hs", "Less than high school"], ["hs", "High school"], ["some_college", "Some college"], ["bachelor", "Bachelor's degree"], ["master", "Master's degree"], ["doctorate", "Doctorate or professional degree"]]) +
+    words("education", "Highest level of education", [["lt_hs", "Less than high school"], ["hs", "High school"], ["some_college", "Some college"], ["bachelor", "Bachelor's degree"], ["master", "Master's degree"], ["doctorate", "Doctorate or professional degree"], ["na", "Prefer not to say"]]) +
     scale(risk.id, risk.text, 11, risk.scale[0], "", risk.scale[10], 0) +
     words(attn.id, attn.text, attn.scale.split(", ").map(o => [o, o])) + nextBtn());
   await answer();
-  const age = parseInt($("#age").value, 10); if (age >= 18 && age <= 99) record("age", age);
+  const age = parseInt($("#age", box).value, 10); if (age >= 18 && age <= 99) record("age", age);
 });
 steps.push(async () => {  // instructions and the three questions about them, at most twice
   const ins = `<div class="prose">${md(D.instructions)}${ARM === "advice" ? md(D.advice_paragraph) : ""}</div>`;

@@ -140,11 +140,12 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && n.classList.contains('open')) { set(false); b.focus(); } });
 })();
 
-fetch('data/results.json?v=202611220100').then((r) => r.json()).then((R) => {
+fetch('data/results.json?v=202611262300').then((r) => r.json()).then((R) => {
   LBT = R.lb_tasks || [];
   board(R.leaderboard, R.categories);
   findings(R);
   grader(R.grader);
+  if (R.physicians) physicians(R.physicians);
   const meta = q('#lb-meta');
   if (meta && R.meta) meta.innerHTML = `<b>39 consultation tasks · three attempts per task through each interface</b> · All entries run by us · ${day(R.meta.evaluated[0]).replace(/ \d{4}$/, '')} to ${day(R.meta.evaluated[1])} · updated ${day(R.meta.updated)} · `
     + `Download <a href="data/results.json" download>JSON</a> or <a href="data/leaderboard-per-task.csv" download>per task CSV</a>`;
@@ -337,6 +338,26 @@ function grader(rows) {
     g.append(bar('rev', 100 * r.revised[0] / r.revised[1], null, `${r.revised[0]} of ${r.revised[1]}`));
     el.append(g);
   });
+}
+
+// physicians who saw neither the interface nor the grade, on held out episodes (paper Section 4.8)
+function physicians(P) {
+  const acc = (100 - P.material_pass).toFixed(0);
+  q('#phys-title').textContent = `Physicians would accept ${acc}% of the episodes our grader passed`;
+  q('#phys-sub').textContent = `${P.physicians} physicians · ${P.ratings} ratings of ${P.episodes} held out episodes of Claude Sonnet 5.5 · interface, model and grade hidden`;
+  const el = q('#c-phys');
+  el.innerHTML = '<p class="key"><i class="sw rev"></i>Accepted as recorded or after minor edits <i class="sw miss"></i>Material correction needed</p>';
+  const left = h('div', 'phys-col'), right = h('div', 'phys-col');
+  pair(left, [
+    [`Of ${P.pass_ratings} ratings of episodes our grader passed`, [['rev', 'Accepted', 100 - P.material_pass], ['miss', 'Correction', P.material_pass, P.material_pass_ci]]],
+    [`Of ${P.fail_ratings} ratings of episodes our grader failed`, [['rev', 'Accepted', P.accept_fail, P.accept_fail_ci], ['miss', 'Correction', 100 - P.accept_fail]]]]);
+  const total = P.causes.reduce((a, c) => a + c.n, 0), g = h('div', 'pair');
+  g.append(h('p', 'pname', `What the ${total} corrections of passed episodes asked for`));
+  P.causes.forEach((c) => { const b = bar('miss', 100 * c.n / total, null, `${c.n} of ${total}`); b.prepend(h('span', 'blab', c.label)); g.append(b); });
+  right.append(g);
+  el.append(left, right);
+  q('#phys-cap').textContent = (Math.round(P.gui) === Math.round(P.api) ? `The share of passed episodes needing a material correction was ${Math.round(P.gui)}% through both the GUI and the API` : `The share of passed episodes needing a material correction was ${Math.round(P.gui)}% through the GUI and ${Math.round(P.api)}% through the API`) + `, and ${P.severe} corrections rated the possible harm as severe. `
+    + `Every correction asked for care that the answer key does not check. Physicians often disagreed with each other (Fleiss' κ ${P.kappa.toFixed(2)}). Lines on the bars show 95% intervals over charts and physicians.`;
 }
 
 // ------------------------------------------------------------------ task donuts

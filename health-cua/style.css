@@ -600,3 +600,13 @@ footer { justify-content: center; }
 .tc-why dl { margin: 10px 0 0; display: grid; gap: 4px 0; font-size: .86rem; }
 .tc-why dt { font-weight: 500; margin-top: 8px; } .tc-why dd { margin: 0; color: var(--ink2); line-height: 1.5; }
 .tc-results .note { font-size: .82rem; color: var(--ink3); line-height: 1.5; }
+
+/* physician review under the grader section */
+.phys { margin-top: 44px; }
+.phys h3 { margin: 0 0 6px; }
+.phys .sub { font-size: .84rem; color: var(--ink3); margin: 0 0 14px; }
+.phys-col { display: grid; gap: 20px; align-content: start; }
+.sw.miss { background: var(--red); }
+.phys .bar { grid-template-columns: 84px minmax(0, 1fr) 64px; }
+.phys .phys-col:last-child .bar { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) 64px; }
+@media (max-width: 600px) { .phys .phys-col:last-child .bar { grid-template-columns: minmax(0, 1fr) 64px; } .phys .phys-col:last-child .blab { grid-column: 1 / -1; } }

@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611260100">
+<link rel="stylesheet" href="style.css?v=202611262300">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -210,6 +210,12 @@
   <p class="lead">PhysicianBench's own checks rejected nearly half of the correct alternatives and passed a script that ordered every test and referral, so we rewrote them. Our grader passes neither script.</p>
   <div class="viz grader" id="c-grader"></div>
   <p class="caption">A pass means every required order is in the record, no wrong or unjustified order is, the note is signed and the request is closed. Doses are not checked on every order, so a tenfold dose is still credited on 4 of 12 medication checks, and 2 such episodes pass.</p>
+  <div class="phys" id="phys">
+    <h3 id="phys-title"></h3>
+    <p class="sub" id="phys-sub"></p>
+    <div class="viz grader" id="c-phys"></div>
+    <p class="caption" id="phys-cap"></p>
+  </div>
 </section>
 
 <section id="tasks">
@@ -280,7 +286,7 @@
 
 <script src="logo.js?v=202611110400" defer></script>
 <script src="viewer.js?v=202611220300" defer></script>
-<script src="app.js?v=202611260100" defer></script>
+<script src="app.js?v=202611262300" defer></script>
 <script src="tasks.js?v=202611260100" defer></script>
 </body>
 </html>

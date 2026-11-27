@@ -7405,6 +7405,45 @@
    "gui": 45.83
   }
  ],
+ "physicians": {
+  "physicians": 5,
+  "ratings": 157,
+  "episodes": 101,
+  "pass_ratings": 135,
+  "fail_ratings": 22,
+  "material_pass": 11.9,
+  "material_pass_ci": [
+   3.5,
+   23.5
+  ],
+  "accept_fail": 90.9,
+  "accept_fail_ci": [
+   64.0,
+   100.0
+  ],
+  "gui": 11.9,
+  "api": 11.8,
+  "kappa": 0.14,
+  "severe": 4,
+  "causes": [
+   {
+    "label": "Admission, same day assessment or a drug interaction",
+    "n": 5
+   },
+   {
+    "label": "Timing, duration or regimen of an order",
+    "n": 5
+   },
+   {
+    "label": "A message to another clinician or a stop left in the note",
+    "n": 3
+   },
+   {
+    "label": "More workup",
+    "n": 3
+   }
+  ]
+ },
  "lb_tasks": [
   {
    "id": "asbestos_exposure",

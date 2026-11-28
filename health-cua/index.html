@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400..700&family=Google+Sans+Code&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=202611271200">
+<link rel="stylesheet" href="style.css?v=202611281400">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -70,6 +70,7 @@
 <section id="replay">
   <h2>Demo</h2>
   <p class="lead one">The same clinical request through the API, the EHR screens and OpenMRS, an open source EHR.</p>
+    <p class="caption">The screens are the redesigned GUI, laid out like commercial EHRs. The leaderboard below ran on the earlier GUI.</p>
   <div class="agents" id="agents" role="tablist" aria-label="Agent"></div>
   <p class="request"><b>Input</b> A spreading red patch where a tick bit 9 days ago, in a patient taking isotretinoin for acne. Please assess and treat. <a href="#task=sr259_erythema_migrans_isotretinoin_no_doxycycline">Open the task and its answer key</a></p>
 
@@ -207,7 +208,7 @@
   <h2>Grader validation</h2>
   <p class="lead">PhysicianBench's own checks rejected nearly half of the correct alternatives and passed a script that ordered every test and referral, so we rewrote them. Our grader passes neither script.</p>
   <div class="viz grader" id="c-grader"></div>
-  <p class="caption">A pass means every required order is in the record, no wrong or unjustified order is, the note is signed and the request is closed. Doses are not checked on every order, so a tenfold dose is still credited on 4 of 12 medication checks, and 2 such episodes pass.</p>
+  <p class="caption">A pass means every required order is in the record, no order is wrong for the patient, no medication and at most one other order is unjustified, at most six other orders are extra, the note is signed and the request is closed. Doses are not checked on every order, so a tenfold dose is still credited on 4 of 12 medication checks, and 2 such episodes pass.</p>
   <div class="phys" id="phys">
     <h3 id="phys-title"></h3>
     <p class="sub" id="phys-sub"></p>

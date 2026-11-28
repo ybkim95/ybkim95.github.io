@@ -613,3 +613,6 @@ footer { justify-content: center; }
 .phys .bar { grid-template-columns: 84px minmax(0, 1fr) 64px; }
 .phys .phys-col:last-child .bar { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) 64px; }
 @media (max-width: 600px) { .phys .phys-col:last-child .bar { grid-template-columns: minmax(0, 1fr) 64px; } .phys .phys-col:last-child .blab { grid-column: 1 / -1; } }
+
+/* demo: which GUI the screens show (2026-11-28) */
+#replay > .caption { margin: -18px 0 24px; }

@@ -514,7 +514,7 @@ function donut(fig, title, segs, unit = 'tasks') {
     visible = e.isIntersecting;
     if (!visible) { run++; return; }
     if (!clips) {
-      fetch(BASEF + 'clips.json?v=202611081800').then((r) => r.json()).then((d) => {
+      fetch(BASEF + 'clips.json?v=202611281200').then((r) => r.json()).then((d) => {
         clips = d;
         stage = makeStage(shot, BASEF);
         q('#fail-tabs').innerHTML = d.map((c, k) => `<button type="button" role="tab" aria-selected="${k === 0}">${c.tab}</button>`).join('');

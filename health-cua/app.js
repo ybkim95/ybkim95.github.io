@@ -35,16 +35,16 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
 // Claude Sonnet 5.5 on task sr259 (pointer, clicks, typing); the API card types its tool call; a still screen zooms to the part
 // that matters (focus: centre and size of the ring, in % of the card). The fan moves on when the card in front has finished.
 (() => {
-  const S = 'assets/demo/sr259/', C = 'assets/cover/', UI = { gui: 'GUI', openmrs: 'OpenMRS', api: 'API' };
+  const S = 'assets/demo/sr259/', UI = { gui: 'GUI', openmrs: 'OpenMRS', api: 'API' };
   const items = [
-    { ui: 'gui', what: 'Ordering amoxicillin', img: S + 'gui/26072ffcd16d0fed.webp', clip: ['gui', 12, 16] },
+    { ui: 'gui', what: 'Ordering amoxicillin', img: S + 'gui/81585c09e84456c7.webp', clip: ['gui', 7, 12] },
     { ui: 'openmrs', what: 'The same order in OpenMRS', img: S + 'openmrs/1c0ccbf0d226998b.webp', clip: ['openmrs', 30, 34] },
     { ui: 'api', what: 'The same order as one tool call' },
-    { ui: 'gui', what: 'Reading a scanned lab report', img: C + 'sr153_gui_step17.webp', focus: [71.5, 90, 32, 6] },
-    { ui: 'gui', what: 'Checking an order before signing', img: C + 'sr153_gui_step72.webp', focus: [47.8, 75, 10, 7] },
-    { ui: 'gui', what: 'Writing and signing the note', img: S + 'gui/e805453b35c908db.webp', clip: ['gui', 30, 35] },
+    { ui: 'gui', what: 'Reviewing laboratory results', img: S + 'fable/gui/75d207faa8b3202c.webp', focus: [33, 30.7, 33, 5.5] },
+    { ui: 'gui', what: 'Checking an order before signing', img: S + 'gui/1cc43ed6b13f5930.webp', focus: [41.7, 35.5, 49, 25] },
+    { ui: 'gui', what: 'Writing and signing the note', img: S + 'gui/af34760e23477df4.webp', clip: ['gui', 29, 34] },
     { ui: 'openmrs', what: 'Writing the visit note', img: S + 'openmrs/b5f5b2d0614eaf6b.webp', clip: ['openmrs', 51, 55] },
-    { ui: 'gui', what: 'Scheduling a follow up test', img: C + 'sr153_gui_step80.webp', focus: [22, 62, 15, 7] },
+    { ui: 'gui', what: 'Finding an earlier visit in the chart', img: S + 'gui/f8769ef7ee3ece41.webp', focus: [49.6, 35.3, 66, 3.6] },
   ];
   const CODE = '<b>fhir_medication_request_create</b>(\n  patient_reference = "Patient/sr-259",\n  medication_display = "Amoxicillin 500 MG Oral Capsule",\n'
     + '  dose_value = 500, dose_unit = "mg",\n  frequency_text = "Three times daily (every 8 hours)",\n  duration_value = 14, duration_unit = "d"\n)';
@@ -65,7 +65,7 @@ document.querySelectorAll('[data-copy]').forEach((b) => {
     return b;
   });
   let cur = 0, run = 0, hold = false, F = null;
-  fetch(S + 'episode.json?v=202611220300').then((r) => r.json()).then((d) => { F = d.interfaces; }).catch(() => {});
+  fetch(S + 'episode.json?v=202611281200').then((r) => r.json()).then((d) => { F = d.interfaces; }).catch(() => {});
   const wait = (ms, alive) => new Promise((res, rej) => setTimeout(() => (alive() ? res() : rej(new Error('stopped'))), ms));
   function go(k) {
     cur = (k + items.length) % items.length;

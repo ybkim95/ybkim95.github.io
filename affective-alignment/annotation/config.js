@@ -7,5 +7,5 @@ window.STUDY_CONFIG = {
   completionUrl: "",
   completionUrlDecide: "",
   screenOutUrl: "",
-  version: "annotation-v2.0",
+  version: "annotation-v2.1",
 };

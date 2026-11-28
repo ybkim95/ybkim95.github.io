@@ -1,9 +1,11 @@
 "use strict";
-/* Decision task (human_study/PROTOCOL.md, version 1.1): people do what the language models did. One of six cells:
+/* Decision task (human_study/PROTOCOL.md, version 1.2): people do what the language models did. One of six cells:
    recall arm (write a neutral fact or a calm, anxious or excited moment, then choose between gambles with the text
-   in view, then six calculation items) or advice arm (read a person's neutral or worried message, then recommend a
-   gamble). Texts and decks come from data/decide.json, which build_decide.py copies from the study materials.
-   route.js sets window.AA_CELL ("recall-anxious", ...). One screen at a time, no back button. */
+   in view, then eight calculation screens) or advice arm (read a person's neutral or worried message, then recommend
+   a gamble). Nothing stands between the text and the decisions: the questions about feelings come after them, as for
+   the models (?mc=early, for the pilot, also asks them right after the writing). Texts and decks come from
+   data/decide.json, which build_decide.py copies from the study materials. route.js sets window.AA_CELL
+   ("recall-anxious", ...). One screen at a time, no back button. */
 (async function () {
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -40,7 +42,8 @@ if (!st || st.version !== D.version) {
   st = { task: "decide", version: D.version, cell: window.AA_CELL, deck, pid: PID, study_id: SID, session_id: SES, started: new Date().toISOString(),
          step: 0, n: 0, data: {}, queue: [], order: shuffle(D.decks[deck - 1].map((_, i) => i), seed),
          calc: shuffle(D.calc.items.map((_, i) => i), seed + 1), stai: shuffle(D.stai6.items.map((_, i) => i), seed + 2),
-         emo: shuffle(D.discrete.items.map((_, i) => i), seed + 3) };
+         emo: shuffle(D.discrete.items.map((_, i) => i), seed + 3),
+         comp: D.comprehension.map((c, i) => shuffle(c.options.map((_, j) => j), seed + 4 + i)), mc: Q.get("mc") === "early" };
   save();
 }
 const ROWS = D.decks[st.deck - 1];
@@ -87,12 +90,12 @@ function show(html, wide) { box.innerHTML = html; main.classList.toggle("wide", 
 const nextBtn = (label = "Continue") => `<div class="row end"><p class="note" id="d-note"></p><button type="button" class="btn primary" id="d-next" disabled>${label}</button></div>`;
 const waitClick = () => new Promise(r => { $("#d-next").onclick = r; });
 // Continue opens after `ms` on the page; the clock is performance.now(), as for the reading time of the rating task
-function openAfter(ms, ready = () => true, note = "", short = "") {
+function openAfter(ms, ready = () => true, note = "", short = "", always = true) {
   const tick = () => {
     const left = ms - (performance.now() - t0), ok = ready();
     if (!$("#d-next")) return;
     $("#d-next").disabled = !ok || left > 0;
-    $("#d-note").textContent = left > 0 ? note.replace("{s}", Math.ceil(left / 1000)) : ok ? "" : short;
+    $("#d-note").textContent = left > 0 ? (always || ok ? note.replace("{s}", Math.ceil(left / 1000)) : "") : ok ? "" : short;
     if (left > 0) setTimeout(tick, 250);
   };
   tick(); return tick;
@@ -105,9 +108,10 @@ function scale(k, q, n, lo, mid, hi, from = 1) {
 const words = (k, q, opts) => `<fieldset class="scale" data-k="${k}" style="--n:${Math.min(opts.length, 3)}"><legend>${q}</legend><div class="opts words" role="radiogroup">` +
   opts.map(([v, t]) => `<button type="button" role="radio" aria-checked="false" data-v="${esc(v)}">${esc(t)}</button>`).join("") + "</div></fieldset>";
 // wires every .scale on the screen; resolves with {key: value} once all are answered and Continue is pressed
-async function answer(minMs = 0, rec = true) {
+async function answer(minMs = 0, rec = true, extra = () => true, short = "") {
   const vals = {}, need = $$(".scale", box).length;
-  const tick = openAfter(minMs, () => Object.keys(vals).length === need);
+  const tick = openAfter(minMs, () => Object.keys(vals).length === need && extra(), "Please take a moment to read.", short, false);
+  for (const el of $$("textarea, input", box)) el.addEventListener("input", tick);
   for (const fs of $$(".scale", box)) for (const b of $$("button", fs)) b.onclick = () => {
     for (const o of $$("button", fs)) o.setAttribute("aria-checked", String(o === b));
     vals[fs.dataset.k] = isNaN(+b.dataset.v) ? b.dataset.v : +b.dataset.v; tick();
@@ -117,6 +121,7 @@ async function answer(minMs = 0, rec = true) {
   return vals;
 }
 const page = async (h1, body, label) => { show(`${h1 ? `<h1>${h1}</h1>` : ""}<div class="prose">${body}</div>${nextBtn(label)}`); openAfter(0); await waitClick(); };
+const wc = t => (t.trim().match(/\S+/g) || []).length;
 const feel = sfx => [
   async () => { show(scale("valence" + sfx, D.valence.text, 9, D.valence.anchors[1], D.valence.anchors[5], D.valence.anchors[9]) + nextBtn()); await answer(); },
   async () => { show(scale("arousal" + sfx, D.arousal.text, 9, D.arousal.anchors[1], D.arousal.anchors[5], D.arousal.anchors[9]) + nextBtn()); await answer(); },
@@ -161,8 +166,8 @@ steps.push(async () => {  // instructions and the three questions about them, at
   const ins = `<div class="prose">${md(D.instructions)}${ARM === "advice" ? md(D.advice_paragraph) : ""}</div>`;
   for (let attempt = 1; attempt <= 2; attempt++) {
     show(`<h1>How the choices work</h1>${attempt === 2 ? `<p class="err">One or more answers were not correct. Please read the instructions again.</p>` : ""}${ins}${nextBtn()}`);
-    openAfter(0); await waitClick();
-    show(D.comprehension.map((c, i) => words("comp" + (i + 1), c.q, c.options.map((o, j) => [String(j), o]))).join("") + nextBtn());
+    openAfter(Math.min(20000, wc(D.instructions) * 100), () => true, "You can continue in {s} seconds."); await waitClick();  // time to read
+    show(D.comprehension.map((c, i) => words("comp" + (i + 1), c.q, st.comp[i].map(j => [String(j), c.options[j]]))).join("") + nextBtn());
     for (const fs of $$(".scale", box)) fs.style.setProperty("--n", 1);
     const v = await answer();
     record("comp_attempts", attempt);
@@ -170,12 +175,20 @@ steps.push(async () => {  // instructions and the three questions about them, at
   }
   return "screened";
 });
-const trial = async (key, lead, stem, a, b, q, label) => {
-  show(`<p class="label">${label}</p><div class="trial">${lead}<div class="gamble"><p>${esc(stem)}</p><p>${esc(a)}</p><p>${esc(b)}</p><p><b>${esc(q)}</b></p></div>` +
+// Next opens 1.5 s after the screen appears (advice arm: plus 100 ms per word of the message, 12 s at most)
+const trial = async (key, lead, stem, a, b, q, label, ms = 1500) => {
+  show(`<p class="label">${label}</p><div class="trial">${lead}<div class="gamble">${stem ? `<p>${esc(stem)}</p>` : ""}<p>${esc(a)}</p><p>${esc(b)}</p><p><b>${esc(q)}</b></p></div>` +
     words(key, "", [["A", "Option A"], ["B", "Option B"]]) + "</div>" + nextBtn("Next"));
   for (const fs of $$(".scale", box)) fs.style.setProperty("--n", 2);
-  await answer();
+  await answer(ms);
 };
+// the questions about feelings: one word (recall arm), valence, arousal, STAI-6 and the discrete ratings
+const mood = sfx => [
+  ...(ARM === "recall" ? [async () => {
+    show(`<label class="field"><span>${D.one_word.text}</span><input type="text" id="word" maxlength="30" autocomplete="off"></label>${nextBtn()}`);
+    const tick = openAfter(0, () => /^\S+$/.test($("#word").value.trim())); $("#word").oninput = tick;
+    await waitClick(); record(D.one_word.id + sfx, $("#word").value.trim());
+  }] : []), ...feel(sfx), stai(sfx), discrete(sfx)];
 steps.push(() => trial("practice", `<p class="lead">This is a practice screen. It is not paid.</p>`, D.practice.stem, D.practice.a, D.practice.b, D.practice.q, "Practice"));
 if (ARM === "recall") {
   steps.push(() => page("A short text", `<p>${D.recall_intro}</p>`));
@@ -190,44 +203,39 @@ if (ARM === "recall") {
     await waitClick();
     record("text", ta.value.trim()); record("word_count", n()); record("paste_attempts", pastes);
   });
-  steps.push(async () => {
-    show(`<label class="field"><span>${D.one_word.text}</span><input type="text" id="word" maxlength="30" autocomplete="off"></label>${nextBtn()}`);
-    const tick = openAfter(0, () => /^\S+$/.test($("#word").value.trim())); $("#word").oninput = tick;
-    await waitClick(); record(D.one_word.id, $("#word").value.trim());
-  });
-  steps.push(...feel("_1"), stai("_1"), discrete("_1"));
+  if (st.mc) steps.push(...mood("_1"));  // pilot only
   steps.push(() => page("The choices", `<p>${D.trial_intro}</p>`));
 } else {
   steps.push(() => page("Helping people decide", `<p>${D.advice_intro}</p><p>${D.advice_incentive}</p>`));
 }
 for (const i of st.order) steps.push(() => {
   const r = ROWS[i], key = "trial:" + r.id;
+  const msg = COND === "anxious" ? r.msg_anx : r.msg_neu;
   return ARM === "recall" ? trial(key, mine(), r.stem_recall, r.a, r.b, r.q_recall, "Choice")
-    : trial(key, `<p class="lead">Message:</p><blockquote class="own">«${esc(COND === "anxious" ? r.msg_anx : r.msg_neu)}»</blockquote><p class="lead">Here is what I need help with.</p>`, r.stem_advice, r.a, r.b, r.q_advice, "Choice");
+    : trial(key, `<p class="lead">Message:</p><blockquote class="own">«${esc(msg)}»</blockquote><p class="lead">Here is what I need help with.</p>`, r.stem_advice, r.a, r.b, r.q_advice, "Choice", Math.min(12000, 1500 + 100 * wc(msg)));
 });
-if (ARM === "recall") for (const i of st.calc) steps.push(async () => {  // the calculation items, with the text still in view
-  const c = D.calc.items[i];
-  show(`<p class="label">Calculation</p><div class="trial">${mine()}<div class="gamble"><p>${esc(c.gamble)}</p><p><b>${esc(D.calc.question)}</b></p></div>` +
-    words("calc:" + c.id, "", c.options.map(o => [String(o), "$" + o])) + "</div>" + nextBtn("Next"));
-  for (const fs of $$(".scale", box)) fs.style.setProperty("--n", 4);
-  await answer();
-});
-steps.push(...feel("_2"));
+if (ARM === "recall") {  // the calculation screens: the same two option lines, the text still in view, another question
+  steps.push(() => page("A different question", `<p>${D.calc.intro}</p>`));
+  for (const i of st.calc) steps.push(() => { const c = D.calc.items[i]; return trial("calc:" + c.id, mine(), "", c.a, c.b, D.calc.question, "Which pays more on average?"); });
+}
+steps.push(...mood("_2"));
 if (ARM === "recall") steps.push(async () => { show(scale(D.kept_in_mind.id, D.kept_in_mind.text, 7, D.kept_in_mind.scale[1], "", D.kept_in_mind.scale[7]) + nextBtn()); await answer(); });
-else steps.push(stai("_2"), discrete("_2"), async () => { show(D.stimulus_check.map(q => scale(q.id, q.text, 7, q.scale[1], "", q.scale[7])).join("") + nextBtn()); await answer(); });
+else steps.push(async () => { show(D.stimulus_check.map(q => scale(q.id, q.text, 7, q.scale[1], "", q.scale[7])).join("") + nextBtn()); await answer(); });
 steps.push(async () => {  // exit questions
   show(`<label class="field"><span>In a sentence or two, what do you think this study was about?</span><textarea id="x1" rows="3" maxlength="1000"></textarea></label>
     <label class="field"><span>How did you decide between the gambles?</span><textarea id="x2" rows="3" maxlength="1000"></textarea></label>` +
     words("use_data", "Did you pay attention throughout the study, and should we use your data? Your answer does not affect your payment.", [["yes", "Yes, use my data"], ["no", "No, do not use my data"]]) + nextBtn());
   for (const fs of $$(".scale", box)) fs.style.setProperty("--n", 2);
-  await answer(); record("exit_about", $("#x1").value.trim()); record("exit_strategy", $("#x2").value.trim());
+  await answer(0, true, () => $("#x1").value.trim().length >= 10 && $("#x2").value.trim().length >= 10, "Please answer both questions in a few words.");
+  record("exit_about", $("#x1").value.trim()); record("exit_strategy", $("#x2").value.trim());
 });
 steps.push(async () => {  // mood repair; the text is not stored, only its length
   show(`<p class="ask">${D.repair[0]}</p><textarea id="rep" rows="4" maxlength="1000"></textarea>${nextBtn()}`);
-  openAfter(45000, () => true, "You can continue in {s} seconds."); await waitClick(); record("repair_chars", $("#rep").value.trim().length);
+  $("#rep").oninput = openAfter(45000, () => $("#rep").value.trim().length >= 40, "You can continue in {s} seconds.", "Please write a sentence or two.");
+  await waitClick(); record("repair_chars", $("#rep").value.trim().length);
 });
 steps.push(async () => {
-  show(`<p class="ask">${D.repair[1]}</p><div class="calm" role="img" aria-label="A calm landscape"></div>`);
+  show(`<p class="ask">${D.repair[1]}</p><img class="calm" src="data/calm.jpg" width="1280" height="720" alt="A still lake with mountains at sunset">`);
   await new Promise(r => { const tick = () => performance.now() - t0 >= 30000 ? r() : setTimeout(tick, 250); tick(); });
 });
 steps.push(async () => { show(scale("valence_final", D.valence.text, 9, D.valence.anchors[1], D.valence.anchors[5], D.valence.anchors[9]) + nextBtn()); await answer(); });
@@ -238,12 +246,12 @@ function done(kind) {
   $("#count").textContent = ""; $("#fill").style.width = kind === "declined" ? "0" : "100%";
   const link = (url, text) => url ? `<div class="row center"><a class="btn primary" href="${esc(url)}">${text}</a></div>` : "";
   if (kind === "declined") show(`<h1>Thank you</h1><p class="sub">You chose not to take part. You can close this window.</p>`);
-  else if (kind === "screened") show(`<h1>Thank you</h1><p class="sub">${D.screen_out}</p>${link(CFG.screenOutUrl, "Return to Prolific")}`);
+  else if (kind === "screened") show(`<h1>The study ends here</h1><p class="sub">${D.screen_out}</p>${link(CFG.screenOutUrl, "Return to Prolific")}`);
   else if (PREVIEW) {
     show(`<h1>Preview finished</h1><p class="sub">Nothing was sent. You can download the answers to check the data format.</p><div class="row center"><button type="button" class="btn" id="dl">Download answers</button><button type="button" class="btn" id="again">Start again</button></div>`);
     $("#dl").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify({ ...st, queue: undefined }, null, 2)], { type: "application/json" })); a.download = `decision-${st.cell}-deck${st.deck}.json`; a.click(); };
     $("#again").onclick = () => { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); };
-  } else show(`<h1>Thank you</h1><p class="sub">Your answers have been saved. Please click the button below to return to Prolific and record your completion.</p>${link(CFG.completionUrlDecide, "Return to Prolific")}`);
+  } else show(`<h1>Thank you</h1><p class="sub">Your answers have been saved.${CFG.completionUrlDecide ? " Please click the button below to return to Prolific and record your completion." : ""}</p>${link(CFG.completionUrlDecide, "Return to Prolific")}`);
   box.classList.add("center");
 }
 async function finish() {  // the Prolific link only once the server has confirmed every write

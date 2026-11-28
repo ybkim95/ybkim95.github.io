@@ -1,7 +1,8 @@
 "use strict";
-/* Rating study (ANNOTATION_PLAN.md, version 2.0). One link and one task: each participant reads a mixed deck of AI
-   replies (ids r###) and user messages (ids m###), one text per screen, with the same three items on every screen
-   (valence and arousal of the text's own tone, and the feeling it mostly expresses). No back button. */
+/* Rating study (ANNOTATION_PLAN.md, version 2.1). One task: each participant reads a mixed deck of AI replies (ids
+   r###) and user messages (ids m###), one text per screen, with the same three items on every screen (valence and
+   arousal of the writer's own tone, as the judge models were asked, and the feeling the writer mostly expresses).
+   A message has one more item, how natural it sounds. No back button. */
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const CFG = window.STUDY_CONFIG || {};
@@ -14,7 +15,8 @@ const PREVIEW = !FB;
 // the end labels are the wording of the judges' prompt (judge_s72.py), so people and judges rate on the same scale
 const VALENCE = { k: "v", n: 9, lo: "Very unpleasant or negative", mid: "Neutral", hi: "Very pleasant or positive" };
 const AROUSAL = { k: "a", n: 9, lo: "Very calm, flat or subdued", mid: "Moderate", hi: "Very excited, energetic or agitated" };
-const FEELINGS = [["neu", "No clear feeling"], ["calm", "Calm"], ["exc", "Excited"], ["anx", "Anxious"], ["ang", "Angry"], ["sad", "Sad"]];
+const FEELINGS = [["neu", "No clear feeling"], ["calm", "Calm"], ["exc", "Happy or excited"], ["anx", "Anxious"], ["ang", "Angry"], ["sad", "Sad"]];
+const NATURAL = { k: "n", n: 5, lo: "Not at all natural", mid: "", hi: "Completely natural", q: "How natural does this message sound, as something a person would write?" };
 const STUDY = "texts";
 const S = {
   data: "data/texts.json",
@@ -22,15 +24,15 @@ const S = {
   what: n => `You will read ${n} short texts and rate the feeling each one expresses. Some are messages of the kind people send to an AI assistant, and the others are replies written by an AI assistant. Two more screens check attention. It takes about 20 minutes.`,
   steps: n => [
     `You will read ${n} short texts, one at a time. Some are messages of the kind people send to an AI assistant. The others are replies written by an AI assistant.`,
-    "Rate the tone of <b>the text itself</b>, not the situation it talks about.",
+    "Rate only the emotional tone that the text itself expresses: <b>the writer's own tone</b>, not the situation the text talks about.",
     "Two scales come first. One runs from negative to positive, the other from calm to excited. They are separate: an excited feeling can be pleasant (thrilled) or unpleasant (alarmed, furious).",
-    "Then pick the feeling that fits best.",
+    "Then pick the feeling that fits best. For a message, one more question asks how natural it sounds.",
     "There are no right or wrong answers. Go with your first impression.",
   ],
-  hint: "Rate the tone of the text itself, not the situation it talks about.",
-  scales: [{ ...VALENCE, q: "How negative or positive is the tone of this text?" },
-           { ...AROUSAL, q: "How calm or excited is the tone of this text?" },
-           { k: "e", opts: FEELINGS, q: "Which feeling does it mostly express?" }],
+  hint: "Rate the writer's own tone, not the situation the text talks about.",
+  scales: [{ ...VALENCE, q: "How negative or positive is the writer's tone?" },
+           { ...AROUSAL, q: "How calm or excited is the writer's tone?" },
+           { k: "e", opts: FEELINGS, q: "Which feeling does the writer mostly express?" }],
   example: [["I just got the job!! I can't stop smiling, I have to call everyone!", "positive", "excited"],
             ["That is completely unacceptable! They had no right to treat you that way!", "negative", "excited"],
             ["Nothing feels worth doing today. I just sat by the window for hours.", "negative", "calm"],
@@ -159,17 +161,17 @@ function scaleHTML(sc) {
 }
 function gate() {  // Next: every item answered and the reading time over
   clearTimeout(waitTimer);
-  const answered = Object.keys(cur.vals).length === S.scales.length, wait = cur.min - (performance.now() - t0);
+  const answered = Object.keys(cur.vals).length === cur.scales.length, wait = cur.min - (performance.now() - t0);
   $("#next").disabled = !answered || wait > 0;
   $("#t-note").textContent = answered && wait > 0 ? "Please take a moment to read the text." : cur.note;
   if (answered && wait > 0) waitTimer = setTimeout(gate, wait + 30);
 }
 function render(item, kind) {
-  cur = { item, kind, vals: {}, min: minRead(item.text), note: kind === "practice" ? `Practice ${pi + 1} of ${S.practice.length}. Not recorded.` : "" };
+  cur = { item, kind, vals: {}, min: minRead(item.text), scales: [...S.scales, ...(item.id[0] === "m" ? [NATURAL] : [])], note: kind === "practice" ? `Practice ${pi + 1} of ${S.practice.length}. Not recorded.` : "" };
   $("#t-label").textContent = LABEL(item.id) + (kind === "practice" ? " (practice)" : "");
   $("#t-text").innerHTML = md(item.text);
   $("#t-hint").textContent = S.hint;
-  $("#scales").innerHTML = S.scales.map(scaleHTML).join("");
+  $("#scales").innerHTML = cur.scales.map(scaleHTML).join("");
   for (const fs of $$(".scale")) for (const b of $$("button", fs)) b.onclick = () => {
     for (const o of $$("button", fs)) o.setAttribute("aria-checked", String(o === b));
     cur.vals[fs.dataset.k] = +b.dataset.v || b.dataset.v;
